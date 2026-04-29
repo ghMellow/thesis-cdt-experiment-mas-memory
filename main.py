@@ -1,3 +1,4 @@
+import argparse
 import json
 import re
 from pathlib import Path
@@ -222,9 +223,187 @@ def _record_consistency_finding(lines: List[str]) -> None:
     eval_path.write_text(content.strip() + "\n", encoding="utf-8")
 
 
+def _collect_results(results_path: str) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
+    base = Path(results_path)
+    data: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
+    if not base.exists():
+        return data
+
+    for experiment_dir in sorted(p for p in base.iterdir() if p.is_dir() and p.name != "evaluation"):
+        experiment_id = experiment_dir.name
+        data.setdefault(experiment_id, {})
+        for role_dir in sorted(p for p in experiment_dir.iterdir() if p.is_dir()):
+            role = role_dir.name
+            result_files = sorted(
+                f for f in role_dir.glob("*.json") if not f.name.endswith("_solution.json")
+            )
+            payloads = [json.loads(f.read_text(encoding="utf-8")) for f in result_files]
+            data[experiment_id][role] = payloads
+
+    return data
+
+
+def _avg(values: List[float]) -> Optional[float]:
+    if not values:
+        return None
+    return sum(values) / len(values)
+
+
+def _format_value(value: Optional[float], digits: int = 2) -> str:
+    if value is None:
+        return "n/a"
+    return f"{value:.{digits}f}"
+
+
+def _format_ratio(value: Optional[float]) -> str:
+    if value is None:
+        return "n/a"
+    return f"{value:.1%}"
+
+
+def _write_evaluation_reports(results_path: str) -> None:
+    data = _collect_results(results_path)
+    eval_dir = Path(results_path) / "evaluation"
+    eval_dir.mkdir(parents=True, exist_ok=True)
+
+    def build_scores(experiment_id: str) -> str:
+        roles = data.get(experiment_id, {})
+        lines = [
+            f"# Scores {experiment_id}",
+            "",
+            "| role | total | correct | accuracy | avg_attempts | avg_textual_score | avg_math_delta |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
+        ]
+        breakdown_lines = [
+            "",
+            "## Task breakdown",
+            "",
+            "| role | task_id | total | correct | accuracy |",
+            "| --- | --- | --- | --- | --- |",
+        ]
+
+        for role, payloads in sorted(roles.items()):
+            total = len(payloads)
+            correct = sum(1 for p in payloads if p.get("verdict") == "correct")
+            accuracy = (correct / total) if total else None
+            avg_attempts = _avg([float(p.get("attempts", 0)) for p in payloads])
+
+            textual_scores = [
+                float(p.get("judge_score", {}).get("total_score", 0))
+                for p in payloads
+                if p.get("task_type") == "textual"
+            ]
+            math_deltas = [
+                float(p.get("judge_score", {}).get("delta", 0))
+                for p in payloads
+                if p.get("task_type") == "math"
+            ]
+
+            lines.append(
+                "| {role} | {total} | {correct} | {accuracy} | {avg_attempts} | {avg_textual} | {avg_delta} |".format(
+                    role=role,
+                    total=total,
+                    correct=correct,
+                    accuracy=_format_ratio(accuracy),
+                    avg_attempts=_format_value(avg_attempts, digits=2),
+                    avg_textual=_format_value(_avg(textual_scores), digits=2),
+                    avg_delta=_format_value(_avg(math_deltas), digits=3),
+                )
+            )
+
+            per_task: Dict[str, List[Dict[str, Any]]] = {}
+            for payload in payloads:
+                per_task.setdefault(payload.get("task_id", "unknown"), []).append(payload)
+            for task_id, task_payloads in sorted(per_task.items()):
+                task_total = len(task_payloads)
+                task_correct = sum(1 for p in task_payloads if p.get("verdict") == "correct")
+                task_accuracy = (task_correct / task_total) if task_total else None
+                breakdown_lines.append(
+                    "| {role} | {task_id} | {total} | {correct} | {accuracy} |".format(
+                        role=role,
+                        task_id=task_id,
+                        total=task_total,
+                        correct=task_correct,
+                        accuracy=_format_ratio(task_accuracy),
+                    )
+                )
+
+        return "\n".join(lines + breakdown_lines) + "\n"
+
+    for experiment_id in ["1A", "1B"]:
+        report = build_scores(experiment_id)
+        report_path = eval_dir / f"scores_{experiment_id}.md"
+        report_path.write_text(report, encoding="utf-8")
+
+    comparison_lines = [
+        "# Comparison 1A vs 1B",
+        "",
+        "| role | accuracy_1A | accuracy_1B | delta |",
+        "| --- | --- | --- | --- |",
+    ]
+
+    for role in ["expert", "beginner"]:
+        acc_1a_payloads = data.get("1A", {}).get(role, [])
+        acc_1b_payloads = data.get("1B", {}).get(role, [])
+        acc_1a = None
+        acc_1b = None
+        if acc_1a_payloads:
+            acc_1a = sum(1 for p in acc_1a_payloads if p.get("verdict") == "correct") / len(
+                acc_1a_payloads
+            )
+        if acc_1b_payloads:
+            acc_1b = sum(1 for p in acc_1b_payloads if p.get("verdict") == "correct") / len(
+                acc_1b_payloads
+            )
+        delta = (acc_1b - acc_1a) if acc_1a is not None and acc_1b is not None else None
+        comparison_lines.append(
+            "| {role} | {acc_1a} | {acc_1b} | {delta} |".format(
+                role=role,
+                acc_1a=_format_ratio(acc_1a),
+                acc_1b=_format_ratio(acc_1b),
+                delta=_format_ratio(delta) if delta is not None else "n/a",
+            )
+        )
+
+    comparison_path = eval_dir / "comparison.md"
+    comparison_path.write_text("\n".join(comparison_lines) + "\n", encoding="utf-8")
+
+
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Run multi-agent experiments")
+    parser.add_argument(
+        "--experiment",
+        choices=["1A", "1B", "all"],
+        default="all",
+        help="Select experiment group",
+    )
+    parser.add_argument(
+        "--role",
+        choices=["expert", "beginner", "all"],
+        default="all",
+        help="Select agent role",
+    )
+    parser.add_argument(
+        "--task",
+        action="append",
+        dest="tasks",
+        help="Filter by task id (can be repeated)",
+    )
+    parser.add_argument(
+        "--repetitions",
+        type=int,
+        default=REPETITIONS,
+        help="Override repetitions per task",
+    )
+    args = parser.parse_args()
+
     graph = _build_graph()
     tasks = _list_tasks(TASKS_PATH)
+    if args.tasks:
+        allowed = set(args.tasks)
+        tasks = [task for task in tasks if task.stem in allowed]
+        if not tasks:
+            raise ValueError("No tasks matched the provided filters")
 
     experiments = [
         {"id": "1A", "role": "expert", "model": MODELS["expert_1A"]},
@@ -232,6 +411,12 @@ def main() -> None:
         {"id": "1B", "role": "expert", "model": MODELS["expert_1B"]},
         {"id": "1B", "role": "beginner", "model": MODELS["beginner_1B"]},
     ]
+    if args.experiment != "all":
+        experiments = [exp for exp in experiments if exp["id"] == args.experiment]
+    if args.role != "all":
+        experiments = [exp for exp in experiments if exp["role"] == args.role]
+    if not experiments:
+        raise ValueError("No experiments matched the provided filters")
 
     consistency_lines: List[str] = []
 
@@ -240,7 +425,7 @@ def main() -> None:
             sol_path = task_path.with_name(task_path.stem + "_sol.md")
             previous_answer: Optional[Dict[str, Any]] = None
 
-            for repetition in range(1, REPETITIONS + 1):
+            for repetition in range(1, args.repetitions + 1):
                 initial_state: ExperimentState = {
                     "task_path": str(task_path),
                     "sol_path": str(sol_path),
@@ -263,6 +448,7 @@ def main() -> None:
                 previous_answer = final_answer
 
     _record_consistency_finding(consistency_lines)
+    _write_evaluation_reports(RESULTS_PATH)
 
 
 if __name__ == "__main__":
