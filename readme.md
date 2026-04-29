@@ -90,6 +90,12 @@ Override repetitions per task:
 poetry run python main.py --repetitions 1
 ```
 
+Set a per-task timeout (seconds):
+
+```bash
+poetry run python main.py --task-timeout 600
+```
+
 Notes:
 - By default, all tasks in `docs/tasks/` are executed.
 - Task IDs are the file stems (e.g., `task1_math_int`).
@@ -104,6 +110,7 @@ During execution you will see:
 - The repetition number.
 - A minimal spinner with the text `Thinking` while the model is responding.
 - A completion line with verdict and attempt count.
+- A timeout warning and exit message if a task exceeds the time limit.
 - A final line when evaluation reports are written.
 
 This is designed to be minimal and not spam the console.
@@ -122,6 +129,11 @@ Example:
 - If all reps exist for a task, the runner skips that task and moves on.
 
 This makes it safe to interrupt and resume without losing progress.
+
+Timeout behavior:
+- Each task repetition has a max wall time (default 600s).
+- If a timeout happens, the program exits with an error so you can restart Ollama if needed.
+- On the next run, completed repetitions are skipped automatically.
 
 ---
 
@@ -153,5 +165,6 @@ The result JSON includes:
 ## Troubleshooting
 
 - **Model not found (404):** Pull the model with `ollama pull <model>`.
+- **Endpoint not reachable:** Run `ollama serve` to start the local server.
 - **Very slow runs:** Start with `--repetitions 1` or a single task.
 - **No progress visible:** You should still see the `Thinking` spinner. If not, check Ollama server status.

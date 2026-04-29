@@ -16,6 +16,8 @@ TEMPERATURE = 0.0
 MAX_RETRIES = 3
 # Repetitions per task for consistency checks.
 REPETITIONS = 3
+# Max wall time per task repetition (seconds).
+TASK_TIMEOUT_SECONDS = 600
 # Pass threshold for textual tasks (ratio of rubric max score).
 TEXTUAL_PASS_RATIO = 0.7
 

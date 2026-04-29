@@ -1,13 +1,18 @@
 import itertools
 import json
+import logging
 import re
 import sys
 import threading
 import time
 from typing import Any, Dict
 
+import httpx
 from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage, SystemMessage
+
+
+logger = logging.getLogger(__name__)
 
 
 def _extract_json_from_text(text: str) -> Dict[str, Any]:
@@ -44,6 +49,11 @@ def _start_spinner(stop_event: threading.Event) -> threading.Thread:
     return thread
 
 
+def _raise_ollama_unavailable(base_url: str) -> None:
+    logger.error("Ollama endpoint not reachable at %s. Start it with `ollama serve`.", base_url)
+    raise SystemExit(1)
+
+
 def run_agent(
     task_content: str,
     system_prompt: str,
@@ -57,6 +67,8 @@ def run_agent(
     spinner = _start_spinner(stop_event)
     try:
         response = llm.invoke(messages)
+    except httpx.ConnectError:
+        _raise_ollama_unavailable(base_url)
     finally:
         stop_event.set()
         spinner.join()

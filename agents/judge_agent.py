@@ -1,9 +1,14 @@
 import json
+import logging
 import re
 from typing import Any, Dict
 
+import httpx
 from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage, SystemMessage
+
+
+logger = logging.getLogger(__name__)
 
 
 def _extract_json_from_text(text: str) -> Dict[str, Any]:
@@ -22,6 +27,11 @@ def _extract_json_from_text(text: str) -> Dict[str, Any]:
         return json.loads(brace_match.group(0))
 
     raise ValueError("No JSON object found in response")
+
+
+def _raise_ollama_unavailable(base_url: str) -> None:
+    logger.error("Ollama endpoint not reachable at %s. Start it with `ollama serve`.", base_url)
+    raise SystemExit(1)
 
 
 def run_judge_textual(
@@ -43,5 +53,8 @@ def run_judge_textual(
         SystemMessage(content=system_prompt),
         HumanMessage(content=json.dumps(payload, ensure_ascii=True)),
     ]
-    response = llm.invoke(messages)
+    try:
+        response = llm.invoke(messages)
+    except httpx.ConnectError:
+        _raise_ollama_unavailable(base_url)
     return _extract_json_from_text(response.content)

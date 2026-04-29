@@ -2,7 +2,9 @@ import argparse
 import json
 import logging
 import re
+import signal
 import time
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, TypedDict
@@ -18,6 +20,7 @@ from config import (
     OLLAMA_BASE_URL,
     REPETITIONS,
     RESULTS_PATH,
+    TASK_TIMEOUT_SECONDS,
     TASKS_PATH,
     TEMPERATURE,
     TEXTUAL_PASS_RATIO,
@@ -28,6 +31,25 @@ from core.result_writer import write_result
 
 
 logger = logging.getLogger(__name__)
+
+
+@contextmanager
+def _time_limit(seconds: int):
+    if seconds <= 0:
+        yield
+        return
+
+    def _handle_timeout(signum: int, frame) -> None:
+        raise TimeoutError("Task timed out")
+
+    previous_handler = signal.getsignal(signal.SIGALRM)
+    signal.signal(signal.SIGALRM, _handle_timeout)
+    signal.setitimer(signal.ITIMER_REAL, seconds)
+    try:
+        yield
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous_handler)
 
 
 class ExperimentState(TypedDict, total=False):
@@ -423,6 +445,12 @@ def main() -> None:
         default=REPETITIONS,
         help="Override repetitions per task",
     )
+    parser.add_argument(
+        "--task-timeout",
+        type=int,
+        default=TASK_TIMEOUT_SECONDS,
+        help="Max seconds per task repetition (0 = no timeout)",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -491,8 +519,18 @@ def main() -> None:
                     "started_at": started_at,
                     "start_perf": start_perf,
                 }
-
-                result_state = graph.invoke(initial_state)
+                try:
+                    with _time_limit(args.task_timeout):
+                        result_state = graph.invoke(initial_state)
+                except TimeoutError:
+                    logger.warning(
+                        "Timeout after %ss | %s rep %s",
+                        args.task_timeout,
+                        task_path.stem,
+                        repetition,
+                    )
+                    logger.error("Exiting after timeout to allow manual restart of Ollama")
+                    raise SystemExit(1)
                 final_answer = result_state.get("final_answer", {})
                 logger.info(
                     "Done %s rep %s | verdict=%s | attempts=%s",
