@@ -1,6 +1,10 @@
+import itertools
 import json
 import logging
 import re
+import sys
+import threading
+import time
 from typing import Any, Dict
 
 import httpx
@@ -30,6 +34,22 @@ def _extract_json_from_text(text: str) -> Dict[str, Any]:
     raise ValueError("No JSON object found in response")
 
 
+def _start_spinner(label: str, stop_event: threading.Event) -> threading.Thread:
+    def spin() -> None:
+        for ch in itertools.cycle("|/-\\"):
+            if stop_event.is_set():
+                break
+            sys.stderr.write(f"\r{label} {ch}")
+            sys.stderr.flush()
+            time.sleep(0.1)
+        sys.stderr.write("\r" + " " * (len(label) + 2) + "\r")
+        sys.stderr.flush()
+
+    thread = threading.Thread(target=spin, daemon=True)
+    thread.start()
+    return thread
+
+
 def _raise_ollama_unavailable(base_url: str) -> None:
     logger.error("Ollama endpoint not reachable at %s. Start it with `ollama serve`.", base_url)
     raise SystemExit(1)
@@ -49,6 +69,7 @@ def run_judge_textual(
         temperature=temperature,
         base_url=base_url,
         timeout=config.OLLAMA_TIMEOUT_SECONDS,
+        model_kwargs={"num_predict": config.OLLAMA_NUM_PREDICT},
     )
     payload = {
         "scenario": task_content,
@@ -59,6 +80,12 @@ def run_judge_textual(
         SystemMessage(content=system_prompt),
         HumanMessage(content=json.dumps(payload, ensure_ascii=True)),
     ]
+    sys.stderr.write("\n")
+    sys.stderr.flush()
+    logger.info("Judge active | model=%s | base_url=%s", model, base_url)
+    stop_event = threading.Event()
+    spinner = _start_spinner("Judge thinking", stop_event)
+    start_perf = time.perf_counter()
     try:
         response = llm.invoke(messages)
     except httpx.ConnectError:
@@ -69,4 +96,14 @@ def run_judge_textual(
             config.OLLAMA_TIMEOUT_SECONDS,
         )
         raise SystemExit(1)
-    return _extract_json_from_text(response.content)
+    finally:
+        stop_event.set()
+        spinner.join()
+    parsed = _extract_json_from_text(response.content)
+    elapsed = time.perf_counter() - start_perf
+    total_score = parsed.get("total_score") if isinstance(parsed, dict) else None
+    if total_score is None:
+        logger.info("Judge done | elapsed=%.2fs", elapsed)
+    else:
+        logger.info("Judge done | elapsed=%.2fs | total_score=%s", elapsed, total_score)
+    return parsed

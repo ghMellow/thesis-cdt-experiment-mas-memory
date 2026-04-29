@@ -247,10 +247,13 @@ def main() -> None:
     graph = _build_graph()
     tasks = _list_tasks(TASKS_PATH)
     if args.tasks:
-        allowed = set(args.tasks)
-        tasks = [task for task in tasks if task.stem in allowed]
-        if not tasks:
-            raise ValueError("No tasks matched the provided filters")
+        available = {task.stem for task in tasks}
+        requested = set(args.tasks)
+        missing = sorted(requested - available)
+        if missing:
+            logger.error("Unknown task ids: %s", ", ".join(missing))
+            raise SystemExit(1)
+        tasks = [task for task in tasks if task.stem in requested]
 
     experiments = [
         {"id": "1A", "role": "expert", "model": MODELS["expert_1A"]},

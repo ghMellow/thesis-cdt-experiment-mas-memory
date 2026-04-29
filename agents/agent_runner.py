@@ -62,13 +62,17 @@ def run_agent(
     temperature: float,
     base_url: str,
 ) -> Dict[str, Any]:
+    user_content = task_content
+    if config.NO_THINK_SUFFIX and "task2_math_real" in task_content:
+        user_content = f"{task_content}{config.NO_THINK_SUFFIX}"
     llm = ChatOllama(
         model=model,
         temperature=temperature,
         base_url=base_url,
         timeout=config.OLLAMA_TIMEOUT_SECONDS,
+        model_kwargs={"num_predict": config.OLLAMA_NUM_PREDICT},
     )
-    messages = [SystemMessage(content=system_prompt), HumanMessage(content=task_content)]
+    messages = [SystemMessage(content=system_prompt), HumanMessage(content=user_content)]
     stop_event = threading.Event()
     spinner = _start_spinner(stop_event)
     try:
@@ -84,4 +88,6 @@ def run_agent(
     finally:
         stop_event.set()
         spinner.join()
+        sys.stderr.write("\n")
+        sys.stderr.flush()
     return _extract_json_from_text(response.content)
