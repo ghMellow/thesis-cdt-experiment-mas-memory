@@ -1,0 +1,31 @@
+{
+  "task_id": "task1_math_int",
+  "task_type": "math",
+  "task_path": "docs/tasks/task1_math_int.md",
+  "sol_path": "docs/tasks/task1_math_int_sol.md",
+  "agent_role": "expert",
+  "model": "qwen3.5:latest",
+  "repetition": 3,
+  "started_at": "2026-04-29T14:24:07.857318+00:00",
+  "finished_at": "2026-04-29T14:25:30.861057+00:00",
+  "elapsed_seconds": 83.00357062500188,
+  "attempts": 1,
+  "history": [
+    {
+      "answer": 1260,
+      "reasoning": "Settore A: 240 connessioni. Settore B: 2 * 240 = 480 connessioni. Somma A+B: 720 connessioni. Settore C: 720 - 180 = 540 connessioni. Totale: 240 + 480 + 540 = 1260 connessioni.",
+      "confidence": 1.0
+    }
+  ],
+  "verdict": "correct",
+  "judge_score": {
+    "verdict": "correct",
+    "delta": 0.0,
+    "note": "exact int check"
+  },
+  "final_answer": {
+    "answer": 1260,
+    "reasoning": "Settore A: 240 connessioni. Settore B: 2 * 240 = 480 connessioni. Somma A+B: 720 connessioni. Settore C: 720 - 180 = 540 connessioni. Totale: 240 + 480 + 540 = 1260 connessioni.",
+    "confidence": 1.0
+  }
+}

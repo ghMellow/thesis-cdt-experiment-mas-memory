@@ -198,6 +198,7 @@ def _save_result(state: ExperimentState) -> ExperimentState:
         "sol_path": state["sol_path"],
         "agent_role": state["agent_role"],
         "model": state["model"],
+        "repetition": state["repetition"],
         "started_at": state.get("started_at"),
         "finished_at": finished_at,
         "elapsed_seconds": elapsed_seconds,
@@ -321,8 +322,8 @@ def _write_evaluation_reports(results_path: str) -> None:
         lines = [
             f"# Scores {experiment_id}",
             "",
-            "| role | total | correct | accuracy | avg_attempts | avg_textual_score | avg_math_delta |",
-            "| --- | --- | --- | --- | --- | --- | --- |",
+            "| role | total | correct | accuracy | avg_confidence | avg_attempts | avg_textual_score | avg_math_delta |",
+            "| --- | --- | --- | --- | --- | --- | --- | --- |",
         ]
         breakdown_lines = [
             "",
@@ -332,11 +333,31 @@ def _write_evaluation_reports(results_path: str) -> None:
             "| --- | --- | --- | --- | --- |",
         ]
 
+        reasoning_lines = [
+            "",
+            "## Reasoning differences",
+            "",
+            "| role | task_id | repetitions | reasoning_consistent | reasoning_samples |",
+            "| --- | --- | --- | --- | --- |",
+        ]
+
+        reasoning_full_lines = [
+            "",
+            "## Reasoning samples (full)",
+            "",
+        ]
+
         for role, payloads in sorted(roles.items()):
             total = len(payloads)
             correct = sum(1 for p in payloads if p.get("verdict") == "correct")
             accuracy = (correct / total) if total else None
             avg_attempts = _avg([float(p.get("attempts", 0)) for p in payloads])
+            confidences = []
+            for p in payloads:
+                final_answer = p.get("final_answer", {})
+                confidence = final_answer.get("confidence") if isinstance(final_answer, dict) else None
+                if isinstance(confidence, (int, float)):
+                    confidences.append(float(confidence))
 
             textual_scores = [
                 float(p.get("judge_score", {}).get("total_score", 0))
@@ -350,11 +371,12 @@ def _write_evaluation_reports(results_path: str) -> None:
             ]
 
             lines.append(
-                "| {role} | {total} | {correct} | {accuracy} | {avg_attempts} | {avg_textual} | {avg_delta} |".format(
+                "| {role} | {total} | {correct} | {accuracy} | {avg_confidence} | {avg_attempts} | {avg_textual} | {avg_delta} |".format(
                     role=role,
                     total=total,
                     correct=correct,
                     accuracy=_format_ratio(accuracy),
+                    avg_confidence=_format_value(_avg(confidences), digits=3),
                     avg_attempts=_format_value(avg_attempts, digits=2),
                     avg_textual=_format_value(_avg(textual_scores), digits=2),
                     avg_delta=_format_value(_avg(math_deltas), digits=3),
@@ -377,8 +399,45 @@ def _write_evaluation_reports(results_path: str) -> None:
                         accuracy=_format_ratio(task_accuracy),
                     )
                 )
+                reasoning_values = []
+                for p in task_payloads:
+                    final_answer = p.get("final_answer", {})
+                    reasoning = final_answer.get("reasoning") if isinstance(final_answer, dict) else None
+                    if isinstance(reasoning, str):
+                        reasoning_values.append(reasoning.strip())
+                reasoning_unique = {r for r in reasoning_values if r}
+                reasoning_consistent = "yes" if len(reasoning_unique) <= 1 else "no"
+                sample_list = sorted(reasoning_unique)[:2]
+                if not sample_list:
+                    sample_text = "n/a"
+                elif len(sample_list) == 1:
+                    sample_text = sample_list[0]
+                else:
+                    sample_text = " / ".join(sample_list)
+                reasoning_lines.append(
+                    "| {role} | {task_id} | {total} | {consistent} | {samples} |".format(
+                        role=role,
+                        task_id=task_id,
+                        total=task_total,
+                        consistent=reasoning_consistent,
+                        samples=sample_text.replace("\n", " "),
+                    )
+                )
 
-        return "\n".join(lines + breakdown_lines) + "\n"
+                reasoning_full_lines.append(f"### {role} - {task_id}")
+                for idx, payload in enumerate(task_payloads, start=1):
+                    final_answer = payload.get("final_answer", {})
+                    reasoning = final_answer.get("reasoning") if isinstance(final_answer, dict) else None
+                    rep_value = payload.get("repetition", idx)
+                    if isinstance(reasoning, str) and reasoning.strip():
+                        reasoning_full_lines.append(
+                            f"rep {rep_value}: {reasoning.strip().replace('\n', ' ')}"
+                        )
+                    else:
+                        reasoning_full_lines.append(f"rep {rep_value}: n/a")
+                reasoning_full_lines.append("")
+
+        return "\n".join(lines + breakdown_lines + reasoning_lines + reasoning_full_lines) + "\n"
 
     for experiment_id in ["1A", "1B"]:
         report = build_scores(experiment_id)
@@ -550,6 +609,7 @@ def main() -> None:
     _record_consistency_finding(consistency_lines)
     logger.info("Writing evaluation reports")
     _write_evaluation_reports(RESULTS_PATH)
+    logger.info("Execution complete")
 
 
 if __name__ == "__main__":
