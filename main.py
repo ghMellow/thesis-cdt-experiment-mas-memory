@@ -1,6 +1,9 @@
 import argparse
 import json
+import logging
 import re
+import time
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, TypedDict
 
@@ -24,6 +27,9 @@ from core.loop_controller import should_retry
 from core.result_writer import write_result
 
 
+logger = logging.getLogger(__name__)
+
+
 class ExperimentState(TypedDict, total=False):
     task_id: str
     task_type: str
@@ -41,6 +47,10 @@ class ExperimentState(TypedDict, total=False):
     sol_path: str
     experiment_id: str
     repetition: int
+    started_at: str
+    finished_at: str
+    elapsed_seconds: float
+    start_perf: float
 
 
 def _read_text(path: Path) -> str:
@@ -154,6 +164,11 @@ def _check_answer(state: ExperimentState) -> ExperimentState:
 
 
 def _save_result(state: ExperimentState) -> ExperimentState:
+    finished_at = datetime.now(timezone.utc).isoformat()
+    elapsed_seconds = None
+    start_perf = state.get("start_perf")
+    if start_perf is not None:
+        elapsed_seconds = time.perf_counter() - start_perf
     payload = {
         "task_id": state["task_id"],
         "task_type": state["task_type"],
@@ -161,6 +176,9 @@ def _save_result(state: ExperimentState) -> ExperimentState:
         "sol_path": state["sol_path"],
         "agent_role": state["agent_role"],
         "model": state["model"],
+        "started_at": state.get("started_at"),
+        "finished_at": finished_at,
+        "elapsed_seconds": elapsed_seconds,
         "attempts": state["attempts"],
         "history": state["history"],
         "verdict": state["verdict"],
@@ -206,6 +224,16 @@ def _build_graph() -> Any:
 def _list_tasks(tasks_path: str) -> List[Path]:
     base = Path(tasks_path)
     return sorted(p for p in base.glob("*.md") if not p.name.endswith("_sol.md"))
+
+
+def _result_exists(results_path: str, experiment_id: str, role: str, task_id: str, repetition: int) -> bool:
+    result_path = (
+        Path(results_path)
+        / experiment_id
+        / role
+        / f"{task_id}_rep{repetition}.json"
+    )
+    return result_path.exists()
 
 
 def _answers_equal(a: Dict[str, Any], b: Dict[str, Any]) -> bool:
@@ -397,6 +425,12 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s | %(levelname)s | %(message)s",
+        datefmt="%H:%M:%S",
+    )
+
     graph = _build_graph()
     tasks = _list_tasks(TASKS_PATH)
     if args.tasks:
@@ -421,11 +455,30 @@ def main() -> None:
     consistency_lines: List[str] = []
 
     for experiment in experiments:
+        logger.info(
+            "Experiment %s | role=%s | model=%s",
+            experiment["id"],
+            experiment["role"],
+            experiment["model"],
+        )
         for task_path in tasks:
+            logger.info("Task %s", task_path.stem)
             sol_path = task_path.with_name(task_path.stem + "_sol.md")
             previous_answer: Optional[Dict[str, Any]] = None
 
             for repetition in range(1, args.repetitions + 1):
+                if _result_exists(
+                    RESULTS_PATH,
+                    experiment["id"],
+                    experiment["role"],
+                    task_path.stem,
+                    repetition,
+                ):
+                    logger.info("Skip %s rep %s (already exists)", task_path.stem, repetition)
+                    continue
+                logger.info("Repetition %s/%s", repetition, args.repetitions)
+                started_at = datetime.now(timezone.utc).isoformat()
+                start_perf = time.perf_counter()
                 initial_state: ExperimentState = {
                     "task_path": str(task_path),
                     "sol_path": str(sol_path),
@@ -435,10 +488,19 @@ def main() -> None:
                     "history": [],
                     "experiment_id": experiment["id"],
                     "repetition": repetition,
+                    "started_at": started_at,
+                    "start_perf": start_perf,
                 }
 
                 result_state = graph.invoke(initial_state)
                 final_answer = result_state.get("final_answer", {})
+                logger.info(
+                    "Done %s rep %s | verdict=%s | attempts=%s",
+                    result_state.get("task_id", task_path.stem),
+                    repetition,
+                    result_state.get("verdict"),
+                    result_state.get("attempts"),
+                )
 
                 if previous_answer is not None and not _answers_equal(previous_answer, final_answer):
                     consistency_lines.append(
@@ -448,6 +510,7 @@ def main() -> None:
                 previous_answer = final_answer
 
     _record_consistency_finding(consistency_lines)
+    logger.info("Writing evaluation reports")
     _write_evaluation_reports(RESULTS_PATH)
 
 

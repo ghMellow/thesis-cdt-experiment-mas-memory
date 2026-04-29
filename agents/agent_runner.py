@@ -1,8 +1,12 @@
+import itertools
 import json
 import re
+import sys
+import threading
+import time
 from typing import Any, Dict
 
-from langchain_community.chat_models import ChatOllama
+from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage, SystemMessage
 
 
@@ -24,6 +28,22 @@ def _extract_json_from_text(text: str) -> Dict[str, Any]:
     raise ValueError("No JSON object found in response")
 
 
+def _start_spinner(stop_event: threading.Event) -> threading.Thread:
+    def spin() -> None:
+        for ch in itertools.cycle("|/-\\"):
+            if stop_event.is_set():
+                break
+            sys.stderr.write(f"\rThinking {ch}")
+            sys.stderr.flush()
+            time.sleep(0.1)
+        sys.stderr.write("\r" + " " * 20 + "\r")
+        sys.stderr.flush()
+
+    thread = threading.Thread(target=spin, daemon=True)
+    thread.start()
+    return thread
+
+
 def run_agent(
     task_content: str,
     system_prompt: str,
@@ -33,5 +53,11 @@ def run_agent(
 ) -> Dict[str, Any]:
     llm = ChatOllama(model=model, temperature=temperature, base_url=base_url)
     messages = [SystemMessage(content=system_prompt), HumanMessage(content=task_content)]
-    response = llm.invoke(messages)
+    stop_event = threading.Event()
+    spinner = _start_spinner(stop_event)
+    try:
+        response = llm.invoke(messages)
+    finally:
+        stop_event.set()
+        spinner.join()
     return _extract_json_from_text(response.content)

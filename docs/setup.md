@@ -58,20 +58,42 @@ experiment/
 poetry init
 
 # Aggiunge le dipendenze
-poetry add langgraph langchain langchain-community ollama
+poetry add langgraph langchain langchain-community langchain-ollama ollama
 
 # Attiva l'ambiente
 poetry shell
 ```
 
+## Avvio del programma
+
+```bash
+# Esegui tutte le combinazioni (1A/1B, expert/beginner)
+poetry run python main.py
+
+# Esegui un solo esperimento
+poetry run python main.py --experiment 1A
+
+# Esegui un solo ruolo
+poetry run python main.py --experiment 1A --role expert
+
+# Esegui un task specifico
+poetry run python main.py --task task3_anomaly
+
+# Override delle ripetizioni per task
+poetry run python main.py --repetitions 1
+```
+
 `pyproject.toml` (generato da Poetry, dipendenze rilevanti):
 ```toml
-[tool.poetry.dependencies]
-python = "^3.11"
-langgraph = ">=0.2.0"
-langchain = ">=0.2.0"
-langchain-community = ">=0.2.0"
-ollama = ">=0.2.0"
+[project]
+requires-python = ">=3.11,<4.0.0"
+dependencies = [
+  "langgraph (>=0.2.0)",
+  "langchain (>=0.3.0)",
+  "langchain-community (>=0.3.0)",
+  "langchain-ollama (>=0.2.0)",
+  "ollama (>=0.2.0)"
+]
 ```
 
 > **Nota:** non serve più `requirements.txt` — Poetry usa `pyproject.toml` + `poetry.lock`.  
@@ -83,6 +105,8 @@ ollama serve
 ollama pull qwen3:9b
 ollama pull deepseek-r1:8b
 ```
+
+Se ricevi errore 404, verifica che `ollama serve` sia attivo e che i modelli siano presenti con `ollama list`.
 
 ---
 
