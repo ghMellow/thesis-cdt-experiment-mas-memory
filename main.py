@@ -14,6 +14,7 @@ from langgraph.graph import END, StateGraph
 from agents.agent_runner import run_agent
 from agents.judge_agent import run_judge_textual
 from agents.prompts import SYSTEM_PROMPTS
+import config
 from config import (
     MAX_RETRIES,
     MODELS,
@@ -539,17 +540,49 @@ def main() -> None:
     if not experiments:
         raise ValueError("No experiments matched the provided filters")
 
+    remaining_repetitions = 0
+    for experiment in experiments:
+        for task_path in tasks:
+            for repetition in range(1, args.repetitions + 1):
+                if _result_exists(
+                    RESULTS_PATH,
+                    experiment["id"],
+                    experiment["role"],
+                    task_path.stem,
+                    repetition,
+                ):
+                    continue
+                remaining_repetitions += 1
+
+    desired_ollama_timeout = int(args.task_timeout * 1.1)
+    if desired_ollama_timeout > config.OLLAMA_TIMEOUT_SECONDS:
+        config.OLLAMA_TIMEOUT_SECONDS = desired_ollama_timeout
+
+    worst_case_seconds = remaining_repetitions * args.task_timeout
+    worst_case_hours = worst_case_seconds // 3600
+    worst_case_minutes = (worst_case_seconds % 3600) // 60
+    worst_case_secs = worst_case_seconds % 60
+    worst_case_hms = f"{worst_case_hours}h {worst_case_minutes}m {worst_case_secs}s"
+    logger.info(
+        "worst-case max time: %s | Ollama timeout: %ss | Remaining repetitions: %s",
+        worst_case_hms,
+        config.OLLAMA_TIMEOUT_SECONDS,
+        remaining_repetitions,
+    )
+
     consistency_lines: List[str] = []
 
     for experiment in experiments:
+        logger.info("")
         logger.info(
-            "Experiment %s | role=%s | model=%s",
+            "==== Experiment %s | role=%s | model=%s ====",
             experiment["id"],
             experiment["role"],
             experiment["model"],
         )
         for task_path in tasks:
-            logger.info("Task %s", task_path.stem)
+            logger.info("")
+            logger.info("---- Task %s ----", task_path.stem)
             sol_path = task_path.with_name(task_path.stem + "_sol.md")
             previous_answer: Optional[Dict[str, Any]] = None
 

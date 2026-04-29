@@ -9,6 +9,10 @@ MODELS = {
 
 # Ollama server endpoint.
 OLLAMA_BASE_URL = "http://localhost:11434"
+# Max time to wait for a single Ollama response (seconds).
+# Keep this >= TASK_TIMEOUT_SECONDS to avoid client timeouts before task timeouts.
+# If --task-timeout is higher, runtime bumps this to ~10% above task_timeout.
+OLLAMA_TIMEOUT_SECONDS = 1000
 
 # Generation temperature (0.0 = deterministic).
 TEMPERATURE = 0.0

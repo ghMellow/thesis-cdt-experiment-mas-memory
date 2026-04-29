@@ -7,6 +7,7 @@ import httpx
 from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage, SystemMessage
 
+import config
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +44,12 @@ def run_judge_textual(
     temperature: float,
     base_url: str,
 ) -> Dict[str, Any]:
-    llm = ChatOllama(model=model, temperature=temperature, base_url=base_url)
+    llm = ChatOllama(
+        model=model,
+        temperature=temperature,
+        base_url=base_url,
+        timeout=config.OLLAMA_TIMEOUT_SECONDS,
+    )
     payload = {
         "scenario": task_content,
         "rubrica": rubric,
@@ -57,4 +63,10 @@ def run_judge_textual(
         response = llm.invoke(messages)
     except httpx.ConnectError:
         _raise_ollama_unavailable(base_url)
+    except httpx.ReadTimeout:
+        logger.error(
+            "Ollama request timed out after %ss. Increase OLLAMA_TIMEOUT_SECONDS if needed.",
+            config.OLLAMA_TIMEOUT_SECONDS,
+        )
+        raise SystemExit(1)
     return _extract_json_from_text(response.content)

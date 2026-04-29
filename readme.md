@@ -181,6 +181,8 @@ Timeout behavior:
 - Each task repetition has a max wall time (default 600s).
 - If a timeout happens, the program exits with an error so you can restart Ollama if needed.
 - On the next run, completed repetitions are skipped automatically.
+- Make sure `OLLAMA_TIMEOUT_SECONDS` in `config.py` is >= `TASK_TIMEOUT_SECONDS` so the HTTP client does not time out first.
+- If you pass `--task-timeout` higher than the default, runtime bumps `OLLAMA_TIMEOUT_SECONDS` to about 10% above `task_timeout`.
 
 ---
 

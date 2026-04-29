@@ -11,6 +11,7 @@ import httpx
 from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage, SystemMessage
 
+import config
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +62,12 @@ def run_agent(
     temperature: float,
     base_url: str,
 ) -> Dict[str, Any]:
-    llm = ChatOllama(model=model, temperature=temperature, base_url=base_url)
+    llm = ChatOllama(
+        model=model,
+        temperature=temperature,
+        base_url=base_url,
+        timeout=config.OLLAMA_TIMEOUT_SECONDS,
+    )
     messages = [SystemMessage(content=system_prompt), HumanMessage(content=task_content)]
     stop_event = threading.Event()
     spinner = _start_spinner(stop_event)
@@ -69,6 +75,12 @@ def run_agent(
         response = llm.invoke(messages)
     except httpx.ConnectError:
         _raise_ollama_unavailable(base_url)
+    except httpx.ReadTimeout:
+        logger.error(
+            "Ollama request timed out after %ss. Increase OLLAMA_TIMEOUT_SECONDS if needed.",
+            config.OLLAMA_TIMEOUT_SECONDS,
+        )
+        raise SystemExit(1)
     finally:
         stop_event.set()
         spinner.join()
