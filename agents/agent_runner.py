@@ -61,9 +61,10 @@ def run_agent(
     model: str,
     temperature: float,
     base_url: str,
+    role: str,
 ) -> Dict[str, Any]:
     user_content = task_content
-    if config.NO_THINK_SUFFIX and "task2_math_real" in task_content:
+    if config.NO_THINK_SUFFIX and "task2_math_real" in task_content: # in task_content or ("task3_anomaly" in task_content and role == "beginner")):
         user_content = f"{task_content}{config.NO_THINK_SUFFIX}"
     llm = ChatOllama(
         model=model,

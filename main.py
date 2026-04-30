@@ -87,6 +87,7 @@ def _run_agent(state: ExperimentState) -> ExperimentState:
         model=state["model"],
         temperature=TEMPERATURE,
         base_url=OLLAMA_BASE_URL,
+        role=state["agent_role"],
     )
 
     attempts = state.get("attempts", 0) + 1

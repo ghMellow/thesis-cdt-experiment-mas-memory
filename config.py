@@ -21,7 +21,7 @@ TEXTUAL_PASS_RATIO = 0.7
 # Ollama server endpoint.
 OLLAMA_BASE_URL = "http://localhost:11434"
 # Limit generated tokens to reduce long responses.
-OLLAMA_NUM_PREDICT = 512
+OLLAMA_NUM_PREDICT = 256 #128, 256, 512
 # Optional suffix to discourage long reasoning on specific tasks.
 NO_THINK_SUFFIX = " /no_think"
 # Max time to wait for a single Ollama response (seconds).
