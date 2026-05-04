@@ -1,10 +1,10 @@
 # Model mapping for each experiment role and judge.
 MODELS = {
-    "expert_1A": "qwen3.5:latest",
-    "beginner_1A": "qwen3.5:latest",
-    "expert_1B": "qwen3.5:latest",
+    "expert_1A": "gemma4:e2b",
+    "beginner_1A": "gemma4:e2b",
+    "expert_1B": "gemma4:e2b",
     "beginner_1B": "deepseek-r1:latest",
-    "judge": "qwen3.5:latest",
+    "judge": "gemma4:e2b",
 }
 
 # Generation temperature (0.0 = deterministic).

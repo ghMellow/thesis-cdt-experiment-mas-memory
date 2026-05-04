@@ -1,0 +1,13 @@
+{
+  "task_id": "task4_rootcause",
+  "ground_truth": {
+    "answer": {
+      "root_cause": "Regressione post-aggiornamento firmware",
+      "diagnostic_steps": [
+        "Verificare changelog firmware e confrontare configurazione RF pre/post aggiornamento",
+        "Eseguire rollback firmware e monitorare SINR e HARQ per confermare il ripristino"
+      ]
+    },
+    "type": "textual_reasoning"
+  }
+}

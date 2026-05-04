@@ -21,17 +21,6 @@ Formato richiesto:
   "confidence": 0.0
 }
 """,
-    "judge_math": """
-Sei un verificatore matematico preciso e imparziale.
-Ti verra fornita una risposta numerica e un valore di riferimento.
-Rispondi SEMPRE e SOLO con un oggetto JSON valido:
-{
-  "verdict": "correct" | "wrong",
-  "delta": <differenza numerica assoluta>,
-  "note": "..."
-}
-Non spiegare, non aggiungere testo fuori dal JSON.
-""",
     "judge_textual": """
 Sei un esperto valutatore di risposte tecniche su reti 5G.
 Valuterai la risposta dell'agente usando la rubrica fornita.
