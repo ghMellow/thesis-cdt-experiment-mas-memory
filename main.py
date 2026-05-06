@@ -48,6 +48,11 @@ def main() -> None:
         default=TASK_TIMEOUT_SECONDS,
         help="Max seconds per task repetition (0 = no timeout)",
     )
+    parser.add_argument(
+        "--export-graph",
+        dest="export_graph",
+        help="Export LangGraph to a PNG file and exit",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -57,6 +62,10 @@ def main() -> None:
     )
 
     graph = _build_graph()
+    if args.export_graph:
+        graph.get_graph().draw_mermaid_png(output_file_path=args.export_graph)
+        logger.info("LangGraph exported to %s", args.export_graph)
+        return
     tasks = _list_tasks(TASKS_PATH)
     if args.tasks:
         available = {task.stem for task in tasks}
