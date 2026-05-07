@@ -6,8 +6,9 @@ import time
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, TypedDict
+from typing import Any, Dict, List, Optional, Tuple, TypedDict
 
+import httpx
 from langgraph.graph import END, StateGraph
 
 from agents.agent_runner import run_agent
@@ -22,6 +23,24 @@ from config import (
     TEXTUAL_PASS_RATIO,
 )
 from utils.task_utils import _load_task
+
+
+def _fetch_model_context_window(model: str, base_url: str) -> Optional[int]:
+    """Query Ollama /api/show and return the model's context length, or None on failure."""
+    try:
+        resp = httpx.post(f"{base_url}/api/show", json={"model": model}, timeout=10.0)
+        resp.raise_for_status()
+        data = resp.json()
+        for key, val in data.get("model_info", {}).items():
+            if "context_length" in key:
+                return int(val)
+        for line in data.get("parameters", "").splitlines():
+            parts = line.strip().split()
+            if parts and parts[0].lower() == "num_ctx":
+                return int(parts[-1])
+    except Exception:
+        pass
+    return None
 
 
 def _build_judge_prompt(rubric: Dict[str, Any]) -> str:

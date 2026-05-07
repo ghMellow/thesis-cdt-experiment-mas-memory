@@ -1,6 +1,6 @@
 import logging
-import sys
 import threading
+import time
 from typing import Any, Dict
 
 import httpx
@@ -29,7 +29,8 @@ def run_agent(
     )
     messages = [SystemMessage(content=system_prompt), HumanMessage(content=task_content)]
     stop_event = threading.Event()
-    spinner = _start_spinner("Thinking", stop_event)
+    spinner = _start_spinner("Agent thinking", stop_event)
+    t0 = time.perf_counter()
     try:
         response = llm.invoke(messages)
     except httpx.ConnectError:
@@ -43,6 +44,12 @@ def run_agent(
     finally:
         stop_event.set()
         spinner.join()
-        sys.stderr.write("\n")
-        sys.stderr.flush()
+    elapsed = time.perf_counter() - t0
+    meta = getattr(response, "response_metadata", {}) or {}
+    in_tok = meta.get("prompt_eval_count")
+    out_tok = meta.get("eval_count")
+    if in_tok is not None and out_tok is not None:
+        logger.info("Agent response | elapsed=%.1fs | tokens in=%s out=%s", elapsed, in_tok, out_tok)
+    else:
+        logger.info("Agent response | elapsed=%.1fs", elapsed)
     return _extract_json_from_text(response.content)

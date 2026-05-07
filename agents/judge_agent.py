@@ -1,6 +1,5 @@
 import json
 import logging
-import sys
 import threading
 import time
 from typing import Any, Dict
@@ -40,12 +39,10 @@ def run_judge_textual(
         SystemMessage(content=system_prompt),
         HumanMessage(content=json.dumps(payload, ensure_ascii=True)),
     ]
-    sys.stderr.write("\n")
-    sys.stderr.flush()
-    logger.info("Judge active | model=%s | base_url=%s", model, base_url)
+    logger.info("Judge active | model=%s", model)
     stop_event = threading.Event()
     spinner = _start_spinner("Judge thinking", stop_event)
-    start_perf = time.perf_counter()
+    t0 = time.perf_counter()
     try:
         response = llm.invoke(messages)
     except httpx.ConnectError:
@@ -60,10 +57,12 @@ def run_judge_textual(
         stop_event.set()
         spinner.join()
     parsed = _extract_json_from_text(response.content)
-    elapsed = time.perf_counter() - start_perf
+    elapsed = time.perf_counter() - t0
+    meta = getattr(response, "response_metadata", {}) or {}
+    in_tok = meta.get("prompt_eval_count")
+    out_tok = meta.get("eval_count")
     total_score = parsed.get("total_score") if isinstance(parsed, dict) else None
-    if total_score is None:
-        logger.info("Judge done | elapsed=%.2fs", elapsed)
-    else:
-        logger.info("Judge done | elapsed=%.2fs | total_score=%s", elapsed, total_score)
+    score_str = f" | total_score={total_score}" if total_score is not None else ""
+    tok_str = f" | tokens in={in_tok} out={out_tok}" if in_tok is not None and out_tok is not None else ""
+    logger.info("Judge done | elapsed=%.1fs%s%s", elapsed, score_str, tok_str)
     return parsed

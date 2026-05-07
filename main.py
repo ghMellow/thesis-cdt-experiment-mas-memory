@@ -2,18 +2,28 @@
 
 import argparse
 import logging
+import sys
 import time
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import config
-from config import MODELS, REPETITIONS, RESULTS_PATH, TASK_TIMEOUT_SECONDS, TASKS_PATH
+from config import MODELS, OLLAMA_BASE_URL, REPETITIONS, RESULTS_PATH, TASK_TIMEOUT_SECONDS, TASKS_PATH
 from utils.evaluation_utils import _record_consistency_finding, _write_evaluation_reports
-from utils.experiment_utils import ExperimentState, _build_graph, _time_limit
+from utils.experiment_utils import ExperimentState, _build_graph, _fetch_model_context_window, _time_limit
 from utils.task_utils import _answers_equal, _list_tasks, _result_exists
 
 
 logger = logging.getLogger(__name__)
+
+
+class _SpinnerClearHandler(logging.StreamHandler):
+    """Clears the spinner's in-place line before writing each log record."""
+    _CLEAR = "\r" + " " * 80 + "\r"
+
+    def emit(self, record: logging.LogRecord) -> None:
+        self.stream.write(self._CLEAR)
+        super().emit(record)
 
 
 def main() -> None:
@@ -55,11 +65,9 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s | %(levelname)s | %(message)s",
-        datefmt="%H:%M:%S",
-    )
+    handler = _SpinnerClearHandler(sys.stderr)
+    handler.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(message)s", datefmt="%H:%M:%S"))
+    logging.basicConfig(level=logging.INFO, handlers=[handler])
 
     graph = _build_graph()
     if args.export_graph:
@@ -121,13 +129,21 @@ def main() -> None:
 
     consistency_lines: List[str] = []
 
+    ctx_cache: Dict[str, Any] = {}
+
     for experiment in experiments:
+        model = experiment["model"]
+        if model not in ctx_cache:
+            ctx_cache[model] = _fetch_model_context_window(model, OLLAMA_BASE_URL)
+        ctx_window = ctx_cache[model]
+        ctx_str = f" | ctx_window={ctx_window:,}" if ctx_window else ""
         logger.info("")
         logger.info(
-            "==== Experiment %s | role=%s | model=%s ====",
+            "==== Experiment %s | role=%s | model=%s%s ====",
             experiment["id"],
             experiment["role"],
-            experiment["model"],
+            model,
+            ctx_str,
         )
         for task_path in tasks:
             logger.info("")
