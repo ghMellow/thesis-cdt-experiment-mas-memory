@@ -1,8 +1,8 @@
-"""Evaluation report helpers."""
+"""Evaluation report helpers — anomaly-focused output."""
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from config import RESULTS_PATH
 
@@ -11,9 +11,7 @@ def _record_consistency_finding(lines: List[str]) -> None:
     if not lines:
         return
     eval_path = Path(RESULTS_PATH) / "evaluation" / "consistency.md"
-    existing = ""
-    if eval_path.exists():
-        existing = eval_path.read_text(encoding="utf-8")
+    existing = eval_path.read_text(encoding="utf-8") if eval_path.exists() else ""
     content = existing + "\n" + "\n".join(lines) + "\n"
     eval_path.write_text(content.strip() + "\n", encoding="utf-8")
 
@@ -23,7 +21,6 @@ def _collect_results(results_path: str) -> Dict[str, Dict[str, List[Dict[str, An
     data: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
     if not base.exists():
         return data
-
     for experiment_dir in sorted(p for p in base.iterdir() if p.is_dir() and p.name != "evaluation"):
         experiment_id = experiment_dir.name
         data.setdefault(experiment_id, {})
@@ -32,28 +29,170 @@ def _collect_results(results_path: str) -> Dict[str, Dict[str, List[Dict[str, An
             result_files = sorted(
                 f for f in role_dir.glob("*.json") if not f.name.endswith("_solution.json")
             )
-            payloads = [json.loads(f.read_text(encoding="utf-8")) for f in result_files]
-            data[experiment_id][role] = payloads
-
+            data[experiment_id][role] = [json.loads(f.read_text(encoding="utf-8")) for f in result_files]
     return data
 
 
 def _avg(values: List[float]) -> Optional[float]:
-    if not values:
-        return None
-    return sum(values) / len(values)
+    return sum(values) / len(values) if values else None
 
 
-def _format_value(value: Optional[float], digits: int = 2) -> str:
+def _fmt(value: Optional[float], digits: int = 2) -> str:
+    return f"{value:.{digits}f}" if value is not None else "n/a"
+
+
+def _fmt_ratio(value: Optional[float]) -> str:
+    return f"{value:.1%}" if value is not None else "n/a"
+
+
+def _fmt_delta(value: Optional[float]) -> str:
     if value is None:
         return "n/a"
-    return f"{value:.{digits}f}"
+    sign = "+" if value > 0 else ""
+    return f"{sign}{value:.1%}"
 
 
-def _format_ratio(value: Optional[float]) -> str:
-    if value is None:
-        return "n/a"
-    return f"{value:.1%}"
+def _detect_inconsistencies(
+    roles: Dict[str, List[Dict[str, Any]]]
+) -> List[Tuple[str, str, List[Tuple[int, str]]]]:
+    """Return (role, task_id, [(rep, reasoning), ...]) for tasks with inconsistent reasoning."""
+    found = []
+    for role, payloads in roles.items():
+        per_task: Dict[str, List[Dict[str, Any]]] = {}
+        for p in payloads:
+            per_task.setdefault(p.get("task_id", "unknown"), []).append(p)
+        for task_id, task_payloads in sorted(per_task.items()):
+            rep_reasonings: List[Tuple[int, str]] = []
+            for p in task_payloads:
+                fa = p.get("final_answer", {})
+                r = fa.get("reasoning") if isinstance(fa, dict) else None
+                if isinstance(r, str) and r.strip():
+                    rep_reasonings.append((p.get("repetition", 0), r.strip()))
+            unique = {r for _, r in rep_reasonings}
+            if len(unique) > 1:
+                found.append((role, task_id, rep_reasonings))
+    return found
+
+
+def _build_scores_table(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
+    lines = [
+        "## Scores by role",
+        "",
+        "| role | accuracy | avg_confidence | avg_attempts | avg_textual_norm | avg_math_delta |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for role, payloads in sorted(roles.items()):
+        total = len(payloads)
+        correct = sum(1 for p in payloads if p.get("verdict") == "correct")
+        avg_attempts = _avg([float(p.get("attempts", 1)) for p in payloads])
+        confidences = [
+            float(fa["confidence"])
+            for p in payloads
+            if isinstance((fa := p.get("final_answer", {})), dict)
+            and isinstance(fa.get("confidence"), (int, float))
+        ]
+        # normalized_score ∈ [0,1] enables cross-task comparison; fall back to raw/total_max
+        textual_norms = []
+        for p in payloads:
+            if p.get("task_type") != "textual":
+                continue
+            js = p.get("judge_score", {})
+            norm = js.get("normalized_score")
+            if isinstance(norm, (int, float)):
+                textual_norms.append(float(norm))
+        math_deltas = [
+            float(p["judge_score"]["delta"])
+            for p in payloads
+            if p.get("task_type") == "math"
+            and isinstance(p.get("judge_score", {}).get("delta"), (int, float))
+        ]
+        lines.append(
+            f"| {role} | {_fmt_ratio(correct / total if total else None)} | "
+            f"{_fmt(_avg(confidences), 3)} | {_fmt(avg_attempts, 2)} | "
+            f"{_fmt(_avg(textual_norms), 3)} | {_fmt(_avg(math_deltas), 3)} |"
+        )
+    return lines
+
+
+def _build_experiment_report(experiment_id: str, roles: Dict[str, List[Dict[str, Any]]]) -> str:
+    lines = [f"# Evaluation Report: {experiment_id}", ""]
+
+    all_payloads = [{"_role": role, **p} for role, payloads in roles.items() for p in payloads]
+
+    if not all_payloads:
+        lines.append("No results found.")
+        return "\n".join(lines) + "\n"
+
+    total = len(all_payloads)
+    correct = sum(1 for p in all_payloads if p.get("verdict") == "correct")
+    wrong_list = [p for p in all_payloads if p.get("verdict") != "correct"]
+    retried_list = [p for p in all_payloads if p.get("attempts", 1) > 1]
+    inconsistencies = _detect_inconsistencies(roles)
+
+    anomaly_count = len(wrong_list) + len(retried_list) + len(inconsistencies)
+
+    lines += [
+        "## Summary",
+        "",
+        "| metric | value |",
+        "| --- | --- |",
+        f"| total results | {total} |",
+        f"| correct | {correct} ({_fmt_ratio(correct / total if total else None)}) |",
+        f"| wrong | {len(wrong_list)} |",
+        f"| retried (attempts > 1) | {len(retried_list)} |",
+        f"| inconsistent tasks | {len(inconsistencies)} |",
+        "",
+    ]
+
+    if anomaly_count == 0:
+        lines.append("All tasks passed with full consistency — no anomalies detected.")
+        lines.append("")
+    else:
+        lines += ["## Anomalies", ""]
+
+        if wrong_list:
+            lines += [f"### Wrong verdicts ({len(wrong_list)})", ""]
+            lines += [
+                "| role | task_id | rep | attempts | confidence | score/delta |",
+                "| --- | --- | --- | --- | --- | --- |",
+            ]
+            for p in wrong_list:
+                fa = p.get("final_answer", {})
+                conf = fa.get("confidence") if isinstance(fa, dict) else None
+                js = p.get("judge_score", {})
+                score_info = js.get("total_score", js.get("delta", "n/a"))
+                lines.append(
+                    f"| {p['_role']} | {p.get('task_id')} | {p.get('repetition')} | "
+                    f"{p.get('attempts')} | {_fmt(float(conf), 3) if isinstance(conf, (int, float)) else 'n/a'} "
+                    f"| {score_info} |"
+                )
+            lines.append("")
+
+        if retried_list:
+            lines += [f"### Retries triggered ({len(retried_list)})", ""]
+            lines += [
+                "| role | task_id | rep | attempts | final_verdict |",
+                "| --- | --- | --- | --- | --- |",
+            ]
+            for p in retried_list:
+                lines.append(
+                    f"| {p['_role']} | {p.get('task_id')} | {p.get('repetition')} | "
+                    f"{p.get('attempts')} | {p.get('verdict')} |"
+                )
+            lines.append("")
+
+        if inconsistencies:
+            lines += [f"### Inconsistent reasoning across repetitions ({len(inconsistencies)})", ""]
+            for role, task_id, rep_reasonings in inconsistencies:
+                lines.append(f"**{role} — {task_id}**")
+                lines.append("")
+                for rep, reasoning in rep_reasonings:
+                    lines.append(f"> rep {rep}: {reasoning.replace(chr(10), ' ')}")
+                lines.append("")
+
+    lines += _build_scores_table(roles)
+    lines.append("")
+    return "\n".join(lines) + "\n"
 
 
 def _write_evaluation_reports(results_path: str) -> None:
@@ -61,162 +200,30 @@ def _write_evaluation_reports(results_path: str) -> None:
     eval_dir = Path(results_path) / "evaluation"
     eval_dir.mkdir(parents=True, exist_ok=True)
 
-    def build_scores(experiment_id: str) -> str:
-        roles = data.get(experiment_id, {})
-        lines = [
-            f"# Scores {experiment_id}",
-            "",
-            "| role | total | correct | accuracy | avg_confidence | avg_attempts | avg_textual_score | avg_math_delta |",
-            "| --- | --- | --- | --- | --- | --- | --- | --- |",
-        ]
-        breakdown_lines = [
-            "",
-            "## Task breakdown",
-            "",
-            "| role | task_id | total | correct | accuracy |",
-            "| --- | --- | --- | --- | --- |",
-        ]
-
-        reasoning_lines = [
-            "",
-            "## Reasoning differences",
-            "",
-            "| role | task_id | repetitions | reasoning_consistent | reasoning_samples |",
-            "| --- | --- | --- | --- | --- |",
-        ]
-
-        reasoning_full_lines = [
-            "",
-            "## Reasoning samples (full)",
-            "",
-        ]
-
-        for role, payloads in sorted(roles.items()):
-            total = len(payloads)
-            correct = sum(1 for p in payloads if p.get("verdict") == "correct")
-            accuracy = (correct / total) if total else None
-            avg_attempts = _avg([float(p.get("attempts", 0)) for p in payloads])
-            confidences = []
-            for p in payloads:
-                final_answer = p.get("final_answer", {})
-                confidence = final_answer.get("confidence") if isinstance(final_answer, dict) else None
-                if isinstance(confidence, (int, float)):
-                    confidences.append(float(confidence))
-
-            textual_scores = [
-                float(p.get("judge_score", {}).get("total_score", 0))
-                for p in payloads
-                if p.get("task_type") == "textual"
-            ]
-            math_deltas = [
-                float(p.get("judge_score", {}).get("delta", 0))
-                for p in payloads
-                if p.get("task_type") == "math"
-            ]
-
-            lines.append(
-                "| {role} | {total} | {correct} | {accuracy} | {avg_confidence} | {avg_attempts} | {avg_textual} | {avg_delta} |".format(
-                    role=role,
-                    total=total,
-                    correct=correct,
-                    accuracy=_format_ratio(accuracy),
-                    avg_confidence=_format_value(_avg(confidences), digits=3),
-                    avg_attempts=_format_value(avg_attempts, digits=2),
-                    avg_textual=_format_value(_avg(textual_scores), digits=2),
-                    avg_delta=_format_value(_avg(math_deltas), digits=3),
-                )
-            )
-
-            per_task: Dict[str, List[Dict[str, Any]]] = {}
-            for payload in payloads:
-                per_task.setdefault(payload.get("task_id", "unknown"), []).append(payload)
-            for task_id, task_payloads in sorted(per_task.items()):
-                task_total = len(task_payloads)
-                task_correct = sum(1 for p in task_payloads if p.get("verdict") == "correct")
-                task_accuracy = (task_correct / task_total) if task_total else None
-                breakdown_lines.append(
-                    "| {role} | {task_id} | {total} | {correct} | {accuracy} |".format(
-                        role=role,
-                        task_id=task_id,
-                        total=task_total,
-                        correct=task_correct,
-                        accuracy=_format_ratio(task_accuracy),
-                    )
-                )
-                reasoning_values = []
-                for p in task_payloads:
-                    final_answer = p.get("final_answer", {})
-                    reasoning = final_answer.get("reasoning") if isinstance(final_answer, dict) else None
-                    if isinstance(reasoning, str):
-                        reasoning_values.append(reasoning.strip())
-                reasoning_unique = {r for r in reasoning_values if r}
-                reasoning_consistent = "yes" if len(reasoning_unique) <= 1 else "no"
-                sample_list = sorted(reasoning_unique)[:2]
-                if not sample_list:
-                    sample_text = "n/a"
-                elif len(sample_list) == 1:
-                    sample_text = sample_list[0]
-                else:
-                    sample_text = " / ".join(sample_list)
-                reasoning_lines.append(
-                    "| {role} | {task_id} | {total} | {consistent} | {samples} |".format(
-                        role=role,
-                        task_id=task_id,
-                        total=task_total,
-                        consistent=reasoning_consistent,
-                        samples=sample_text.replace("\n", " "),
-                    )
-                )
-
-                reasoning_full_lines.append(f"### {role} - {task_id}")
-                for idx, payload in enumerate(task_payloads, start=1):
-                    final_answer = payload.get("final_answer", {})
-                    reasoning = final_answer.get("reasoning") if isinstance(final_answer, dict) else None
-                    rep_value = payload.get("repetition", idx)
-                    if isinstance(reasoning, str) and reasoning.strip():
-                        reasoning_full_lines.append(
-                            f"rep {rep_value}: {reasoning.strip().replace('\n', ' ')}"
-                        )
-                    else:
-                        reasoning_full_lines.append(f"rep {rep_value}: n/a")
-                reasoning_full_lines.append("")
-
-        return "\n".join(lines + breakdown_lines + reasoning_lines + reasoning_full_lines) + "\n"
-
     for experiment_id in ["1A", "1B"]:
-        report = build_scores(experiment_id)
-        report_path = eval_dir / f"scores_{experiment_id}.md"
-        report_path.write_text(report, encoding="utf-8")
+        report = _build_experiment_report(experiment_id, data.get(experiment_id, {}))
+        (eval_dir / f"scores_{experiment_id}.md").write_text(report, encoding="utf-8")
 
-    comparison_lines = [
+    # Comparison report
+    lines = [
         "# Comparison 1A vs 1B",
         "",
         "| role | accuracy_1A | accuracy_1B | delta |",
         "| --- | --- | --- | --- |",
     ]
-
+    has_delta = False
     for role in ["expert", "beginner"]:
-        acc_1a_payloads = data.get("1A", {}).get(role, [])
-        acc_1b_payloads = data.get("1B", {}).get(role, [])
-        acc_1a = None
-        acc_1b = None
-        if acc_1a_payloads:
-            acc_1a = sum(1 for p in acc_1a_payloads if p.get("verdict") == "correct") / len(
-                acc_1a_payloads
-            )
-        if acc_1b_payloads:
-            acc_1b = sum(1 for p in acc_1b_payloads if p.get("verdict") == "correct") / len(
-                acc_1b_payloads
-            )
+        payloads_1a = data.get("1A", {}).get(role, [])
+        payloads_1b = data.get("1B", {}).get(role, [])
+        acc_1a = (sum(1 for p in payloads_1a if p.get("verdict") == "correct") / len(payloads_1a)) if payloads_1a else None
+        acc_1b = (sum(1 for p in payloads_1b if p.get("verdict") == "correct") / len(payloads_1b)) if payloads_1b else None
         delta = (acc_1b - acc_1a) if acc_1a is not None and acc_1b is not None else None
-        comparison_lines.append(
-            "| {role} | {acc_1a} | {acc_1b} | {delta} |".format(
-                role=role,
-                acc_1a=_format_ratio(acc_1a),
-                acc_1b=_format_ratio(acc_1b),
-                delta=_format_ratio(delta) if delta is not None else "n/a",
-            )
+        if delta and abs(delta) > 0:
+            has_delta = True
+        lines.append(
+            f"| {role} | {_fmt_ratio(acc_1a)} | {_fmt_ratio(acc_1b)} | {_fmt_delta(delta)} |"
         )
-
-    comparison_path = eval_dir / "comparison.md"
-    comparison_path.write_text("\n".join(comparison_lines) + "\n", encoding="utf-8")
+    lines.append("")
+    if not has_delta:
+        lines.append("No accuracy difference between 1A and 1B.")
+    (eval_dir / "comparison.md").write_text("\n".join(lines) + "\n", encoding="utf-8")

@@ -51,14 +51,12 @@ I task sono in `docs/tasks/` e sono di due tipi:
 
 - `main.py`: entrypoint CLI; itera esperimenti/ruoli/task/ripetizioni; genera report di evaluation
 - `config.py`: mapping modelli + parametri globali (temperature, retry, ripetizioni, soglie)
-- `utils/experiment_utils.py`: stato e grafo LangGraph; nodi `load_task`, `run_agent`, `check_answer`, `save_result`
+- `utils/experiment_utils.py`: stato e grafo LangGraph; nodi `load_task`, `run_agent`, `check_answer`, `save_result`; include valutazione deterministica math, logica di retry e scrittura risultati
 - `utils/task_utils.py`: parsing dei metadata (`**ID:**`, `**Tipo:**`) e lettura dei JSON dai file `_sol.md`
-- `agents/agent_runner.py`: chiamata LLM via Ollama + parsing robusto del JSON in output
+- `utils/evaluation_utils.py`: aggregazione risultati e generazione report anomaly-focused in `results/evaluation/`
+- `agents/agent_runner.py`: chiamata LLM via Ollama + parsing JSON in output
 - `agents/judge_agent.py`: chiamata LLM judge + parsing JSON + logging
-- `core/checker.py`: valutazione deterministica dei task `math`
-- `core/loop_controller.py`: regola di retry
-- `core/result_writer.py`: scrittura dei risultati in `results/`
-- `utils/evaluation_utils.py`: aggregazione risultati e generazione report in `results/evaluation/`
+- `agents/_llm_utils.py`: helper condivisi tra agent e judge (spinner, JSON parsing, error handling Ollama)
 
 ---
 
@@ -98,7 +96,8 @@ Per ogni combinazione (setup, ruolo, task, ripetizione) il runtime esegue:
 - salva il JSON dell'agente in `history` e in `final_answer`
 
 3) `check_answer`
-- `math`: confronto deterministico con `core/checker.py`
+
+- `math`: confronto deterministico in `utils/experiment_utils.py`
 - `textual`: chiama il judge LLM con scenario + rubrica + risposta
 
 4) retry o salvataggio
@@ -107,7 +106,7 @@ Per ogni combinazione (setup, ruolo, task, ripetizione) il runtime esegue:
 
 ### Ripetizioni vs retry
 
-- `REPETITIONS`: ripete lo stesso task per misurare **consistenza** a `TEMPERATURE = 0.0`
+- `REPETITIONS`: ripete lo stesso task per misurare **consistenza** (con `TEMPERATURE > 0` misura varianza reale)
 - `MAX_RETRIES`: tentativi dentro una singola ripetizione, solo se la valutazione e' `wrong`
 
 ### Export del grafo
@@ -124,7 +123,7 @@ python main.py --export-graph docs/graph.png
 
 ### 6.1 Task `math` (deterministici)
 
-La valutazione avviene in `core/checker.py` usando `ground_truth`:
+La valutazione avviene in `utils/experiment_utils.py` usando `ground_truth`:
 
 - `type: exact_int`: conversione a int e match esatto (delta = 0)
 - `type: real`: match float con `tolerance` (supporta anche answer come oggetto con piu' campi)
@@ -154,22 +153,20 @@ Nei task textual il judge viene chiamato in `agents/judge_agent.py`.
 
 **Output atteso**:
 
-- un JSON con campi `*_score` + `total_score` + `feedback` (come richiesto dal prompt in `agents/prompts.py`)
+- un JSON con i campi `*_score` della rubrica del task + `total_score` + `feedback`
+- il prompt del judge viene generato dinamicamente da `_build_judge_prompt(rubric)` in `utils/experiment_utils.py`, con le categorie esatte della rubrica del task
 
 **Come si calcola il verdetto** (in `utils/experiment_utils.py`):
 
 - se manca `total_score`, viene ricostruito sommando tutte le chiavi che finiscono con `_score`
-- `correct` se `total_score >= total_max * TEXTUAL_PASS_RATIO`, altrimenti `wrong`
+- `total_score` viene clamped a `[0, total_max]` e normalizzato: `normalized_score = total_score / total_max`
+- `correct` se `normalized_score >= TEXTUAL_PASS_RATIO`, altrimenti `wrong`
 
 **Attenzioni importanti sui judge (semantica dei punteggi)**:
 
-- *Allineamento rubrica ↔ prompt*: le rubriche per-task possono usare categorie diverse (es. `root_cause_score`),
-  mentre il prompt del judge elenca un set fisso di score. Se non allineati, il judge puo' generare punteggi "standard"
-  che non rappresentano davvero i criteri della rubrica.
-- *Scala dei punteggi*: oggi non c'e' un vincolo che impone `0 <= total_score <= total_max`. Se il judge va "fuori scala",
-  la soglia di pass/fail puo' diventare poco significativa.
 - *Judge come fonte di verita'*: sui task textual, la rubrica e' di fatto la definizione operativa di "corretto".
   Se la rubrica e' ambigua o poco osservabile, il judge tende a premiare risposte plausibili.
+- *Bias modello*: se il judge usa lo stesso modello dell'expert, tende a favorire risposte nel suo stesso stile.
 
 ---
 

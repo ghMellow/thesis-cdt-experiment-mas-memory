@@ -7,8 +7,8 @@ MODELS = {
     "judge": "gemma4:e2b",
 }
 
-# Generation temperature (0.0 = deterministic).
-TEMPERATURE = 0.0
+# Generation temperature — use > 0 to measure real consistency across repetitions.
+TEMPERATURE = 0.3
 # Max attempts per task before stopping.
 MAX_RETRIES = 3
 # Repetitions per task for consistency checks.
@@ -20,10 +20,8 @@ TEXTUAL_PASS_RATIO = 0.7
 
 # Ollama server endpoint.
 OLLAMA_BASE_URL = "http://localhost:11434"
-# Limit generated tokens to reduce long responses.
-OLLAMA_NUM_PREDICT = 256 #128, 256, 512
-# Optional suffix to discourage long reasoning on specific tasks.
-NO_THINK_SUFFIX = " /no_think"
+# Max tokens per response — 1024 is sufficient for a full JSON with reasoning.
+OLLAMA_NUM_PREDICT = 1024
 # Max time to wait for a single Ollama response (seconds).
 # Keep this >= TASK_TIMEOUT_SECONDS to avoid client timeouts before task timeouts.
 # If --task-timeout is higher, runtime bumps this to ~10% above task_timeout.

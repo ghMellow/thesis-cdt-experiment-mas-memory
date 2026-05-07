@@ -24,6 +24,39 @@ from config import (
 from utils.task_utils import _load_task
 
 
+def _build_judge_prompt(rubric: Dict[str, Any]) -> str:
+    """Generate a judge system prompt tailored to the task's rubric categories."""
+    rubric_items = rubric.get("rubrica", {})
+    total_max = rubric.get("total_max", 0)
+
+    criteria_lines = []
+    output_fields: Dict[str, Any] = {}
+    for field, spec in rubric_items.items():
+        max_val = spec.get("max", 0)
+        criteri = spec.get("criteri", {})
+        criteria_text = "; ".join(
+            f"{k}={v}" for k, v in sorted(criteri.items(), key=lambda x: x[0], reverse=True)
+        )
+        criteria_lines.append(f"- {field} (0–{max_val}): {criteria_text}")
+        output_fields[field] = 0
+
+    output_fields["total_score"] = 0
+    output_fields["feedback"] = "..."
+
+    criteria_block = "\n".join(criteria_lines)
+    output_json = json.dumps(output_fields, indent=2, ensure_ascii=True)
+
+    return (
+        "You are an expert evaluator of technical responses about 5G networks.\n"
+        "Evaluate the agent's response using the rubric criteria below.\n"
+        f"Total maximum score: {total_max}\n\n"
+        f"Scoring criteria:\n{criteria_block}\n\n"
+        "Reply ONLY with a valid JSON object with exactly these fields:\n"
+        f"{output_json}\n"
+        "No text outside the JSON."
+    )
+
+
 def _to_float(value: Any) -> float:
     if isinstance(value, (int, float)):
         return float(value)
@@ -116,7 +149,6 @@ def _run_agent(state: ExperimentState) -> ExperimentState:
         model=state["model"],
         temperature=TEMPERATURE,
         base_url=OLLAMA_BASE_URL,
-        role=state["agent_role"],
     )
 
     attempts = state.get("attempts", 0) + 1
@@ -147,11 +179,12 @@ def _check_answer(state: ExperimentState) -> ExperimentState:
         )
         return state
 
+    rubric = state.get("rubric", {})
     judge_score = run_judge_textual(
         task_content=state["task_content"],
-        rubric=state.get("rubric", {}),
+        rubric=rubric,
         agent_response=state["final_answer"],
-        system_prompt=SYSTEM_PROMPTS["judge_textual"],
+        system_prompt=_build_judge_prompt(rubric),
         model=MODELS["judge"],
         temperature=TEMPERATURE,
         base_url=OLLAMA_BASE_URL,
@@ -160,16 +193,18 @@ def _check_answer(state: ExperimentState) -> ExperimentState:
     total_score = judge_score.get("total_score")
     if total_score is None:
         total_score = sum(
-            v for k, v in judge_score.items() if k.endswith("_score") and k != "total_score"
+            v for k, v in judge_score.items()
+            if k.endswith("_score") and k != "total_score" and isinstance(v, (int, float))
         )
         judge_score["total_score"] = total_score
 
-    total_max = 0
-    rubric = state.get("rubric", {})
-    if rubric:
-        total_max = rubric.get("total_max", 0)
-    verdict = "correct" if total_max and total_score >= total_max * TEXTUAL_PASS_RATIO else "wrong"
+    total_max = rubric.get("total_max", 0)
+    total_score = float(min(max(float(total_score), 0.0), float(total_max)) if total_max else float(total_score))
+    judge_score["total_score"] = total_score
+    normalized = round(total_score / total_max, 3) if total_max else 0.0
+    judge_score["normalized_score"] = normalized
 
+    verdict = "correct" if total_max and normalized >= TEXTUAL_PASS_RATIO else "wrong"
     state.update({"verdict": verdict, "judge_score": judge_score})
     return state
 
