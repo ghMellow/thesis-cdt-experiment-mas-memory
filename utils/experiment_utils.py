@@ -1,10 +1,12 @@
 """Experiment orchestration helpers."""
 
+import json
 import signal
 import time
 from contextlib import contextmanager
 from datetime import datetime, timezone
-from typing import Any, Dict, List, TypedDict
+from pathlib import Path
+from typing import Any, Dict, List, Tuple, TypedDict
 
 from langgraph.graph import END, StateGraph
 
@@ -19,10 +21,48 @@ from config import (
     TEMPERATURE,
     TEXTUAL_PASS_RATIO,
 )
-from core.checker import check_math_answer
-from core.loop_controller import should_retry
-from core.result_writer import write_result
 from utils.task_utils import _load_task
+
+
+def _to_float(value: Any) -> float:
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        return float(value.strip())
+    raise ValueError(f"Unsupported numeric value: {value}")
+
+
+def _check_math_answer(
+    agent_answer: Dict[str, Any],
+    ground_truth: Dict[str, Any],
+) -> Tuple[str, float, str]:
+    gt_answer = ground_truth.get("answer")
+    gt_type = ground_truth.get("type")
+    tolerance = float(ground_truth.get("tolerance", 0))
+
+    if gt_type == "exact_int":
+        expected = int(gt_answer)
+        received = int(_to_float(agent_answer.get("answer")))
+        delta = abs(received - expected)
+        return "correct" if delta == 0 else "wrong", float(delta), "exact int check"
+
+    if gt_type == "real":
+        if isinstance(gt_answer, dict):
+            received_obj = agent_answer.get("answer", {})
+            deltas = {
+                key: abs(_to_float(received_obj.get(key)) - float(expected_value))
+                for key, expected_value in gt_answer.items()
+            }
+            delta = max(deltas.values()) if deltas else 0.0
+            verdict = "correct" if all(d <= tolerance for d in deltas.values()) else "wrong"
+            return verdict, delta, f"real check with tolerance {tolerance}"
+
+        expected = float(gt_answer)
+        received = _to_float(agent_answer.get("answer"))
+        delta = abs(received - expected)
+        return "correct" if delta <= tolerance else "wrong", delta, f"real check with tolerance {tolerance}"
+
+    raise ValueError(f"Unsupported ground truth type: {gt_type}")
 
 
 class ExperimentState(TypedDict, total=False):
@@ -95,7 +135,7 @@ def _run_agent(state: ExperimentState) -> ExperimentState:
 
 def _check_answer(state: ExperimentState) -> ExperimentState:
     if state["task_type"] == "math":
-        verdict, delta, note = check_math_answer(
+        verdict, delta, note = _check_math_answer(
             agent_answer=state["final_answer"],
             ground_truth=state["ground_truth"],
         )
@@ -136,10 +176,8 @@ def _check_answer(state: ExperimentState) -> ExperimentState:
 
 def _save_result(state: ExperimentState) -> ExperimentState:
     finished_at = datetime.now(timezone.utc).isoformat()
-    elapsed_seconds = None
     start_perf = state.get("start_perf")
-    if start_perf is not None:
-        elapsed_seconds = time.perf_counter() - start_perf
+    elapsed_seconds = time.perf_counter() - start_perf if start_perf is not None else None
     payload = {
         "task_id": state["task_id"],
         "task_type": state["task_type"],
@@ -157,20 +195,17 @@ def _save_result(state: ExperimentState) -> ExperimentState:
         "judge_score": state.get("judge_score", {}),
         "final_answer": state["final_answer"],
     }
-    write_result(
-        base_path=config.RESULTS_PATH,
-        experiment_id=state["experiment_id"],
-        role=state["agent_role"],
-        task_id=state["task_id"],
-        repetition=state["repetition"],
-        result_payload=payload,
-        ground_truth=state["ground_truth"],
-    )
+    out_dir = Path(config.RESULTS_PATH) / state["experiment_id"] / state["agent_role"]
+    out_dir.mkdir(parents=True, exist_ok=True)
+    prefix = f"{state['task_id']}_rep{state['repetition']}"
+    (out_dir / f"{prefix}.json").write_text(json.dumps(payload, indent=2, ensure_ascii=True))
+    solution_payload = {"task_id": state["task_id"], "ground_truth": state["ground_truth"]}
+    (out_dir / f"{prefix}_solution.json").write_text(json.dumps(solution_payload, indent=2, ensure_ascii=True))
     return state
 
 
 def _route_after_check(state: ExperimentState) -> str:
-    if should_retry(state["attempts"], MAX_RETRIES, state["verdict"]):
+    if state["verdict"] != "correct" and state["attempts"] < MAX_RETRIES:
         return "retry"
     return "save"
 
