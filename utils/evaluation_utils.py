@@ -11,6 +11,7 @@ def _record_consistency_finding(lines: List[str]) -> None:
     if not lines:
         return
     eval_path = Path(RESULTS_PATH) / "evaluation" / "consistency.md"
+    eval_path.parent.mkdir(parents=True, exist_ok=True)
     existing = eval_path.read_text(encoding="utf-8") if eval_path.exists() else ""
     content = existing + "\n" + "\n".join(lines) + "\n"
     eval_path.write_text(content.strip() + "\n", encoding="utf-8")
@@ -187,7 +188,8 @@ def _build_experiment_report(experiment_id: str, roles: Dict[str, List[Dict[str,
                 lines.append(f"**{role} — {task_id}**")
                 lines.append("")
                 for rep, reasoning in rep_reasonings:
-                    lines.append(f"> rep {rep}: {reasoning.replace(chr(10), ' ')}")
+                    lines.append(f"- **rep {rep}:** {reasoning.replace(chr(10), ' ')}")
+                    lines.append("")
                 lines.append("")
 
     lines += _build_scores_table(roles)

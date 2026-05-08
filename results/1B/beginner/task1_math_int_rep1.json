@@ -6,15 +6,15 @@
   "agent_role": "beginner",
   "model": "deepseek-r1:latest",
   "repetition": 1,
-  "started_at": "2026-04-29T14:17:49.368441+00:00",
-  "finished_at": "2026-04-29T14:18:25.022644+00:00",
-  "elapsed_seconds": 35.6540355420002,
+  "started_at": "2026-05-08T21:31:31.188000+00:00",
+  "finished_at": "2026-05-08T21:32:26.564959+00:00",
+  "elapsed_seconds": 55.37705991699477,
   "attempts": 1,
   "history": [
     {
       "answer": 1260,
-      "reasoning": "Calcolo: Settore A ha 240 connessioni. Settore B ha il doppio, quindi 2 * 240 = 480. Somma di A e B \u00e8 240 + 480 = 720. Settore C ha 180 in meno di questa somma, quindi 720 - 180 = 540. Totale: 240 + 480 + 540 = 1260.",
-      "confidence": 0.95
+      "reasoning": "Sector B has twice the connections of Sector A, so 2 * 240 = 480. The sum of Sectors A and B is 240 + 480 = 720. Sector C has 180 fewer connections than this sum, so 720 - 180 = 540. Total connections are the sum of all sectors: 240 + 480 + 540 = 1260.",
+      "confidence": 0.9
     }
   ],
   "verdict": "correct",
@@ -25,7 +25,13 @@
   },
   "final_answer": {
     "answer": 1260,
-    "reasoning": "Calcolo: Settore A ha 240 connessioni. Settore B ha il doppio, quindi 2 * 240 = 480. Somma di A e B \u00e8 240 + 480 = 720. Settore C ha 180 in meno di questa somma, quindi 720 - 180 = 540. Totale: 240 + 480 + 540 = 1260.",
-    "confidence": 0.95
+    "reasoning": "Sector B has twice the connections of Sector A, so 2 * 240 = 480. The sum of Sectors A and B is 240 + 480 = 720. Sector C has 180 fewer connections than this sum, so 720 - 180 = 540. Total connections are the sum of all sectors: 240 + 480 + 540 = 1260.",
+    "confidence": 0.9
+  },
+  "tokens": {
+    "agent_in": 207,
+    "agent_out": 811,
+    "judge_in": null,
+    "judge_out": null
   }
 }

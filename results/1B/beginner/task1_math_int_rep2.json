@@ -6,14 +6,14 @@
   "agent_role": "beginner",
   "model": "deepseek-r1:latest",
   "repetition": 2,
-  "started_at": "2026-04-29T14:18:25.027210+00:00",
-  "finished_at": "2026-04-29T14:19:07.940393+00:00",
-  "elapsed_seconds": 42.913096416999906,
+  "started_at": "2026-05-08T21:32:26.570206+00:00",
+  "finished_at": "2026-05-08T21:33:00.931229+00:00",
+  "elapsed_seconds": 34.36112541600596,
   "attempts": 1,
   "history": [
     {
       "answer": 1260,
-      "reasoning": "Primo, il settore A gestisce 240 connessioni. Poi, il settore B gestisce il doppio di A, quindi 2 * 240 = 480 connessioni. Successivamente, il settore C gestisce 180 connessioni in meno della somma di A e B. La somma di A e B \u00e8 240 + 480 = 720, quindi C = 720 - 180 = 540. Infine, il totale \u00e8 240 + 480 + 540 = 1260.",
+      "reasoning": "Sector A has 240 connections. Sector B has twice that, so 480 connections. Sum of A and B is 720. Sector C has 180 fewer, so 540. Total connections are 240 + 480 + 540 = 1260.",
       "confidence": 0.9
     }
   ],
@@ -25,7 +25,13 @@
   },
   "final_answer": {
     "answer": 1260,
-    "reasoning": "Primo, il settore A gestisce 240 connessioni. Poi, il settore B gestisce il doppio di A, quindi 2 * 240 = 480 connessioni. Successivamente, il settore C gestisce 180 connessioni in meno della somma di A e B. La somma di A e B \u00e8 240 + 480 = 720, quindi C = 720 - 180 = 540. Infine, il totale \u00e8 240 + 480 + 540 = 1260.",
+    "reasoning": "Sector A has 240 connections. Sector B has twice that, so 480 connections. Sum of A and B is 720. Sector C has 180 fewer, so 540. Total connections are 240 + 480 + 540 = 1260.",
     "confidence": 0.9
+  },
+  "tokens": {
+    "agent_in": 207,
+    "agent_out": 854,
+    "judge_in": null,
+    "judge_out": null
   }
 }

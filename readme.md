@@ -14,6 +14,7 @@ For recent changes see **[docs/changelog.md](docs/changelog.md)**.
 poetry install
 ollama serve
 ollama pull gemma4:e2b
+ollama pull gemma4:e4b
 ollama pull deepseek-r1:latest
 
 poetry run python main.py

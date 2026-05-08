@@ -4,16 +4,16 @@
   "task_path": "docs/tasks/task1_math_int.md",
   "sol_path": "docs/tasks/task1_math_int_sol.md",
   "agent_role": "expert",
-  "model": "qwen3.5:latest",
+  "model": "gemma4:e2b",
   "repetition": 1,
-  "started_at": "2026-04-29T14:21:12.942364+00:00",
-  "finished_at": "2026-04-29T14:22:45.363349+00:00",
-  "elapsed_seconds": 92.42069762499887,
+  "started_at": "2026-05-08T21:31:07.940257+00:00",
+  "finished_at": "2026-05-08T21:31:17.694981+00:00",
+  "elapsed_seconds": 9.754575832979754,
   "attempts": 1,
   "history": [
     {
       "answer": 1260,
-      "reasoning": "Settore A: 240 connessioni. Settore B: 2 * 240 = 480 connessioni. Somma A+B: 720 connessioni. Settore C: 720 - 180 = 540 connessioni. Totale: 240 + 480 + 540 = 1260 connessioni.",
+      "reasoning": "Sector A has 240 connections. Sector B has twice Sector A, so B = 2 * 240 = 480. The sum of A and B is 240 + 480 = 720. Sector C has 180 fewer connections than the sum of A and B, so C = 720 - 180 = 540. The total number of connections is A + B + C = 240 + 480 + 540 = 1260.",
       "confidence": 1.0
     }
   ],
@@ -25,7 +25,13 @@
   },
   "final_answer": {
     "answer": 1260,
-    "reasoning": "Settore A: 240 connessioni. Settore B: 2 * 240 = 480 connessioni. Somma A+B: 720 connessioni. Settore C: 720 - 180 = 540 connessioni. Totale: 240 + 480 + 540 = 1260 connessioni.",
+    "reasoning": "Sector A has 240 connections. Sector B has twice Sector A, so B = 2 * 240 = 480. The sum of A and B is 240 + 480 = 720. Sector C has 180 fewer connections than the sum of A and B, so C = 720 - 180 = 540. The total number of connections is A + B + C = 240 + 480 + 540 = 1260.",
     "confidence": 1.0
+  },
+  "tokens": {
+    "agent_in": 241,
+    "agent_out": 518,
+    "judge_in": null,
+    "judge_out": null
   }
 }

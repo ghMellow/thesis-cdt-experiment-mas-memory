@@ -1,7 +1,7 @@
 {
   "task_id": "task3_anomaly",
   "ground_truth": {
-    "answer": "ANOMALIA_CRITICA",
+    "answer": "CRITICAL_ANOMALY",
     "type": "textual_classification"
   }
 }
