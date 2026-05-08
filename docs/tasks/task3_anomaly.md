@@ -1,4 +1,4 @@
-# Task 3 — Classificazione Anomalia 5G
+# Task 3 — 5G Anomaly Classification
 
 **ID:** task3_anomaly  
 **Tipo:** textual  
@@ -8,37 +8,37 @@
 
 ## Scenario
 
-Un nodo di antenna 5G riporta i seguenti valori negli ultimi 10 minuti:
+A 5G antenna node reports the following values over the last 10 minutes:
 
-| Parametro | Valore misurato | Soglia normale |
+| Parameter | Measured Value | Normal Threshold |
 |---|---|---|
 | RSRP | -118 dBm | > -110 dBm |
 | Packet Loss | 12% | < 2% |
-| Throughput | 18 Mbps | ~300 Mbps attesi |
-| Temperatura modulo RF | 71°C | < 75°C (critica) |
-| Handover falliti | 8 su 10 tentativi | < 10% |
+| Throughput | 18 Mbps | ~300 Mbps expected |
+| RF Module Temperature | 71°C | < 75°C (critical) |
+| Failed Handovers | 8 out of 10 attempts | < 10% |
 
 ---
 
-## Domanda
+## Question
 
-Classifica la situazione corrente del nodo scegliendo **una** delle seguenti categorie:
+Classify the current state of the node by choosing **one** of the following categories:
 
-- `NORMALE`
-- `ANOMALIA_LIEVE`
-- `ANOMALIA_CRITICA`
+- `NORMAL`
+- `MINOR_ANOMALY`
+- `CRITICAL_ANOMALY`
 
-Motiva la classificazione citando i parametri rilevanti.
+Justify your classification by citing the relevant parameters.
 
 ---
 
-## Istruzioni per l'agente
+## Agent Instructions
 
-Rispondi SOLO in formato JSON:
+Reply ONLY in JSON format:
 
 ```json
 {
-  "answer": "NORMALE" | "ANOMALIA_LIEVE" | "ANOMALIA_CRITICA",
+  "answer": "NORMAL" | "MINOR_ANOMALY" | "CRITICAL_ANOMALY",
   "reasoning": "...",
   "confidence": 0.0
 }

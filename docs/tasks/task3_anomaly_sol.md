@@ -1,7 +1,7 @@
-# Soluzione — Task 3 (classificazione anomalia)
+# Solution — Task 3 (anomaly classification)
 
 **ID:** task3_anomaly_sol  
-**Uso:** rubrica per judge agent, GT non esposta all'agente testato
+**Usage:** rubric for judge agent, GT not exposed to the tested agent
 
 ---
 
@@ -9,27 +9,28 @@
 
 ```json
 {
-  "answer": "ANOMALIA_CRITICA",
+  "answer": "CRITICAL_ANOMALY",
   "type": "textual_classification"
 }
 ```
 
-## Motivazione GT
+## GT Rationale
 
-4 parametri su 5 sono fuori soglia simultaneamente:
-- RSRP -118 dBm vs soglia -110 dBm → **fuori soglia**
-- Packet Loss 12% vs soglia 2% → **6x il limite**
-- Throughput 18 Mbps vs 300 Mbps attesi → **6% del valore normale**
-- Handover falliti 80% vs soglia 10% → **fuori soglia critica**
-- Temperatura 71°C → unico parametro ancora entro soglia (< 75°C)
+4 out of 5 parameters are simultaneously out of threshold:
 
-La combinazione di 4 KPI degradati simultaneamente indica anomalia critica, non lieve.
+- RSRP -118 dBm vs threshold -110 dBm → **out of threshold**
+- Packet Loss 12% vs threshold 2% → **6× the limit**
+- Throughput 18 Mbps vs 300 Mbps expected → **6% of normal value**
+- Failed Handovers 80% vs threshold 10% → **critically out of threshold**
+- Temperature 71°C → the only parameter still within threshold (< 75°C)
+
+The combination of 4 simultaneously degraded KPIs indicates a critical anomaly, not a minor one.
 
 ---
 
-## Rubrica per il Judge Agent
+## Rubric for the Judge Agent
 
-Il judge NON riceve il valore GT esplicito. Riceve: risposta agente + scenario + questa rubrica.
+The judge does NOT receive the explicit GT value. It receives: agent response + scenario + this rubric.
 
 ```json
 {
@@ -37,33 +38,33 @@ Il judge NON riceve il valore GT esplicito. Riceve: risposta agente + scenario +
     "classification_score": {
       "max": 3,
       "criteri": {
-        "3": "Classifica ANOMALIA_CRITICA con motivazione su almeno 3 parametri fuori soglia",
-        "2": "Classifica ANOMALIA_CRITICA ma motivazione parziale (1-2 parametri)",
-        "1": "Classifica ANOMALIA_LIEVE con motivazione tecnica plausibile",
-        "0": "Classifica NORMALE o nessuna motivazione tecnica"
+        "3": "Classifies CRITICAL_ANOMALY with justification citing at least 3 out-of-threshold parameters",
+        "2": "Classifies CRITICAL_ANOMALY but with partial justification (1-2 parameters)",
+        "1": "Classifies MINOR_ANOMALY with plausible technical justification",
+        "0": "Classifies NORMAL or provides no technical justification"
       }
     },
     "reasoning_score": {
       "max": 3,
       "criteri": {
-        "3": "Cita valori numerici specifici e li confronta con le soglie",
-        "2": "Cita i parametri ma senza confronto numerico esplicito",
-        "1": "Ragionamento generico senza riferimento ai dati",
-        "0": "Nessun ragionamento"
+        "3": "Cites specific numerical values and compares them against thresholds",
+        "2": "Mentions parameters but without explicit numerical comparison",
+        "1": "Generic reasoning without reference to data",
+        "0": "No reasoning provided"
       }
     },
     "clarity_score": {
       "max": 1,
       "criteri": {
-        "1": "Risposta chiara, strutturata, JSON valido",
-        "0": "JSON malformato o risposta confusa"
+        "1": "Clear, structured response, valid JSON",
+        "0": "Malformed JSON or confused response"
       }
     },
     "confidence_calibration_score": {
       "max": 1,
       "criteri": {
-        "1": "Confidence >= 0.7 se risposta corretta, oppure confidence bassa se risposta sbagliata",
-        "0": "Confidence alta su risposta sbagliata o confidence inspiegabilmente bassa su risposta corretta"
+        "1": "Confidence >= 0.7 if answer is correct, or low confidence if answer is wrong",
+        "0": "High confidence on wrong answer, or inexplicably low confidence on correct answer"
       }
     }
   },

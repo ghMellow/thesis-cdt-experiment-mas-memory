@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Experiment 5G</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f7f3ed;
+            --surface: #ffffff;
+            --surface2: #ede9e2;
+            --border: rgba(0,0,0,0.09);
+            --gold: #7a5018;
+            --gold-dim: #b8843a;
+            --white: #1c1a17;
+            --muted: #9b93a6;
+            --accent: #1a5faf;
+            --mono: 'IBM Plex Mono', monospace;
+            --serif: 'Playfair Display', Georgia, serif;
+            --sans: 'Inter', system-ui, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            width: 100%; height: 100%;
+            background: var(--bg);
+            color: var(--white);
+            font-family: var(--sans);
+            overflow: hidden;
+        }
+
+        body::after {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9998; opacity: 0.5;
+        }
+
+        .deck { width: 100vw; height: 100vh; position: relative; }
+
+        section {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            padding: 80px 100px;
+            opacity: 0; transform: translateY(16px);
+            transition: opacity 0.45s cubic-bezier(0.4,0,0.2,1), transform 0.45s cubic-bezier(0.4,0,0.2,1);
+            pointer-events: none;
+        }
+        section.active { opacity: 1; transform: translateY(0); pointer-events: auto; z-index: 1; }
+        section.left-align { align-items: flex-start; justify-content: center; padding-left: 110px; }
+
+        section::before {
+            content: ''; position: absolute;
+            left: 0; top: 0; bottom: 0; width: 3px;
+            background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+            opacity: 0; transition: opacity 0.6s 0.2s;
+        }
+        section.active.left-align::before { opacity: 1; }
+
+        h1 { font-family: var(--serif); font-size: clamp(48px,6vw,80px); font-weight: 700; line-height: 1.1; color: var(--white); letter-spacing: -0.5px; margin-bottom: 24px; }
+        h2 { font-family: var(--serif); font-size: clamp(28px,3.5vw,48px); font-weight: 700; line-height: 1.15; color: var(--white); margin-bottom: 36px; }
+        h3 { font-family: var(--sans); font-size: 11px; font-weight: 500; color: var(--gold); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 14px; }
+
+        .subtitle { font-size: 22px; color: var(--muted); font-weight: 300; line-height: 1.6; }
+        .tagline { font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--gold-dim); margin-top: 40px; letter-spacing: 0.5px; }
+
+        ul { list-style: none; text-align: left; max-width: 900px; width: 100%; }
+        li { font-size: clamp(15px,1.55vw,19px); line-height: 1.7; padding: 13px 0 13px 36px; position: relative; color: rgba(28,26,23,0.82); border-bottom: 1px solid var(--border); }
+        li:last-child { border-bottom: none; }
+        li::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 16px; height: 1px; background: var(--gold); }
+        li strong { color: var(--gold); font-weight: 600; }
+        li em { color: rgba(28,26,23,0.5); font-style: italic; }
+        li > ul { margin-top: 10px; }
+        li > ul li { font-size: 0.9em; padding: 7px 0 7px 28px; border-bottom: none; }
+        li > ul li::before { width: 10px; background: var(--gold-dim); }
+
+        code { font-family: var(--mono); font-size: 0.85em; background: rgba(122,80,24,0.09); color: var(--gold); padding: 2px 8px; border-radius: 3px; border: 1px solid rgba(122,80,24,0.18); }
+
+        .code-block { font-family: var(--mono); font-size: 13px; line-height: 1.75; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--gold); padding: 28px 32px; border-radius: 0 8px 8px 0; width: 100%; max-width: 860px; color: rgba(28,26,23,0.78); overflow-x: auto; white-space: pre; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+        .code-block .comment { color: var(--muted); }
+        .code-block .cmd { color: var(--accent); }
+        .code-block .key { color: var(--gold); }
+
+        .callout { background: rgba(122,80,24,0.06); border: 1px solid rgba(122,80,24,0.22); border-radius: 6px; padding: 18px 26px; font-size: 17px; color: var(--gold); font-weight: 500; max-width: 860px; width: 100%; margin-bottom: 24px; }
+
+        .svg-wrap { width: 100%; max-width: 820px; display: flex; justify-content: center; }
+        .svg-wrap svg { width: 100%; height: auto; }
+
+        /* ── CARDS ── */
+        .cards { display: flex; gap: 20px; width: 100%; max-width: 1100px; align-items: stretch; }
+        .card { flex: 1; background: var(--surface); border: 1px solid var(--border); border-top: 2px solid var(--gold-dim); border-radius: 8px; padding: 26px 22px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+        .card.featured { border-top-color: var(--gold); }
+        .card-title { font-family: var(--serif); font-size: 19px; font-weight: 700; color: var(--white); }
+        .card.featured .card-title { color: var(--gold); }
+        .card-tag { font-family: var(--mono); font-size: 10px; color: var(--gold-dim); text-transform: uppercase; letter-spacing: 2px; }
+        .card-row { font-size: 13px; color: rgba(28,26,23,0.6); line-height: 1.6; padding: 6px 0; border-bottom: 1px solid var(--border); }
+        .card-row:last-child { border-bottom: none; }
+        .card-row strong { color: rgba(28,26,23,0.88); font-weight: 500; }
+
+        /* ── MEMORY / ROLE CARDS ── */
+        .mem-cards { display: flex; gap: 22px; width: 100%; max-width: 1000px; }
+        .mem-card { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 26px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+        .mem-label { font-family: var(--mono); font-size: 10px; color: var(--gold-dim); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px; }
+        .mem-name { font-family: var(--serif); font-size: 21px; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+        .mem-desc { font-size: 13px; color: rgba(28,26,23,0.6); line-height: 1.6; margin-bottom: 12px; }
+        .mem-example { font-family: var(--mono); font-size: 11px; color: var(--gold); background: var(--surface2); padding: 8px 12px; border-radius: 4px; }
+
+        /* ── UI CHROME ── */
+        .counter { position: fixed; bottom: 36px; left: 52px; font-family: var(--mono); font-size: 12px; color: var(--muted); z-index: 100; letter-spacing: 1px; }
+        .counter span { color: var(--gold); }
+        .progress-bar { position: fixed; bottom: 0; left: 0; height: 2px; background: linear-gradient(to right, var(--gold-dim), var(--gold)); transition: width 0.4s ease; z-index: 100; }
+        .hint { position: fixed; bottom: 34px; right: 52px; font-family: var(--mono); font-size: 11px; color: var(--muted); opacity: 0; transition: opacity 0.3s; z-index: 100; letter-spacing: 1px; }
+        .hint.visible { opacity: 1; }
+
+        .sidebar { position: fixed; left: 0; top: 0; width: 300px; height: 100vh; background: var(--surface); border-right: 1px solid var(--border); padding: 52px 24px; overflow-y: auto; z-index: 200; transform: translateX(-100%); transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); box-shadow: 2px 0 20px rgba(0,0,0,0.08); }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-title { font-family: var(--mono); font-size: 10px; color: var(--gold-dim); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 28px; }
+        .sidebar-item { font-size: 13px; padding: 10px 12px; margin: 3px 0; color: rgba(28,26,23,0.55); cursor: pointer; border-radius: 4px; transition: all 0.2s; line-height: 1.4; border-left: 2px solid transparent; }
+        .sidebar-item:hover { color: var(--white); background: var(--surface2); }
+        .sidebar-item.active { color: var(--gold); border-left-color: var(--gold); background: rgba(122,80,24,0.06); font-weight: 500; }
+        .sidebar-num { font-family: var(--mono); font-size: 10px; color: var(--gold-dim); margin-right: 8px; }
+
+        .hamburger { position: fixed; top: 28px; left: 28px; width: 36px; height: 36px; cursor: pointer; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; }
+        .hamburger span { width: 22px; height: 1.5px; background: var(--muted); transition: all 0.3s; display: block; }
+        .hamburger:hover span { background: var(--gold); }
+
+        .overlay { position: fixed; inset: 0; background: rgba(200,190,175,0.5); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.35s; }
+        .overlay.visible { opacity: 1; pointer-events: auto; }
+
+        #slide-title { text-align: center; background: radial-gradient(ellipse at 50% 40%, rgba(122,80,24,0.04) 0%, transparent 65%); }
+        #slide-title .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 28px; }
+        #slide-title h1 { font-size: clamp(52px,7vw,88px); }
+        #slide-title .rule { width: 60px; height: 1px; background: var(--gold); margin: 28px auto; }
+
+        #slide-close { text-align: center; background: radial-gradient(ellipse at 50% 50%, rgba(122,80,24,0.04) 0%, transparent 60%); }
+        #slide-close h2 { font-size: clamp(40px,5vw,64px); margin-bottom: 48px; }
+        .close-line { font-size: 20px; color: rgba(28,26,23,0.5); line-height: 2.1; max-width: 600px; font-weight: 300; }
+        .close-accent { color: var(--gold); font-family: var(--serif); font-style: italic; font-size: 26px; margin-top: 52px; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+<div class="overlay" id="overlay"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">Indice</div>
+    <div id="sidebar-content"></div>
+</div>
+
+<div class="deck" id="deck">
+
+<!-- 01 TITOLO -->
+<section id="slide-title" class="active">
+    <div class="eyebrow">Esperimento Controllato · Multi-Agente · 5G</div>
+    <h1>Expert vs Beginner<br>su Scenari 5G</h1>
+    <div class="rule"></div>
+    <p class="subtitle">Confronto LLM con LangGraph e valutazione automatica</p>
+    <p class="tagline">Misurare la differenza di competenza attraverso i modelli linguistici</p>
+</section>
+
+<!-- 02 COS'È -->
+<section class="left-align">
+    <h3>Overview</h3>
+    <h2>Cos'è questo progetto</h2>
+    <ul>
+        <li>Un <strong>esperimento controllato multi-agente</strong> su scenari 5G, orchestrato con LangGraph</li>
+        <li>Due ruoli LLM — <strong>expert</strong> e <strong>beginner</strong> — rispondono agli stessi task e vengono confrontati</li>
+        <li>Due setup sperimentali (<strong>1A</strong> e <strong>1B</strong>) permettono di isolare l'effetto del modello dal ruolo</li>
+        <li>Ogni task viene ripetuto più volte per misurare <strong>consistenza</strong> — non solo accuracy</li>
+    </ul>
+</section>
+
+<!-- 03 SETUP 1A VS 1B -->
+<section>
+    <h3>Setup Sperimentali</h3>
+    <h2 style="margin-bottom:28px;">1A vs 1B — Controllo e Confronto</h2>
+    <div class="cards" style="max-width:900px;">
+        <div class="card featured">
+            <div class="card-tag">Setup 1A · Controllo</div>
+            <div class="card-title">Stesso Modello</div>
+            <div class="card-row"><strong>Expert</strong> e <strong>Beginner</strong> usano lo stesso LLM</div>
+            <div class="card-row">Le differenze dipendono <strong>solo dal system prompt</strong></div>
+            <div class="card-row">Baseline per isolare l'effetto del ruolo</div>
+        </div>
+        <div class="card">
+            <div class="card-tag">Setup 1B · Confronto</div>
+            <div class="card-title">Modelli Diversi</div>
+            <div class="card-row"><strong>Expert</strong> e <strong>Beginner</strong> usano LLM distinti</div>
+            <div class="card-row">Le differenze dipendono da <strong>ruolo + capacità del modello</strong></div>
+            <div class="card-row">Misura l'effetto combinato di prompt e modello</div>
+        </div>
+    </div>
+    <p class="tagline" style="margin-top:36px;">I modelli effettivi sono definiti nel mapping <code>MODELS</code> in <code>config.py</code></p>
+</section>
+
+<!-- 04 RUOLI -->
+<section>
+    <h3>Ruoli</h3>
+    <h2 style="margin-bottom:28px;">Expert e Beginner</h2>
+    <div class="mem-cards">
+        <div class="mem-card" style="border-top: 2px solid var(--gold);">
+            <div class="mem-label">Ruolo 01</div>
+            <div class="mem-name">Expert</div>
+            <div class="mem-desc">Profilo ingegnere 5G senior. System prompt ottimizzato per ragionamento tecnico approfondito e terminologia specialistica.</div>
+            <div class="mem-example">agents/prompts.py → EXPERT_PROMPT</div>
+        </div>
+        <div class="mem-card" style="border-top: 2px solid var(--gold-dim);">
+            <div class="mem-label">Ruolo 02</div>
+            <div class="mem-name">Beginner</div>
+            <div class="mem-desc">Profilo tecnico 5G junior. System prompt che simula conoscenza base, risposte meno dettagliate e confidence calibrata diversamente.</div>
+            <div class="mem-example">agents/prompts.py → BEGINNER_PROMPT</div>
+        </div>
+        <div class="mem-card" style="border-top: 2px solid var(--muted);">
+            <div class="mem-label">Output Comune</div>
+            <div class="mem-name">JSON Strutturato</div>
+            <div class="mem-desc">Entrambi i ruoli producono lo stesso schema di risposta, che permette confronto diretto e valutazione automatica.</div>
+            <div class="mem-example">{"answer": "...",<br>"reasoning": "...",<br>"confidence": 0.0}</div>
+        </div>
+    </div>
+</section>
+
+<!-- 05 TASK SVG -->
+<section>
+    <h3>Task</h3>
+    <h2 style="margin-bottom:20px;">Due Tipi di Valutazione</h2>
+    <div class="svg-wrap" style="max-width:720px;">
+      <svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="ta" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#b8843a"/>
+          </marker>
+          <marker id="ta2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#1a5faf"/>
+          </marker>
+        </defs>
+
+        <!-- Task file label -->
+        <rect x="270" y="10" width="180" height="42" rx="7" fill="#fff" stroke="#b8843a" stroke-width="1.5"/>
+        <text x="360" y="35" text-anchor="middle" font-size="13" fill="#7a5018" font-weight="600" font-family="'IBM Plex Mono',monospace">docs/tasks/*.md</text>
+
+        <!-- split arrows -->
+        <line x1="270" y1="31" x2="180" y2="82" stroke="#b8843a" stroke-width="1.3" marker-end="url(#ta)"/>
+        <line x1="450" y1="31" x2="540" y2="82" stroke="#b8843a" stroke-width="1.3" marker-end="url(#ta)"/>
+
+        <!-- MATH box -->
+        <rect x="60" y="84" width="220" height="52" rx="8" fill="#fff" stroke="#7a5018" stroke-width="1.5"/>
+        <text x="170" y="108" text-anchor="middle" font-size="14" fill="#7a5018" font-weight="700" font-family="'Playfair Display',serif">MATH</text>
+        <text x="170" y="126" text-anchor="middle" font-size="11" fill="#9b93a6" font-family="'Inter',sans-serif">verifica numerica deterministica</text>
+
+        <!-- TEXTUAL box -->
+        <rect x="440" y="84" width="220" height="52" rx="8" fill="#fff" stroke="#1a5faf" stroke-width="1.5"/>
+        <text x="550" y="108" text-anchor="middle" font-size="14" fill="#1a5faf" font-weight="700" font-family="'Playfair Display',serif">TEXTUAL</text>
+        <text x="550" y="126" text-anchor="middle" font-size="11" fill="#9b93a6" font-family="'Inter',sans-serif">scoring via judge LLM + rubrica</text>
+
+        <!-- MATH detail -->
+        <rect x="40" y="172" width="260" height="104" rx="8" fill="rgba(122,80,24,0.05)" stroke="rgba(122,80,24,0.2)" stroke-width="1"/>
+        <text x="170" y="197" text-anchor="middle" font-size="12" fill="#7a5018" font-weight="500" font-family="'Inter',sans-serif">Valutazione</text>
+        <text x="55" y="220" font-size="11" fill="rgba(28,26,23,0.65)" font-family="'Inter',sans-serif">exact_int → match int esatto</text>
+        <text x="55" y="240" font-size="11" fill="rgba(28,26,23,0.65)" font-family="'Inter',sans-serif">real → float con tolerance</text>
+        <text x="55" y="260" font-size="11" fill="rgba(28,26,23,0.65)" font-family="'Inter',sans-serif">ground truth in _sol.md</text>
+        <line x1="170" y1="136" x2="170" y2="169" stroke="#b8843a" stroke-width="1.2" marker-end="url(#ta)"/>
+
+        <!-- TEXTUAL detail -->
+        <rect x="420" y="172" width="280" height="104" rx="8" fill="rgba(26,95,175,0.05)" stroke="rgba(26,95,175,0.2)" stroke-width="1"/>
+        <text x="560" y="197" text-anchor="middle" font-size="12" fill="#1a5faf" font-weight="500" font-family="'Inter',sans-serif">Valutazione</text>
+        <text x="435" y="220" font-size="11" fill="rgba(28,26,23,0.65)" font-family="'Inter',sans-serif">judge LLM legge rubrica</text>
+        <text x="435" y="240" font-size="11" fill="rgba(28,26,23,0.65)" font-family="'Inter',sans-serif">assegna score per categoria</text>
+        <text x="435" y="260" font-size="11" fill="rgba(28,26,23,0.65)" font-family="'Inter',sans-serif">normalized ≥ soglia → correct</text>
+        <line x1="550" y1="136" x2="550" y2="169" stroke="#1a5faf" stroke-width="1.2" marker-end="url(#ta2)"/>
+      </svg>
+    </div>
+</section>
+
+<!-- 06 MAPPA CODICE -->
+<section class="left-align">
+    <h3>Architettura</h3>
+    <h2>Mappa del Codice</h2>
+    <ul>
+        <li><strong>main.py</strong> — entrypoint CLI; itera esperimenti/ruoli/task/ripetizioni; genera report</li>
+        <li><strong>config.py</strong> — mapping modelli, temperature, retry, ripetizioni, soglie</li>
+        <li><strong>utils/experiment_utils.py</strong> — stato e grafo LangGraph; nodi <code>load_task</code>, <code>run_agent</code>, <code>check_answer</code>, <code>save_result</code></li>
+        <li><strong>agents/agent_runner.py</strong> — chiamata LLM via Ollama + parsing JSON</li>
+        <li><strong>agents/judge_agent.py</strong> — chiamata LLM judge + parsing + logging</li>
+        <li><strong>utils/evaluation_utils.py</strong> — aggregazione risultati e report anomaly-focused</li>
+    </ul>
+</section>
+
+<!-- 07 FLUSSO LANGGRAPH SVG -->
+<section>
+    <h3>Flusso di Esecuzione</h3>
+    <h2 style="margin-bottom:20px;">Il Grafo LangGraph</h2>
+    <div class="svg-wrap" style="max-width:680px;">
+      <svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="fa" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#7a5018"/>
+          </marker>
+          <marker id="fa2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#b8843a"/>
+          </marker>
+          <marker id="fa3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#1a5faf"/>
+          </marker>
+        </defs>
+
+        <!-- INPUT -->
+        <rect x="230" y="8" width="220" height="44" rx="7" fill="#fff" stroke="#7a5018" stroke-width="1.5"/>
+        <text x="340" y="33" text-anchor="middle" font-size="12" fill="#7a5018" font-weight="600" font-family="'IBM Plex Mono',monospace">(setup, ruolo, task, rep)</text>
+
+        <line x1="340" y1="52" x2="340" y2="70" stroke="#7a5018" stroke-width="1.5" marker-end="url(#fa)"/>
+
+        <!-- load_task -->
+        <rect x="210" y="72" width="260" height="48" rx="8" fill="#fff" stroke="#b8843a" stroke-width="1.3"/>
+        <text x="340" y="96" text-anchor="middle" font-size="14" fill="#1c1a17" font-weight="600" font-family="'Playfair Display',serif">load_task</text>
+        <text x="340" y="112" text-anchor="middle" font-size="10" fill="#9b93a6" font-family="'IBM Plex Mono',monospace">scenario + _sol.md + ground_truth</text>
+
+        <line x1="340" y1="120" x2="340" y2="138" stroke="#b8843a" stroke-width="1.3" marker-end="url(#fa2)"/>
+
+        <!-- run_agent -->
+        <rect x="210" y="140" width="260" height="48" rx="8" fill="#fff" stroke="#b8843a" stroke-width="1.3"/>
+        <text x="340" y="164" text-anchor="middle" font-size="14" fill="#1c1a17" font-weight="600" font-family="'Playfair Display',serif">run_agent</text>
+        <text x="340" y="180" text-anchor="middle" font-size="10" fill="#9b93a6" font-family="'IBM Plex Mono',monospace">LLM call via Ollama → JSON</text>
+
+        <line x1="340" y1="188" x2="340" y2="206" stroke="#b8843a" stroke-width="1.3" marker-end="url(#fa2)"/>
+
+        <!-- check_answer -->
+        <rect x="210" y="208" width="260" height="48" rx="8" fill="#fff" stroke="#b8843a" stroke-width="1.3"/>
+        <text x="340" y="232" text-anchor="middle" font-size="14" fill="#1c1a17" font-weight="600" font-family="'Playfair Display',serif">check_answer</text>
+        <text x="340" y="248" text-anchor="middle" font-size="10" fill="#9b93a6" font-family="'IBM Plex Mono',monospace">math: deterministico · textual: judge</text>
+
+        <!-- retry path -->
+        <path d="M210 232 Q90 232 90 164 Q90 96 210 164" fill="none" stroke="#b8843a" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#fa2)"/>
+        <text x="54" y="165" text-anchor="middle" font-size="10" fill="#9b93a6" font-family="'IBM Plex Mono',monospace" transform="rotate(-90,54,165)">wrong + retry</text>
+
+        <!-- save arrow -->
+        <line x1="340" y1="256" x2="340" y2="274" stroke="#1a5faf" stroke-width="1.3" marker-end="url(#fa3)"/>
+
+        <!-- save_result -->
+        <rect x="210" y="276" width="260" height="36" rx="8" fill="rgba(26,95,175,0.07)" stroke="#1a5faf" stroke-width="1.3"/>
+        <text x="340" y="298" text-anchor="middle" font-size="13" fill="#1a5faf" font-weight="600" font-family="'Playfair Display',serif">save_result</text>
+
+        <!-- correct label -->
+        <text x="478" y="270" font-size="10" fill="#1a5faf" font-family="'IBM Plex Mono',monospace">correct o max retries</text>
+      </svg>
+    </div>
+</section>
+
+<!-- 08 REPETIZIONI VS RETRY -->
+<section class="left-align">
+    <h3>Parametri di Esecuzione</h3>
+    <h2>Ripetizioni e Retry</h2>
+    <div class="callout">Due meccanismi distinti con scopi ortogonali</div>
+    <ul>
+        <li><strong>REPETITIONS</strong> — ripete lo stesso task N volte per misurare <em>consistenza</em>; con temperatura &gt; 0 misura varianza reale tra esecuzioni indipendenti</li>
+        <li><strong>MAX_RETRIES</strong> — tentativi aggiuntivi <em>dentro una singola ripetizione</em>, attivati solo se il verdict è <code>wrong</code></li>
+        <li><strong>Limite attuale:</strong> il feedback del judge <em>non viene reiniettato</em> nel prompt di retry — l'agente non sa perché ha sbagliato</li>
+        <li><strong>Temperatura 0:</strong> se la temperatura è 0, le ripetizioni misurano stabilità del parsing e dell'infrastruttura — non varianza LLM</li>
+    </ul>
+</section>
+
+<!-- 09 VALUTAZIONE TEXTUAL / JUDGE -->
+<section>
+    <h3>Valutazione Testuale</h3>
+    <h2 style="margin-bottom:20px;">Il Judge LLM</h2>
+    <div class="svg-wrap" style="max-width:780px;">
+      <svg viewBox="0 0 780 290" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="ja" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#b8843a"/>
+          </marker>
+          <marker id="ja2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0,8 3,0 6" fill="#1a5faf"/>
+          </marker>
+        </defs>
+
+        <!-- INPUT: scenario + rubrica + risposta -->
+        <rect x="30" y="50" width="190" height="180" rx="8" fill="#fff" stroke="#b8843a" stroke-width="1.2"/>
+        <text x="125" y="78" text-anchor="middle" font-size="12" fill="#7a5018" font-weight="600" font-family="'Inter',sans-serif">Input al Judge</text>
+        <line x1="40" y1="88" x2="210" y2="88" stroke="rgba(0,0,0,0.07)" stroke-width="1"/>
+        <text x="45" y="108" font-size="11" fill="rgba(28,26,23,0.7)" font-family="'Inter',sans-serif">scenario</text>
+        <text x="45" y="128" font-size="11" fill="rgba(28,26,23,0.7)" font-family="'Inter',sans-serif">rubrica + total_max</text>
+        <text x="45" y="148" font-size="11" fill="rgba(28,26,23,0.7)" font-family="'Inter',sans-serif">agent_response JSON</text>
+        <rect x="44" y="162" width="162" height="48" rx="5" fill="rgba(122,80,24,0.06)" stroke="rgba(122,80,24,0.2)" stroke-width="1"/>
+        <text x="125" y="182" text-anchor="middle" font-size="10" fill="#7a5018" font-family="'IBM Plex Mono',monospace">NON riceve:</text>
+        <text x="125" y="198" text-anchor="middle" font-size="10" fill="#9b93a6" font-family="'IBM Plex Mono',monospace">ground_truth testuale</text>
+
+        <!-- freccia -->
+        <line x1="222" y1="140" x2="278" y2="140" stroke="#b8843a" stroke-width="1.4" marker-end="url(#ja)"/>
+
+        <!-- JUDGE box -->
+        <rect x="282" y="90" width="200" height="100" rx="10" fill="#fff" stroke="#7a5018" stroke-width="1.8"/>
+        <text x="382" y="135" text-anchor="middle" font-size="16" fill="#7a5018" font-weight="700" font-family="'Playfair Display',serif">Judge LLM</text>
+        <text x="382" y="157" text-anchor="middle" font-size="10" fill="#9b93a6" font-family="'IBM Plex Mono',monospace">prompt dinamico da rubrica</text>
+        <text x="382" y="172" text-anchor="middle" font-size="10" fill="#9b93a6" font-family="'IBM Plex Mono',monospace">agents/judge_agent.py</text>
+
+        <!-- freccia output -->
+        <line x1="484" y1="140" x2="540" y2="140" stroke="#1a5faf" stroke-width="1.4" marker-end="url(#ja2)"/>
+
+        <!-- OUTPUT box -->
+        <rect x="544" y="50" width="210" height="180" rx="8" fill="#fff" stroke="#1a5faf" stroke-width="1.2"/>
+        <text x="649" y="78" text-anchor="middle" font-size="12" fill="#1a5faf" font-weight="600" font-family="'Inter',sans-serif">Output Judge</text>
+        <line x1="554" y1="88" x2="744" y2="88" stroke="rgba(0,0,0,0.07)" stroke-width="1"/>
+        <text x="559" y="108" font-size="11" fill="rgba(28,26,23,0.7)" font-family="'Inter',sans-serif">*_score per categoria</text>
+        <text x="559" y="128" font-size="11" fill="rgba(28,26,23,0.7)" font-family="'Inter',sans-serif">total_score</text>
+        <text x="559" y="148" font-size="11" fill="rgba(28,26,23,0.7)" font-family="'Inter',sans-serif">feedback testuale</text>
+        <rect x="558" y="162" width="186" height="48" rx="5" fill="rgba(26,95,175,0.06)" stroke="rgba(26,95,175,0.2)" stroke-width="1"/>
+        <text x="649" y="182" text-anchor="middle" font-size="10" fill="#1a5faf" font-family="'IBM Plex Mono',monospace">normalized ≥ PASS_RATIO</text>
+        <text x="649" y="198" text-anchor="middle" font-size="10" fill="#1a5faf" font-family="'IBM Plex Mono',monospace">→ verdict: correct</text>
+
+        <!-- nota bias -->
+        <rect x="282" y="218" width="200" height="52" rx="6" fill="rgba(122,80,24,0.05)" stroke="rgba(122,80,24,0.18)" stroke-width="1"/>
+        <text x="382" y="240" text-anchor="middle" font-size="11" fill="#7a5018" font-weight="500" font-family="'Inter',sans-serif">Attenzione: bias modello</text>
+        <text x="382" y="258" text-anchor="middle" font-size="10" fill="#9b93a6" font-family="'Inter',sans-serif">stesso modello → favorisce il proprio stile</text>
+      </svg>
+    </div>
+</section>
+
+<!-- 10 RISULTATI -->
+<section class="left-align">
+    <h3>Output</h3>
+    <h2>Cosa viene salvato</h2>
+    <ul>
+        <li><strong>Per ogni ripetizione:</strong> due file in <code>results/&lt;experiment_id&gt;/&lt;role&gt;/</code>
+            <ul>
+                <li><code>&lt;task_id&gt;_repN.json</code> — risultato completo: verdict, history, judge_score, elapsed_seconds</li>
+                <li><code>&lt;task_id&gt;_repN_solution.json</code> — snapshot della ground truth al momento del run</li>
+            </ul>
+        </li>
+        <li><strong>Report aggregati</strong> in <code>results/evaluation/</code> al termine di ogni run
+            <ul>
+                <li><code>scores_1A.md</code> e <code>scores_1B.md</code> — accuracy, confidence media, breakdown per task, consistenza reasoning</li>
+                <li><code>comparison.md</code> — confronto sintetico 1A vs 1B</li>
+                <li><code>consistency.md</code> — differenze tra ripetizioni quando il JSON finale cambia</li>
+            </ul>
+        </li>
+        <li><strong>Grafo LangGraph:</strong> <code>python main.py --export-graph docs/graph.png</code></li>
+    </ul>
+</section>
+
+<!-- 11 CONFRONTO TRE APPROCCI EVALUATION -->
+<section>
+    <h3>Confronto</h3>
+    <h2 style="margin-bottom:24px;">Cosa misura ogni metrica</h2>
+    <div class="cards">
+        <div class="card featured">
+            <div class="card-tag">Accuracy</div>
+            <div class="card-title">Correttezza</div>
+            <div class="card-row"><strong>Cosa:</strong> % verdict correct per ruolo/setup/task</div>
+            <div class="card-row"><strong>Math:</strong> deterministico, oggettivo</div>
+            <div class="card-row"><strong>Textual:</strong> dipende dal judge e dalla rubrica</div>
+            <div class="card-row"><strong>Rischio:</strong> satura a 100% se i task sono troppo facili</div>
+        </div>
+        <div class="card">
+            <div class="card-tag">Confidence</div>
+            <div class="card-title">Calibrazione</div>
+            <div class="card-row"><strong>Cosa:</strong> media di <code>confidence</code> dichiarata dall'agente</div>
+            <div class="card-row"><strong>Attuale:</strong> salvata ma non incide sul verdict</div>
+            <div class="card-row"><strong>Futuro:</strong> penalità overconfidence, score composito</div>
+            <div class="card-row"><strong>Nota:</strong> misura auto-percezione, non calibrazione reale</div>
+        </div>
+        <div class="card">
+            <div class="card-tag">Consistenza</div>
+            <div class="card-title">Stabilità</div>
+            <div class="card-row"><strong>Cosa:</strong> variazione JSON tra ripetizioni dello stesso task</div>
+            <div class="card-row"><strong>Attuale:</strong> confronto stringente (equality)</div>
+            <div class="card-row"><strong>Limite:</strong> segnala diff anche a parità di senso</div>
+            <div class="card-row"><strong>Futuro:</strong> confronto semantico via embedding</div>
+        </div>
+    </div>
+</section>
+
+<!-- 12 SFIDE APERTE -->
+<section class="left-align">
+    <h3>Sfide Aperte</h3>
+    <h2>I problemi da risolvere</h2>
+    <ul>
+        <li><strong>Judge come fonte di verità:</strong> se la rubrica è ambigua il judge premia risposte plausibili — non necessariamente corrette</li>
+        <li><strong>Retry cieco:</strong> senza reiniettare il feedback del judge nel prompt, il retry ripete lo stesso errore</li>
+        <li><strong>Task troppo facili:</strong> se l'accuracy satura, le differenze expert/beginner e 1A/1B diventano invisibili</li>
+        <li><strong>Token e costi non tracciati:</strong> <code>elapsed_seconds</code> cattura la latenza ma non i token per chiamata — confrontare costo/qualità è difficile</li>
+        <li><strong>Lingua dei prompt:</strong> prompt in italiano — A/B test IT vs EN non ancora eseguito</li>
+    </ul>
+</section>
+
+<!-- 13 CHIUSURA -->
+<section id="slide-close">
+    <h2>Struttura misurabile, sfide reali</h2>
+    <div class="close-line">
+        Il framework è operativo e genera dati.<br>
+        Le metriche di base sono in posto.<br>
+        Le domande aperte guidano le prossime iterazioni.
+    </div>
+    <span class="close-accent">Misura prima. Ottimizza dopo.</span>
+</section>
+
+</div>
+
+<div class="counter"><span id="cur">1</span> / <span id="tot">13</span></div>
+<div class="progress-bar" id="progress"></div>
+<div class="hint" id="hint">← → · spazio · ESC</div>
+
+<script>
+    const slides = document.querySelectorAll('section');
+    const total = slides.length;
+    let cur = 0, hintTimer;
+    document.getElementById('tot').textContent = total;
+
+    function show(n) {
+        slides[cur].classList.remove('active');
+        cur = (n + total) % total;
+        slides[cur].classList.add('active');
+        document.getElementById('cur').textContent = cur + 1;
+        document.getElementById('progress').style.width = ((cur+1)/total*100)+'%';
+        updateSidebar();
+    }
+    function flashHint() {
+        const h = document.getElementById('hint');
+        h.classList.add('visible');
+        clearTimeout(hintTimer);
+        hintTimer = setTimeout(() => h.classList.remove('visible'), 2500);
+    }
+    document.addEventListener('keydown', e => {
+        if (['ArrowRight','ArrowDown',' '].includes(e.key)) { e.preventDefault(); show(cur+1); flashHint(); }
+        else if (['ArrowLeft','ArrowUp'].includes(e.key)) { e.preventDefault(); show(cur-1); flashHint(); }
+        else if (e.key === 'Escape') toggleSidebar();
+    });
+    document.addEventListener('mousemove', flashHint);
+    let tx = 0;
+    document.addEventListener('touchstart', e => tx = e.touches[0].clientX, {passive:true});
+    document.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - tx;
+        if (Math.abs(dx) > 45) { show(dx < 0 ? cur+1 : cur-1); flashHint(); }
+    }, {passive:true});
+
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const sc = document.getElementById('sidebar-content');
+    function toggleSidebar() {
+        const open = sidebar.classList.toggle('open');
+        overlay.classList.toggle('visible', open);
+    }
+    document.getElementById('hamburger').addEventListener('click', toggleSidebar);
+    overlay.addEventListener('click', toggleSidebar);
+
+    slides.forEach((slide, i) => {
+        const title = slide.querySelector('h1,h2')?.textContent?.trim() || `Slide ${i+1}`;
+        const item = document.createElement('div');
+        item.className = 'sidebar-item' + (i===0?' active':'');
+        item.innerHTML = `<span class="sidebar-num">${String(i+1).padStart(2,'0')}</span>${title}`;
+        item.addEventListener('click', () => { show(i); toggleSidebar(); });
+        sc.appendChild(item);
+    });
+    function updateSidebar() {
+        document.querySelectorAll('.sidebar-item').forEach((el,i) => el.classList.toggle('active', i===cur));
+    }
+    document.getElementById('progress').style.width = (1/total*100)+'%';
+    flashHint();
+</script>
+</body>
+</html>

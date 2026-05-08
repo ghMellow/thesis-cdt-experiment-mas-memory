@@ -1,4 +1,4 @@
-# Task 1 — Matematico (risultato intero)
+# Task 1 — Math (Integer Result)
 
 **ID:** task1_math_int  
 **Tipo:** math  
@@ -6,26 +6,26 @@
 
 ---
 
-## Problema
+## Problem
 
-Un impianto 5G è composto da 3 settori di copertura.
+A 5G installation consists of 3 coverage sectors.
 
-- Il **settore A** gestisce **240 connessioni attive**
-- Il **settore B** gestisce il **doppio** delle connessioni del settore A
-- Il **settore C** gestisce **180 connessioni in meno** rispetto alla somma dei settori A e B
+- **Sector A** handles **240 active connections**
+- **Sector B** handles **twice** the connections of Sector A
+- **Sector C** handles **180 fewer connections** than the sum of Sectors A and B
 
-**Quante connessioni totali gestisce l'impianto?**
+**How many total connections does the installation handle?**
 
 ---
 
-## Istruzioni per l'agente
+## Agent Instructions
 
-Risolvi il problema passo per passo.  
-Rispondi SOLO in formato JSON:
+Solve the problem step by step.  
+Reply ONLY in JSON format:
 
 ```json
 {
-  "answer": <numero intero>,
+  "answer": <integer>,
   "reasoning": "...",
   "confidence": 0.0
 }

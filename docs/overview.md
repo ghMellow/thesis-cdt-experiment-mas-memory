@@ -6,8 +6,10 @@ Un esperimento controllato multi-agente su scenari 5G, orchestrato con LangGraph
 
 - due ruoli LLM (`expert` e `beginner`) rispondono agli stessi task
 - due setup sperimentali (`1A` e `1B`) permettono di confrontare "stesso modello" vs "modelli diversi per ruolo"
-- ogni task viene ripetuto piu' volte a temperatura 0 per misurare **consistenza**
+- ogni task viene ripetuto piu' volte per misurare **consistenza**
 - ogni run produce JSON di output + report aggregati in Markdown
+
+> ⚠️ **Correzione:** la documentazione originale diceva "temperatura 0". Il valore attuale in `config.py` e' `TEMPERATURE = 0.3`. Con temperatura > 0 le ripetizioni misurano varianza LLM reale, non solo stabilita' del parsing.
 
 ---
 
@@ -51,12 +53,13 @@ I task sono in `docs/tasks/` e sono di due tipi:
 
 - `main.py`: entrypoint CLI; itera esperimenti/ruoli/task/ripetizioni; genera report di evaluation
 - `config.py`: mapping modelli + parametri globali (temperature, retry, ripetizioni, soglie)
-- `utils/experiment_utils.py`: stato e grafo LangGraph; nodi `load_task`, `run_agent`, `check_answer`, `save_result`; include valutazione deterministica math, logica di retry e scrittura risultati
-- `utils/task_utils.py`: parsing dei metadata (`**ID:**`, `**Tipo:**`) e lettura dei JSON dai file `_sol.md`
-- `utils/evaluation_utils.py`: aggregazione risultati e generazione report anomaly-focused in `results/evaluation/`
-- `agents/agent_runner.py`: chiamata LLM via Ollama + parsing JSON in output
-- `agents/judge_agent.py`: chiamata LLM judge + parsing JSON + logging
+- `utils/experiment_utils.py`: stato e grafo LangGraph; nodi `load_task`, `run_agent`, `check_answer`, `save_result`; include valutazione deterministica math, logica di retry e scrittura risultati; contiene `_fetch_model_context_window` e `_build_judge_prompt`
+- `utils/task_utils.py`: parsing dei metadata (`**ID:**`, `**Tipo:**`) e lettura dei JSON dai file `_sol.md`; include `_result_exists` (skip run gia' completate) e `_answers_equal`
+- `utils/evaluation_utils.py`: aggregazione risultati e generazione report anomaly-focused in `results/evaluation/`; include `_detect_inconsistencies` (confronto reasoning tra ripetizioni)
+- `agents/agent_runner.py`: chiamata LLM via Ollama + parsing JSON in output; logga token in/out quando disponibili
+- `agents/judge_agent.py`: chiamata LLM judge + parsing JSON + logging token in/out
 - `agents/_llm_utils.py`: helper condivisi tra agent e judge (spinner, JSON parsing, error handling Ollama)
+- `agents/prompts.py`: system prompt per ogni ruolo (`SYSTEM_PROMPTS` dict, chiavi `expert` e `beginner`)
 
 ---
 
@@ -108,6 +111,24 @@ Per ogni combinazione (setup, ruolo, task, ripetizione) il runtime esegue:
 
 - `REPETITIONS`: ripete lo stesso task per misurare **consistenza** (con `TEMPERATURE > 0` misura varianza reale)
 - `MAX_RETRIES`: tentativi dentro una singola ripetizione, solo se la valutazione e' `wrong`
+
+### CLI flags disponibili
+
+```bash
+python main.py [--experiment 1A|1B|all] [--role expert|beginner|all]
+               [--task <task_id> ...]   # filtra su uno o piu' task specifici
+               [--repetitions N]        # sovrascrive REPETITIONS da config
+               [--task-timeout N]       # secondi max per ripetizione (0 = nessuno)
+               [--export-graph <file>]  # esporta il grafo LangGraph e termina
+```
+
+### Skip automatico
+
+Se un file risultato `results/<exp>/<role>/<task_id>_repN.json` esiste gia', quella ripetizione viene saltata. Utile per riprendere una run interrotta.
+
+### Stima worst-case time
+
+All'avvio `main.py` logga il tempo massimo stimato (`remaining_repetitions * task_timeout`) e la context window del modello recuperata da Ollama via `_fetch_model_context_window`.
 
 ### Export del grafo
 
@@ -185,14 +206,17 @@ Dentro il JSON di risultato (campi principali):
 - esecuzione: `attempts`, `history`, `final_answer`, `verdict`, `judge_score`
 - tempi: `started_at`, `finished_at`, `elapsed_seconds`
 
+Il campo `judge_score` nei task textual include anche `normalized_score` (float in [0,1]) oltre ai campi `*_score` per categoria, `total_score` e `feedback`.
+
 ### Report aggregati (`results/evaluation/`)
 
 Alla fine di una run, `utils/evaluation_utils.py` genera:
 
-- `scores_1A.md`, `scores_1B.md`: accuracy, punteggi medi, confidence media, tentativi medi, breakdown per task,
-  e una sezione su consistenza della reasoning tra ripetizioni
-- `comparison.md`: confronto sintetico 1A vs 1B
-- `consistency.md`: segnala differenze tra ripetizioni quando il JSON finale cambia
+- `scores_1A.md`, `scores_1B.md`: tabella per ruolo con colonne `accuracy`, `avg_confidence`, `avg_attempts`, `avg_textual_norm`, `avg_math_delta`; sezione anomalie (wrong, retried, inconsistenze reasoning)
+- `comparison.md`: confronto accuracy 1A vs 1B per ruolo con delta
+- `consistency.md`: segnala ripetizioni in cui il `final_answer` differisce dalla precedente
+
+> ⚠️ **Precisazione:** il rilevamento delle inconsistenze nei report `scores_*.md` confronta specificamente il campo `reasoning` del `final_answer` tra ripetizioni (non l'intero JSON). Il confronto per `consistency.md` usa invece `_answers_equal` sull'intero `final_answer`.
 
 ---
 
@@ -215,6 +239,8 @@ Alla fine di una run, `utils/evaluation_utils.py` genera:
 - **Dubbio (call)**: se il judge non segue la rubrica specifica, i punteggi diventano poco interpretabili.
 - **Situazione attuale**: prompt judge con campi “standard”; rubriche dei task possono avere categorie diverse.
 - **Proposte future**: generare dinamicamente il prompt dal JSON rubrica, oppure standardizzare tutte le rubriche su dimensioni fisse.
+
+> ✅ **Implementato:** `_build_judge_prompt(rubric)` in `utils/experiment_utils.py` genera il prompt judge dinamicamente dalla rubrica del task specifico. Per ogni categoria estrae il valore `max` e il dizionario `criteri` (con soglie esplicite), costruisce un blocco descrittivo e produce uno schema JSON di output con esattamente i campi della rubrica + `total_score` + `feedback`. Il prompt non e' piu' “standard” ma specifico per ogni task.
 
 ### 8.4 Retry con feedback povero
 
@@ -240,10 +266,12 @@ Alla fine di una run, `utils/evaluation_utils.py` genera:
 - **Situazione attuale**: viene salvato `elapsed_seconds` a livello di ripetizione, non token in/out.
 - **Proposte future**: token tracking (agent + judge) e report di costo/tempo per setup/ruolo/task.
 
+> ✅ **Implementato:** `run_agent` e `run_judge_textual` restituiscono ora una tripla `(parsed_json, in_tok, out_tok)`. `_run_agent` accumula `agent_tokens_in` / `agent_tokens_out` nello stato (sommando su ogni retry). `_check_answer` accumula `judge_tokens_in` / `judge_tokens_out` nello stato (solo task textual). `_save_result` scrive un blocco `"tokens": {"agent_in", "agent_out", "judge_in", "judge_out"}` nel JSON di ogni ripetizione. I valori sono `null` se Ollama non restituisce i campi. I token non sono ancora aggregati nei report Markdown (`evaluation_utils.py`).
+
 ### 8.8 Consistenza troppo basata su equality del JSON
 
 - **Dubbio (call)**: il confronto stringente segnala inconsistenze anche quando il senso e' identico.
-- **Situazione attuale**: consistenza rilevata confrontando il JSON finale tra ripetizioni.
+- **Situazione attuale**: `_detect_inconsistencies` in `evaluation_utils.py` confronta il campo `reasoning` tra ripetizioni con string equality (non il JSON intero). `_answers_equal` in `task_utils.py` usa `json.dumps(sort_keys=True)` per confrontare il `final_answer` completo nel log di `consistency.md`. Entrambi rimangono confronti stringenti.
 - **Proposte future**: confronto semantico (embedding) sul reasoning e confronto separato su `answer`.
 
 ### 8.9 Modelli: taglia, stabilita' e latenza
@@ -252,8 +280,85 @@ Alla fine di una run, `utils/evaluation_utils.py` genera:
 - **Situazione attuale**: mapping in `config.py`, limite output con `OLLAMA_NUM_PREDICT`, timeout per ripetizione.
 - **Proposte future**: profiling, confronto tra quantizzazioni/taglie e documentazione sistematica del modello usato per ogni run.
 
+> ✅ **Parzialmente implementato:** il campo `model` e' salvato in ogni JSON di risultato. All'avvio `main.py` chiama `_fetch_model_context_window(model, base_url)` via `POST /api/show` a Ollama e logga la context window per ogni modello distinto nella run. Il profiling sistematico e il confronto tra quantizzazioni restano da fare.
+
 ### 8.10 Lingua dei prompt e memoria condivisa
 
 - **Dubbio (call)**: prompt IT vs EN e assenza di memoria condivisa possono cambiare performance.
-- **Situazione attuale**: prompt in italiano; stato per task include `history` ma non persiste cross-task.
+- **Situazione attuale**: stato per task include `history` ma non persiste cross-task.
 - **Proposte future**: A/B test lingua prompt e sperimentazione di memoria condivisa (state/file) + piu' task e judge multipli.
+
+> ⚠️ **Correzione:** la documentazione originale diceva "prompt in italiano". I system prompt in `agents/prompts.py` sono attualmente in **inglese** (sia `expert` che `beginner`). Il task content (`docs/tasks/*.md`) rimane in italiano. L'A/B test EN vs IT sui system prompt non e' ancora stato eseguito formalmente.
+> ✅ **Implementato:** tutti i file `docs/tasks/*.md` (scenario e soluzione/rubrica) sono stati tradotti in **inglese**. Le label di classificazione nel task3 sono diventate `NORMAL` / `MINOR_ANOMALY` / `CRITICAL_ANOMALY`; la ground truth e i criteri della rubrica nel task4 sono stati tradotti coerentemente. System prompt e task content sono ora entrambi in inglese.
+
+---
+
+## 9) Come funziona la generazione dei report
+
+### Trigger
+
+In `main.py` (dopo che tutti gli esperimenti sono finiti) vengono chiamate in sequenza:
+
+```python
+_record_consistency_finding(consistency_lines)  # scrive/aggiorna consistency.md
+_write_evaluation_reports(RESULTS_PATH)         # scrive scores_*.md e comparison.md
+```
+
+### Passo 1 — Raccolta dati: `_collect_results`
+
+Scansiona `results/` cercando cartelle `<experiment_id>/<role>/`. Per ogni file `.json` che **non** finisce con `_solution.json`, carica il contenuto. Il risultato e' un dizionario annidato:
+
+```python
+data = {
+    "1A": {
+        "expert":   [ {rep1}, {rep2}, ... ],
+        "beginner": [ {rep1}, ... ],
+    },
+    "1B": { ... }
+}
+```
+
+### Passo 2 — Report per esperimento: `scores_1A.md` e `scores_1B.md`
+
+Per ogni `experiment_id` in `["1A", "1B"]` viene chiamata `_build_experiment_report`, che costruisce il Markdown in tre sezioni:
+
+**Sezione Summary** (contatori globali):
+
+| metric | valore |
+| --- | --- |
+| total results | N totale di JSON caricati |
+| correct | quanti hanno `verdict == "correct"` |
+| wrong | quanti non sono correct |
+| retried | quanti hanno `attempts > 1` |
+| inconsistent tasks | quanti task hanno reasoning diverso tra ripetizioni |
+
+**Sezione Anomalies** (solo se ci sono anomalie), con tre sotto-tabelle:
+
+- *Wrong verdicts*: una riga per ogni risultato con `verdict != "correct"` — mostra role, task_id, rep, attempts, confidence, score/delta.
+- *Retries triggered*: una riga per ogni risultato con `attempts > 1`.
+- *Inconsistent reasoning*: generata da `_detect_inconsistencies`, che raggruppa i payload per task e confronta il campo `reasoning` del `final_answer` tra ripetizioni con **string equality**. Se almeno due ripetizioni hanno reasoning diverso, il task viene segnalato con tutte le versioni quotate.
+
+**Sezione Scores by role** (tabella aggregata per ruolo):
+
+| colonna | come si calcola |
+| --- | --- |
+| `accuracy` | `correct / total` |
+| `avg_confidence` | media di `final_answer.confidence` |
+| `avg_attempts` | media di `attempts` |
+| `avg_textual_norm` | media di `judge_score.normalized_score` (solo task textual) |
+| `avg_math_delta` | media di `judge_score.delta` (solo task math) |
+
+### Passo 3 — Report di confronto: `comparison.md`
+
+Tabella con una riga per ruolo (`expert`, `beginner`) che affianca `accuracy_1A`, `accuracy_1B` e il delta percentuale. Aggiunge un messaggio testuale se il delta e' zero.
+
+### Passo 4 — `consistency.md` (scritto in modo incrementale)
+
+Funziona diversamente dagli altri file: viene **aggiornato ad ogni run**, non riscritto da zero. Durante l'esecuzione, `main.py` confronta il `final_answer` della ripetizione corrente con quella precedente usando `_answers_equal` (confronto JSON con `sort_keys=True` sull'intero oggetto). Se differiscono, aggiunge una riga a `consistency_lines`. Alla fine, `_record_consistency_finding` fa **append** al file esistente — le run successive si accumulano.
+
+### Differenza chiave tra i due confronti di inconsistenza
+
+| file | dove | cosa confronta | quando viene scritto |
+| --- | --- | --- | --- |
+| `consistency.md` | `main.py` + `_record_consistency_finding` | intero `final_answer` (JSON equality) | append ad ogni run |
+| sezione "Inconsistent reasoning" in `scores_*.md` | `_detect_inconsistencies` | solo campo `reasoning` (string equality) | riscritto ad ogni run |

@@ -1,4 +1,4 @@
-# Task 4 — Root Cause Analysis 5G
+# Task 4 — 5G Root Cause Analysis
 
 **ID:** task4_rootcause  
 **Tipo:** textual  
@@ -8,29 +8,29 @@
 
 ## Scenario
 
-Un'antenna 5G presenta i seguenti sintomi rilevati negli ultimi 35 minuti:
+A 5G antenna exhibits the following symptoms detected over the last 35 minutes:
 
-| Osservazione | Dettaglio |
+| Observation | Detail |
 |---|---|
-| SINR | Degrado progressivo: da -14 dB a -22 dB negli ultimi 30 min |
-| Ritrasmissioni HARQ | Aumentate dal 5% al 34% |
-| Allarmi hardware | Nessuno attivo |
-| Nodi adiacenti | Traffico e metriche nella norma |
-| Ultimo evento di sistema | Aggiornamento firmware completato 35 minuti fa |
+| SINR | Progressive degradation: from -14 dB to -22 dB over the last 30 min |
+| HARQ Retransmissions | Increased from 5% to 34% |
+| Hardware Alarms | None active |
+| Adjacent Nodes | Traffic and metrics within normal range |
+| Last System Event | Firmware update completed 35 minutes ago |
 
 ---
 
-## Domanda
+## Question
 
-1. Identifica la **causa probabile più plausibile** del degrado
-2. Proponi i **primi 2 step diagnostici** da eseguire
+1. Identify the **most plausible root cause** of the degradation
+2. Propose the **first 2 diagnostic steps** to perform
 
 ---
 
-## Istruzioni per l'agente
+## Agent Instructions
 
-Ragiona in modo sistematico escludendo le cause improbabili.  
-Rispondi SOLO in formato JSON:
+Reason systematically by ruling out unlikely causes.  
+Reply ONLY in JSON format:
 
 ```json
 {

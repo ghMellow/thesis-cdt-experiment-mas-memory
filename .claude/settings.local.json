@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p /Users/nicolotermine/zMellow/GitHub-Poli/thesis-cdt-experiment-mas-memory/MARATHON-DESIGNSYSTEM)",
+      "Bash(mkdir -p /Users/nicolotermine/zMellow/GitHub-Poli/thesis-cdt-experiment-mas-memory/MARATHON-DESIGNSYSTEM/presentations/mas-team-update)"
+    ],
+    "additionalDirectories": [
+      "/Users/nicolotermine/zMellow/GitHub-Poli/thesis-cdt-experiment-mas-memory",
+      "/Users/nicolotermine/zMellow/GitHub-Poli/thesis-cdt-experiment-mas-memory/MARATHON-DESIGNSYSTEM/presentations"
+    ]
+  }
+}

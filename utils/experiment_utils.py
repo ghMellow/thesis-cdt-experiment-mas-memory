@@ -130,6 +130,10 @@ class ExperimentState(TypedDict, total=False):
     verdict: str
     judge_score: Dict[str, Any]
     final_answer: Dict[str, Any]
+    agent_tokens_in: int
+    agent_tokens_out: int
+    judge_tokens_in: int
+    judge_tokens_out: int
     task_path: str
     sol_path: str
     experiment_id: str
@@ -162,7 +166,7 @@ def _time_limit(seconds: int):
 def _run_agent(state: ExperimentState) -> ExperimentState:
     role = state["agent_role"]
     system_prompt = SYSTEM_PROMPTS[role]
-    agent_response = run_agent(
+    agent_response, in_tok, out_tok = run_agent(
         task_content=state["task_content"],
         system_prompt=system_prompt,
         model=state["model"],
@@ -179,6 +183,8 @@ def _run_agent(state: ExperimentState) -> ExperimentState:
             "attempts": attempts,
             "history": history,
             "final_answer": agent_response,
+            "agent_tokens_in": state.get("agent_tokens_in", 0) + (in_tok or 0),
+            "agent_tokens_out": state.get("agent_tokens_out", 0) + (out_tok or 0),
         }
     )
     return state
@@ -199,7 +205,7 @@ def _check_answer(state: ExperimentState) -> ExperimentState:
         return state
 
     rubric = state.get("rubric", {})
-    judge_score = run_judge_textual(
+    judge_score, j_in_tok, j_out_tok = run_judge_textual(
         task_content=state["task_content"],
         rubric=rubric,
         agent_response=state["final_answer"],
@@ -207,6 +213,12 @@ def _check_answer(state: ExperimentState) -> ExperimentState:
         model=MODELS["judge"],
         temperature=TEMPERATURE,
         base_url=OLLAMA_BASE_URL,
+    )
+    state.update(
+        {
+            "judge_tokens_in": state.get("judge_tokens_in", 0) + (j_in_tok or 0),
+            "judge_tokens_out": state.get("judge_tokens_out", 0) + (j_out_tok or 0),
+        }
     )
 
     total_score = judge_score.get("total_score")
@@ -248,6 +260,12 @@ def _save_result(state: ExperimentState) -> ExperimentState:
         "verdict": state["verdict"],
         "judge_score": state.get("judge_score", {}),
         "final_answer": state["final_answer"],
+        "tokens": {
+            "agent_in": state.get("agent_tokens_in") or None,
+            "agent_out": state.get("agent_tokens_out") or None,
+            "judge_in": state.get("judge_tokens_in") or None,
+            "judge_out": state.get("judge_tokens_out") or None,
+        },
     }
     out_dir = Path(config.RESULTS_PATH) / state["experiment_id"] / state["agent_role"]
     out_dir.mkdir(parents=True, exist_ok=True)

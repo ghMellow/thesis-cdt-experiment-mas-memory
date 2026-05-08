@@ -1,4 +1,4 @@
-# Task 2 — Matematico (risultato reale)
+# Task 2 — Math (Real-Valued Result)
 
 **ID:** task2_math_real  
 **Tipo:** math  
@@ -6,23 +6,24 @@
 
 ---
 
-## Problema
+## Problem
 
-Il throughput misurato su un'antenna 5G in 5 intervalli consecutivi è:
+The throughput measured on a 5G antenna over 5 consecutive intervals is:
 
 `312.4, 298.7, 415.2, 389.6, 301.1` Mbps
 
-Calcola:
-1. La **media aritmetica** dei valori
-2. La **deviazione standard campionaria** (divisore N-1)
+Calculate:
+
+1. The **arithmetic mean** of the values
+2. The **sample standard deviation** (divisor N-1)
 
 ---
 
-## Istruzioni per l'agente
+## Agent Instructions
 
-Mostra i calcoli intermedi nel reasoning.  
-Arrotonda i risultati a 2 decimali.  
-Rispondi SOLO in formato JSON:
+Show the intermediate calculations in the reasoning.  
+Round results to 2 decimal places.  
+Reply ONLY in JSON format:
 
 ```json
 {

@@ -1,7 +1,7 @@
 import logging
 import threading
 import time
-from typing import Any, Dict
+from typing import Any, Dict, Optional, Tuple
 
 import httpx
 from langchain_ollama import ChatOllama
@@ -19,7 +19,7 @@ def run_agent(
     model: str,
     temperature: float,
     base_url: str,
-) -> Dict[str, Any]:
+) -> Tuple[Dict[str, Any], Optional[int], Optional[int]]:
     llm = ChatOllama(
         model=model,
         temperature=temperature,
@@ -52,4 +52,4 @@ def run_agent(
         logger.info("Agent response | elapsed=%.1fs | tokens in=%s out=%s", elapsed, in_tok, out_tok)
     else:
         logger.info("Agent response | elapsed=%.1fs", elapsed)
-    return _extract_json_from_text(response.content)
+    return _extract_json_from_text(response.content), in_tok, out_tok

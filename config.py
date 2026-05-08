@@ -4,7 +4,7 @@ MODELS = {
     "beginner_1A": "gemma4:e2b",
     "expert_1B": "gemma4:e2b",
     "beginner_1B": "deepseek-r1:latest",
-    "judge": "gemma4:e2b",
+    "judge": "gemma4:e4b",
 }
 
 # Generation temperature — use > 0 to measure real consistency across repetitions.

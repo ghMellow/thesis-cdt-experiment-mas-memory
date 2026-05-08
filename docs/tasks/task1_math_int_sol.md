@@ -1,16 +1,16 @@
-# Soluzione — Task 1 (math intero)
+# Solution — Task 1 (integer math)
 
 **ID:** task1_math_int_sol  
-**Uso:** solo checker interno, MAI esposto all'agente
+**Usage:** internal checker only, NEVER exposed to the agent
 
 ---
 
-## Soluzione
+## Solution
 
 - A = 240
 - B = 240 × 2 = 480
 - C = (240 + 480) - 180 = 540
-- Totale = 240 + 480 + 540 = **1260**
+- Total = 240 + 480 + 540 = **1260**
 
 ---
 

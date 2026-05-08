@@ -2,7 +2,7 @@ import json
 import logging
 import threading
 import time
-from typing import Any, Dict
+from typing import Any, Dict, Optional, Tuple
 
 import httpx
 from langchain_ollama import ChatOllama
@@ -22,7 +22,7 @@ def run_judge_textual(
     model: str,
     temperature: float,
     base_url: str,
-) -> Dict[str, Any]:
+) -> Tuple[Dict[str, Any], Optional[int], Optional[int]]:
     llm = ChatOllama(
         model=model,
         temperature=temperature,
@@ -65,4 +65,4 @@ def run_judge_textual(
     score_str = f" | total_score={total_score}" if total_score is not None else ""
     tok_str = f" | tokens in={in_tok} out={out_tok}" if in_tok is not None and out_tok is not None else ""
     logger.info("Judge done | elapsed=%.1fs%s%s", elapsed, score_str, tok_str)
-    return parsed
+    return parsed, in_tok, out_tok
