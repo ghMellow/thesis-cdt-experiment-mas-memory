@@ -7,6 +7,15 @@ MODELS = {
     "judge": "gemma4:e4b",
 }
 
+# Per-task model overrides: {role_experiment_key: {substring: model}}.
+# When task_id contains a key substring, the mapped model replaces the role default.
+# First matching entry wins (dict insertion order, Python 3.7+).
+TASK_MODEL_OVERRIDES: dict = {
+    "beginner_1B": {
+        "vuln": "deepseek-r1:latest",
+    },
+}
+
 # Generation temperature — use > 0 to measure real consistency across repetitions.
 TEMPERATURE = 0.3
 # Max attempts per task before stopping.

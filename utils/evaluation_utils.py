@@ -107,7 +107,11 @@ def _detect_inconsistencies(
     n_surface_equiv = 0
     cache_updated = False
 
-    for role, task_id, rep_reasonings in surface_different:
+    logger.info(
+        "Semantic consistency check: %d task(s) surface-different → calling judge",
+        len(surface_different),
+    )
+    for i, (role, task_id, rep_reasonings) in enumerate(surface_different, 1):
         reasonings = [r for _, r in rep_reasonings]
         cache_key = (
             f"{role}/{task_id}/"
@@ -115,8 +119,15 @@ def _detect_inconsistencies(
         )
         if cache_key in cache:
             result = cache[cache_key]
-            logger.debug("Semantic check cache hit: %s", cache_key)
+            logger.info(
+                "  [%d/%d] %s/%s — cache hit",
+                i, len(surface_different), role, task_id,
+            )
         else:
+            logger.info(
+                "  [%d/%d] %s/%s — judge (%d reps)",
+                i, len(surface_different), role, task_id, len(rep_reasonings),
+            )
             result = run_semantic_equivalence_check(
                 task_id=f"{role}/{task_id}",
                 reasonings=reasonings,
@@ -125,8 +136,9 @@ def _detect_inconsistencies(
             )
             cache[cache_key] = result
             cache_updated = True
-            logger.debug("Semantic check cached: %s", cache_key)
 
+        verdict = "equiv" if result.get("equivalent", False) else "differ"
+        logger.info("  → %s", verdict)
         if result.get("equivalent", False):
             n_surface_equiv += 1
         else:
@@ -297,8 +309,17 @@ def _write_evaluation_reports(results_path: str) -> None:
     eval_dir.mkdir(parents=True, exist_ok=True)
 
     for experiment_id in ["1A", "1B"]:
-        report = _build_experiment_report(experiment_id, data.get(experiment_id, {}))
+        roles = data.get(experiment_id, {})
+        n_results = sum(len(v) for v in roles.values())
+        logger.info(
+            "Report %s | %d result(s) across roles: %s",
+            experiment_id,
+            n_results,
+            ", ".join(sorted(roles)) or "none",
+        )
+        report = _build_experiment_report(experiment_id, roles)
         (eval_dir / f"scores_{experiment_id}.md").write_text(report, encoding="utf-8")
+        logger.info("Written scores_%s.md", experiment_id)
 
     # Comparison report
     lines = [

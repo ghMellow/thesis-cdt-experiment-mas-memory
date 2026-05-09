@@ -8,13 +8,22 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 import config
-from config import MODELS, OLLAMA_BASE_URL, REPETITIONS, RESULTS_PATH, TASK_TIMEOUT_SECONDS, TASKS_PATH
+from config import MODELS, OLLAMA_BASE_URL, REPETITIONS, RESULTS_PATH, TASK_MODEL_OVERRIDES, TASK_TIMEOUT_SECONDS, TASKS_PATH
 from utils.evaluation_utils import _record_consistency_finding, _write_evaluation_reports
 from utils.experiment_utils import ExperimentState, _build_graph, _fetch_model_context_window, _time_limit
 from utils.task_utils import _answers_equal, _list_tasks, _result_exists
 
 
 logger = logging.getLogger(__name__)
+
+
+def _resolve_task_model(exp_id: str, role: str, task_id: str) -> str:
+    key = f"{role}_{exp_id}"
+    base = MODELS[key]
+    for substring, override in TASK_MODEL_OVERRIDES.get(key, {}).items():
+        if substring in task_id:
+            return override
+    return base
 
 
 class _SpinnerClearHandler(logging.StreamHandler):
@@ -146,8 +155,14 @@ def main() -> None:
             ctx_str,
         )
         for task_path in tasks:
+            task_model = _resolve_task_model(experiment["id"], experiment["role"], task_path.stem)
+            if task_model not in ctx_cache:
+                ctx_cache[task_model] = _fetch_model_context_window(task_model, OLLAMA_BASE_URL)
+            task_ctx_str = (
+                f" [model={task_model}]" if task_model != experiment["model"] else ""
+            )
             logger.info("")
-            logger.info("---- Task %s ----", task_path.stem)
+            logger.info("---- Task %s%s ----", task_path.stem, task_ctx_str)
             sol_path = task_path.with_name(task_path.stem + "_sol.md")
             previous_answer: Optional[Dict[str, Any]] = None
 
@@ -168,7 +183,7 @@ def main() -> None:
                     "task_path": str(task_path),
                     "sol_path": str(sol_path),
                     "agent_role": experiment["role"],
-                    "model": experiment["model"],
+                    "model": task_model,
                     "attempts": 0,
                     "history": [],
                     "experiment_id": experiment["id"],

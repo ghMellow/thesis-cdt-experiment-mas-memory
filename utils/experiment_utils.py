@@ -1,6 +1,7 @@
 """Experiment orchestration helpers."""
 
 import json
+import logging
 import signal
 import time
 from contextlib import contextmanager
@@ -10,6 +11,8 @@ from typing import Any, Dict, List, Optional, Tuple, TypedDict
 
 import httpx
 from langgraph.graph import END, StateGraph
+
+logger = logging.getLogger(__name__)
 
 from agents.agent_runner import run_agent
 from agents.judge_agent import run_judge_textual
@@ -278,6 +281,11 @@ def _save_result(state: ExperimentState) -> ExperimentState:
 
 def _route_after_check(state: ExperimentState) -> str:
     if state["verdict"] != "correct" and state["attempts"] < MAX_RETRIES:
+        logger.info(
+            "verdict=wrong → retry attempt %d/%d",
+            state["attempts"] + 1,
+            MAX_RETRIES,
+        )
         return "retry"
     return "save"
 

@@ -52,4 +52,12 @@ def run_agent(
         logger.info("Agent response | elapsed=%.1fs | tokens in=%s out=%s", elapsed, in_tok, out_tok)
     else:
         logger.info("Agent response | elapsed=%.1fs", elapsed)
-    return _extract_json_from_text(response.content), in_tok, out_tok
+    try:
+        parsed = _extract_json_from_text(response.content)
+    except ValueError:
+        logger.warning(
+            "Agent response | no valid JSON | raw=%r",
+            response.content[:300],
+        )
+        parsed = {"answer": "", "reasoning": "model produced no valid JSON output", "confidence": 0.0}
+    return parsed, in_tok, out_tok
