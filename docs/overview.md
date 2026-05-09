@@ -55,9 +55,9 @@ I task sono in `docs/tasks/` e sono di due tipi:
 - `config.py`: mapping modelli + parametri globali (temperature, retry, ripetizioni, soglie)
 - `utils/experiment_utils.py`: stato e grafo LangGraph; nodi `load_task`, `run_agent`, `check_answer`, `save_result`; include valutazione deterministica math, logica di retry e scrittura risultati; contiene `_fetch_model_context_window` e `_build_judge_prompt`
 - `utils/task_utils.py`: parsing dei metadata (`**ID:**`, `**Tipo:**`) e lettura dei JSON dai file `_sol.md`; include `_result_exists` (skip run gia' completate) e `_answers_equal`
-- `utils/evaluation_utils.py`: aggregazione risultati e generazione report anomaly-focused in `results/evaluation/`; include `_detect_inconsistencies` (confronto reasoning tra ripetizioni)
+- `utils/evaluation_utils.py`: aggregazione risultati e generazione report anomaly-focused in `results/evaluation/`; include `_detect_inconsistencies` (fase 1: string equality, fase 2: LLM semantic check sui flagged) e `_brier_score` (calibrazione confidence)
 - `agents/agent_runner.py`: chiamata LLM via Ollama + parsing JSON in output; logga token in/out quando disponibili
-- `agents/judge_agent.py`: chiamata LLM judge + parsing JSON + logging token in/out
+- `agents/judge_agent.py`: chiamata LLM judge + parsing JSON + logging token in/out; include `run_semantic_equivalence_check` (verifica equivalenza semantica tra reasoning string)
 - `agents/_llm_utils.py`: helper condivisi tra agent e judge (spinner, JSON parsing, error handling Ollama)
 - `agents/prompts.py`: system prompt per ogni ruolo (`SYSTEM_PROMPTS` dict, chiavi `expert` e `beginner`)
 
@@ -212,11 +212,11 @@ Il campo `judge_score` nei task textual include anche `normalized_score` (float 
 
 Alla fine di una run, `utils/evaluation_utils.py` genera:
 
-- `scores_1A.md`, `scores_1B.md`: tabella per ruolo con colonne `accuracy`, `avg_confidence`, `avg_attempts`, `avg_textual_norm`, `avg_math_delta`; sezione anomalie (wrong, retried, inconsistenze reasoning)
+- `scores_1A.md`, `scores_1B.md`: tabella per ruolo con colonne `accuracy`, `avg_confidence`, `brier_score`, `avg_attempts`, `avg_math_delta`, `avg_textual_norm` + legenda metriche; Summary con contatori distinti per inconsistenze vere vs sole differenze superficiali; sezione anomalie (wrong, retried, inconsistenze reasoning confermate semanticamente)
 - `comparison.md`: confronto accuracy 1A vs 1B per ruolo con delta
 - `consistency.md`: segnala ripetizioni in cui il `final_answer` differisce dalla precedente
 
-> ⚠️ **Precisazione:** il rilevamento delle inconsistenze nei report `scores_*.md` confronta specificamente il campo `reasoning` del `final_answer` tra ripetizioni (non l'intero JSON). Il confronto per `consistency.md` usa invece `_answers_equal` sull'intero `final_answer`.
+> ⚠️ **Precisazione:** il rilevamento delle inconsistenze nei report `scores_*.md` usa due fasi (string equality → LLM semantic check). Il confronto per `consistency.md` usa invece `_answers_equal` sull'intero `final_answer` (confronto JSON, invariato).
 
 ---
 
@@ -254,6 +254,8 @@ Alla fine di una run, `utils/evaluation_utils.py` genera:
 - **Situazione attuale**: la confidence viene salvata e riportata come media nei report.
 - **Proposte future**: metriche di calibrazione (penalita' per overconfidence) e score composito (accuracy × calibration).
 
+> ✅ **Implementato:** aggiunto `_brier_score` in `utils/evaluation_utils.py`: calcola `mean((confidence − is_correct)²)` per ruolo (lower = better). La colonna `brier_score` appare ora nella tabella "Scores by role" di ogni report `scores_*.md`, con nota esplicativa. Non richiede chiamate LLM aggiuntive.
+
 ### 8.6 Task troppo facili / differenze tra ruoli poco visibili
 
 - **Dubbio (call)**: se l'accuracy satura, 1A vs 1B e expert vs beginner non si distinguono.
@@ -273,6 +275,8 @@ Alla fine di una run, `utils/evaluation_utils.py` genera:
 - **Dubbio (call)**: il confronto stringente segnala inconsistenze anche quando il senso e' identico.
 - **Situazione attuale**: `_detect_inconsistencies` in `evaluation_utils.py` confronta il campo `reasoning` tra ripetizioni con string equality (non il JSON intero). `_answers_equal` in `task_utils.py` usa `json.dumps(sort_keys=True)` per confrontare il `final_answer` completo nel log di `consistency.md`. Entrambi rimangono confronti stringenti.
 - **Proposte future**: confronto semantico (embedding) sul reasoning e confronto separato su `answer`.
+
+> ✅ **Implementato:** `_detect_inconsistencies` ora opera in due fasi. **Fase 1** (invariata): string equality filtra tutti i task con reasoning diverso. **Fase 2**: per ogni task flaggato, viene chiamato `run_semantic_equivalence_check` in `agents/judge_agent.py` (modello judge, temperature=0, num_predict=256) che risponde `{"equivalent": bool, "explanation": "..."}`. I task confermati equivalenti sono conteggiati come `surface-only differences (semantically equiv.)` nel Summary e omessi dalla sezione Anomalies. Solo i task confermati semanticamente diversi compaiono come `Truly inconsistent reasoning` con la spiegazione LLM inline. `_answers_equal` in `consistency.md` rimane invariato (confronto JSON intero).
 
 ### 8.9 Modelli: taglia, stabilita' e latenza
 

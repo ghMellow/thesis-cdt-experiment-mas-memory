@@ -1,10 +1,15 @@
 """Evaluation report helpers — anomaly-focused output."""
 
+import hashlib
 import json
+import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+import config
 from config import RESULTS_PATH
+
+logger = logging.getLogger(__name__)
 
 
 def _record_consistency_finding(lines: List[str]) -> None:
@@ -54,10 +59,20 @@ def _fmt_delta(value: Optional[float]) -> str:
 
 
 def _detect_inconsistencies(
-    roles: Dict[str, List[Dict[str, Any]]]
-) -> List[Tuple[str, str, List[Tuple[int, str]]]]:
-    """Return (role, task_id, [(rep, reasoning), ...]) for tasks with inconsistent reasoning."""
-    found = []
+    roles: Dict[str, List[Dict[str, Any]]],
+    semantic_check: bool = True,
+) -> Tuple[List[Tuple[str, str, List[Tuple[int, str]], str]], int]:
+    """Detect tasks with inconsistent reasoning across repetitions.
+
+    Phase 1 (always): string equality filter — fast, catches all surface differences.
+    Phase 2 (if semantic_check=True): LLM confirms whether flagged items are truly
+    semantically different or just paraphrases.
+
+    Returns:
+        truly_inconsistent: list of (role, task_id, [(rep, reasoning),...], llm_explanation)
+        n_surface_equiv: count of surface-different tasks confirmed semantically equivalent
+    """
+    surface_different: List[Tuple[str, str, List[Tuple[int, str]]]] = []
     for role, payloads in roles.items():
         per_task: Dict[str, List[Dict[str, Any]]] = {}
         for p in payloads:
@@ -69,18 +84,78 @@ def _detect_inconsistencies(
                 r = fa.get("reasoning") if isinstance(fa, dict) else None
                 if isinstance(r, str) and r.strip():
                     rep_reasonings.append((p.get("repetition", 0), r.strip()))
-            unique = {r for _, r in rep_reasonings}
-            if len(unique) > 1:
-                found.append((role, task_id, rep_reasonings))
-    return found
+            if len({r for _, r in rep_reasonings}) > 1:
+                surface_different.append((role, task_id, rep_reasonings))
+
+    if not semantic_check or not surface_different:
+        return [(role, tid, reps, "") for role, tid, reps in surface_different], 0
+
+    from agents.judge_agent import run_semantic_equivalence_check
+
+    cache_path = Path(RESULTS_PATH) / "evaluation" / "semantic_cache.json"
+    cache: Dict[str, Any] = {}
+    if cache_path.exists():
+        try:
+            cache = json.loads(cache_path.read_text(encoding="utf-8"))
+        except Exception:
+            cache = {}
+
+    model = config.MODELS.get("judge", next(iter(config.MODELS.values())))
+    base_url = config.OLLAMA_BASE_URL
+
+    truly_inconsistent: List[Tuple[str, str, List[Tuple[int, str]], str]] = []
+    n_surface_equiv = 0
+    cache_updated = False
+
+    for role, task_id, rep_reasonings in surface_different:
+        reasonings = [r for _, r in rep_reasonings]
+        cache_key = (
+            f"{role}/{task_id}/"
+            + hashlib.sha256(json.dumps(reasonings).encode()).hexdigest()[:16]
+        )
+        if cache_key in cache:
+            result = cache[cache_key]
+            logger.debug("Semantic check cache hit: %s", cache_key)
+        else:
+            result = run_semantic_equivalence_check(
+                task_id=f"{role}/{task_id}",
+                reasonings=reasonings,
+                model=model,
+                base_url=base_url,
+            )
+            cache[cache_key] = result
+            cache_updated = True
+            logger.debug("Semantic check cached: %s", cache_key)
+
+        if result.get("equivalent", False):
+            n_surface_equiv += 1
+        else:
+            truly_inconsistent.append((role, task_id, rep_reasonings, result.get("explanation", "")))
+
+    if cache_updated:
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        cache_path.write_text(json.dumps(cache, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    return truly_inconsistent, n_surface_equiv
+
+
+def _brier_score(payloads: List[Dict[str, Any]]) -> Optional[float]:
+    """Mean squared error between confidence and actual correctness (lower = better calibrated)."""
+    vals = [
+        (float(fa["confidence"]) - (1.0 if p.get("verdict") == "correct" else 0.0)) ** 2
+        for p in payloads
+        if isinstance((fa := p.get("final_answer", {})), dict)
+        and isinstance(fa.get("confidence"), (int, float))
+    ]
+    return _avg(vals)
 
 
 def _build_scores_table(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
     lines = [
         "## Scores by role",
         "",
-        "| role | accuracy | avg_confidence | avg_attempts | avg_textual_norm | avg_math_delta |",
-        "| --- | --- | --- | --- | --- | --- |",
+        "| role | accuracy | avg_confidence | brier_score | avg_attempts | avg_math_delta | avg_textual_norm |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
     ]
     for role, payloads in sorted(roles.items()):
         total = len(payloads)
@@ -92,7 +167,6 @@ def _build_scores_table(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
             if isinstance((fa := p.get("final_answer", {})), dict)
             and isinstance(fa.get("confidence"), (int, float))
         ]
-        # normalized_score ∈ [0,1] enables cross-task comparison; fall back to raw/total_max
         textual_norms = []
         for p in payloads:
             if p.get("task_type") != "textual":
@@ -109,9 +183,23 @@ def _build_scores_table(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
         ]
         lines.append(
             f"| {role} | {_fmt_ratio(correct / total if total else None)} | "
-            f"{_fmt(_avg(confidences), 3)} | {_fmt(avg_attempts, 2)} | "
-            f"{_fmt(_avg(textual_norms), 3)} | {_fmt(_avg(math_deltas), 3)} |"
+            f"{_fmt(_avg(confidences), 3)} | {_fmt(_brier_score(payloads), 4)} | "
+            f"{_fmt(avg_attempts, 2)} | "
+            f"{_fmt(_avg(math_deltas), 3)} | {_fmt(_avg(textual_norms), 3)} |"
         )
+    lines += [
+        "",
+        "**Legend**",
+        "",
+        "| metric | scope | meaning |",
+        "| --- | --- | --- |",
+        "| `accuracy` | all | share of repetitions with verdict = correct |",
+        "| `avg_confidence` | all | mean self-reported confidence (0–1) |",
+        "| `brier_score` | all | mean((confidence − is\\_correct)²) — lower = better calibration; 0 = perfect, 0.25 = random |",
+        "| `avg_attempts` | all | mean LLM call attempts per repetition (>1 means retry was triggered) |",
+        "| `avg_math_delta` | math | mean \\|answer − ground\\_truth\\| on math tasks — lower = more precise |",
+        "| `avg_textual_norm` | textual | mean normalized judge score (0–1) — higher = better rubric coverage |",
+    ]
     return lines
 
 
@@ -128,7 +216,7 @@ def _build_experiment_report(experiment_id: str, roles: Dict[str, List[Dict[str,
     correct = sum(1 for p in all_payloads if p.get("verdict") == "correct")
     wrong_list = [p for p in all_payloads if p.get("verdict") != "correct"]
     retried_list = [p for p in all_payloads if p.get("attempts", 1) > 1]
-    inconsistencies = _detect_inconsistencies(roles)
+    inconsistencies, n_surface_equiv = _detect_inconsistencies(roles)
 
     anomaly_count = len(wrong_list) + len(retried_list) + len(inconsistencies)
 
@@ -141,7 +229,11 @@ def _build_experiment_report(experiment_id: str, roles: Dict[str, List[Dict[str,
         f"| correct | {correct} ({_fmt_ratio(correct / total if total else None)}) |",
         f"| wrong | {len(wrong_list)} |",
         f"| retried (attempts > 1) | {len(retried_list)} |",
-        f"| inconsistent tasks | {len(inconsistencies)} |",
+        f"| truly inconsistent tasks | {len(inconsistencies)} |",
+        f"| surface-only differences (semantically equiv.) | {n_surface_equiv} |",
+        "",
+        "_truly inconsistent_: LLM confirmed different conclusions across repetitions. "
+        "_surface-only_: string-different but semantically equivalent (paraphrases, same logic).",
         "",
     ]
 
@@ -183,9 +275,11 @@ def _build_experiment_report(experiment_id: str, roles: Dict[str, List[Dict[str,
             lines.append("")
 
         if inconsistencies:
-            lines += [f"### Inconsistent reasoning across repetitions ({len(inconsistencies)})", ""]
-            for role, task_id, rep_reasonings in inconsistencies:
+            lines += [f"### Truly inconsistent reasoning ({len(inconsistencies)})", ""]
+            for role, task_id, rep_reasonings, explanation in inconsistencies:
                 lines.append(f"**{role} — {task_id}**")
+                if explanation:
+                    lines.append(f"> {explanation}")
                 lines.append("")
                 for rep, reasoning in rep_reasonings:
                     lines.append(f"- **rep {rep}:** {reasoning.replace(chr(10), ' ')}")
