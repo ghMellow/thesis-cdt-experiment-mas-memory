@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Review 5G — Sviluppi Post Call 1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f7f3ed;
+            --surface: #ffffff;
+            --surface2: #ede9e2;
+            --border: rgba(0,0,0,0.09);
+            --gold: #7a5018;
+            --gold-dim: #b8843a;
+            --white: #1c1a17;
+            --muted: #9b93a6;
+            --accent: #1a5faf;
+            --danger: #8b2020;
+            --danger-dim: #c0392b;
+            --mono: 'IBM Plex Mono', monospace;
+            --serif: 'Playfair Display', Georgia, serif;
+            --sans: 'Inter', system-ui, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            width: 100%; height: 100%;
+            background: var(--bg);
+            color: var(--white);
+            font-family: var(--sans);
+            overflow: hidden;
+        }
+
+        body::after {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9998; opacity: 0.5;
+        }
+
+        .deck { width: 100vw; height: 100vh; position: relative; }
+
+        section {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            padding: 80px 100px;
+            opacity: 0; transform: translateY(16px);
+            transition: opacity 0.45s cubic-bezier(0.4,0,0.2,1), transform 0.45s cubic-bezier(0.4,0,0.2,1);
+            pointer-events: none;
+        }
+        section.active { opacity: 1; transform: translateY(0); pointer-events: auto; z-index: 1; }
+        section.left-align { align-items: flex-start; justify-content: center; padding-left: 110px; }
+
+        section::before {
+            content: ''; position: absolute;
+            left: 0; top: 0; bottom: 0; width: 3px;
+            background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+            opacity: 0; transition: opacity 0.6s 0.2s;
+        }
+        section.active.left-align::before { opacity: 1; }
+
+        h1 { font-family: var(--serif); font-size: clamp(48px,6vw,80px); font-weight: 700; line-height: 1.1; color: var(--white); letter-spacing: -0.5px; margin-bottom: 24px; }
+        h2 { font-family: var(--serif); font-size: clamp(28px,3.5vw,48px); font-weight: 700; line-height: 1.15; color: var(--white); margin-bottom: 36px; }
+        h3 { font-family: var(--sans); font-size: 11px; font-weight: 500; color: var(--gold); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 14px; }
+
+        .subtitle { font-size: 22px; color: var(--muted); font-weight: 300; line-height: 1.6; }
+        .tagline { font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--gold-dim); margin-top: 40px; letter-spacing: 0.5px; }
+
+        ul { list-style: none; text-align: left; max-width: 900px; width: 100%; }
+        li { font-size: clamp(15px,1.55vw,19px); line-height: 1.7; padding: 13px 0 13px 36px; position: relative; color: rgba(28,26,23,0.82); border-bottom: 1px solid var(--border); }
+        li:last-child { border-bottom: none; }
+        li::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 16px; height: 1px; background: var(--gold); }
+        li strong { color: var(--gold); font-weight: 600; }
+        li em { color: rgba(28,26,23,0.5); font-style: italic; }
+        li > ul { margin-top: 10px; }
+        li > ul li { font-size: 0.9em; padding: 7px 0 7px 28px; border-bottom: none; }
+        li > ul li::before { width: 10px; background: var(--gold-dim); }
+
+        code { font-family: var(--mono); font-size: 0.85em; background: rgba(122,80,24,0.09); color: var(--gold); padding: 2px 8px; border-radius: 3px; border: 1px solid rgba(122,80,24,0.18); }
+
+        .code-block { font-family: var(--mono); font-size: 13px; line-height: 1.75; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--gold); padding: 28px 32px; border-radius: 0 8px 8px 0; width: 100%; max-width: 860px; color: rgba(28,26,23,0.78); overflow-x: auto; white-space: pre; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+        .code-block .comment { color: var(--muted); }
+        .code-block .key { color: var(--gold); }
+        .code-block .ok { color: var(--accent); }
+        .code-block .bad { color: var(--danger-dim); }
+
+        .callout { background: rgba(122,80,24,0.06); border: 1px solid rgba(122,80,24,0.22); border-radius: 6px; padding: 18px 26px; font-size: 17px; color: var(--gold); font-weight: 500; max-width: 860px; width: 100%; margin-bottom: 24px; }
+        .callout.danger { background: rgba(139,32,32,0.05); border-color: rgba(139,32,32,0.25); color: var(--danger); }
+        .callout.ok { background: rgba(26,95,175,0.05); border-color: rgba(26,95,175,0.25); color: var(--accent); }
+
+        .svg-wrap { width: 100%; max-width: 820px; display: flex; justify-content: center; }
+        .svg-wrap svg { width: 100%; height: auto; }
+
+        /* ── CARDS ── */
+        .cards { display: flex; gap: 20px; width: 100%; max-width: 1100px; align-items: stretch; }
+        .card { flex: 1; background: var(--surface); border: 1px solid var(--border); border-top: 2px solid var(--gold-dim); border-radius: 8px; padding: 26px 22px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+        .card.featured { border-top-color: var(--gold); }
+        .card.correct { border-top-color: var(--accent); }
+        .card.wrong { border-top-color: var(--danger); }
+        .card-title { font-family: var(--serif); font-size: 19px; font-weight: 700; color: var(--white); }
+        .card.correct .card-title { color: var(--accent); }
+        .card.wrong .card-title { color: var(--danger); }
+        .card-tag { font-family: var(--mono); font-size: 10px; color: var(--gold-dim); text-transform: uppercase; letter-spacing: 2px; }
+        .card.correct .card-tag { color: var(--accent); opacity: 0.7; }
+        .card.wrong .card-tag { color: var(--danger); opacity: 0.7; }
+        .card-row { font-size: 13px; color: rgba(28,26,23,0.6); line-height: 1.6; padding: 6px 0; border-bottom: 1px solid var(--border); }
+        .card-row:last-child { border-bottom: none; }
+        .card-row strong { color: rgba(28,26,23,0.88); font-weight: 500; }
+
+        /* ── ROLE / MEM CARDS ── */
+        .mem-cards { display: flex; gap: 22px; width: 100%; max-width: 1000px; }
+        .mem-card { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 26px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+        .mem-label { font-family: var(--mono); font-size: 10px; color: var(--gold-dim); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px; }
+        .mem-name { font-family: var(--serif); font-size: 21px; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+        .mem-desc { font-size: 13px; color: rgba(28,26,23,0.6); line-height: 1.6; margin-bottom: 12px; }
+        .mem-example { font-family: var(--mono); font-size: 11px; color: var(--gold); background: var(--surface2); padding: 8px 12px; border-radius: 4px; }
+
+        /* ── RESULT TABLE ── */
+        .rtable { width: 100%; max-width: 860px; border-collapse: collapse; font-size: 13px; }
+        .rtable th { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gold-dim); padding: 8px 14px; text-align: left; border-bottom: 2px solid var(--border); }
+        .rtable td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: rgba(28,26,23,0.75); font-family: var(--mono); font-size: 12px; }
+        .rtable tr:last-child td { border-bottom: none; }
+        .rtable .vok { color: var(--accent); font-weight: 600; }
+        .rtable .vwrong { color: var(--danger); font-weight: 600; }
+        .rtable .vzero { color: var(--danger); font-weight: 700; }
+        .rtable .vpart { color: var(--gold); }
+        .rtable .vnone { color: var(--muted); }
+        .rtable-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 0; box-shadow: 0 2px 12px rgba(0,0,0,0.04); width: 100%; max-width: 860px; }
+
+        /* ── CODE COMPARE ── */
+        .code-compare { display: flex; gap: 16px; width: 100%; max-width: 900px; }
+        .code-pane { flex: 1; font-family: var(--mono); font-size: 12px; line-height: 1.8; padding: 22px 24px; border-radius: 8px; white-space: pre; }
+        .code-pane.bad-pane { background: rgba(139,32,32,0.05); border: 1px solid rgba(139,32,32,0.25); border-left: 3px solid var(--danger-dim); }
+        .code-pane.ok-pane { background: rgba(26,95,175,0.05); border: 1px solid rgba(26,95,175,0.2); border-left: 3px solid var(--accent); }
+        .pane-label { font-family: var(--sans); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px; display: block; }
+        .bad-pane .pane-label { color: var(--danger); }
+        .ok-pane .pane-label { color: var(--accent); }
+        .code-pane .hl-bad { color: var(--danger-dim); font-weight: 600; }
+        .code-pane .hl-ok { color: var(--accent); font-weight: 600; }
+        .code-pane .hl-dim { color: var(--muted); }
+
+        /* ── SCORE BAR ── */
+        .score-bars { width: 100%; max-width: 780px; display: flex; flex-direction: column; gap: 20px; }
+        .bar-row { display: flex; flex-direction: column; gap: 6px; }
+        .bar-meta { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+        .bar-meta strong { color: var(--white); font-size: 12px; }
+        .bar-track { height: 10px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 99px; transition: width 0.4s; }
+        .bar-zero { background: var(--danger-dim); }
+        .bar-low { background: var(--gold-dim); }
+        .bar-high { background: var(--accent); }
+
+        /* ── UI CHROME ── */
+        .counter { position: fixed; bottom: 36px; left: 52px; font-family: var(--mono); font-size: 12px; color: var(--muted); z-index: 100; letter-spacing: 1px; }
+        .counter span { color: var(--gold); }
+        .progress-bar { position: fixed; bottom: 0; left: 0; height: 2px; background: linear-gradient(to right, var(--gold-dim), var(--gold)); transition: width 0.4s ease; z-index: 100; }
+        .hint { position: fixed; bottom: 34px; right: 52px; font-family: var(--mono); font-size: 11px; color: var(--muted); opacity: 0; transition: opacity 0.3s; z-index: 100; letter-spacing: 1px; }
+        .hint.visible { opacity: 1; }
+
+        .sidebar { position: fixed; left: 0; top: 0; width: 300px; height: 100vh; background: var(--surface); border-right: 1px solid var(--border); padding: 52px 24px; overflow-y: auto; z-index: 200; transform: translateX(-100%); transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); box-shadow: 2px 0 20px rgba(0,0,0,0.08); }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-title { font-family: var(--mono); font-size: 10px; color: var(--gold-dim); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 28px; }
+        .sidebar-item { font-size: 13px; padding: 10px 12px; margin: 3px 0; color: rgba(28,26,23,0.55); cursor: pointer; border-radius: 4px; transition: all 0.2s; line-height: 1.4; border-left: 2px solid transparent; }
+        .sidebar-item:hover { color: var(--white); background: var(--surface2); }
+        .sidebar-item.active { color: var(--gold); border-left-color: var(--gold); background: rgba(122,80,24,0.06); font-weight: 500; }
+        .sidebar-num { font-family: var(--mono); font-size: 10px; color: var(--gold-dim); margin-right: 8px; }
+
+        .hamburger { position: fixed; top: 28px; left: 28px; width: 36px; height: 36px; cursor: pointer; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; }
+        .hamburger span { width: 22px; height: 1.5px; background: var(--muted); transition: all 0.3s; display: block; }
+        .hamburger:hover span { background: var(--gold); }
+
+        .overlay { position: fixed; inset: 0; background: rgba(200,190,175,0.5); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.35s; }
+        .overlay.visible { opacity: 1; pointer-events: auto; }
+
+        #slide-title { text-align: center; background: radial-gradient(ellipse at 50% 40%, rgba(122,80,24,0.04) 0%, transparent 65%); }
+        #slide-title .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 28px; }
+        #slide-title h1 { font-size: clamp(44px,6vw,76px); }
+        #slide-title .rule { width: 60px; height: 1px; background: var(--gold); margin: 28px auto; }
+
+        #slide-close { text-align: center; background: radial-gradient(ellipse at 50% 50%, rgba(122,80,24,0.04) 0%, transparent 60%); }
+        #slide-close h2 { font-size: clamp(36px,4.5vw,58px); margin-bottom: 48px; }
+        .close-line { font-size: 20px; color: rgba(28,26,23,0.5); line-height: 2.1; max-width: 600px; font-weight: 300; }
+        .close-accent { color: var(--gold); font-family: var(--serif); font-style: italic; font-size: 26px; margin-top: 52px; display: block; }
+    </style>
+</head>
+<body>
+
+<div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+<div class="overlay" id="overlay"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">Indice</div>
+    <div id="sidebar-content"></div>
+</div>
+
+<div class="deck" id="deck">
+
+<!-- 01 TITOLO -->
+<section id="slide-title" class="active">
+    <div class="eyebrow">Sviluppi Post Call 1 · Security Review · free5GC</div>
+    <h1>LLM su CVE Reali<br>in Codice 5G</h1>
+    <div class="rule"></div>
+    <p class="subtitle">Estensione del framework a security code review — risultati sperimentali</p>
+    <p class="tagline">Quanto riesce a vedere un modello locale su vulnerabilità reali?</p>
+</section>
+
+<!-- 02 PUNTO DI PARTENZA -->
+<section class="left-align">
+    <h3>Contesto</h3>
+    <h2>Da dove viene questa estensione</h2>
+    <ul>
+        <li><strong>Andrea Bernardini</strong> testa <code>qwen2.5-coder:7b</code> su CVE free5GC — le risposte sono solo generiche, nessun finding specifico</li>
+        <li><strong>Francesco</strong> ha già identificato 9 CVE reali tramite analisi statica (GHSA), presenti nelle NF PCF, UDR, AMF, UDM</li>
+        <li>Domanda operativa: <strong>un LLM locale può trovare vulnerabilità note</strong> in codice Go 5G, senza ricevere la ground truth?</li>
+        <li>Approccio: <strong>security review cieca</strong> — al modello viene mostrato solo il codice, nessun hint sulle vulnerabilità target</li>
+        <li>Il framework esistente (LangGraph + judge + rubrica) viene esteso <em>senza modificare il core</em></li>
+    </ul>
+</section>
+
+<!-- 03 LE VULNERABILITÀ TARGET -->
+<section>
+    <h3>Ground Truth</h3>
+    <h2 style="margin-bottom:28px;">9 CVE Reali — free5GC</h2>
+    <div class="cards" style="max-width:1100px;">
+        <div class="card">
+            <div class="card-tag">PCF · 1 CVE</div>
+            <div class="card-title">CORS Misconfiguration</div>
+            <div class="card-row"><strong>GHSA-98cp-84m9-q3qp</strong></div>
+            <div class="card-row"><code>AllowAllOrigins</code> + <code>AllowCredentials</code></div>
+            <div class="card-row">Gin middleware — 65 righe</div>
+        </div>
+        <div class="card featured">
+            <div class="card-tag">UDR · 6 CVE</div>
+            <div class="card-title">Missing Return dopo 404</div>
+            <div class="card-row"><strong>6 GHSA advisory separati</strong></div>
+            <div class="card-row"><code>c.String(404)</code> senza <code>return</code></div>
+            <div class="card-row">Gin: esecuzione continua dopo la risposta</div>
+        </div>
+        <div class="card">
+            <div class="card-tag">AMF · 1 CVE</div>
+            <div class="card-title">Missing Default Case</div>
+            <div class="card-row"><strong>GHSA-r99v-75p9-xqm5</strong></div>
+            <div class="card-row">Switch su <code>Content-Type</code> senza default</div>
+            <div class="card-row">Request non gestita silenziosamente</div>
+        </div>
+        <div class="card">
+            <div class="card-tag">UDM · 1 CVE</div>
+            <div class="card-title">Missing SUPI Validation</div>
+            <div class="card-row"><strong>GHSA-585v-hcgf-jhfr</strong></div>
+            <div class="card-row"><code>validator.IsValidSupi()</code> assente in 6 handler</div>
+            <div class="card-row">Identificatori non validati raggiungono il DB</div>
+        </div>
+    </div>
+</section>
+
+<!-- 04 I TASK SECURITY REVIEW -->
+<section>
+    <h3>Nuovi Task</h3>
+    <h2 style="margin-bottom:28px;">task5 → task9 — Security Code Review</h2>
+    <div class="rtable-wrap">
+        <table class="rtable">
+            <thead>
+                <tr><th>ID</th><th>NF</th><th>Contenuto</th><th>Dimensione</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>task5_vuln_pcf</td><td>PCF</td><td>setCorsHeader — CORS misconfiguration</td><td>65 righe</td></tr>
+                <tr><td>task6_vuln_udr</td><td>UDR</td><td>Excerpt — missing return + regex |.+</td><td>~250 righe</td></tr>
+                <tr><td>task6_vuln_udr_full</td><td>UDR</td><td>File completo api_datarepository.go</td><td>2891 righe</td></tr>
+                <tr><td>task7_vuln_amf</td><td>AMF</td><td>Excerpt — missing default + c.Set struct</td><td>~120 righe</td></tr>
+                <tr><td>task7_vuln_amf_full</td><td>AMF</td><td>File completo api_communication.go</td><td>501 righe</td></tr>
+                <tr><td>task8_vuln_udm</td><td>UDM</td><td>Excerpt — handler con/senza IsValidSupi</td><td>~150 righe</td></tr>
+                <tr><td>task8_vuln_udm_full</td><td>UDM</td><td>File completo api_subscriberdatamanagement.go</td><td>858 righe</td></tr>
+                <tr><td>task9_vuln_cross</td><td>Tutti</td><td>Cross-NF — inconsistenze sistemiche UDM/UDR</td><td>multi-file</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- 05 OVERRIDE MODELLO PER-TASK -->
+<section class="left-align">
+    <h3>Configurazione</h3>
+    <h2>Override Modello per Task</h2>
+    <p style="font-size:16px; color:var(--muted); margin-bottom:20px; max-width:760px;">I task security usano un modello specialist per il ruolo <code>beginner_1B</code>, mentre task3/task4 mantengono il default. La selezione avviene per substring sul <code>task_id</code>.</p>
+    <div class="code-block"><span class="comment"># config.py</span>
+<span class="key">MODELS</span> = {
+    <span class="comment">"expert_1A"</span>:   <span class="key">"gemma4:e2b"</span>,
+    <span class="comment">"beginner_1A"</span>: <span class="key">"gemma4:e2b"</span>,
+    <span class="comment">"expert_1B"</span>:   <span class="key">"gemma4:e2b"</span>,
+    <span class="comment">"beginner_1B"</span>: <span class="key">"deepseek-r1:latest"</span>,   <span class="comment"># default</span>
+    <span class="comment">"judge"</span>:       <span class="key">"gemma4:e4b"</span>,
+}
+
+<span class="key">TASK_MODEL_OVERRIDES</span> = {
+    <span class="comment">"beginner_1B"</span>: {
+        <span class="comment">"vuln"</span>: <span class="key">"qwen2.5-coder:1.5b-base"</span>,  <span class="comment"># substring match su task_id</span>
+    },
+}</div>
+</section>
+
+<!-- 06 TASK 5 — RISULTATI -->
+<section>
+    <h3>Risultati — Task 5</h3>
+    <h2 style="margin-bottom:20px;">PCF CORS — Risolto da Tutti</h2>
+    <div class="callout ok">12/12 correct — tutti i modelli, tutte le ripetizioni, entrambi i setup</div>
+    <div class="rtable-wrap">
+        <table class="rtable">
+            <thead>
+                <tr><th>Setup</th><th>Ruolo</th><th>Modello</th><th>rep1</th><th>rep2</th><th>rep3</th><th>avg norm</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1A</td><td>expert</td><td>gemma4:e2b</td><td class="vok">8/9</td><td class="vok">8/9</td><td class="vok">9/9</td><td class="vok">0.93</td></tr>
+                <tr><td>1A</td><td>beginner</td><td>gemma4:e2b</td><td class="vok">9/9</td><td class="vok">7/9</td><td class="vok">9/9</td><td class="vok">0.93</td></tr>
+                <tr><td>1B</td><td>expert</td><td>gemma4:e2b</td><td class="vok">9/9</td><td class="vok">8/9</td><td class="vok">9/9</td><td class="vok">0.96</td></tr>
+                <tr><td>1B</td><td>beginner</td><td>deepseek-r1</td><td class="vok">9/9</td><td class="vok">9/9</td><td class="vok">9/9</td><td class="vok">1.00</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p class="tagline" style="margin-top:22px;">File piccolo, 65 righe. AllowAllOrigins+AllowCredentials è un pattern noto nelle training data di security.</p>
+</section>
+
+<!-- 07 TASK 6 — RISULTATI -->
+<section>
+    <h3>Risultati — Task 6</h3>
+    <h2 style="margin-bottom:20px;">UDR Excerpt — Fallimento Sistematico</h2>
+    <div class="callout danger">0/12 correct — nessun modello, nessuna ripetizione, nessun setup</div>
+    <div class="rtable-wrap">
+        <table class="rtable">
+            <thead>
+                <tr><th>Setup</th><th>Ruolo</th><th>Modello</th><th>rep1</th><th>rep2</th><th>rep3</th><th>avg norm</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1A</td><td>expert</td><td>gemma4:e2b</td><td class="vwrong">0/9</td><td class="vwrong">4/9</td><td class="vwrong">5/9</td><td class="vwrong">0.33</td></tr>
+                <tr><td>1A</td><td>beginner</td><td>gemma4:e2b</td><td class="vwrong">4/9</td><td class="vwrong">5/9</td><td class="vwrong">4/9</td><td class="vwrong">0.48</td></tr>
+                <tr><td>1B</td><td>expert</td><td>gemma4:e2b</td><td class="vwrong">0/9</td><td class="vwrong">0/9</td><td class="vwrong">0/9</td><td class="vwrong">0.00</td></tr>
+                <tr><td>1B</td><td>beginner</td><td>deepseek-r1</td><td class="vwrong">1/9</td><td class="vwrong">2/9</td><td class="vwrong">0/9</td><td class="vwrong">0.11</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p class="tagline" style="margin-top:22px;">Soglia correct = 6.3/9 (TEXTUAL_PASS_RATIO 0.7). Nessuno si avvicina.</p>
+</section>
+
+<!-- 08 DOVE FALLISCE — RUBRICA -->
+<section>
+    <h3>Analisi Rubrica — Task 6</h3>
+    <h2 style="margin-bottom:28px;">Il Finding Primario Non Viene Mai Trovato</h2>
+    <div class="score-bars">
+        <div class="bar-row">
+            <div class="bar-meta"><span><strong>missing_return_score</strong> — 6 GHSA CVE ufficiali · max 4 pt</span><span class="vzero">0 / 4 in tutte le 24 ripetizioni</span></div>
+            <div class="bar-track"><div class="bar-fill bar-zero" style="width:0%"></div></div>
+        </div>
+        <div class="bar-row">
+            <div class="bar-meta"><span><strong>regex_validation_score</strong> — regex |.+ inefficace · max 3 pt</span><span class="vpart">trovato parzialmente (gemma4 in 1A)</span></div>
+            <div class="bar-track"><div class="bar-fill bar-low" style="width:55%"></div></div>
+        </div>
+        <div class="bar-row">
+            <div class="bar-meta"><span><strong>impact_assessment_score</strong> — impatto nel contesto 5G · max 2 pt</span><span class="vpart">variabile, spesso 2/2 in 1A</span></div>
+            <div class="bar-track"><div class="bar-fill bar-low" style="width:70%"></div></div>
+        </div>
+    </div>
+    <p style="font-size:14px; color:var(--muted); margin-top:28px; max-width:760px; text-align:center;">I modelli trovano finding secondari (regex, impatto generico) ma mancano sistematicamente il CVE primario che vale 4 punti su 9.</p>
+</section>
+
+<!-- 09 PERCHÉ FALLISCE — PATTERN -->
+<section>
+    <h3>Root Cause</h3>
+    <h2 style="margin-bottom:24px;">Un Pattern Framework-Specific</h2>
+    <div class="code-compare">
+        <div class="code-pane bad-pane"><span class="pane-label">Codice vulnerabile</span><span class="hl-dim">if influenceId != "subs-to-notify" {</span>
+    c.String(http.StatusNotFound,
+             "404 page not found")
+    <span class="hl-bad">// manca return — esecuzione continua</span>
+<span class="hl-dim">}</span>
+subscriptionId := c.Param("subscriptionId")
+<span class="hl-dim">s.Processor().HandleDelete(...)</span></div>
+        <div class="code-pane ok-pane"><span class="pane-label">Codice corretto</span><span class="hl-dim">if influenceId != "subs-to-notify" {</span>
+    c.String(http.StatusNotFound,
+             "404 page not found")
+    <span class="hl-ok">return  // esecuzione si ferma</span>
+<span class="hl-dim">}</span>
+subscriptionId := c.Param("subscriptionId")
+<span class="hl-dim">s.Processor().HandleDelete(...)</span></div>
+    </div>
+    <ul style="margin-top:24px; max-width:860px;">
+        <li><strong>Gin non ferma Go</strong> dopo <code>c.String()</code> — la funzione continua, il processor viene chiamato su un path rifiutato</li>
+        <li><strong>Non è OWASP top 10</strong>, non assomiglia a SQL injection o XSS — non è nei dataset tipici di security review</li>
+        <li><strong>Richiede 3 livelli simultanei:</strong> semantica Go + comportamento Gin + flow control 5G SBI</li>
+    </ul>
+</section>
+
+<!-- 10 ANOMALIA 1A vs 1B -->
+<section>
+    <h3>Osservazione</h3>
+    <h2 style="margin-bottom:28px;">Stesso Modello, Risultati Diversi</h2>
+    <div class="cards" style="max-width:860px;">
+        <div class="card featured">
+            <div class="card-tag">gemma4:e2b in 1A</div>
+            <div class="card-title">Expert — 0 / 4 / 5</div>
+            <div class="card-row">rep1: <strong>0/9</strong> — JSON malformato (no valid JSON)</div>
+            <div class="card-row">rep2: <strong>4/9</strong> — trova regex, partial impact</div>
+            <div class="card-row">rep3: <strong>5/9</strong> — trova regex + impact completo</div>
+            <div class="card-row">Avg norm: <strong>0.33</strong></div>
+        </div>
+        <div class="card wrong">
+            <div class="card-tag">gemma4:e2b in 1B</div>
+            <div class="card-title">Expert — 0 / 0 / 0</div>
+            <div class="card-row">rep1: <strong>0/9</strong> — nessun finding</div>
+            <div class="card-row">rep2: <strong>0/9</strong> — nessun finding</div>
+            <div class="card-row">rep3: <strong>0/9</strong> — nessun finding</div>
+            <div class="card-row">Avg norm: <strong>0.00</strong></div>
+        </div>
+    </div>
+    <ul style="margin-top:24px; max-width:860px;">
+        <li><strong>Stesso modello</strong> (<code>gemma4:e2b</code>), stesso task, temperatura identica (0.3)</li>
+        <li>Probabile causa: <strong>stato KV-cache Ollama</strong> — in 1B il modello ha elaborato più task prima di task6, lo stato interno differisce</li>
+        <li>Finding: la varianza non è solo LLM — l'<strong>ordine di esecuzione</strong> influenza i risultati</li>
+    </ul>
+</section>
+
+<!-- 11 DECISIONE -->
+<section>
+    <h3>Decisione</h3>
+    <h2 style="margin-bottom:28px;">Modelli Più Grandi — Prompt Invariato</h2>
+    <div class="cards" style="max-width:900px;">
+        <div class="card wrong">
+            <div class="card-tag">Opzione A — Scartata</div>
+            <div class="card-title">Prompt Engineering</div>
+            <div class="card-row">Aggiungere contesto Gin nei system prompt</div>
+            <div class="card-row">Risultato: il modello sa già dove guardare</div>
+            <div class="card-row"><strong>Rischio:</strong> invalida la misura di capacità raw — è bias introdotto dalla ricerca</div>
+        </div>
+        <div class="card correct">
+            <div class="card-tag">Opzione B — Scelta</div>
+            <div class="card-title">Confronto Modelli</div>
+            <div class="card-row">Testare modelli più grandi su task6, prompt invariato</div>
+            <div class="card-row">Variabile controllata: capacità del modello</div>
+            <div class="card-row"><strong>Obiettivo:</strong> curva di scaling 1.5B → 2B → 4B → 7B</div>
+        </div>
+    </div>
+    <div class="svg-wrap" style="max-width:760px; margin-top:28px;">
+      <svg viewBox="0 0 760 60" xmlns="http://www.w3.org/2000/svg">
+        <line x1="30" y1="30" x2="730" y2="30" stroke="var(--border)" stroke-width="2"/>
+        <circle cx="80" cy="30" r="18" fill="rgba(139,32,32,0.1)" stroke="var(--danger)" stroke-width="1.5"/>
+        <text x="80" y="35" text-anchor="middle" font-size="10" fill="var(--danger)" font-family="'IBM Plex Mono',monospace">1.5B</text>
+        <circle cx="260" cy="30" r="18" fill="rgba(122,80,24,0.08)" stroke="var(--gold)" stroke-width="1.5"/>
+        <text x="260" y="35" text-anchor="middle" font-size="10" fill="var(--gold)" font-family="'IBM Plex Mono',monospace">2B</text>
+        <text x="260" y="55" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="'Inter',sans-serif">gemma4:e2b</text>
+        <circle cx="460" cy="30" r="22" fill="rgba(26,95,175,0.08)" stroke="var(--accent)" stroke-width="1.8"/>
+        <text x="460" y="35" text-anchor="middle" font-size="10" fill="var(--accent)" font-family="'IBM Plex Mono',monospace">4B</text>
+        <text x="460" y="55" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="'Inter',sans-serif">gemma4:e4b (judge)</text>
+        <circle cx="680" cy="30" r="26" fill="rgba(26,95,175,0.12)" stroke="var(--accent)" stroke-width="2"/>
+        <text x="680" y="35" text-anchor="middle" font-size="10" fill="var(--accent)" font-family="'IBM Plex Mono',monospace">7B</text>
+        <text x="680" y="58" text-anchor="middle" font-size="9" fill="var(--muted)" font-family="'Inter',sans-serif">qwen2.5-coder:7b</text>
+        <text x="80" y="10" text-anchor="middle" font-size="9" fill="var(--danger)" font-family="'Inter',sans-serif">crash JSON</text>
+      </svg>
+    </div>
+</section>
+
+<!-- 12 PROSSIMI PASSI -->
+<section class="left-align">
+    <h3>Roadmap</h3>
+    <h2>Prossimi Passi</h2>
+    <ul>
+        <li><strong>Pulire i dati 1B beginner</strong> — i file esistenti usano <code>deepseek-r1</code> (run pre-override); eliminare e rieseguire con il modello corretto</li>
+        <li><strong>Aggiungere gemma4:e4b come agent</strong> su task6 — è già disponibile come judge; testarlo come agent misura il delta 2B→4B sullo stesso task</li>
+        <li><strong>Testare qwen2.5-coder:7b</strong> su task6 — Andrea ha già verificato che risponde; aggiungere al mapping <code>config.py</code></li>
+        <li><strong>Eseguire task7, task8, task9</strong> — AMF, UDM e cross-NF non ancora testati; task9 è il più interessante (richiede vedere 4 file insieme)</li>
+        <li><strong>Task6_vuln_udr_full</strong> — file da 2891 righe; misurare degradazione quando il file supera il contesto utile del modello</li>
+    </ul>
+</section>
+
+<!-- 13 CHIUSURA -->
+<section id="slide-close">
+    <h2>Task 5 risolto. Task 6 no — e questo è il dato interessante.</h2>
+    <div class="close-line">
+        La CORS è nota. Il missing return è framework-specific.<br>
+        La differenza misura il confine della capacità raw del modello.<br>
+        Modelli più grandi, prompt invariato.
+    </div>
+    <span class="close-accent">Il fallimento sistematico è un risultato, non un problema.</span>
+</section>
+
+</div>
+
+<div class="counter"><span id="cur">1</span> / <span id="tot">13</span></div>
+<div class="progress-bar" id="progress"></div>
+<div class="hint" id="hint">← → · spazio · ESC</div>
+
+<script>
+    const slides = document.querySelectorAll('section');
+    const total = slides.length;
+    let cur = 0, hintTimer;
+    document.getElementById('tot').textContent = total;
+
+    function show(n) {
+        slides[cur].classList.remove('active');
+        cur = (n + total) % total;
+        slides[cur].classList.add('active');
+        document.getElementById('cur').textContent = cur + 1;
+        document.getElementById('progress').style.width = ((cur+1)/total*100)+'%';
+        updateSidebar();
+    }
+    function flashHint() {
+        const h = document.getElementById('hint');
+        h.classList.add('visible');
+        clearTimeout(hintTimer);
+        hintTimer = setTimeout(() => h.classList.remove('visible'), 2500);
+    }
+    document.addEventListener('keydown', e => {
+        if (['ArrowRight','ArrowDown',' '].includes(e.key)) { e.preventDefault(); show(cur+1); flashHint(); }
+        else if (['ArrowLeft','ArrowUp'].includes(e.key)) { e.preventDefault(); show(cur-1); flashHint(); }
+        else if (e.key === 'Escape') toggleSidebar();
+    });
+    document.addEventListener('mousemove', flashHint);
+    let tx = 0;
+    document.addEventListener('touchstart', e => tx = e.touches[0].clientX, {passive:true});
+    document.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - tx;
+        if (Math.abs(dx) > 45) { show(dx < 0 ? cur+1 : cur-1); flashHint(); }
+    }, {passive:true});
+
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const sc = document.getElementById('sidebar-content');
+    function toggleSidebar() {
+        const open = sidebar.classList.toggle('open');
+        overlay.classList.toggle('visible', open);
+    }
+    document.getElementById('hamburger').addEventListener('click', toggleSidebar);
+    overlay.addEventListener('click', toggleSidebar);
+
+    slides.forEach((slide, i) => {
+        const title = slide.querySelector('h1,h2')?.textContent?.trim() || `Slide ${i+1}`;
+        const item = document.createElement('div');
+        item.className = 'sidebar-item' + (i===0?' active':'');
+        item.innerHTML = `<span class="sidebar-num">${String(i+1).padStart(2,'0')}</span>${title}`;
+        item.addEventListener('click', () => { show(i); toggleSidebar(); });
+        sc.appendChild(item);
+    });
+    function updateSidebar() {
+        document.querySelectorAll('.sidebar-item').forEach((el,i) => el.classList.toggle('active', i===cur));
+    }
+    document.getElementById('progress').style.width = (1/total*100)+'%';
+    flashHint();
+</script>
+</body>
+</html>

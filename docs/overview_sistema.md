@@ -113,6 +113,8 @@ Per ogni combinazione (setup, ruolo, task, ripetizione) il runtime esegue:
 
 1. retry o salvataggio
    - se `verdict == "wrong"` e `attempts < MAX_RETRIES`, torna a `run_agent`
+     - al retry, il `task_content` include la risposta + reasoning del tentativo precedente e un messaggio neutro
+     - non viene iniettato feedback del judge, punteggio o ground truth
    - altrimenti salva e termina
 
 ### Ripetizioni vs retry

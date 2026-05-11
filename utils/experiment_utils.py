@@ -166,11 +166,32 @@ def _time_limit(seconds: int):
         signal.signal(signal.SIGALRM, previous_handler)
 
 
+def _build_retry_task_content(task_content: str, history: list) -> str:
+    last = history[-1]
+    prev_reasoning = last.get("reasoning", "")
+    prev_answer = last.get("answer", "")
+    return (
+        f"{task_content}\n\n"
+        "---\n"
+        "Note: you already attempted this task. Your previous reasoning was:\n"
+        f"{prev_reasoning}\n\n"
+        f"Your previous answer was: {prev_answer}\n\n"
+        "That attempt was not sufficient to produce a correct result. "
+        "Please reason again from scratch."
+    )
+
+
 def _run_agent(state: ExperimentState) -> ExperimentState:
     role = state["agent_role"]
     system_prompt = SYSTEM_PROMPTS[role]
+    history = state.get("history", [])
+    task_content = (
+        _build_retry_task_content(state["task_content"], history)
+        if history
+        else state["task_content"]
+    )
     agent_response, in_tok, out_tok = run_agent(
-        task_content=state["task_content"],
+        task_content=task_content,
         system_prompt=system_prompt,
         model=state["model"],
         temperature=TEMPERATURE,

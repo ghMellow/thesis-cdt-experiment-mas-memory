@@ -1,7 +1,7 @@
 # Model mapping for each experiment role and judge.
 MODELS = {
-    "expert_1A": "gemma4:e2b",
-    "beginner_1A": "gemma4:e2b",
+    "expert_1A": "gemma4:e4b",
+    "beginner_1A": "gemma4:e4b",
     "expert_1B": "gemma4:e2b",
     "beginner_1B": "deepseek-r1:latest",
     "judge": "gemma4:e4b",

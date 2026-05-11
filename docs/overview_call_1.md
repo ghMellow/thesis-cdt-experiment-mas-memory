@@ -39,6 +39,8 @@ Per lo stato corrente vedi [index_overview.md](index_overview.md).
 - **Situazione attuale**: retry attivo solo su verdict `wrong`, ma il feedback del judge non viene reiniettato nel prompt.
 - **Proposte future**: reiniettare `feedback` nel retry o aggiungere un nodo di "revision" prima del nuovo tentativo.
 
+> ✅ **Implementato:** al retry, `_run_agent` in `utils/experiment_utils.py` costruisce un `task_content` aumentato che include il reasoning e la risposta del tentativo precedente (`history[-1]`), con la nota neutra "That attempt was not sufficient to produce a correct result. Please reason again from scratch." Il feedback del judge NON viene iniettato (integrità del test preservata). La funzione helper `_build_retry_task_content` gestisce la composizione.
+
 ---
 
 ## 8.5 Campo `confidence` poco sfruttato
