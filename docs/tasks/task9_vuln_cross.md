@@ -235,12 +235,15 @@ Pay special attention to how the four NFs handle **UE identifier validation** (S
 
 ## Agent Instructions
 
-Reply ONLY in JSON format:
+Reply ONLY in Markdown using this template:
 
-```json
-{
-  "answer": "Summary of findings: list the main vulnerability classes found and note whether any cross-file inconsistencies were identified (1-3 sentences)",
-  "reasoning": "Full analysis organized by finding type. For cross-file issues: explicitly name both the NF that applies the control correctly and the NF that omits it. For per-file issues: specify NF, function, impact, fix.",
-  "confidence": 0.0
-}
+```md
+### Answer
+Summary of findings: list the main vulnerability classes found and note whether any cross-file inconsistencies were identified (1-3 sentences)
+
+### Reasoning
+Full analysis organized by finding type. For cross-file issues: explicitly name both the NF that applies the control correctly and the NF that omits it. For per-file issues: specify NF, function, impact, fix.
+
+### Confidence
+0.0
 ```

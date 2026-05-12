@@ -307,12 +307,15 @@ Identify all security vulnerabilities or logic errors present in this code. For 
 
 ## Agent Instructions
 
-Reply ONLY in JSON format:
+Reply ONLY in Markdown using this template:
 
-```json
-{
-  "answer": "Brief summary listing the main vulnerability types found (1-3 sentences)",
-  "reasoning": "Detailed analysis for each finding: class, location, impact, fix",
-  "confidence": 0.0
-}
+```md
+### Answer
+Brief summary listing the main vulnerability types found (1-3 sentences)
+
+### Reasoning
+Detailed analysis for each finding: class, location, impact, fix
+
+### Confidence
+0.0
 ```

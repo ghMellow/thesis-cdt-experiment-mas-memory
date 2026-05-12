@@ -21,12 +21,15 @@ A 5G installation consists of 3 coverage sectors.
 ## Agent Instructions
 
 Solve the problem step by step.  
-Reply ONLY in JSON format:
+Reply ONLY in Markdown using this template:
 
-```json
-{
-  "answer": <integer>,
-  "reasoning": "...",
-  "confidence": 0.0
-}
+```md
+### Answer
+<integer>
+
+### Reasoning
+...
+
+### Confidence
+0.0
 ```

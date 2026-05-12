@@ -50,6 +50,7 @@ Sistema operativo. 12 task disponibili, framework LangGraph con retry/judge/toke
 - [x] Override modello per-task (`TASK_MODEL_OVERRIDES` in `config.py`)
 - [x] Task security review task5–task9 (CVE reali free5GC)
 - [x] Retry neutro con risposta precedente (senza feedback judge)
+- [x] Output Markdown per agent/judge (template Answer/Reasoning/Confidence + parsing)
 - [ ] Retry con feedback del judge reiniettato
 - [ ] Convertire output JSON in report Markdown strutturato per l'AI
 - [ ] False positive rate tracking / task "controllo negativo"

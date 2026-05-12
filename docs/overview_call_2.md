@@ -69,7 +69,7 @@ TASK_MODEL_OVERRIDES = {
 
 ### Nota context window
 
-`qwen2.5-coder:1.5b-base` ha context window di 32K token (confermato da specifiche ufficiali). Il crash su task5 (806 token in input, ben sotto il limite) non era quindi un problema di context window ma di **capacità**: con 1.54B parametri il modello non riesce a produrre JSON strutturato in modo stabile dopo più tentativi falliti (al terzo retry ha prodotto 70 token senza JSON). Fix implementato: fallback strutturato invece di crash.
+`qwen2.5-coder:1.5b-base` ha context window di 32K token (confermato da specifiche ufficiali). Il crash su task5 (806 token in input, ben sotto il limite) non era quindi un problema di context window ma di **capacità**: con 1.54B parametri il modello non riesce a produrre output strutturato in modo stabile dopo più tentativi falliti. Fix implementato: passaggio a template Markdown con parsing dedicato e fallback JSON per garantire output strutturato invece di crash.
 
 ---
 

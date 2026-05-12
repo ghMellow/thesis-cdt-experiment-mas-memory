@@ -35,14 +35,17 @@ I ruoli sono definiti dai system prompt in `agents/prompts.py`:
 - `expert`: profilo ingegnere 5G senior
 - `beginner`: profilo tecnico 5G junior
 
-Formato di output richiesto ad entrambi:
+Formato di output richiesto ad entrambi (Markdown):
 
-```json
-{
-  "answer": "...",
-  "reasoning": "...",
-  "confidence": 0.0
-}
+```md
+### Answer
+...
+
+### Reasoning
+...
+
+### Confidence
+0.0
 ```
 
 ### Task
@@ -64,10 +67,10 @@ I task security review (`task5`–`task9`) forniscono codice Go di network funct
 - `config.py`: mapping modelli + parametri globali (temperature, retry, ripetizioni, soglie)
 - `utils/experiment_utils.py`: stato e grafo LangGraph; nodi `load_task`, `run_agent`, `check_answer`, `save_result`; include valutazione deterministica math, logica di retry e scrittura risultati; contiene `_fetch_model_context_window` e `_build_judge_prompt`
 - `utils/task_utils.py`: parsing dei metadata (`**ID:**`, `**Tipo:**`) e lettura dei JSON dai file `_sol.md`; include `_result_exists` (skip run gia' completate) e `_answers_equal`
-- `utils/evaluation_utils.py`: aggregazione risultati e generazione report anomaly-focused in `results/evaluation/`; include `_detect_inconsistencies` (fase 1: string equality, fase 2: LLM semantic check sui flagged) e `_brier_score` (calibrazione confidence)
-- `agents/agent_runner.py`: chiamata LLM via Ollama + parsing JSON in output; logga token in/out quando disponibili
-- `agents/judge_agent.py`: chiamata LLM judge + parsing JSON + logging token in/out; include `run_semantic_equivalence_check` (verifica equivalenza semantica tra reasoning string)
-- `agents/_llm_utils.py`: helper condivisi tra agent e judge (spinner, JSON parsing, error handling Ollama)
+- `utils/evaluation_utils.py`: aggregazione risultati e generazione report anomaly-focused in `results/evaluation/`; include `_detect_inconsistencies` (fase 1: string equality, fase 2: LLM semantic check sui flagged con modello `MODELS["semantic_check"]`, obbligatorio) e `_brier_score` (calibrazione confidence)
+- `agents/agent_runner.py`: chiamata LLM via Ollama + parsing Markdown in output (fallback JSON); logga token in/out quando disponibili
+- `agents/judge_agent.py`: chiamata LLM judge + parsing Markdown + logging token in/out; include `run_semantic_equivalence_check` (verifica equivalenza semantica tra reasoning string)
+- `agents/_llm_utils.py`: helper condivisi tra agent e judge (spinner, Markdown parsing, fallback JSON, error handling Ollama)
 - `agents/prompts.py`: system prompt per ogni ruolo (`SYSTEM_PROMPTS` dict, chiavi `expert` e `beginner`)
 
 ---
@@ -81,7 +84,7 @@ Ogni scenario e' un Markdown che include (obbligatori):
 - `**ID:** <task_id>`
 - `**Tipo:** math | textual`
 
-e contiene lo scenario e le istruzioni per produrre il JSON.
+e contiene lo scenario e le istruzioni per produrre output Markdown con sezioni `Answer`, `Reasoning`, `Confidence`.
 
 ### Soluzione (`docs/tasks/<task>_sol.md`)
 
@@ -104,8 +107,8 @@ Per ogni combinazione (setup, ruolo, task, ripetizione) il runtime esegue:
    - carica `ground_truth` (e la rubrica se `textual`)
 
 1. `run_agent`
-   - chiama l'LLM (Ollama) con system prompt del ruolo + testo del task
-   - salva il JSON dell'agente in `history` e in `final_answer`
+  - chiama l'LLM (Ollama) con system prompt del ruolo + testo del task
+  - salva l'output dell'agente (Markdown parsato) in `history` e in `final_answer`
 
 1. `check_answer`
    - `math`: confronto deterministico in `utils/experiment_utils.py`
@@ -168,14 +171,27 @@ Output nel risultato:
 
 Nei task textual il judge viene chiamato in `agents/judge_agent.py`.
 
-**Input del judge** (payload JSON):
+**Input del judge** (payload Markdown):
 
-```json
-{
-  "scenario": "...",
-  "rubrica": {"rubrica": {"...": "..."}, "total_max": 9},
-  "agent_response": {"answer": "...", "reasoning": "...", "confidence": 0.0}
-}
+```md
+## Scenario
+...
+
+## Rubric
+Total max score: 9
+- category_name (0-3)
+  - 3: ...
+  - 2: ...
+
+## Agent Response
+### Answer
+...
+
+### Reasoning
+...
+
+### Confidence
+0.0
 ```
 
 **Cosa NON riceve il judge**:
@@ -184,7 +200,7 @@ Nei task textual il judge viene chiamato in `agents/judge_agent.py`.
 
 **Output atteso**:
 
-- un JSON con i campi `*_score` della rubrica del task + `total_score` + `feedback`
+- un Markdown con sezione `Scores` (campi `*_score` + `total_score`) e sezione `Feedback`
 - il prompt del judge viene generato dinamicamente da `_build_judge_prompt(rubric)` in `utils/experiment_utils.py`, con le categorie esatte della rubrica del task
 
 **Come si calcola il verdetto** (in `utils/experiment_utils.py`):

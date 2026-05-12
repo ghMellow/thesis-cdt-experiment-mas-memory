@@ -30,15 +30,18 @@ A 5G antenna exhibits the following symptoms detected over the last 35 minutes:
 ## Agent Instructions
 
 Reason systematically by ruling out unlikely causes.  
-Reply ONLY in JSON format:
+Reply ONLY in Markdown using this template:
 
-```json
-{
-  "answer": {
-    "root_cause": "...",
-    "diagnostic_steps": ["step 1...", "step 2..."]
-  },
-  "reasoning": "...",
-  "confidence": 0.0
-}
+```md
+### Answer
+root_cause: ...
+diagnostic_steps:
+- step 1...
+- step 2...
+
+### Reasoning
+...
+
+### Confidence
+0.0
 ```

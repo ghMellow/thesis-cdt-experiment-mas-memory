@@ -198,16 +198,20 @@ Identify all security vulnerabilities or inconsistencies in this file. For each 
 3. Explain the security impact in the context of a UDM managing SUPI-indexed subscription data
 4. Propose a correct fix
 
+
 ---
 
 ## Agent Instructions
 
-Reply ONLY in JSON format:
+Reply ONLY in Markdown using this template:
 
-```json
-{
-  "answer": "Brief summary of the main finding (1-2 sentences)",
-  "reasoning": "Detailed analysis: which handlers validate SUPI correctly vs which do not, impact, proposed fix",
-  "confidence": 0.0
-}
+```md
+### Answer
+Brief summary of main findings (1-3 sentences)
+
+### Reasoning
+Detailed analysis: vulnerability class, location, impact, fix
+
+### Confidence
+0.0
 ```

@@ -100,7 +100,9 @@ def _detect_inconsistencies(
         except Exception:
             cache = {}
 
-    model = config.MODELS.get("judge", next(iter(config.MODELS.values())))
+    model = config.MODELS.get("semantic_check")
+    if not model:
+        raise ValueError("MODELS['semantic_check'] must be set for semantic consistency checks")
     base_url = config.OLLAMA_BASE_URL
 
     truly_inconsistent: List[Tuple[str, str, List[Tuple[int, str]], str]] = []

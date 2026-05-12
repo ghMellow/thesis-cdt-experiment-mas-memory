@@ -34,12 +34,15 @@ Justify your classification by citing the relevant parameters.
 
 ## Agent Instructions
 
-Reply ONLY in JSON format:
+Reply ONLY in Markdown using this template:
 
-```json
-{
-  "answer": "NORMAL" | "MINOR_ANOMALY" | "CRITICAL_ANOMALY",
-  "reasoning": "...",
-  "confidence": 0.0
-}
+```md
+### Answer
+NORMAL | MINOR_ANOMALY | CRITICAL_ANOMALY
+
+### Reasoning
+...
+
+### Confidence
+0.0
 ```

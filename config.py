@@ -1,10 +1,12 @@
-# Model mapping for each experiment role and judge.
+# Model mapping for each experiment role, judge, and semantic consistency checks.
+# Note: MODELS["semantic_check"] is required for semantic consistency checks.
 MODELS = {
     "expert_1A": "gemma4:e4b",
     "beginner_1A": "gemma4:e4b",
     "expert_1B": "gemma4:e2b",
     "beginner_1B": "deepseek-r1:latest",
     "judge": "gemma4:e4b",
+    "semantic_check": "gemma4:e2b",
 }
 
 # Per-task model overrides: {role_experiment_key: {substring: model}}.

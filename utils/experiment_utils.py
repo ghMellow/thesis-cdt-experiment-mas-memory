@@ -14,6 +14,7 @@ from langgraph.graph import END, StateGraph
 
 logger = logging.getLogger(__name__)
 
+from agents._llm_utils import _expected_score_fields
 from agents.agent_runner import run_agent
 from agents.judge_agent import run_judge_textual
 from agents.prompts import SYSTEM_PROMPTS
@@ -52,7 +53,6 @@ def _build_judge_prompt(rubric: Dict[str, Any]) -> str:
     total_max = rubric.get("total_max", 0)
 
     criteria_lines = []
-    output_fields: Dict[str, Any] = {}
     for field, spec in rubric_items.items():
         max_val = spec.get("max", 0)
         criteri = spec.get("criteri", {})
@@ -60,22 +60,23 @@ def _build_judge_prompt(rubric: Dict[str, Any]) -> str:
             f"{k}={v}" for k, v in sorted(criteri.items(), key=lambda x: x[0], reverse=True)
         )
         criteria_lines.append(f"- {field} (0–{max_val}): {criteria_text}")
-        output_fields[field] = 0
 
-    output_fields["total_score"] = 0
-    output_fields["feedback"] = "..."
 
     criteria_block = "\n".join(criteria_lines)
-    output_json = json.dumps(output_fields, indent=2, ensure_ascii=True)
+    expected_fields = _expected_score_fields(rubric)
+    output_lines = ["## Scores"]
+    output_lines.extend([f"{field}: 0" for field in expected_fields])
+    output_lines += ["", "## Feedback", "..."]
+    output_template = "\n".join(output_lines)
 
     return (
         "You are an expert evaluator of technical responses about 5G networks.\n"
         "Evaluate the agent's response using the rubric criteria below.\n"
         f"Total maximum score: {total_max}\n\n"
         f"Scoring criteria:\n{criteria_block}\n\n"
-        "Reply ONLY with a valid JSON object with exactly these fields:\n"
-        f"{output_json}\n"
-        "No text outside the JSON."
+        "Reply ONLY with Markdown using this exact template:\n"
+        f"{output_template}\n"
+        "No text outside the Markdown."
     )
 
 
@@ -166,18 +167,38 @@ def _time_limit(seconds: int):
         signal.signal(signal.SIGALRM, previous_handler)
 
 
+def _format_previous_answer(answer: Any) -> str:
+    if isinstance(answer, dict):
+        lines: List[str] = []
+        for key, value in answer.items():
+            if isinstance(value, list):
+                lines.append(f"{key}:")
+                lines.extend([f"- {entry}" for entry in value])
+            else:
+                lines.append(f"{key}: {value}")
+        return "\n".join(lines) if lines else ""
+    if isinstance(answer, list):
+        return "\n".join([f"- {entry}" for entry in answer])
+    return str(answer)
+
+
 def _build_retry_task_content(task_content: str, history: list) -> str:
     last = history[-1]
     prev_reasoning = last.get("reasoning", "")
-    prev_answer = last.get("answer", "")
+    prev_answer = _format_previous_answer(last.get("answer", ""))
+    prev_confidence = last.get("confidence", "")
     return (
         f"{task_content}\n\n"
         "---\n"
-        "Note: you already attempted this task. Your previous reasoning was:\n"
+        "Note: you already attempted this task. Review your previous attempt below, "
+        "then try again from scratch.\n\n"
+        "### Previous Answer\n"
+        f"{prev_answer}\n\n"
+        "### Previous Reasoning\n"
         f"{prev_reasoning}\n\n"
-        f"Your previous answer was: {prev_answer}\n\n"
-        "That attempt was not sufficient to produce a correct result. "
-        "Please reason again from scratch."
+        "### Previous Confidence\n"
+        f"{prev_confidence}\n\n"
+        "Please reason again from scratch and follow the response format in the task."
     )
 
 
@@ -260,6 +281,15 @@ def _check_answer(state: ExperimentState) -> ExperimentState:
     judge_score["normalized_score"] = normalized
 
     verdict = "correct" if total_max and normalized >= TEXTUAL_PASS_RATIO else "wrong"
+    
+    # Print rubric breakdown and verdict to stdout
+    logger.info("=== Judge Evaluation ===")
+    for field, score in judge_score.items():
+        if field.endswith("_score") and field != "total_score":
+            logger.info("  %s: %s", field, score)
+    logger.info("  total_score: %.1f / %d (normalized: %.1f)", total_score, total_max, normalized)
+    logger.info("  threshold: %.1f | verdict: %s", TEXTUAL_PASS_RATIO, verdict)
+    
     state.update({"verdict": verdict, "judge_score": judge_score})
     return state
 

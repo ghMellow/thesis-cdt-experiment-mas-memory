@@ -23,15 +23,16 @@ Calculate:
 
 Show the intermediate calculations in the reasoning.  
 Round results to 2 decimal places.  
-Reply ONLY in JSON format:
+Reply ONLY in Markdown using this template:
 
-```json
-{
-  "answer": {
-    "mean": 0.0,
-    "std": 0.0
-  },
-  "reasoning": "...",
-  "confidence": 0.0
-}
+```md
+### Answer
+mean: 0.00
+std: 0.00
+
+### Reasoning
+...
+
+### Confidence
+0.0
 ```

@@ -54,7 +54,6 @@ func (s *Server) HTTPCreateUEContext(c *gin.Context) {
 	case multipartrelate:
 		err = openapi.Deserialize(&createUeContextRequest, requestBody, contentType)
 	default:
-		err = fmt.Errorf("wrong content type")
 	}
 
 	if err != nil {
@@ -269,12 +268,15 @@ Pay particular attention to consistency across handlers handling the same error 
 
 ## Agent Instructions
 
-Reply ONLY in JSON format:
+Reply ONLY in Markdown using this template:
 
-```json
-{
-  "answer": "Brief summary of the main findings (1-3 sentences)",
-  "reasoning": "Detailed analysis for each finding: class, location, impact, fix",
-  "confidence": 0.0
-}
+```md
+### Answer
+Brief summary of the main findings (1-3 sentences)
+
+### Reasoning
+Detailed analysis for each finding: class, location, impact, fix
+
+### Confidence
+0.0
 ```

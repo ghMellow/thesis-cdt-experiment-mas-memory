@@ -8,7 +8,12 @@ from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage, SystemMessage
 
 import config
-from agents._llm_utils import _extract_json_from_text, _raise_ollama_unavailable, _start_spinner
+from agents._llm_utils import (
+    _extract_agent_response_markdown,
+    _extract_json_from_text,
+    _raise_ollama_unavailable,
+    _start_spinner,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -53,11 +58,18 @@ def run_agent(
     else:
         logger.info("Agent response | elapsed=%.1fs", elapsed)
     try:
-        parsed = _extract_json_from_text(response.content)
+        parsed = _extract_agent_response_markdown(response.content)
     except ValueError:
-        logger.warning(
-            "Agent response | no valid JSON | raw=%r",
-            response.content[:300],
-        )
-        parsed = {"answer": "", "reasoning": "model produced no valid JSON output", "confidence": 0.0}
+        try:
+            parsed = _extract_json_from_text(response.content)
+        except ValueError:
+            logger.warning(
+                "Agent response | no valid Markdown or JSON | raw=%r",
+                response.content[:300],
+            )
+            parsed = {
+                "answer": "",
+                "reasoning": "model produced no valid Markdown or JSON output",
+                "confidence": 0.0,
+            }
     return parsed, in_tok, out_tok

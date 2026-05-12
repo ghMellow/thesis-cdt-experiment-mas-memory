@@ -9,9 +9,81 @@ from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage, SystemMessage
 
 import config
-from agents._llm_utils import _extract_json_from_text, _raise_ollama_unavailable, _start_spinner
+from agents._llm_utils import (
+    _expected_score_fields,
+    _extract_judge_scores_markdown,
+    _extract_json_from_text,
+    _raise_ollama_unavailable,
+    _start_spinner,
+)
 
 logger = logging.getLogger(__name__)
+
+
+def _strip_agent_instructions(task_content: str) -> str:
+    marker = "\n## Agent Instructions"
+    if marker in task_content:
+        return task_content.split(marker, 1)[0].rstrip()
+    return task_content.strip()
+
+
+def _format_markdown_value(value: Any) -> str:
+    if isinstance(value, dict):
+        lines: List[str] = []
+        for key, item in value.items():
+            if isinstance(item, list):
+                lines.append(f"{key}:")
+                lines.extend([f"- {entry}" for entry in item])
+            else:
+                lines.append(f"{key}: {item}")
+        return "\n".join(lines) if lines else ""
+    if isinstance(value, list):
+        return "\n".join([f"- {entry}" for entry in value])
+    return str(value)
+
+
+def _format_rubric_markdown(rubric: Dict[str, Any]) -> str:
+    rubrica = rubric.get("rubrica", {})
+    total_max = rubric.get("total_max")
+    lines: List[str] = []
+    if total_max is not None:
+        lines.append(f"Total max score: {total_max}")
+    for field, spec in rubrica.items():
+        max_val = spec.get("max", 0)
+        criteri = spec.get("criteri", {})
+        lines.append(f"- {field} (0-{max_val})")
+        for score, description in sorted(criteri.items(), key=lambda x: x[0], reverse=True):
+            lines.append(f"  - {score}: {description}")
+    return "\n".join(lines) if lines else "No rubric details provided."
+
+
+def _format_agent_response_markdown(agent_response: Dict[str, Any]) -> str:
+    return (
+        "### Answer\n"
+        f"{_format_markdown_value(agent_response.get('answer', ''))}\n\n"
+        "### Reasoning\n"
+        f"{agent_response.get('reasoning', '')}\n\n"
+        "### Confidence\n"
+        f"{agent_response.get('confidence', '')}"
+    )
+
+
+def _build_judge_payload_markdown(
+    task_content: str,
+    rubric: Dict[str, Any],
+    agent_response: Dict[str, Any],
+) -> str:
+    scenario = _strip_agent_instructions(task_content)
+    rubric_md = _format_rubric_markdown(rubric)
+    response_md = _format_agent_response_markdown(agent_response)
+    return (
+        "## Scenario\n"
+        f"{scenario}\n\n"
+        "## Rubric\n"
+        f"{rubric_md}\n\n"
+        "## Agent Response\n"
+        f"{response_md}\n"
+    )
 
 
 def run_judge_textual(
@@ -30,14 +102,10 @@ def run_judge_textual(
         timeout=config.OLLAMA_TIMEOUT_SECONDS,
         model_kwargs={"num_predict": config.OLLAMA_NUM_PREDICT},
     )
-    payload = {
-        "scenario": task_content,
-        "rubrica": rubric,
-        "agent_response": agent_response,
-    }
+    payload = _build_judge_payload_markdown(task_content, rubric, agent_response)
     messages = [
         SystemMessage(content=system_prompt),
-        HumanMessage(content=json.dumps(payload, ensure_ascii=True)),
+        HumanMessage(content=payload),
     ]
     logger.info("Judge active | model=%s", model)
     stop_event = threading.Event()
@@ -56,7 +124,11 @@ def run_judge_textual(
     finally:
         stop_event.set()
         spinner.join()
-    parsed = _extract_json_from_text(response.content)
+    expected_fields = _expected_score_fields(rubric)
+    try:
+        parsed = _extract_judge_scores_markdown(response.content, expected_fields)
+    except ValueError:
+        parsed = _extract_json_from_text(response.content)
     elapsed = time.perf_counter() - t0
     meta = getattr(response, "response_metadata", {}) or {}
     in_tok = meta.get("prompt_eval_count")

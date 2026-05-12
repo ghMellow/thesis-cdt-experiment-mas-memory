@@ -7,7 +7,7 @@ import re
 import sys
 import threading
 import time
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +28,166 @@ def _extract_json_from_text(text: str) -> Dict[str, Any]:
         return json.loads(brace_match.group(0))
 
     raise ValueError("No JSON object found in response")
+
+
+_MARKDOWN_HEADING_RE = re.compile(r"^\s{0,3}#{1,6}\s+(?P<title>.+?)\s*$", re.MULTILINE)
+
+
+def _normalize_heading(title: str) -> str:
+    cleaned = re.sub(r"[^a-z0-9]+", " ", title.lower()).strip()
+    return cleaned.split()[0] if cleaned else ""
+
+
+def _extract_markdown_sections(text: str, expected: List[str]) -> Dict[str, str]:
+    matches: List[Tuple[str, int, int]] = []
+    for match in _MARKDOWN_HEADING_RE.finditer(text):
+        key = _normalize_heading(match.group("title"))
+        if key in expected:
+            matches.append((key, match.start(), match.end()))
+
+    if not matches:
+        return {}
+
+    sections: Dict[str, str] = {}
+    for idx, (key, _start, end) in enumerate(matches):
+        next_start = matches[idx + 1][1] if idx + 1 < len(matches) else len(text)
+        content = text[end:next_start].strip()
+        if content:
+            sections[key] = content
+    return sections
+
+
+def _strip_fenced_block(text: str) -> str:
+    content = text.strip()
+    if content.startswith("```"):
+        lines = content.splitlines()
+        if len(lines) >= 2 and lines[-1].strip().startswith("```"):
+            return "\n".join(lines[1:-1]).strip()
+    return content
+
+
+def _parse_numeric_strict(value: str) -> Optional[float]:
+    raw = value.strip()
+    if re.fullmatch(r"-?\d+(?:\.\d+)?(?:\s*[A-Za-z%]+)?", raw):
+        match = re.search(r"-?\d+(?:\.\d+)?", raw)
+        return float(match.group(0)) if match else None
+    return None
+
+
+def _parse_numeric_loose(value: str) -> Optional[float]:
+    match = re.search(r"-?\d+(?:\.\d+)?", value)
+    return float(match.group(0)) if match else None
+
+
+def _should_parse_kv_answer(lines: List[str]) -> bool:
+    known_keys = {"mean", "std", "root_cause", "diagnostic_steps"}
+    for line in lines:
+        match = re.match(r"^([A-Za-z0-9_ -]+):", line)
+        if not match:
+            continue
+        key = match.group(1).strip().lower().replace(" ", "_").replace("-", "_")
+        if key in known_keys:
+            return True
+    return False
+
+
+def _parse_kv_answer_block(lines: List[str]) -> Dict[str, Any]:
+    data: Dict[str, Any] = {}
+    current_key: Optional[str] = None
+    for line in lines:
+        kv_match = re.match(r"^([A-Za-z0-9_ -]+):\s*(.*)$", line)
+        if kv_match:
+            key = kv_match.group(1).strip().lower().replace(" ", "_").replace("-", "_")
+            value = kv_match.group(2).strip()
+            if value:
+                numeric = _parse_numeric_strict(value)
+                data[key] = numeric if numeric is not None else value
+                current_key = None
+            else:
+                data[key] = []
+                current_key = key
+            continue
+
+        item_match = re.match(r"^[-*]\s+(.*)$", line)
+        if item_match and current_key and isinstance(data.get(current_key), list):
+            data[current_key].append(item_match.group(1).strip())
+            continue
+
+        if current_key and isinstance(data.get(current_key), list):
+            data[current_key].append(line)
+
+    return data
+
+
+def _extract_agent_response_markdown(text: str) -> Dict[str, Any]:
+    sections = _extract_markdown_sections(text, ["answer", "reasoning", "confidence"])
+    if not sections:
+        raise ValueError("Missing markdown sections")
+
+    answer_raw = sections.get("answer")
+    reasoning_raw = sections.get("reasoning")
+    confidence_raw = sections.get("confidence")
+    if not answer_raw or not reasoning_raw or not confidence_raw:
+        raise ValueError("Missing required markdown sections")
+
+    answer_block = _strip_fenced_block(answer_raw)
+    answer_lines = [line.strip() for line in answer_block.splitlines() if line.strip()]
+    if _should_parse_kv_answer(answer_lines):
+        answer: Any = _parse_kv_answer_block(answer_lines)
+    else:
+        numeric = _parse_numeric_strict(answer_block)
+        answer = numeric if numeric is not None else answer_block.strip()
+
+    confidence_val = _parse_numeric_loose(confidence_raw)
+    if confidence_val is None:
+        raise ValueError("Confidence value not found")
+
+    return {
+        "answer": answer,
+        "reasoning": _strip_fenced_block(reasoning_raw),
+        "confidence": confidence_val,
+    }
+
+
+def _extract_judge_scores_markdown(text: str, expected_fields: List[str]) -> Dict[str, Any]:
+    sections = _extract_markdown_sections(text, ["scores", "feedback"])
+    scores_block = sections.get("scores")
+    if not scores_block:
+        raise ValueError("Scores section not found")
+
+    scores: Dict[str, Any] = {}
+    for line in scores_block.splitlines():
+        cleaned = line.strip()
+        if not cleaned:
+            continue
+        cleaned = cleaned.lstrip("-* ").strip()
+        if ":" not in cleaned:
+            continue
+        key, value = cleaned.split(":", 1)
+        key = key.strip()
+        key_norm = key.lower().replace(" ", "_")
+        if expected_fields and key_norm not in expected_fields and key not in expected_fields:
+            continue
+        key = key if key in expected_fields else key_norm
+        numeric = _parse_numeric_loose(value)
+        scores[key] = numeric if numeric is not None else value.strip()
+
+    for field in expected_fields:
+        if field == "total_score":
+            continue
+        scores.setdefault(field, 0)
+
+    feedback = sections.get("feedback", "").strip()
+    if feedback:
+        scores["feedback"] = feedback
+    return scores
+
+
+def _expected_score_fields(rubric: Dict[str, Any]) -> List[str]:
+    fields = list(rubric.get("rubrica", {}).keys())
+    if "total_score" not in fields:
+        fields.append("total_score")
+    return fields
 
 
 def _start_spinner(label: str, stop_event: threading.Event) -> threading.Thread:

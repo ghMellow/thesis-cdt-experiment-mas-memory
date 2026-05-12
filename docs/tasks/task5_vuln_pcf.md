@@ -95,12 +95,15 @@ Identify all security vulnerabilities or misconfigurations present in this file.
 
 ## Agent Instructions
 
-Reply ONLY in JSON format:
+Reply ONLY in Markdown using this template:
 
-```json
-{
-  "answer": "Brief summary of the main vulnerability found (1-2 sentences)",
-  "reasoning": "Detailed analysis: vulnerability class, location, impact in 5G context, proposed fix",
-  "confidence": 0.0
-}
+```md
+### Answer
+Brief summary of the main vulnerability found (1-2 sentences)
+
+### Reasoning
+Detailed analysis: vulnerability class, location, impact in 5G context, proposed fix
+
+### Confidence
+0.0
 ```
