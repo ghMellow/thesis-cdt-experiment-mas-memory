@@ -4,16 +4,16 @@
   "task_path": "docs/tasks/task1_math_int.md",
   "sol_path": "docs/tasks/task1_math_int_sol.md",
   "agent_role": "expert",
-  "model": "gemma4:e2b",
+  "model": "gemma4:e4b",
   "repetition": 1,
-  "started_at": "2026-05-08T21:25:01.263572+00:00",
-  "finished_at": "2026-05-08T21:25:11.905166+00:00",
-  "elapsed_seconds": 10.64084616600303,
+  "started_at": "2026-05-11T20:33:19.592058+00:00",
+  "finished_at": "2026-05-11T20:33:39.607497+00:00",
+  "elapsed_seconds": 20.015359584002,
   "attempts": 1,
   "history": [
     {
-      "answer": 1260,
-      "reasoning": "Sector A has 240 connections. Sector B has twice Sector A, so B = 2 * 240 = 480. The sum of A and B is 240 + 480 = 720. Sector C has 180 fewer connections than the sum of A and B, so C = 720 - 180 = 540. The total number of connections is A + B + C = 240 + 480 + 540 = 1260.",
+      "answer": 1260.0,
+      "reasoning": "The problem requires calculating the total active connections across three sectors (A, B, and C).\n\n1.  **Calculate Sector A connections:**\n    $N_A = 240$\n\n2.  **Calculate Sector B connections:**\n    Sector B handles twice the connections of Sector A.\n    $N_B = 2 \\times 240 = 480$\n\n3.  **Calculate the sum of A and B:**\n    $N_{A+B} = 240 + 480 = 720$\n\n4.  **Calculate Sector C connections:**\n    Sector C handles 180 fewer connections than the sum of A and B.\n    $N_C = 720 - 180 = 540$\n\n5.  **Calculate the total connections:**\n    Total Connections = $N_A + N_B + N_C$\n    Total Connections = $240 + 480 + 540 = 1260$",
       "confidence": 1.0
     }
   ],
@@ -24,13 +24,13 @@
     "note": "exact int check"
   },
   "final_answer": {
-    "answer": 1260,
-    "reasoning": "Sector A has 240 connections. Sector B has twice Sector A, so B = 2 * 240 = 480. The sum of A and B is 240 + 480 = 720. Sector C has 180 fewer connections than the sum of A and B, so C = 720 - 180 = 540. The total number of connections is A + B + C = 240 + 480 + 540 = 1260.",
+    "answer": 1260.0,
+    "reasoning": "The problem requires calculating the total active connections across three sectors (A, B, and C).\n\n1.  **Calculate Sector A connections:**\n    $N_A = 240$\n\n2.  **Calculate Sector B connections:**\n    Sector B handles twice the connections of Sector A.\n    $N_B = 2 \\times 240 = 480$\n\n3.  **Calculate the sum of A and B:**\n    $N_{A+B} = 240 + 480 = 720$\n\n4.  **Calculate Sector C connections:**\n    Sector C handles 180 fewer connections than the sum of A and B.\n    $N_C = 720 - 180 = 540$\n\n5.  **Calculate the total connections:**\n    Total Connections = $N_A + N_B + N_C$\n    Total Connections = $240 + 480 + 540 = 1260$",
     "confidence": 1.0
   },
   "tokens": {
-    "agent_in": 241,
-    "agent_out": 542,
+    "agent_in": 237,
+    "agent_out": 735,
     "judge_in": null,
     "judge_out": null
   }

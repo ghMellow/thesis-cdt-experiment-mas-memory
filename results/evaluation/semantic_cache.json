@@ -83,16 +83,12 @@
     "equivalent": true,
     "explanation": "All three passages identify the same two critical vulnerabilities (Authorization Bypass on SUPI and CORS Misconfiguration) and propose consistent, high-level fixes, making the overall security assessment semantically equivalent."
   },
-  "beginner/task6_vuln_udr/7cfb2b07c0272186": {
+  "beginner/task1_math_int/74f5576160fd5f0a": {
     "equivalent": true,
-    "explanation": "All passages identify the same core vulnerabilities: IDOR via `ueId`/`subscriptionId`, insufficient input validation/regex bypass in EE handlers, and logic flaws in filter construction, all requiring robust authorization and stricter validation."
+    "explanation": "All three passages follow the identical mathematical steps and arrive at the same final conclusion of 1260 connections."
   },
-  "expert/task6_vuln_udr/a4e8a939d4f2e70a": {
-    "equivalent": false,
-    "explanation": "Cannot determine semantic equivalence as only one reasoning passage was provided instead of multiple passages for comparison."
-  },
-  "beginner/task6_vuln_udr/7b741fb73a7fea47": {
-    "equivalent": false,
-    "explanation": "The passages are not equivalent because Passage 3 generalizes the findings into high-level categories like 'Broken Access Control' and introduces a new vulnerability class, 'Information Exposure,' which is not covered by the specific input validation flaws detailed in the other passages."
+  "expert/task1_math_int/fbf43c549c51e9e4": {
+    "equivalent": true,
+    "explanation": "All three passages follow the identical mathematical steps and arrive at the same final conclusion of 1260 connections."
   }
 }
