@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional
 
 import config
 from agents._llm_utils import resolve_model_config
-from config import MODELS, OLLAMA_BASE_URL, REPETITIONS, RESULTS_PATH, TASK_MODEL_OVERRIDES, TASK_TIMEOUT_SECONDS, TASKS_PATH
+from config import FULL_TASK_SUFFIX, FULL_TASK_TIMEOUT_MULTIPLIER, MODELS, OLLAMA_BASE_URL, REPETITIONS, RESULTS_PATH, TASK_MODEL_OVERRIDES, TASK_TIMEOUT_SECONDS, TASKS_PATH
 from utils.evaluation_utils import _record_consistency_finding, _write_evaluation_reports
 from utils.experiment_utils import ExperimentState, _build_graph, _fetch_model_context_window, _time_limit
 from utils.task_utils import _answers_equal, _list_tasks, _result_exists
@@ -126,7 +126,11 @@ def main() -> None:
                     continue
                 remaining_repetitions += 1
 
-    desired_ollama_timeout = int(args.task_timeout * 1.1)
+    # If any task in the run has FULL_TASK_SUFFIX in its name, it gets a higher timeout;
+    # bump OLLAMA_TIMEOUT_SECONDS now so it covers the worst-case full-task timeout.
+    has_full_task = any(FULL_TASK_SUFFIX in t.stem for t in tasks) if args.task_timeout > 0 else False
+    max_effective_timeout = int(args.task_timeout * FULL_TASK_TIMEOUT_MULTIPLIER) if has_full_task else args.task_timeout
+    desired_ollama_timeout = int(max_effective_timeout * 1.1)
     if desired_ollama_timeout > config.OLLAMA_TIMEOUT_SECONDS:
         config.OLLAMA_TIMEOUT_SECONDS = desired_ollama_timeout
 
@@ -203,8 +207,17 @@ def main() -> None:
                     "started_at": started_at,
                     "start_perf": start_perf,
                 }
+                # Tasks with FULL_TASK_SUFFIX in the name get an extended timeout
+                # because their prompts are much larger and each LLM call takes proportionally longer.
+                effective_timeout = args.task_timeout
+                if args.task_timeout > 0 and FULL_TASK_SUFFIX in task_path.stem:
+                    effective_timeout = int(args.task_timeout * FULL_TASK_TIMEOUT_MULTIPLIER)
+                    logger.info(
+                        "Full task detected ('%s') → timeout %ss → %ss",
+                        FULL_TASK_SUFFIX, args.task_timeout, effective_timeout,
+                    )
                 try:
-                    with _time_limit(args.task_timeout):
+                    with _time_limit(effective_timeout):
                         result_state = graph.invoke(initial_state)
                 except TimeoutError:
                     logger.warning(

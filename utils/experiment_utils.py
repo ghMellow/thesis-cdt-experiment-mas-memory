@@ -214,6 +214,7 @@ def _run_agent(state: ExperimentState) -> ExperimentState:
         if history
         else state["task_content"]
     )
+    t0 = time.perf_counter()
     agent_response, in_tok, out_tok = run_agent(
         task_content=task_content,
         system_prompt=system_prompt,
@@ -222,6 +223,9 @@ def _run_agent(state: ExperimentState) -> ExperimentState:
         base_url=OLLAMA_BASE_URL,
         is_hosted=state.get("is_hosted", False),
     )
+    agent_response["elapsed_seconds"] = round(time.perf_counter() - t0, 2)
+    agent_response["tokens_in"] = in_tok
+    agent_response["tokens_out"] = out_tok
 
     attempts = state.get("attempts", 0) + 1
     history = state.get("history", [])
@@ -255,6 +259,7 @@ def _check_answer(state: ExperimentState) -> ExperimentState:
 
     rubric = state.get("rubric", {})
     judge_model, judge_is_hosted = resolve_model_config("judge")
+    judge_t0 = time.perf_counter()
     judge_score, j_in_tok, j_out_tok = run_judge_textual(
         task_content=state["task_content"],
         rubric=rubric,
@@ -265,6 +270,7 @@ def _check_answer(state: ExperimentState) -> ExperimentState:
         base_url=OLLAMA_BASE_URL,
         is_hosted=judge_is_hosted,
     )
+    judge_score["judge_elapsed_seconds"] = round(time.perf_counter() - judge_t0, 2)
     state.update(
         {
             "judge_tokens_in": state.get("judge_tokens_in", 0) + (j_in_tok or 0),

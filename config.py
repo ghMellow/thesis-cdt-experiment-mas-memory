@@ -59,6 +59,10 @@ REPETITIONS = 3
 TASK_TIMEOUT_SECONDS = 600
 # Pass threshold for textual tasks (ratio of rubric max score).
 TEXTUAL_PASS_RATIO = 0.7
+# Tasks whose stem contains this substring get an extended timeout (multiplied by FULL_TASK_TIMEOUT_MULTIPLIER).
+FULL_TASK_SUFFIX = "full"
+# Multiplier applied to TASK_TIMEOUT_SECONDS for tasks matching FULL_TASK_SUFFIX.
+FULL_TASK_TIMEOUT_MULTIPLIER = 2.0
 
 # Ollama server endpoint.
 OLLAMA_BASE_URL = "http://localhost:11434"
