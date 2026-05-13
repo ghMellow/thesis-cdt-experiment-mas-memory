@@ -122,5 +122,13 @@
   "expert/task9_vuln_cross/0255dcb1622838f4": {
     "equivalent": true,
     "explanation": "All three passages identify the same set of cross-file inconsistencies and per-file vulnerabilities, detailing the same security impacts and proposing identical corrective actions."
+  },
+  "beginner/task1_math_int/ed48eb56ab647a0f": {
+    "equivalent": true,
+    "explanation": "All reasoning passages follow the identical sequence of calculations to determine the total number of connections, resulting in the same conclusion."
+  },
+  "expert/task1_math_int/e71da79f502c4f45": {
+    "equivalent": true,
+    "explanation": "All reasoning passages follow the identical logical steps and arrive at the same final calculation of 1260."
   }
 }
