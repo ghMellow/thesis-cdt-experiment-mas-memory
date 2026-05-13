@@ -20,6 +20,7 @@ from agents.judge_agent import run_judge_textual
 from agents.prompts import SYSTEM_PROMPTS
 import config
 from agents._llm_utils import resolve_model_config
+from utils.task_utils import _model_slug
 from config import (
     MAX_RETRIES,
     MODELS,
@@ -304,21 +305,28 @@ def _save_result(state: ExperimentState) -> ExperimentState:
     start_perf = state.get("start_perf")
     elapsed_seconds = time.perf_counter() - start_perf if start_perf is not None else None
     payload = {
+        # --- run config ---
         "task_id": state["task_id"],
         "task_type": state["task_type"],
-        "task_path": state["task_path"],
-        "sol_path": state["sol_path"],
+        "experiment_id": state["experiment_id"],
         "agent_role": state["agent_role"],
         "model": state["model"],
+        "is_hosted": state.get("is_hosted", False),
         "repetition": state["repetition"],
+        "task_path": state["task_path"],
+        "sol_path": state["sol_path"],
+        # --- timing ---
         "started_at": state.get("started_at"),
         "finished_at": finished_at,
         "elapsed_seconds": elapsed_seconds,
+        # --- agent ---
         "attempts": state["attempts"],
         "history": state["history"],
+        "final_answer": state["final_answer"],
+        # --- judge ---
         "verdict": state["verdict"],
         "judge_score": state.get("judge_score", {}),
-        "final_answer": state["final_answer"],
+        # --- resources ---
         "tokens": {
             "agent_in": state.get("agent_tokens_in") or None,
             "agent_out": state.get("agent_tokens_out") or None,
@@ -326,9 +334,14 @@ def _save_result(state: ExperimentState) -> ExperimentState:
             "judge_out": state.get("judge_tokens_out") or None,
         },
     }
-    out_dir = Path(config.RESULTS_PATH) / state["experiment_id"] / state["agent_role"]
+    out_dir = (
+        Path(config.RESULTS_PATH)
+        / state["task_id"]
+        / state["experiment_id"]
+        / state["agent_role"]
+    )
     out_dir.mkdir(parents=True, exist_ok=True)
-    prefix = f"{state['task_id']}_rep{state['repetition']}"
+    prefix = f"rep{state['repetition']}_{_model_slug(state['model'], state.get('is_hosted', False))}"
     (out_dir / f"{prefix}.json").write_text(json.dumps(payload, indent=2, ensure_ascii=True))
     solution_payload = {"task_id": state["task_id"], "ground_truth": state["ground_truth"]}
     (out_dir / f"{prefix}_solution.json").write_text(json.dumps(solution_payload, indent=2, ensure_ascii=True))

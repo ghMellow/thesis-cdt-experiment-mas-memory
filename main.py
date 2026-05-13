@@ -113,12 +113,15 @@ def main() -> None:
     for experiment in experiments:
         for task_path in tasks:
             for repetition in range(1, args.repetitions + 1):
+                count_model, count_is_hosted = _resolve_task_model(experiment["id"], experiment["role"], task_path.stem)
                 if _result_exists(
                     RESULTS_PATH,
                     experiment["id"],
                     experiment["role"],
                     task_path.stem,
                     repetition,
+                    count_model,
+                    count_is_hosted,
                 ):
                     continue
                 remaining_repetitions += 1
@@ -150,11 +153,13 @@ def main() -> None:
         ctx_window = ctx_cache[model]
         ctx_str = f" | ctx_window={ctx_window:,}" if ctx_window else ""
         logger.info("")
+        hosted_str = " [hosted]" if experiment["is_hosted"] else ""
         logger.info(
-            "==== Experiment %s | role=%s | model=%s%s ====",
+            "==== Experiment %s | role=%s | model=%s%s%s ====",
             experiment["id"],
             experiment["role"],
             model,
+            hosted_str,
             ctx_str,
         )
         for task_path in tasks:
@@ -162,7 +167,8 @@ def main() -> None:
             if task_model not in ctx_cache:
                 ctx_cache[task_model] = None if task_is_hosted else _fetch_model_context_window(task_model, OLLAMA_BASE_URL)
             task_ctx_str = (
-                f" [model={task_model}]" if task_model != experiment["model"] else ""
+                f" [model={task_model}{'(hosted)' if task_is_hosted else ''}]"
+                if task_model != experiment["model"] else ""
             )
             logger.info("")
             logger.info("---- Task %s%s ----", task_path.stem, task_ctx_str)
@@ -176,6 +182,8 @@ def main() -> None:
                     experiment["role"],
                     task_path.stem,
                     repetition,
+                    task_model,
+                    task_is_hosted,
                 ):
                     logger.info("Skip %s rep %s (already exists)", task_path.stem, repetition)
                     continue

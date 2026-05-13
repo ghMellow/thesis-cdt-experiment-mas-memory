@@ -1,6 +1,6 @@
 # Call 3 — Analisi presentazione + roadmap (2026-05-13)
 
-Presentazione del sistema (`presentation_3.html`) ai supervisori Raffaele e Mario. Il documento cattura: qualità del flusso espositivo, dubbi e discussioni tecniche, problemi metodologici, estratti da preparare per validazione esterna, e tutte le direzioni di miglioramento emerse.
+Presentazione del sistema (`presentation_3.html`) ai relatori. Il documento cattura: qualità del flusso espositivo, dubbi e discussioni tecniche, problemi metodologici, estratti da preparare per validazione esterna, e tutte le direzioni di miglioramento emerse.
 
 ---
 
@@ -17,8 +17,8 @@ La presentazione copriva in ordine: overview → setup → ruoli → architettur
 - I risultati task6 (fallimento sistematico 2B → risolto con 4B) hanno generato la discussione più ricca: questo è il finding più solido.
 
 **Problemi rilevati durante la call:**
-- Presentazione **troppo lunga e troppo tecnica** — Mario ha esplicitamente chiesto di ridurla per il 19 maggio.
-- Struttura pensata per chi conosce già il progetto (supervisor), non per un esterno (Toma, Diego).
+- Presentazione **troppo lunga e troppo tecnica** — un relatore ha esplicitamente chiesto di ridurla per il 19 maggio.
+- Struttura pensata per chi conosce già il progetto (supervisori), non per esterni collaboratori.
 - Alcune slide venivano saltate con "già dette" — segnale diretto che vanno tagliate.
 - Il codice mostrato live (terminale) non era nella presentazione → dualismo confusivo.
 
@@ -26,10 +26,10 @@ La presentazione copriva in ordine: overview → setup → ruoli → architettur
 
 | Momento | Causa | Stato |
 |---|---|---|
-| Brier Score | Nicolò stesso incerto sull'interpretazione | Da approfondire prima del 19; rimuovere dalla presentazione se non è ancora chiaro |
-| Soglia 0.7 | Raffaele chiede la motivazione — risposta "ho deciso io" | Documentare la scelta con una giustificazione formale (§2.3) |
+| Brier Score | Il tesista stesso incerto sull'interpretazione | Da approfondire prima del 19; rimuovere dalla presentazione se non è ancora chiaro |
+| Soglia 0.7 | Un relatore chiede la motivazione — risposta "ho deciso io" | Documentare la scelta con una giustificazione formale (§2.3) |
 | Retry con risposta precedente | Domanda su cosa impedisce di ripetere lo stesso errore | Estrarre i reasoning (§2.4); spiegazione corretta già nel documento ma non nella presentazione |
-| Task 6 + special attention | Mario dice che invalida il test | Punto critico metodologico — separare blind da hint (§3.1) |
+| Task 6 + special attention | Un relatore dice che invalida il test | Punto critico metodologico — separare blind da hint (§3.1) |
 | Risultati task 6 2B vs 4B | Il modello 4B non era nella presentazione originale (switch avvenuto in corso) | Aggiornare la presentazione per il 19 |
 
 ---
@@ -38,9 +38,9 @@ La presentazione copriva in ordine: overview → setup → ruoli → architettur
 
 ### 2.1 Metriche confermate e chiare
 
-**Rubrica + TEXTUAL_PASS_RATIO = 0.7** — confermata da Raffaele come ragionevole. Il criterio "il modello deve coprire >70% dei criteri della rubrica" è comprensibile e giustificabile. La formula è `total_score / total_max ≥ 0.7`.
+**Rubrica + TEXTUAL_PASS_RATIO = 0.7** — confermata da un relatore come ragionevole. Il criterio "il modello deve coprire >70% dei criteri della rubrica" è comprensibile e giustificabile. La formula è `total_score / total_max ≥ 0.7`.
 
-**Da verificare — riferimento in letteratura:** Raffaele ha chiesto esplicitamente se l'approccio "rubrica con punteggi per categoria usata come prompt del judge" sia descritto in qualche paper. Nicolò non ha trovato un riferimento specifico. Dato che la rubrica è la metrica principale dell'esperimento, è necessario verificare se esiste un termine tecnico consolidato e una citazione. Cercare in letteratura su: LLM-as-judge evaluation, rubric-based scoring, reference-free evaluation con LLM judge. Aggiungere la citazione nella presentazione e nel report finale.
+**Da verificare — riferimento in letteratura:** Un relatore ha chiesto esplicitamente se l'approccio "rubrica con punteggi per categoria usata come prompt del judge" sia descritto in qualche paper. Il tesista non ha trovato un riferimento specifico. Dato che la rubrica è la metrica principale dell'esperimento, è necessario verificare se esiste un termine tecnico consolidato e una citazione. Cercare in letteratura su: LLM-as-judge evaluation, rubric-based scoring, reference-free evaluation con LLM judge. Aggiungere la citazione nella presentazione e nel report finale.
 
 Nota: per task6 il finding primario (missing return) vale 4/9 punti e non viene mai trovato da ≤2B → il modello non supera mai la soglia indipendentemente da dove si mette la threshold. La soglia non è il bottleneck su task6.
 
@@ -68,11 +68,11 @@ In alternativa mostrare cosa cambia con 0.5: su task6 non cambia nulla (finding 
 
 ### 2.4 Temperatura 0.3 — scelta da documentare meglio
 
-**Discussione:** ogni modello ha una temperatura di default propria (Andrea: alcuni modelli usano 0.7 di default). La scelta di 0.3 è arbitraria ma esplicita → garantisce riproducibilità cross-modello.
+**Discussione:** ogni modello ha una temperatura di default propria (alcuni modelli usano 0.7 di default). La scelta di 0.3 è arbitraria ma esplicita → garantisce riproducibilità cross-modello.
 
 **Decisione da adottare:** mantenere 0.3 esplicito come scelta metodologica deliberata per riproducibilità, e documentarlo come tale nella presentazione (non come parametro casuale).
 
-**Possibile esperimento futuro (non prioritario):** sweep T∈{0.1, 0.3, default, 0.7} su task7/8 e visualizzare curva accuracy vs temperatura. Raffaele ha suggerito questo approccio graficamente: "vedere come impatta la variazione di alcuni parametri per rispondere" — potrebbe essere un risultato aggiuntivo per la tesi.
+**Possibile esperimento futuro (non prioritario):** sweep T∈{0.1, 0.3, default, 0.7} su task7/8 e visualizzare curva accuracy vs temperatura. Un relatore ha suggerito questo approccio graficamente: "vedere come impatta la variazione di alcuni parametri per rispondere" — potrebbe essere un risultato aggiuntivo per la tesi.
 
 ---
 
@@ -82,7 +82,7 @@ In alternativa mostrare cosa cambia con 0.5: su task6 non cambia nulla (finding 
 
 **Situazione:** task6 produceva risposte generiche su gemma4:e2b. Su suggerimento dell'LLM è stata aggiunta un'indicazione nel prompt del task (tipo "pay attention to missing return statements"). I punteggi sono migliorati.
 
-**Problema (Mario):** aggiungere un hint guida il modello dove cercare — non è più blind review. Si misura "il modello trova il CVE dato un hint" anziché "il modello trova il CVE da solo".
+**Problema (relatore):** aggiungere un hint guida il modello dove cercare — non è più blind review. Si misura "il modello trova il CVE dato un hint" anziché "il modello trova il CVE da solo".
 
 **Idea emersa (potenzialmente interessante):** e se l'hint non fosse inserito manualmente ma proposto autonomamente da un LLM sulla base delle risposte fallite? Schema:
 1. Modello risponde in modo generico → judge lo boccia.
@@ -100,15 +100,15 @@ Questo sarebbe una forma di **continual prompt improvement** — potenzialmente 
 
 **Situazione:** la rubrica è stata generata chiedendo a un LLM in cloud (Claude) di analizzare i file CVE e costruire i criteri di valutazione. Il modello aveva accesso all'intera directory, inclusi i file con le patch e le spiegazioni CVE.
 
-**Problema (Mario):** la rubrica potrebbe essere circolare — costruita sui CVE → judge valuta rispetto alla rubrica → sembra che il modello "trovi" il CVE, ma in realtà la rubrica già conosce la risposta.
+**Problema (relatore):** la rubrica potrebbe essere circolare — costruita sui CVE → judge valuta rispetto alla rubrica → sembra che il modello "trovi" il CVE, ma in realtà la rubrica già conosce la risposta.
 
-**Valutazione del rischio:** il rischio è reale ma probabilmente limitato. La rubrica valuta *categorie di comportamento* (ha identificato la classe di vulnerabilità? ha localizzato nel codice? ha spiegato l'impatto?), non la risposta esatta. Francesco e Lorenzo — che hanno identificato le CVE manualmente — possono validare se la rubrica è ragionevole o distorta.
+**Valutazione del rischio:** il rischio è reale ma probabilmente limitato. La rubrica valuta *categorie di comportamento* (ha identificato la classe di vulnerabilità? ha localizzato nel codice? ha spiegato l'impatto?), non la risposta esatta. Gli esperti 5G — che hanno identificato le CVE manualmente — possono validare se la rubrica è ragionevole o distorta.
 
 **Azione:** includere il testo completo della rubrica nel pacchetto per la validazione esterna (§4). Documentare il processo di generazione della rubrica come limitation metodologica nella presentazione.
 
 ### 3.3 Retry: verifica empirica
 
-**Richiesta di Raffaele:** estrarre i tre reasoning del task7 expert rep3 (3 retry consecutivi falliti) e verificare se il modello ripete lo stesso ragionamento o varia.
+**Richiesta (relatore):** estrarre i tre reasoning del task7 expert rep3 (3 retry consecutivi falliti) e verificare se il modello ripete lo stesso ragionamento o varia.
 
 **Ipotesi:** con temperatura 0.3, il modello potrebbe convergere sistematicamente sullo stesso errore. Se i tre reasoning sono identici, il retry senza feedback del judge è inutile a bassa temperatura.
 
@@ -116,9 +116,9 @@ Questo sarebbe una forma di **continual prompt improvement** — potenzialmente 
 
 ### 3.4 Inconsistenza task7: beginner batte expert
 
-**Discussione:** beginner 100% accuracy, expert 66.7% su AMF. Mario suggerisce di stampare il prompt completo (system_prompt + task_content) per entrambi i ruoli e confrontarne la lunghezza/complessità.
+**Discussione:** beginner 100% accuracy, expert 66.7% su AMF. Un relatore suggerisce di stampare il prompt completo (system_prompt + task_content) per entrambi i ruoli e confrontarne la lunghezza/complessità.
 
-**Ipotesi principale:** il prompt expert è più lungo e articolato → con un modello piccolo (2B) il modello "si perde" nel contesto più lungo. Fenomeno già osservato da Andrea: "modelli grossi a volte funzionano peggio su task complessi perché il reasoning si allunga a dismisura".
+**Ipotesi principale:** il prompt expert è più lungo e articolato → con un modello piccolo (2B) il modello "si perde" nel contesto più lungo. Fenomeno già osservato: modelli a volte funzionano peggio su task complessi perché il reasoning si allunga a dismisura.
 
 **Azione:** estrarre e confrontare la dimensione del full prompt per expert vs beginner su task7. Salvare questo confronto come dato — è un risultato interessante di per sé.
 
@@ -126,11 +126,11 @@ Questo sarebbe una forma di **continual prompt improvement** — potenzialmente 
 
 I supervisori hanno implicitamente citato il problema ("vedere cosa si inventa"). I modelli potrebbero segnalare vulnerabilità inesistenti — non c'è nessun task con codice Go clean che misuri questo.
 
-**Azione:** prima di creare task aggiuntivi, sfruttare le risposte già esistenti — su task5–9 i modelli potrebbero aver segnalato vulnerabilità non presenti nella GT. Francesco/Lorenzo, durante la validazione, possono indicare quali finding extra sono reali e quali allucinazioni: questo dà già una stima del false positive rate senza esecuzioni aggiuntive. Se serve una baseline più pulita su codice sano, la forniscono direttamente loro — non serve inventare task.
+**Azione:** prima di creare task aggiuntivi, sfruttare le risposte già esistenti — su task5–9 i modelli potrebbero aver segnalato vulnerabilità non presenti nella GT. Gli esperti 5G, durante la validazione, possono indicare quali finding extra sono reali e quali allucinazioni: questo dà già una stima del false positive rate senza esecuzioni aggiuntive. Se serve una baseline più pulita su codice sano, la forniscono direttamente loro — non serve inventare task.
 
 ### 3.6 Struttura risultati: il modello deve diventare una dimensione esplicita
 
-**Problema attuale:** i risultati sono organizzati per `setup / role / task`. Il modello usato è implicito nella config e non appare nel path o nel nome file. Con l'accesso a modelli più grandi (Ollama Claude ora disponibile gratuitamente, Google API) e la necessità di confrontare più modelli sugli stessi task, questa struttura non regge.
+**Problema attuale:** i risultati sono organizzati per `setup / role / task`. Il modello usato è implicito nella config e non appare nel path o nel nome file. Con l'accesso a modelli più grandi (Ollama Cloud ora disponibile gratuitamente, Google API) e la necessità di confrontare più modelli sugli stessi task, questa struttura non regge.
 
 **Problema concreto già esistente:** i file `results/1B/beginner/task5*` e `task6*` usano deepseek-r1 invece di qwen2.5-coder:1.5b-base — lo skip automatico li ha preservati quando qwen è crashato. Il confronto 1A vs 1B su beginner non è valido perché il modello è diverso da quello atteso, e non c'è modo di saperlo dal path.
 
@@ -143,11 +143,11 @@ I supervisori hanno implicitamente citato il problema ("vedere cosa si inventa")
 
 ---
 
-## Sezione 4 — Estratti per validazione esterna (Francesco + Lorenzo)
+## Sezione 4 — Estratti per validazione esterna (Esperti 5G)
 
-Mario ha chiesto esplicitamente di inviare i risultati a Francesco e Lorenzo (chi ha identificato i CVE manualmente) per validazione umana del ragionamento.
+Un relatore ha chiesto esplicitamente di inviare i risultati agli esperti 5G (che hanno identificato i CVE manualmente) per validazione umana del ragionamento.
 
-> **Nota modello:** le run nei log (`docs/log.md`) usano `gemma4:e4b` per setup 1A — il config è stato aggiornato dopo il fallimento di e2b su task6. Il file `index_overview.md` riporta ancora e2b come modello 1A: da aggiornare.
+> **Nota modello:** le run nei log (`docs/log.md`) usano `gemma4:e4b` per setup 1A — il config è stato aggiornato dopo il fallimento di una versione precedente su task6. Il file `index_overview.md` riporta ancora la versione precedente come modello 1A: da aggiornare.
 
 ### 4.0 Dati concreti dai log di esecuzione
 
@@ -172,7 +172,7 @@ Riepilogo per ogni task dalle run effettive (gemma4:e4b, setup 1A, 3 ripetizioni
 | 1A e4b | beginner | 2 | 1 | 4/4 | 0.778 | correct |
 | 1A e4b | beginner | 3 | 1 | 4/4 | 1.000 | correct |
 
-**Osservazione critica su task7 expert rep3:** `missing_default_score=0` in tutti e 3 i retry. Il punteggio migliora da 3→5→5 ma il finding primario (`missing default` nel switch) non compare mai. Il retry porta a un miglioramento parziale (`inconsistent_context_set_score` e `impact` salgono) ma il pezzo centrale rimane assente. Questo risponde alla domanda di Raffaele: il modello non ripete esattamente la stessa risposta (il punteggio varia), ma converge su uno stesso errore specifico — non trova il `missing default case` indipendentemente dal numero di tentativi.
+**Osservazione critica su task7 expert rep3:** `missing_default_score=0` in tutti e 3 i retry. Il punteggio migliora da 3→5→5 ma il finding primario (`missing default` nel switch) non compare mai. Il retry porta a un miglioramento parziale (`inconsistent_context_set_score` e `impact` salgono) ma il pezzo centrale rimane assente. Questo risponde alla domanda di un relatore: il modello non ripete esattamente la stessa risposta (il punteggio varia), ma converge su uno stesso errore specifico — non trova il `missing default case` indipendentemente dal numero di tentativi.
 
 **task8_vuln_udm** — pattern consistente su tutte le run:
 
@@ -184,7 +184,7 @@ Riepilogo per ogni task dalle run effettive (gemma4:e4b, setup 1A, 3 ripetizioni
 | `fix_quality_score` | 1/2, 1/2, 1/2 | 1/2, 1/2, 1/2 |
 | norm finale | 0.778 costante | 0.778 costante |
 
-**Osservazione:** entrambi i ruoli trovano il validation gap (IsValidSupi assente) e l'impatto, ma `spec_reference_score=0` sistematicamente. La rubrica richiede che il modello faccia riferimento alla specifica 3GPP — né expert né beginner lo fanno mai. Domanda per Francesco/Lorenzo: questo criterio è ragionevole? Un analista umano citarebbe esplicitamente la spec 3GPP in una code review?
+**Osservazione:** entrambi i ruoli trovano il validation gap (IsValidSupi assente) e l'impatto, ma `spec_reference_score=0` sistematicamente. La rubrica richiede che il modello faccia riferimento alla specifica 3GPP — né expert né beginner lo fanno mai. Domanda per gli esperti 5G: questo criterio è ragionevole? Un analista umano citarebbe esplicitamente la spec 3GPP in una code review?
 
 **task9_vuln_cross** — risultato perfetto e stabile:
 
@@ -199,9 +199,9 @@ Riepilogo per ogni task dalle run effettive (gemma4:e4b, setup 1A, 3 ripetizioni
 
 | Task | Cosa inviare | Perché è interessante per gli esperti | Priorità |
 |---|---|---|---|
-| **task5 PCF** | Una run per ruolo | Il più semplice — calibra il processo di validazione prima dei casi difficili. Francesco/Lorenzo conoscono già questa CVE | **1** |
+| **task5 PCF** | Una run per ruolo | Il più semplice — calibra il processo di validazione prima dei casi difficili. Gli esperti 5G conoscono già questa CVE | **1** |
 | **task7 AMF** | Expert rep3 (3 retry, tutti wrong) + beginner rep3 (correct al primo) | Anomalia chiara: `missing_default_score=0` in tutti i retry dell'expert. Gli esperti dicono se la risposta wrong è "quasi giusta" o completamente sbagliata | **1** |
-| **task8 UDM** | Una run per ruolo (qualsiasi, sono identiche) | `spec_reference_score=0` sistematico in entrambi i ruoli — la rubrica chiede di citare la spec 3GPP: Francesco/Lorenzo validano se il criterio è ragionevole | **2** |
+| **task8 UDM** | Una run per ruolo (qualsiasi, sono identiche) | `spec_reference_score=0` sistematico in entrambi i ruoli — la rubrica chiede di citare la spec 3GPP: gli esperti 5G validano se il criterio è ragionevole | **2** |
 | task9 Cross-NF | Una run per ruolo | Risultato perfetto e stabile — conferma che il ragionamento è plausibile e non allucinato | **3** |
 
 **Non inviare subito:**
@@ -243,9 +243,9 @@ Dal log di esecuzione (`docs/log.md`), i dati effettivi su task6_full chiariscon
 
 ### 5.2 Accesso a modelli più grandi
 
-**Ollama Claude — disponibile gratuitamente:** confermato durante la call, ora accessibile. Permette di usare modelli Claude (più grandi di gemma4:e4b) senza costi. Da integrare nel codice come provider aggiuntivo accanto a Ollama locale.
+**Ollama Cloud — disponibile gratuitamente:** confermato durante la call, ora accessibile. Permette di usare modelli Claude (più grandi di gemma4:e4b) senza costi. Da integrare nel codice come provider aggiuntivo accanto a Ollama locale.
 
-**Google API con crediti gratuiti:** Google offre crediti per l'API Gemini. Mario stava valutando di aprire una linea di credito con i vari provider per il gruppo di ricerca.
+**Google API con crediti gratuiti:** Google offre crediti per l'API Gemini. Un relatore stava valutando di aprire una linea di credito con i vari provider per il gruppo di ricerca.
 
 **Prerequisito prima di eseguire:** risolvere §3.6 — definire la struttura dei risultati con il modello come dimensione esplicita. Eseguire nuove run con Claude o Gemini senza una struttura chiara significa accumulare file non confrontabili con quelli esistenti.
 
@@ -259,14 +259,14 @@ Dal log di esecuzione (`docs/log.md`), i dati effettivi su task6_full chiariscon
 
 **Situazione attuale:** si salvano token in/out e tempo di esecuzione per ogni risposta. Il testo del prompt non viene salvato.
 
-**Problema emerso (Raffaele):** per capire perché un modello ha sbagliato o perché un retry non ha funzionato, serve poter confrontare il prompt esatto inviato in ogni run. Senza questo, il debugging è cieco — come dimostrato dal caso task7 expert rep3 dove senza il prompt salvato non si può capire perché il modello converge sempre su `missing_default_score=0`.
+**Problema emerso (relatore):** per capire perché un modello ha sbagliato o perché un retry non ha funzionato, serve poter confrontare il prompt esatto inviato in ogni run. Senza questo, il debugging è cieco — come dimostrato dal caso task7 expert rep3 dove senza il prompt salvato non si può capire perché il modello converge sempre su `missing_default_score=0`.
 
 **Miglioramenti da fare:**
 - Salvare il prompt completo (system_prompt + task_content + eventuale retry context) per ogni run, non solo i token count.
-- Il formato attuale dei risultati Markdown ha il layout da sistemare (Nicolò, call) — renderlo più leggibile e uniforme.
+- Il formato attuale dei risultati Markdown ha il layout da sistemare — renderlo più leggibile e uniforme.
 - La struttura del path dei risultati è un problema separato trattato in §3.6 (modello come dimensione esplicita).
 
-### 6.2 Visualizzazione parametrica — proposta Raffaele
+### 6.2 Visualizzazione parametrica — proposta relatore
 
 **Idea:** visualizzare graficamente come varia la performance al variare dei parametri. Esempio: accuracy vs temperatura, o numero di step per arrivare a verdict correct vs temperatura.
 
@@ -282,7 +282,7 @@ Questo trasforma i risultati da una tabella statica a una curva — utile per id
 
 ### 6.4 Secondo LLM come "flow judge"
 
-**Idea emersa (Raffaele):** se il flusso di esecuzione è tracciato (quale skill/approccio ha scelto il modello, perché, con che risultato), un secondo LLM potrebbe giudicarlo e dire "il modello ha scelto male in questo punto". Questo è un secondo livello di valutazione rispetto al giudice della singola risposta.
+**Idea emersa (relatore):** se il flusso di esecuzione è tracciato (quale skill/approccio ha scelto il modello, perché, con che risultato), un secondo LLM potrebbe giudicarlo e dire "il modello ha scelto male in questo punto". Questo è un secondo livello di valutazione rispetto al giudice della singola risposta.
 
 **Stato:** non implementato, non prioritario. Tenerlo come proposta futura per la fase di analisi avanzata.
 
@@ -296,14 +296,15 @@ Questo trasforma i risultati da una tabella statica a una curva — utile per id
 - [ ] **Estrarre reasoning task7 expert rep3** (3 retry) — verificare se si ripete lo stesso errore
 - [ ] **Estrarre full prompt** expert vs beginner task7 e confrontare lunghezza
 - [ ] **Rieseguire task6 blind** con gemma4:e4b (senza special attention)
-- [ ] **Preparare estratti** per Francesco/Lorenzo: task5, task7, task8 (§4)
+- [ ] **Preparare estratti** per gli esperti 5G: task5, task7, task8 (§4)
 - [ ] **Approfondire Brier Score** — decidere se tenerlo o toglierlo dalla presentazione
 - [ ] **Trovare riferimento in letteratura per la rubrica** — "LLM-as-judge", "rubric-based evaluation", "reference-free LLM scoring". È la metrica principale: serve una citazione prima del 19
 - [ ] **Investigare timeout task6_full** — il problema è il judge (non l'agent): aumentare il timeout del judge per i task full-file e rieseguire (vedi §5.1)
+- [ ] **Validazione rubrica da esperti 5G** → eventuale revisione criteri
 
 ### 7.2 Medio termine (dopo esami giugno)
 
-- [ ] Accedere a modelli più grandi (Ollama Claude / Google API) — eseguire task6 excerpt e confrontare con curva scaling
+- [ ] Accedere a modelli più grandi (Ollama Cloud / Google API) — eseguire task6 excerpt e confrontare con curva scaling
 - [ ] Setup 1B completo con qwen2.5-coder:1.5b-base (eliminare run vecchie deepseek)
 - [ ] Salvare prompt completo per ogni run (§6.1)
 - [ ] Retry con feedback judge reiniettato
@@ -315,7 +316,7 @@ Questo trasforma i risultati da una tabella statica a una curva — utile per id
 
 - [ ] Sweep temperatura su task7/8 — curva accuracy vs T
 - [ ] Curva scaling completa: 1.5B → 2B → 4B → 7B su task6
-- [ ] Validazione rubrica da Francesco/Lorenzo → eventuale revisione criteri
+
 - [ ] Continual prompt improvement: LLM propone hint dalle risposte fallite (senza vedere GT/rubrica)
 - [ ] Esperimento autonomo: LLM su intero codebase free5GC per trovare CVE non documentate
 - [ ] Visualizzazione parametrica (accuracy vs T, token vs accuracy)
@@ -326,10 +327,10 @@ Questo trasforma i risultati da una tabella statica a una curva — utile per id
 
 ### 8.1 Vincoli
 
-- Durata: ~15 min (Nicolò), ~15 min (Toma) + discussione
+- Durata: ~15 min (tesista), ~15 min (collaboratore esterno) + discussione
 - Lingua: inglese
-- Audience: Toma (zero conoscenza del progetto), Diego (supervisor argentino, no background 5G necessariamente), Raffaele, Mario
-- Obiettivo: cross-fertilization — non un deep dive tecnico. Mario vuole che Toma capisca cosa stai facendo e che ci sia interazione sui punti di contatto con il suo lavoro (ontologia → knowledge graph).
+- Audience: collaboratori esterni, relatori
+- Obiettivo: cross-fertilization — non un deep dive tecnico. I relatori vogliono che i collaboratori esterni capiscano cosa stai facendo e che ci sia interazione sui punti di contatto con loro lavori (es. ontologia → knowledge graph).
 
 ### 8.2 Schema narrativo (da costruire nella prossima sessione)
 
@@ -360,7 +361,7 @@ Logica: **problema → approccio → risultati → domande aperte**. Non struttu
    → Scaling curve 2B → 4B → 7B not yet complete
 
 5. Next steps (1 slide)
-   → Expert validation (Francesco / Lorenzo)
+   → Expert validation (esperti 5G)
    → Cloud models access for larger models
    → Negative control task
 ```
@@ -373,17 +374,17 @@ Logica: **problema → approccio → risultati → domande aperte**. Non struttu
 - Spiegazione Brier Score se non ancora capita bene
 - Slide metriche con 4 card — condensare in 1 slide con 2 concetti: accuracy e rubric coverage
 
-### 8.4 Possibile punto di contatto con Toma (ontologia)
+### 8.4 Possibile punto di contatto con collaboratori esterni (ontologia)
 
-Il lavoro di Toma estrae automaticamente concetti e relazioni da testi e li struttura in un knowledge graph. Possibile sinergia: usare un knowledge graph delle vulnerabilità 5G (con relazioni tra CVE, pattern di codice, NF coinvolte) come struttura di supporto per guidare il modello o per validare il ragionamento. Da esplorare nella discussione — non mettere in presentazione, lasciare emergere naturalmente.
+Some collaborator's work estrae automaticamente concetti e relazioni da testi e li struttura in un knowledge graph. Possibile sinergia: usare un knowledge graph delle vulnerabilità 5G (con relazioni tra CVE, pattern di codice, NF coinvolte) come struttura di supporto per guidare il modello o per validare il ragionamento. Da esplorare nella discussione — non mettere in presentazione, lasciare emergere naturalmente.
 
 ---
 
 ## Agenda call 19 maggio (ore 17)
 
-- Nicolò: presentazione LLM 5G security (inglese, ~15 min)
-- Toma: presentazione knowledge graph + ontologia per estrazione concetti/relazioni (~15 min)
+- Tesista: presentazione LLM 5G security (inglese, ~15 min)
+- Collaboratore esterno: presentazione knowledge graph + ontologia per estrazione concetti/relazioni (~15 min)
 - Discussione cross-fertilization
-- Diego (supervisor dottorando argentino): presente
+- Collaboratore esterno (supervisor/ricercatore): presente
 
-**Ospiti:** Raffaele, Mario, Toma, Diego. **Lingua:** inglese.
+**Ospiti:** Relatori, collaboratori esterni. **Lingua:** inglese.

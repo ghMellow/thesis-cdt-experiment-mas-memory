@@ -27,15 +27,20 @@ def _collect_results(results_path: str) -> Dict[str, Dict[str, List[Dict[str, An
     data: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
     if not base.exists():
         return data
-    for experiment_dir in sorted(p for p in base.iterdir() if p.is_dir() and p.name != "evaluation"):
-        experiment_id = experiment_dir.name
-        data.setdefault(experiment_id, {})
-        for role_dir in sorted(p for p in experiment_dir.iterdir() if p.is_dir()):
-            role = role_dir.name
-            result_files = sorted(
-                f for f in role_dir.glob("*.json") if not f.name.endswith("_solution.json")
-            )
-            data[experiment_id][role] = [json.loads(f.read_text(encoding="utf-8")) for f in result_files]
+    _SKIP = {"evaluation", "validation"}
+    for task_dir in sorted(p for p in base.iterdir() if p.is_dir() and p.name not in _SKIP):
+        for experiment_dir in sorted(p for p in task_dir.iterdir() if p.is_dir()):
+            experiment_id = experiment_dir.name
+            data.setdefault(experiment_id, {})
+            for role_dir in sorted(p for p in experiment_dir.iterdir() if p.is_dir()):
+                role = role_dir.name
+                result_files = sorted(
+                    f for f in role_dir.glob("*.json") if not f.name.endswith("_solution.json")
+                )
+                data[experiment_id].setdefault(role, [])
+                data[experiment_id][role].extend(
+                    json.loads(f.read_text(encoding="utf-8")) for f in result_files
+                )
     return data
 
 

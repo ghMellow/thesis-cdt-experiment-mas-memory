@@ -6,6 +6,17 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 
+def _slugify(value: str) -> str:
+    """Sanitize a string for use in filenames: replace non-alphanumeric chars with _."""
+    return re.sub(r"[^a-zA-Z0-9]+", "_", value).strip("_")
+
+
+def _model_slug(model: str, is_hosted: bool) -> str:
+    """Build the filename slug for a model, prefixing 'hosted_' for cloud runs."""
+    slug = _slugify(model)
+    return f"hosted_{slug}" if is_hosted else slug
+
+
 def _read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
@@ -55,12 +66,13 @@ def _list_tasks(tasks_path: str) -> List[Path]:
     return sorted(p for p in base.glob("*.md") if not p.name.endswith("_sol.md"))
 
 
-def _result_exists(results_path: str, experiment_id: str, role: str, task_id: str, repetition: int) -> bool:
+def _result_exists(results_path: str, experiment_id: str, role: str, task_id: str, repetition: int, model: str, is_hosted: bool = False) -> bool:
     result_path = (
         Path(results_path)
+        / task_id
         / experiment_id
         / role
-        / f"{task_id}_rep{repetition}.json"
+        / f"rep{repetition}_{_model_slug(model, is_hosted)}.json"
     )
     return result_path.exists()
 
