@@ -303,6 +303,12 @@ Identify all security vulnerabilities or logic errors present in this code. For 
 3. Explain the security impact in the context of a 5G UDR that stores UE subscription data
 4. Propose a correct fix
 
+**Pay special attention to:**
+
+- **Control flow in Gin handlers:** When a Gin context method (e.g., `c.String()`, `c.JSON()`) writes an HTTP response, does execution halt in Go, or does the handler continue running? Examine the three `subs-to-notify` handlers (Section A) to see if the absence of `return` after `c.String(http.StatusNotFound, ...)` allows code to proceed to the processor call.
+- **Regex validation patterns:** Analyze the regex patterns used for `ueId` validation in Section B. Specifically, look at the final alternative in the pattern. Does a catch-all branch like `|.+` undermine the entire regex logic?
+- **UDR-specific impact:** Explain how vulnerabilities affect UDR operations on subscription collections (e.g., unauthorized DELETE/GET/PUT on `influenceData.subs-to-notify` subscriptions, or arbitrary `ueId` values reaching the MongoDB persistence layer).
+
 ---
 
 ## Agent Instructions

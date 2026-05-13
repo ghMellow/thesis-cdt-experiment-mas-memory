@@ -60,7 +60,37 @@ Il judge ignorava queste categorie e produceva punteggi non allineati alla rubri
 
 ---
 
+## 2026-05-12 — Task prompt calibration: rubrica come source of truth
+
+### Scoperta: prompts generici → risposte generiche (non modello inadatto)
+
+**Problema osservato**: task6_vuln_udr run 1 (expert/gemma4:e4b) produce verdetto **0/9** nonostante 3 tentativi con confidence 1.0. 
+Il modello identifica vulnerabilità plausibili (NoSQL injection, missing validation, silent failures) ma **non i 3 findings specifici della rubrica**:
+
+1. **Missing `return` dopo `c.String(404)`** — vulnerabilità di control flow Gin (non menzionato)
+2. **Regex con catch-all `|.+`** — rende tutta la validazione inutile (non analizzato)
+3. **UDR-specific impact** — unauthorized DELETE/GET/PUT su subscription IDs (generico invece di specifico)
+
+Il giudice feedback: *"agent provided good general overview... but failed to address specific, high-value logic flaws"*.
+
+**Root cause**: il prompt del task era troppo generico. Diceva solo *"Identify all security vulnerabilities"* senza hints su:
+- Specifiche del Gin framework (control flow dopo response write)
+- Pattern regex che devono essere analizzati (catch-all branches)
+- Contesto UDR (collection names, operation types)
+
+**Azione correttiva**: modificato task6_vuln_udr.md con 3 "Pay special attention to" sections che allineano il prompt ai criteri della rubrica:
+- Control flow in Gin context (la non-halting di `c.String()`)
+- Regex validation patterns (catch-all alternatives)
+- UDR-specific impact (subscription collections, MongoDB layer)
+
+**Lezione metodologica**: **il prompt deve essere specifico quanto la rubrica**. Se la rubrica valuta 3 criteri tecnici precisi, il task non può essere generico. Non è questione di capacità del modello, ma di allineamento task→rubrica.
+
+**Implicazione**: rivedere tutti i prompt di task testuale per garantire che gli "special attention" hints riflettano esattamente i campi della rubrica (`*_score` fields).
+
+---
+
 ## Pendenti / decisioni aperte
+
 
 | Item | Stato | Note |
 |---|---|---|
