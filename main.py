@@ -221,7 +221,8 @@ def main() -> None:
 
     _record_consistency_finding(consistency_lines)
     logger.info("Writing evaluation reports")
-    _write_evaluation_reports(RESULTS_PATH)
+    executed_tasks = [task_path.stem for task_path in tasks] if tasks else None
+    _write_evaluation_reports(RESULTS_PATH, task_filter=executed_tasks)
     logger.info("Execution complete")
 
 

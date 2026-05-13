@@ -61,12 +61,18 @@ def _fmt_delta(value: Optional[float]) -> str:
 def _detect_inconsistencies(
     roles: Dict[str, List[Dict[str, Any]]],
     semantic_check: bool = True,
+    task_filter: Optional[List[str]] = None,
 ) -> Tuple[List[Tuple[str, str, List[Tuple[int, str]], str]], int]:
     """Detect tasks with inconsistent reasoning across repetitions.
 
     Phase 1 (always): string equality filter — fast, catches all surface differences.
     Phase 2 (if semantic_check=True): LLM confirms whether flagged items are truly
     semantically different or just paraphrases.
+
+    Args:
+        roles: dict of {role: [payloads]}
+        semantic_check: whether to use LLM for disambiguation
+        task_filter: optional list of task_ids to evaluate (None = all)
 
     Returns:
         truly_inconsistent: list of (role, task_id, [(rep, reasoning),...], llm_explanation)
@@ -78,6 +84,8 @@ def _detect_inconsistencies(
         for p in payloads:
             per_task.setdefault(p.get("task_id", "unknown"), []).append(p)
         for task_id, task_payloads in sorted(per_task.items()):
+            if task_filter is not None and task_id not in task_filter:
+                continue
             rep_reasonings: List[Tuple[int, str]] = []
             for p in task_payloads:
                 fa = p.get("final_answer", {})
@@ -165,12 +173,25 @@ def _brier_score(payloads: List[Dict[str, Any]]) -> Optional[float]:
 
 
 def _build_scores_table(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
-    lines = [
-        "## Scores by role",
-        "",
-        "| role | accuracy | avg_confidence | brier_score | avg_attempts | avg_math_delta | avg_textual_norm |",
-        "| --- | --- | --- | --- | --- | --- | --- |",
-    ]
+    # Determine task types present
+    all_payloads = [p for payloads in roles.values() for p in payloads]
+    task_types = set(p.get("task_type") for p in all_payloads if p.get("task_type"))
+    is_pure_math = task_types == {"math"}
+    is_pure_textual = task_types == {"textual"}
+    
+    # Build header based on task type
+    if is_pure_math:
+        header = "| role | accuracy | avg_confidence | brier_score | avg_attempts | avg_math_delta |"
+        sep = "| --- | --- | --- | --- | --- | --- |"
+    elif is_pure_textual:
+        header = "| role | accuracy | avg_confidence | brier_score | avg_attempts | avg_textual_norm |"
+        sep = "| --- | --- | --- | --- | --- | --- |"
+    else:  # mixed
+        header = "| role | accuracy | avg_confidence | brier_score | avg_attempts | avg_math_delta | avg_textual_norm |"
+        sep = "| --- | --- | --- | --- | --- | --- | --- |"
+    
+    lines = ["## Scores by role", "", header, sep]
+    
     for role, payloads in sorted(roles.items()):
         total = len(payloads)
         correct = sum(1 for p in payloads if p.get("verdict") == "correct")
@@ -195,12 +216,28 @@ def _build_scores_table(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
             if p.get("task_type") == "math"
             and isinstance(p.get("judge_score", {}).get("delta"), (int, float))
         ]
-        lines.append(
-            f"| {role} | {_fmt_ratio(correct / total if total else None)} | "
-            f"{_fmt(_avg(confidences), 3)} | {_fmt(_brier_score(payloads), 4)} | "
-            f"{_fmt(avg_attempts, 2)} | "
-            f"{_fmt(_avg(math_deltas), 3)} | {_fmt(_avg(textual_norms), 3)} |"
-        )
+        
+        if is_pure_math:
+            lines.append(
+                f"| {role} | {_fmt_ratio(correct / total if total else None)} | "
+                f"{_fmt(_avg(confidences), 3)} | {_fmt(_brier_score(payloads), 4)} | "
+                f"{_fmt(avg_attempts, 2)} | "
+                f"{_fmt(_avg(math_deltas), 3)} |"
+            )
+        elif is_pure_textual:
+            lines.append(
+                f"| {role} | {_fmt_ratio(correct / total if total else None)} | "
+                f"{_fmt(_avg(confidences), 3)} | {_fmt(_brier_score(payloads), 4)} | "
+                f"{_fmt(avg_attempts, 2)} | "
+                f"{_fmt(_avg(textual_norms), 3)} |"
+            )
+        else:  # mixed
+            lines.append(
+                f"| {role} | {_fmt_ratio(correct / total if total else None)} | "
+                f"{_fmt(_avg(confidences), 3)} | {_fmt(_brier_score(payloads), 4)} | "
+                f"{_fmt(avg_attempts, 2)} | "
+                f"{_fmt(_avg(math_deltas), 3)} | {_fmt(_avg(textual_norms), 3)} |"
+            )
     lines += [
         "",
         "**Legend**",
@@ -209,7 +246,7 @@ def _build_scores_table(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
         "| --- | --- | --- |",
         "| `accuracy` | all | share of repetitions with verdict = correct |",
         "| `avg_confidence` | all | mean self-reported confidence (0–1) |",
-        "| `brier_score` | all | mean((confidence − is\\_correct)²) — lower = better calibration; 0 = perfect, 0.25 = random |",
+        "| `brier_score` | all | mean((confidence − is\\_correct)²) — calibration error; 0 = perfect, 0.5 = poor; note: depends on both accuracy AND confidence (e.g., 100% accuracy + 50% confidence = 0.25) |",
         "| `avg_attempts` | all | mean LLM call attempts per repetition (>1 means retry was triggered) |",
         "| `avg_math_delta` | math | mean \\|answer − ground\\_truth\\| on math tasks — lower = more precise |",
         "| `avg_textual_norm` | textual | mean normalized judge score (0–1) — higher = better rubric coverage |",
@@ -217,10 +254,30 @@ def _build_scores_table(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
     return lines
 
 
-def _build_experiment_report(experiment_id: str, roles: Dict[str, List[Dict[str, Any]]]) -> str:
+def _build_experiment_report(
+    experiment_id: str,
+    roles: Dict[str, List[Dict[str, Any]]],
+    task_filter: Optional[List[str]] = None,
+    per_task_id: Optional[str] = None,
+) -> str:
+    """Generate evaluation report.
+    
+    Args:
+        experiment_id: 1A or 1B
+        roles: dict of {role: [payloads]}
+        task_filter: optional list of task_ids to include (None = all)
+        per_task_id: if set, generate report for only this task_id; else aggregate
+    """
     lines = [f"# Evaluation Report: {experiment_id}", ""]
 
     all_payloads = [{"_role": role, **p} for role, payloads in roles.items() for p in payloads]
+
+    if task_filter is not None:
+        all_payloads = [p for p in all_payloads if p.get("task_id") in task_filter]
+    
+    if per_task_id is not None:
+        all_payloads = [p for p in all_payloads if p.get("task_id") == per_task_id]
+        lines[0] = f"# {experiment_id} — {per_task_id}"
 
     if not all_payloads:
         lines.append("No results found.")
@@ -230,7 +287,7 @@ def _build_experiment_report(experiment_id: str, roles: Dict[str, List[Dict[str,
     correct = sum(1 for p in all_payloads if p.get("verdict") == "correct")
     wrong_list = [p for p in all_payloads if p.get("verdict") != "correct"]
     retried_list = [p for p in all_payloads if p.get("attempts", 1) > 1]
-    inconsistencies, n_surface_equiv = _detect_inconsistencies(roles)
+    inconsistencies, n_surface_equiv = _detect_inconsistencies(roles, task_filter=task_filter)
 
     anomaly_count = len(wrong_list) + len(retried_list) + len(inconsistencies)
 
@@ -254,12 +311,13 @@ def _build_experiment_report(experiment_id: str, roles: Dict[str, List[Dict[str,
     if anomaly_count == 0:
         lines.append("All tasks passed with full consistency — no anomalies detected.")
         lines.append("")
+        anomalies_section = []
     else:
-        lines += ["## Anomalies", ""]
+        anomalies_section = ["## Anomalies", ""]
 
         if wrong_list:
-            lines += [f"### Wrong verdicts ({len(wrong_list)})", ""]
-            lines += [
+            anomalies_section += [f"### Wrong verdicts ({len(wrong_list)})", ""]
+            anomalies_section += [
                 "| role | task_id | rep | attempts | confidence | score/delta |",
                 "| --- | --- | --- | --- | --- | --- |",
             ]
@@ -268,44 +326,50 @@ def _build_experiment_report(experiment_id: str, roles: Dict[str, List[Dict[str,
                 conf = fa.get("confidence") if isinstance(fa, dict) else None
                 js = p.get("judge_score", {})
                 score_info = js.get("total_score", js.get("delta", "n/a"))
-                lines.append(
+                anomalies_section.append(
                     f"| {p['_role']} | {p.get('task_id')} | {p.get('repetition')} | "
                     f"{p.get('attempts')} | {_fmt(float(conf), 3) if isinstance(conf, (int, float)) else 'n/a'} "
                     f"| {score_info} |"
                 )
-            lines.append("")
+            anomalies_section.append("")
 
         if retried_list:
-            lines += [f"### Retries triggered ({len(retried_list)})", ""]
-            lines += [
+            anomalies_section += [f"### Retries triggered ({len(retried_list)})", ""]
+            anomalies_section += [
                 "| role | task_id | rep | attempts | final_verdict |",
                 "| --- | --- | --- | --- | --- |",
             ]
             for p in retried_list:
-                lines.append(
+                anomalies_section.append(
                     f"| {p['_role']} | {p.get('task_id')} | {p.get('repetition')} | "
                     f"{p.get('attempts')} | {p.get('verdict')} |"
                 )
-            lines.append("")
+            anomalies_section.append("")
 
         if inconsistencies:
-            lines += [f"### Truly inconsistent reasoning ({len(inconsistencies)})", ""]
+            anomalies_section += [f"### Truly inconsistent reasoning ({len(inconsistencies)})", ""]
             for role, task_id, rep_reasonings, explanation in inconsistencies:
-                lines.append(f"**{role} — {task_id}**")
+                anomalies_section.append(f"**{role} — {task_id}**")
                 if explanation:
-                    lines.append(f"> {explanation}")
-                lines.append("")
+                    anomalies_section.append(f"> {explanation}")
+                anomalies_section.append("")
                 for rep, reasoning in rep_reasonings:
-                    lines.append(f"- **rep {rep}:** {reasoning.replace(chr(10), ' ')}")
-                    lines.append("")
-                lines.append("")
+                    anomalies_section.append(f"- **rep {rep}:** {reasoning.replace(chr(10), ' ')}")
+                    anomalies_section.append("")
+                anomalies_section.append("")
 
-    lines += _build_scores_table(roles)
+    # Rebuild roles dict with filtered payloads
+    filtered_roles = {}
+    for role in roles.keys():
+        filtered_roles[role] = [p for p in all_payloads if p.get("_role") == role]
+    
+    lines += _build_scores_table(filtered_roles)
     lines.append("")
+    lines += anomalies_section
     return "\n".join(lines) + "\n"
 
 
-def _write_evaluation_reports(results_path: str) -> None:
+def _write_evaluation_reports(results_path: str, task_filter: Optional[List[str]] = None) -> None:
     data = _collect_results(results_path)
     eval_dir = Path(results_path) / "evaluation"
     eval_dir.mkdir(parents=True, exist_ok=True)
@@ -319,9 +383,22 @@ def _write_evaluation_reports(results_path: str) -> None:
             n_results,
             ", ".join(sorted(roles)) or "none",
         )
-        report = _build_experiment_report(experiment_id, roles)
+        
+        # Generate aggregated report
+        report = _build_experiment_report(experiment_id, roles, task_filter=task_filter)
         (eval_dir / f"scores_{experiment_id}.md").write_text(report, encoding="utf-8")
         logger.info("Written scores_%s.md", experiment_id)
+        
+        # Generate per-task reports
+        all_payloads = [p for payloads in roles.values() for p in payloads]
+        if task_filter is not None:
+            all_payloads = [p for p in all_payloads if p.get("task_id") in task_filter]
+        
+        task_ids = sorted(set(p.get("task_id") for p in all_payloads if p.get("task_id")))
+        for task_id in task_ids:
+            task_report = _build_experiment_report(experiment_id, roles, task_filter=task_filter, per_task_id=task_id)
+            (eval_dir / f"scores_{experiment_id}_{task_id}.md").write_text(task_report, encoding="utf-8")
+            logger.info("Written scores_%s_%s.md", experiment_id, task_id)
 
     # Comparison report
     lines = [

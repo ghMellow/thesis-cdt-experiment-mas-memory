@@ -90,5 +90,37 @@
   "expert/task1_math_int/fbf43c549c51e9e4": {
     "equivalent": true,
     "explanation": "All three passages follow the identical mathematical steps and arrive at the same final conclusion of 1260 connections."
+  },
+  "beginner/task6_vuln_udr/8d954a2ed7982a3d": {
+    "equivalent": true,
+    "explanation": "All three reasoning passages identify the same three distinct vulnerabilities (missing return, overly permissive regex, and input handling flaws) and propose semantically equivalent fixes for each."
+  },
+  "expert/task6_vuln_udr/203a69563797df4b": {
+    "equivalent": true,
+    "explanation": "Both sets of reasoning identify the same three critical flaws—improper control flow, overly permissive regex validation, and risks associated with unvalidated query parameters—and propose equivalent fixes."
+  },
+  "beginner/task7_vuln_amf/0a8b4c8b6ca135f6": {
+    "equivalent": true,
+    "explanation": "All four passages identify the same four distinct vulnerabilities regarding undefined variables, content-type handling, hardcoded errors, and inconsistent error reporting, along with identical proposed fixes."
+  },
+  "expert/task7_vuln_amf/4a1d0587796d695e": {
+    "equivalent": true,
+    "explanation": "All four passages identify the same set of critical bugs and logic flaws in the code, focusing on undefined variable usage, inconsistent error handling, flawed content-type parsing, and missing deserialization logic."
+  },
+  "beginner/task8_vuln_udm/64e9a42d3b9e6135": {
+    "equivalent": true,
+    "explanation": "Both passages identify inconsistent input validation for identifiers like SUPI and PLMN-ID across multiple handlers and propose the same fix: replicating the validation logic from a trusted handler."
+  },
+  "expert/task8_vuln_udm/1153fa7a21f10f9a": {
+    "equivalent": true,
+    "explanation": "All three passages describe the identical vulnerability, the same scope of affected handlers, the same security impacts, and the same proposed fix."
+  },
+  "beginner/task9_vuln_cross/87ed3b76638be553": {
+    "equivalent": true,
+    "explanation": "All three reasoning passages identify the exact same cross-file inconsistencies and per-file vulnerabilities with identical security impacts and proposed fixes."
+  },
+  "expert/task9_vuln_cross/0255dcb1622838f4": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same set of cross-file inconsistencies and per-file vulnerabilities, detailing the same security impacts and proposing identical corrective actions."
   }
 }

@@ -1,4 +1,4 @@
-# Evaluation Report: 1A
+# 1A — task6_vuln_udr
 
 ## Summary
 
@@ -19,7 +19,7 @@ All tasks passed with full consistency — no anomalies detected.
 
 | role | accuracy | avg_confidence | brier_score | avg_attempts | avg_textual_norm |
 | --- | --- | --- | --- | --- | --- |
-| beginner | 100.0% | 0.633 | 0.1700 | 1.00 | 1.000 |
+| beginner | 100.0% | 0.500 | 0.2500 | 1.00 | 1.000 |
 | expert | 100.0% | 0.500 | 0.2500 | 1.00 | 1.000 |
 
 **Legend**

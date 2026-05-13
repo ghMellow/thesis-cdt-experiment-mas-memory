@@ -141,6 +141,19 @@ def _extract_agent_response_markdown(text: str) -> Dict[str, Any]:
     confidence_val = _parse_numeric_loose(confidence_raw)
     if confidence_val is None:
         raise ValueError("Confidence value not found")
+    
+    # Normalize confidence to [0, 1]
+    # If > 1, assume percentage (0-100) or scale (0-10) and normalize
+    if confidence_val > 1.0:
+        if confidence_val > 100.0:
+            confidence_val = confidence_val / 1000.0  # Very large number, assume per-mille or similar
+        elif confidence_val > 10.0:
+            confidence_val = confidence_val / 100.0   # Assume percentage
+        else:
+            confidence_val = confidence_val / 10.0    # Assume 0-10 scale
+    
+    # Clamp to [0, 1]
+    confidence_val = max(0.0, min(1.0, confidence_val))
 
     return {
         "answer": answer,
