@@ -1,0 +1,13 @@
+{
+  "task_id": "task4_rootcause",
+  "ground_truth": {
+    "answer": {
+      "root_cause": "Post-firmware update regression",
+      "diagnostic_steps": [
+        "Check firmware changelog and compare RF configuration before and after the update",
+        "Perform firmware rollback and monitor SINR and HARQ to confirm recovery"
+      ]
+    },
+    "type": "textual_reasoning"
+  }
+}

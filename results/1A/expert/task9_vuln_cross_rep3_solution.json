@@ -1,0 +1,7 @@
+{
+  "task_id": "task9_vuln_cross",
+  "ground_truth": {
+    "answer": "Cross-file: UDM validates SUPI in some handlers (HandleGetAmData, HandleUnsubscribe) but not in others (HandleGetSmfSelectData etc.); UDR never validates ueId format in any handler \u2014 this is a systemic inconsistency in the same codebase. Per-file: PCF has CORS misconfiguration (AllowAllOrigins+AllowCredentials); UDR has missing return after 404 in three handlers; AMF has missing default case in HTTPUEContextTransfer and wrong c.Set type in multiple handlers.",
+    "type": "textual_security_review"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "task_id": "task8_vuln_udm",
+  "ground_truth": {
+    "answer": "Multiple UDM handlers retrieve the SUPI path parameter and pass it directly to the processor without calling validator.IsValidSupi(), while other handlers in the same file correctly validate it. The affected handlers are HandleGetSmfSelectData, HandleGetNssai, HandleGetSmData, HandleGetTraceData, HandleGetUeContextInSmfData, and HandleGetSupi.",
+    "type": "textual_security_review"
+  }
+}

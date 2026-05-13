@@ -1,0 +1,37 @@
+{
+  "task_id": "task1_math_int",
+  "task_type": "math",
+  "task_path": "docs/tasks/task1_math_int.md",
+  "sol_path": "docs/tasks/task1_math_int_sol.md",
+  "agent_role": "expert",
+  "model": "gemma4:e2b",
+  "repetition": 2,
+  "started_at": "2026-05-08T21:31:17.697339+00:00",
+  "finished_at": "2026-05-08T21:31:24.472270+00:00",
+  "elapsed_seconds": 6.774940458999481,
+  "attempts": 1,
+  "history": [
+    {
+      "answer": 1260,
+      "reasoning": "Sector A has 240 connections. Sector B has twice Sector A, so B = 2 * 240 = 480 connections. The sum of A and B is 240 + 480 = 720. Sector C has 180 fewer connections than the sum of A and B, so C = 720 - 180 = 540 connections. The total number of connections is the sum of all sectors: Total = A + B + C = 240 + 480 + 540 = 1260.",
+      "confidence": 1.0
+    }
+  ],
+  "verdict": "correct",
+  "judge_score": {
+    "verdict": "correct",
+    "delta": 0.0,
+    "note": "exact int check"
+  },
+  "final_answer": {
+    "answer": 1260,
+    "reasoning": "Sector A has 240 connections. Sector B has twice Sector A, so B = 2 * 240 = 480 connections. The sum of A and B is 240 + 480 = 720. Sector C has 180 fewer connections than the sum of A and B, so C = 720 - 180 = 540 connections. The total number of connections is the sum of all sectors: Total = A + B + C = 240 + 480 + 540 = 1260.",
+    "confidence": 1.0
+  },
+  "tokens": {
+    "agent_in": 241,
+    "agent_out": 552,
+    "judge_in": null,
+    "judge_out": null
+  }
+}

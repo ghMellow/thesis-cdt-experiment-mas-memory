@@ -1,0 +1,11 @@
+{
+  "task_id": "task2_math_real",
+  "ground_truth": {
+    "answer": {
+      "mean": 343.4,
+      "std": 54.86
+    },
+    "type": "real",
+    "tolerance": 0.5
+  }
+}

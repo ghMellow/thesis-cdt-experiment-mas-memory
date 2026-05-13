@@ -4,8 +4,8 @@
 __pycache__/
 *.py[cod]
 
-results/1A/
-results/1B/
+# results/1A/
+# results/1B/
 
 .env
 

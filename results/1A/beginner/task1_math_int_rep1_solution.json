@@ -1,0 +1,8 @@
+{
+  "task_id": "task1_math_int",
+  "ground_truth": {
+    "answer": 1260,
+    "type": "exact_int",
+    "tolerance": 0
+  }
+}
