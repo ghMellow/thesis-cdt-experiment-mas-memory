@@ -6,3 +6,7 @@ __pycache__/
 
 results/1A/
 results/1B/
+
+.env
+
+*.zip

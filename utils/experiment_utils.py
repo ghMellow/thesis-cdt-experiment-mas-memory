@@ -19,6 +19,7 @@ from agents.agent_runner import run_agent
 from agents.judge_agent import run_judge_textual
 from agents.prompts import SYSTEM_PROMPTS
 import config
+from agents._llm_utils import resolve_model_config
 from config import (
     MAX_RETRIES,
     MODELS,
@@ -129,6 +130,7 @@ class ExperimentState(TypedDict, total=False):
     rubric: Dict[str, Any]
     agent_role: str
     model: str
+    is_hosted: bool
     attempts: int
     history: List[Dict[str, Any]]
     verdict: str
@@ -217,6 +219,7 @@ def _run_agent(state: ExperimentState) -> ExperimentState:
         model=state["model"],
         temperature=TEMPERATURE,
         base_url=OLLAMA_BASE_URL,
+        is_hosted=state.get("is_hosted", False),
     )
 
     attempts = state.get("attempts", 0) + 1
@@ -250,14 +253,16 @@ def _check_answer(state: ExperimentState) -> ExperimentState:
         return state
 
     rubric = state.get("rubric", {})
+    judge_model, judge_is_hosted = resolve_model_config("judge")
     judge_score, j_in_tok, j_out_tok = run_judge_textual(
         task_content=state["task_content"],
         rubric=rubric,
         agent_response=state["final_answer"],
         system_prompt=_build_judge_prompt(rubric),
-        model=MODELS["judge"],
+        model=judge_model,
         temperature=TEMPERATURE,
         base_url=OLLAMA_BASE_URL,
+        is_hosted=judge_is_hosted,
     )
     state.update(
         {

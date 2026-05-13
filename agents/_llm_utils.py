@@ -12,6 +12,37 @@ from typing import Any, Dict, List, Optional, Tuple
 logger = logging.getLogger(__name__)
 
 
+def resolve_model_config(role_key: str) -> tuple:
+    """Return (model_name, is_hosted) for a MODELS role key."""
+    import config
+    cfg = config.MODELS[role_key]
+    is_hosted = cfg["use_hosted"]
+    return (cfg["hosted"] if is_hosted else cfg["local"]), is_hosted
+
+
+def build_llm(model: str, temperature: float, base_url: str, is_hosted: bool = False, num_predict: int = None):
+    """Instantiate ChatOllama (local) or ChatOpenAI (ollama.com hosted) based on is_hosted."""
+    import config
+    tokens = num_predict if num_predict is not None else config.OLLAMA_NUM_PREDICT
+    if is_hosted:
+        from langchain_openai import ChatOpenAI
+        return ChatOpenAI(
+            model=model,
+            temperature=temperature,
+            base_url=config.OLLAMA_HOSTED_BASE_URL,
+            api_key=config.OLLAMA_API_KEY,
+            max_tokens=tokens,
+        )
+    from langchain_ollama import ChatOllama
+    return ChatOllama(
+        model=model,
+        temperature=temperature,
+        base_url=base_url,
+        timeout=config.OLLAMA_TIMEOUT_SECONDS,
+        model_kwargs={"num_predict": tokens},
+    )
+
+
 def _extract_json_from_text(text: str) -> Dict[str, Any]:
     text = text.strip()
     try:

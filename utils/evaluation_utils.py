@@ -99,6 +99,7 @@ def _detect_inconsistencies(
         return [(role, tid, reps, "") for role, tid, reps in surface_different], 0
 
     from agents.judge_agent import run_semantic_equivalence_check
+    from agents._llm_utils import resolve_model_config
 
     cache_path = Path(RESULTS_PATH) / "evaluation" / "semantic_cache.json"
     cache: Dict[str, Any] = {}
@@ -108,9 +109,9 @@ def _detect_inconsistencies(
         except Exception:
             cache = {}
 
-    model = config.MODELS.get("semantic_check")
-    if not model:
+    if "semantic_check" not in config.MODELS:
         raise ValueError("MODELS['semantic_check'] must be set for semantic consistency checks")
+    model, sem_is_hosted = resolve_model_config("semantic_check")
     base_url = config.OLLAMA_BASE_URL
 
     truly_inconsistent: List[Tuple[str, str, List[Tuple[int, str]], str]] = []
@@ -143,6 +144,7 @@ def _detect_inconsistencies(
                 reasonings=reasonings,
                 model=model,
                 base_url=base_url,
+                is_hosted=sem_is_hosted,
             )
             cache[cache_key] = result
             cache_updated = True

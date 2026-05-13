@@ -1,5 +1,8 @@
 """Entry point and orchestration; task parsing and evaluation helpers live in utils."""
 
+from dotenv import load_dotenv
+load_dotenv()
+
 import argparse
 import logging
 import sys
@@ -8,6 +11,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 import config
+from agents._llm_utils import resolve_model_config
 from config import MODELS, OLLAMA_BASE_URL, REPETITIONS, RESULTS_PATH, TASK_MODEL_OVERRIDES, TASK_TIMEOUT_SECONDS, TASKS_PATH
 from utils.evaluation_utils import _record_consistency_finding, _write_evaluation_reports
 from utils.experiment_utils import ExperimentState, _build_graph, _fetch_model_context_window, _time_limit
@@ -17,13 +21,14 @@ from utils.task_utils import _answers_equal, _list_tasks, _result_exists
 logger = logging.getLogger(__name__)
 
 
-def _resolve_task_model(exp_id: str, role: str, task_id: str) -> str:
+def _resolve_task_model(exp_id: str, role: str, task_id: str) -> tuple:
+    """Return (model_name, is_hosted) for the given role/experiment/task combination."""
     key = f"{role}_{exp_id}"
-    base = MODELS[key]
+    model, is_hosted = resolve_model_config(key)
     for substring, override in TASK_MODEL_OVERRIDES.get(key, {}).items():
         if substring in task_id:
-            return override
-    return base
+            return override, is_hosted
+    return model, is_hosted
 
 
 class _SpinnerClearHandler(logging.StreamHandler):
@@ -93,12 +98,10 @@ def main() -> None:
             raise SystemExit(1)
         tasks = [task for task in tasks if task.stem in requested]
 
-    experiments = [
-        {"id": "1A", "role": "expert", "model": MODELS["expert_1A"]},
-        {"id": "1A", "role": "beginner", "model": MODELS["beginner_1A"]},
-        {"id": "1B", "role": "expert", "model": MODELS["expert_1B"]},
-        {"id": "1B", "role": "beginner", "model": MODELS["beginner_1B"]},
-    ]
+    experiments = []
+    for exp_id, role in [("1A", "expert"), ("1A", "beginner"), ("1B", "expert"), ("1B", "beginner")]:
+        model, is_hosted = resolve_model_config(f"{role}_{exp_id}")
+        experiments.append({"id": exp_id, "role": role, "model": model, "is_hosted": is_hosted})
     if args.experiment != "all":
         experiments = [exp for exp in experiments if exp["id"] == args.experiment]
     if args.role != "all":
@@ -143,7 +146,7 @@ def main() -> None:
     for experiment in experiments:
         model = experiment["model"]
         if model not in ctx_cache:
-            ctx_cache[model] = _fetch_model_context_window(model, OLLAMA_BASE_URL)
+            ctx_cache[model] = None if experiment["is_hosted"] else _fetch_model_context_window(model, OLLAMA_BASE_URL)
         ctx_window = ctx_cache[model]
         ctx_str = f" | ctx_window={ctx_window:,}" if ctx_window else ""
         logger.info("")
@@ -155,9 +158,9 @@ def main() -> None:
             ctx_str,
         )
         for task_path in tasks:
-            task_model = _resolve_task_model(experiment["id"], experiment["role"], task_path.stem)
+            task_model, task_is_hosted = _resolve_task_model(experiment["id"], experiment["role"], task_path.stem)
             if task_model not in ctx_cache:
-                ctx_cache[task_model] = _fetch_model_context_window(task_model, OLLAMA_BASE_URL)
+                ctx_cache[task_model] = None if task_is_hosted else _fetch_model_context_window(task_model, OLLAMA_BASE_URL)
             task_ctx_str = (
                 f" [model={task_model}]" if task_model != experiment["model"] else ""
             )
@@ -184,6 +187,7 @@ def main() -> None:
                     "sol_path": str(sol_path),
                     "agent_role": experiment["role"],
                     "model": task_model,
+                    "is_hosted": task_is_hosted,
                     "attempts": 0,
                     "history": [],
                     "experiment_id": experiment["id"],

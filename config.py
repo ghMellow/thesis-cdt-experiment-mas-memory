@@ -1,22 +1,29 @@
+import os
+
 # Model mapping for each experiment role, judge, and semantic consistency checks.
-# Note: MODELS["semantic_check"] is required for semantic consistency checks.
+# Each entry: local = model name for local Ollama, hosted = model name on ollama.com,
+# use_hosted = True to route through the hosted API instead of localhost.
 MODELS = {
-    "expert_1A": "gemma4:e4b",
-    "beginner_1A": "gemma4:e4b",
-    "expert_1B": "gemma4:e2b",
-    "beginner_1B": "deepseek-r1:latest",
-    "judge": "gemma4:e4b",
-    "semantic_check": "gemma4:e2b",
+    "expert_1A":    {"local": "gemma4:e4b",          "hosted": "gemma4:e4b",          "use_hosted": False},
+    "beginner_1A":  {"local": "gemma4:e4b",          "hosted": "gemma4:e4b",          "use_hosted": False},
+    "expert_1B":    {"local": "gemma4:e2b",          "hosted": "gemma4:e2b",          "use_hosted": False},
+    "beginner_1B":  {"local": "deepseek-r1:latest",  "hosted": "deepseek-r1:latest",  "use_hosted": False},
+    "judge":        {"local": "gemma4:e4b",          "hosted": "gemma4:e4b",          "use_hosted": False},
+    "semantic_check": {"local": "gemma4:e2b",        "hosted": "gemma4:e2b",          "use_hosted": False},
 }
 
-# Per-task model overrides: {role_experiment_key: {substring: model}}.
-# When task_id contains a key substring, the mapped model replaces the role default.
+# Per-task model overrides: {role_experiment_key: {substring: local_model_name}}.
+# Overrides only the local model name; use_hosted is inherited from the role config.
 # First matching entry wins (dict insertion order, Python 3.7+).
 TASK_MODEL_OVERRIDES: dict = {
     "beginner_1B": {
         "vuln": "deepseek-r1:latest",
     },
 }
+
+# Ollama hosted API endpoint and credentials (set OLLAMA_API_KEY in your .env).
+OLLAMA_HOSTED_BASE_URL = "https://api.ollama.com/v1"
+OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY", "")
 
 # Generation temperature — use > 0 to measure real consistency across repetitions.
 TEMPERATURE = 0.3

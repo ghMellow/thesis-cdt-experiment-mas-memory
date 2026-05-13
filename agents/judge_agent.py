@@ -5,7 +5,6 @@ import time
 from typing import Any, Dict, List, Optional, Tuple
 
 import httpx
-from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage, SystemMessage
 
 import config
@@ -15,6 +14,7 @@ from agents._llm_utils import (
     _extract_json_from_text,
     _raise_ollama_unavailable,
     _start_spinner,
+    build_llm,
 )
 
 logger = logging.getLogger(__name__)
@@ -94,14 +94,9 @@ def run_judge_textual(
     model: str,
     temperature: float,
     base_url: str,
+    is_hosted: bool = False,
 ) -> Tuple[Dict[str, Any], Optional[int], Optional[int]]:
-    llm = ChatOllama(
-        model=model,
-        temperature=temperature,
-        base_url=base_url,
-        timeout=config.OLLAMA_TIMEOUT_SECONDS,
-        model_kwargs={"num_predict": config.OLLAMA_NUM_PREDICT},
-    )
+    llm = build_llm(model, temperature, base_url, is_hosted)
     payload = _build_judge_payload_markdown(task_content, rubric, agent_response)
     messages = [
         SystemMessage(content=system_prompt),
@@ -145,6 +140,7 @@ def run_semantic_equivalence_check(
     reasonings: List[str],
     model: str,
     base_url: str,
+    is_hosted: bool = False,
 ) -> Dict[str, Any]:
     """Check if multiple reasoning passages are semantically equivalent.
 
@@ -152,13 +148,7 @@ def run_semantic_equivalence_check(
     Returns {"equivalent": bool, "explanation": str}.
     On any error returns {"equivalent": False, "explanation": "<error msg>"}.
     """
-    llm = ChatOllama(
-        model=model,
-        temperature=0,
-        base_url=base_url,
-        timeout=config.OLLAMA_TIMEOUT_SECONDS,
-        model_kwargs={"num_predict": 256},
-    )
+    llm = build_llm(model, 0, base_url, is_hosted, num_predict=256)
     system = (
         "You are a semantic equivalence checker. "
         "Given multiple reasoning passages about the same task, decide if they are "

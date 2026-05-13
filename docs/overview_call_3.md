@@ -309,6 +309,7 @@ Questo trasforma i risultati da una tabella statica a una curva — utile per id
 - [ ] Retry con feedback judge reiniettato
 - [ ] Task controllo negativo (false positive rate)
 - [ ] Varianti full-file task7_full (501r) e task8_full (858r) con timeout aumentato
+- [ ] **Tracciamento score intermedi per-attempt:** attualmente il JSON di risultato persiste solo il `judge_score` dell'ultimo tentativo. I punteggi per categoria dei tentativi precedenti (es. `missing_default_score` nei 3 retry di task7 expert rep3) non vengono salvati — erano recuperabili solo dai log manuali in `overview_call_3.md`. Modificare la struttura del risultato per salvare il breakdown per categoria del judge per ogni attempt nell'array `history`, non solo per l'ultimo. Questo è necessario per analisi post-hoc del comportamento del retry (es. quale categoria migliora/non migliora tra tentativi).
 
 ### 7.3 Lungo termine / open questions
 
