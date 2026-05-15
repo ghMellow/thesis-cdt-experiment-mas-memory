@@ -254,3 +254,27 @@ Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `over
 **Pre-requisito A2:** ripristinare i prompt originali in `agents/prompts.py` prima di eseguire A2 (che modifica solo il prompt expert con vincolo di stile).
 
 **Fonte:** `results/evaluation/result_task7_vuln_amf_framing_A1.md`, `docs/experiments_framing.md` §A1
+
+---
+
+## F17 — Il vincolo di stile "no elaboration" sull'expert peggiora l'accuracy: la verbosità è parte del reasoning
+
+**Osservato su:** `framing_A2` (expert + "List each finding as a single bullet point. One sentence per finding. No elaboration.") vs baseline `1A` su `task7_vuln_amf`, `gemma4:e4b`
+
+**Risultati comparati (task7 — unico discriminante):**
+
+| Configurazione | Expert task7 | Beginner task7 |
+| --- | --- | --- |
+| 1A (prompt originale) | 66.7% (2/3) | 100% (3/3) |
+| A1 (nessun ruolo) | 66.7% (2/3) | 33.3% (1/3) |
+| A2 (expert + style constraint) | **33.3% (1/3)** | — |
+
+**Task6/8/9:** 100% invariati. Lieve calo su task6 norm (0.926 vs 0.963 in 1A) — il constraint riduce leggermente la copertura della rubrica anche su task facili.
+
+**Predizione falsificata:** si ipotizzava che "no elaboration" recuperasse l'accuracy riducendo la verbosità che impediva la scansione dello switch. Invece l'accuracy scende ulteriormente.
+
+**Interpretazione:** la verbosità del prompt expert non è rumore — è parte necessaria del processo di reasoning. Il modello usa l'elaborazione per costruire il contesto che lo porta a trovare bug profondi. Costringerlo a "one sentence per finding" tronca la catena di reasoning prima che raggiunga il `default` mancante nello switch. Il problema di task7 expert non è verbosità eccessiva: è che il reasoning elaborato si concentra sui bug superficiali e non guida mai lo sguardo verso lo switch statement.
+
+**Implicazione:** A2 chiude l'ipotesi "framing-come-verbosità". Il paradosso task7 non è spiegabile né dal framing né dallo stile di risposta dell'expert — è un effetto del framing beginner che impone uno stile di scansione strutturato, non un danno del framing expert. Conferma F16.
+
+**Fonte:** `results/evaluation/result_task7_vuln_amf_framing_A2.md`, `docs/experiments_framing.md` §A2

@@ -102,8 +102,8 @@ poetry run python main.py --experiment 1A --experiment-id framing_A1 --role all 
 poetry run python main.py --experiment 1A --experiment-id framing_A2 --role expert --task task6_vuln_udr --task task7_vuln_amf --task task8_vuln_udm --task task9_vuln_cross --repetitions 3
 ```
 
-**Status:** `[ ] pending`
-**Risultato:** —
+**Status:** `[x] done`
+**Risultato:** task7 expert 33.3% (scende da 66.7% in 1A — peggiora). Task6/8/9: 100%, invariati. Il vincolo "one bullet, no elaboration" non recupera l'accuracy — la abbassa. La predizione era sbagliata: la verbosità non è il problema, è parte del processo di reasoning. Vedi F17 in findings.md.
 
 ### A3 — Beginner + expert knowledge injected
 **Setup:** aggiungere in coda al system prompt beginner in `agents/prompts.py`: *"When reviewing code, scan switch statements and check for missing default cases."* Il resto del prompt beginner rimane invariato.
