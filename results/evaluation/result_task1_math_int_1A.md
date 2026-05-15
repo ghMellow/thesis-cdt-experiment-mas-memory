@@ -1,4 +1,4 @@
-# 1A — task6_vuln_udr
+# 1A — task1_math_int
 
 ## Summary
 
@@ -17,10 +17,10 @@ All tasks passed with full consistency — no anomalies detected.
 
 ## Scores by role
 
-| role | accuracy | avg_confidence | brier_score | avg_attempts | avg_textual_norm |
+| role | accuracy | avg_confidence | brier_score | avg_attempts | avg_math_delta |
 | --- | --- | --- | --- | --- | --- |
-| beginner | 100.0% | 0.500 | 0.2500 | 1.00 | 1.000 |
-| expert | 100.0% | 0.500 | 0.2500 | 1.00 | 1.000 |
+| beginner | 100.0% | 1.000 | 0.0000 | 1.00 | 0.000 |
+| expert | 100.0% | 1.000 | 0.0000 | 1.00 | 0.000 |
 
 **Legend**
 

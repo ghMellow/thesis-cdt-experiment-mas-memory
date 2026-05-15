@@ -1,7 +1,0 @@
-{
-  "task_id": "task5_vuln_pcf",
-  "ground_truth": {
-    "answer": "CORS misconfiguration: AllowAllOrigins and AllowCredentials are both set to true, violating CORS spec and enabling credentialed cross-origin requests from any origin",
-    "type": "textual_security_review"
-  }
-}

@@ -1,7 +1,0 @@
-{
-  "task_id": "task7_vuln_amf",
-  "ground_truth": {
-    "answer": "HTTPUEContextTransfer is missing a default case in the Content-Type switch, so an arbitrary Content-Type bypasses deserialization and calls the processor with uninitialized data. Additionally, five handlers (HTTPCreateUEContext, HTTPEBIAssignment, HTTPRegistrationStatusUpdate, HTTPReleaseUEContext, HTTPN1N2MessageTransfer) pass the full ProblemDetails struct to c.Set instead of the string Cause field.",
-    "type": "textual_security_review"
-  }
-}

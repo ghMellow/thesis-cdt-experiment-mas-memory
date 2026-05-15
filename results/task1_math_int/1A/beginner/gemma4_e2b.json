@@ -1,0 +1,140 @@
+{
+  "task_id": "task1_math_int",
+  "task_type": "math",
+  "experiment_id": "1A",
+  "agent_role": "beginner",
+  "model": "gemma4:e2b",
+  "judge_model": "gemma4:e2b",
+  "temperature": 0.3,
+  "is_hosted": false,
+  "task_path": "docs/tasks/task1_math_int.md",
+  "sol_path": "docs/tasks/task1_math_int_sol.md",
+  "repetitions": [
+    {
+      "repetition": 1,
+      "started_at": "2026-05-14T08:06:24.529570+00:00",
+      "finished_at": "2026-05-14T08:06:35.514194+00:00",
+      "elapsed_seconds": 10.984565874998225,
+      "attempts": 1,
+      "history": [
+        {
+          "answer": 1260.0,
+          "reasoning": "1.  **Calculate connections for Sector A:**\n    Sector A = 240\n\n2.  **Calculate connections for Sector B:**\n    Sector B is twice the connections of Sector A:\n    Sector B = 2 * 240 = 480\n\n3.  **Calculate the sum of connections for Sectors A and B:**\n    Sum (A + B) = 240 + 480 = 720\n\n4.  **Calculate connections for Sector C:**\n    Sector C has 180 fewer connections than the sum of A and B:\n    Sector C = 720 - 180 = 540\n\n5.  **Calculate the total connections:**\n    Total = Sector A + Sector B + Sector C\n    Total = 240 + 480 + 540 = 1260",
+          "confidence": 1.0,
+          "elapsed_seconds": 10.98,
+          "tokens_in": 229,
+          "tokens_out": 604,
+          "prompt_system": "\nYou are a junior 5G network technician with about 1 year of experience.\nYou understand the theoretical fundamentals but have limited practical exposure.\nReply ONLY in Markdown using the response format in the task. No extra text before or after.\n",
+          "prompt_user": "# Task 1 \u2014 Math (Integer Result)\n\n**ID:** task1_math_int  \n**Tipo:** math  \n**Difficolt\u00e0:** base\n\n---\n\n## Problem\n\nA 5G installation consists of 3 coverage sectors.\n\n- **Sector A** handles **240 active connections**\n- **Sector B** handles **twice** the connections of Sector A\n- **Sector C** handles **180 fewer connections** than the sum of Sectors A and B\n\n**How many total connections does the installation handle?**\n\n---\n\n## Agent Instructions\n\nSolve the problem step by step.  \nReply ONLY in Markdown using this template:\n\n```md\n### Answer\n<integer>\n\n### Reasoning\n...\n\n### Confidence\n0.0\n```\n",
+          "judge_score": {
+            "verdict": "correct",
+            "delta": 0.0,
+            "note": "exact int check"
+          },
+          "verdict": "correct"
+        }
+      ],
+      "final_answer": {
+        "answer": 1260.0,
+        "reasoning": "1.  **Calculate connections for Sector A:**\n    Sector A = 240\n\n2.  **Calculate connections for Sector B:**\n    Sector B is twice the connections of Sector A:\n    Sector B = 2 * 240 = 480\n\n3.  **Calculate the sum of connections for Sectors A and B:**\n    Sum (A + B) = 240 + 480 = 720\n\n4.  **Calculate connections for Sector C:**\n    Sector C has 180 fewer connections than the sum of A and B:\n    Sector C = 720 - 180 = 540\n\n5.  **Calculate the total connections:**\n    Total = Sector A + Sector B + Sector C\n    Total = 240 + 480 + 540 = 1260",
+        "confidence": 1.0
+      },
+      "verdict": "correct",
+      "judge_score": {
+        "verdict": "correct",
+        "delta": 0.0,
+        "note": "exact int check"
+      },
+      "tokens": {
+        "agent_in": 229,
+        "agent_out": 604,
+        "judge_in": null,
+        "judge_out": null
+      }
+    },
+    {
+      "repetition": 2,
+      "started_at": "2026-05-14T08:06:35.515726+00:00",
+      "finished_at": "2026-05-14T08:06:42.354335+00:00",
+      "elapsed_seconds": 6.838649917015573,
+      "attempts": 1,
+      "history": [
+        {
+          "answer": 1260.0,
+          "reasoning": "1.  **Calculate connections for Sector A:**\n    Sector A = 240 connections.\n\n2.  **Calculate connections for Sector B:**\n    Sector B handles twice the connections of Sector A.\n    Sector B = $2 \\times 240 = 480$ connections.\n\n3.  **Calculate the sum of connections for Sector A and Sector B:**\n    Sum (A + B) = $240 + 480 = 720$ connections.\n\n4.  **Calculate connections for Sector C:**\n    Sector C handles 180 fewer connections than the sum of Sectors A and B.\n    Sector C = $720 - 180 = 540$ connections.\n\n5.  **Calculate the total connections:**\n    Total Connections = Sector A + Sector B + Sector C\n    Total Connections = $240 + 480 + 540 = 1260$",
+          "confidence": 1.0,
+          "elapsed_seconds": 6.83,
+          "tokens_in": 229,
+          "tokens_out": 578,
+          "prompt_system": "\nYou are a junior 5G network technician with about 1 year of experience.\nYou understand the theoretical fundamentals but have limited practical exposure.\nReply ONLY in Markdown using the response format in the task. No extra text before or after.\n",
+          "prompt_user": "# Task 1 \u2014 Math (Integer Result)\n\n**ID:** task1_math_int  \n**Tipo:** math  \n**Difficolt\u00e0:** base\n\n---\n\n## Problem\n\nA 5G installation consists of 3 coverage sectors.\n\n- **Sector A** handles **240 active connections**\n- **Sector B** handles **twice** the connections of Sector A\n- **Sector C** handles **180 fewer connections** than the sum of Sectors A and B\n\n**How many total connections does the installation handle?**\n\n---\n\n## Agent Instructions\n\nSolve the problem step by step.  \nReply ONLY in Markdown using this template:\n\n```md\n### Answer\n<integer>\n\n### Reasoning\n...\n\n### Confidence\n0.0\n```\n",
+          "judge_score": {
+            "verdict": "correct",
+            "delta": 0.0,
+            "note": "exact int check"
+          },
+          "verdict": "correct"
+        }
+      ],
+      "final_answer": {
+        "answer": 1260.0,
+        "reasoning": "1.  **Calculate connections for Sector A:**\n    Sector A = 240 connections.\n\n2.  **Calculate connections for Sector B:**\n    Sector B handles twice the connections of Sector A.\n    Sector B = $2 \\times 240 = 480$ connections.\n\n3.  **Calculate the sum of connections for Sector A and Sector B:**\n    Sum (A + B) = $240 + 480 = 720$ connections.\n\n4.  **Calculate connections for Sector C:**\n    Sector C handles 180 fewer connections than the sum of Sectors A and B.\n    Sector C = $720 - 180 = 540$ connections.\n\n5.  **Calculate the total connections:**\n    Total Connections = Sector A + Sector B + Sector C\n    Total Connections = $240 + 480 + 540 = 1260$",
+        "confidence": 1.0
+      },
+      "verdict": "correct",
+      "judge_score": {
+        "verdict": "correct",
+        "delta": 0.0,
+        "note": "exact int check"
+      },
+      "tokens": {
+        "agent_in": 229,
+        "agent_out": 578,
+        "judge_in": null,
+        "judge_out": null
+      }
+    },
+    {
+      "repetition": 3,
+      "started_at": "2026-05-14T08:06:42.356642+00:00",
+      "finished_at": "2026-05-14T08:06:49.920184+00:00",
+      "elapsed_seconds": 7.563580250018276,
+      "attempts": 1,
+      "history": [
+        {
+          "answer": 1260.0,
+          "reasoning": "1.  **Calculate connections for Sector A:**\n    Sector A = 240 connections.\n\n2.  **Calculate connections for Sector B:**\n    Sector B handles twice the connections of Sector A.\n    Sector B = 2 * 240 = 480 connections.\n\n3.  **Calculate the sum of connections for Sector A and Sector B:**\n    Sum (A + B) = 240 + 480 = 720 connections.\n\n4.  **Calculate connections for Sector C:**\n    Sector C handles 180 fewer connections than the sum of Sectors A and B.\n    Sector C = 720 - 180 = 540 connections.\n\n5.  **Calculate the total connections:**\n    Total = Sector A + Sector B + Sector C\n    Total = 240 + 480 + 540\n    Total = 720 + 540\n    Total = 1260 connections.",
+          "confidence": 1.0,
+          "elapsed_seconds": 7.56,
+          "tokens_in": 229,
+          "tokens_out": 644,
+          "prompt_system": "\nYou are a junior 5G network technician with about 1 year of experience.\nYou understand the theoretical fundamentals but have limited practical exposure.\nReply ONLY in Markdown using the response format in the task. No extra text before or after.\n",
+          "prompt_user": "# Task 1 \u2014 Math (Integer Result)\n\n**ID:** task1_math_int  \n**Tipo:** math  \n**Difficolt\u00e0:** base\n\n---\n\n## Problem\n\nA 5G installation consists of 3 coverage sectors.\n\n- **Sector A** handles **240 active connections**\n- **Sector B** handles **twice** the connections of Sector A\n- **Sector C** handles **180 fewer connections** than the sum of Sectors A and B\n\n**How many total connections does the installation handle?**\n\n---\n\n## Agent Instructions\n\nSolve the problem step by step.  \nReply ONLY in Markdown using this template:\n\n```md\n### Answer\n<integer>\n\n### Reasoning\n...\n\n### Confidence\n0.0\n```\n",
+          "judge_score": {
+            "verdict": "correct",
+            "delta": 0.0,
+            "note": "exact int check"
+          },
+          "verdict": "correct"
+        }
+      ],
+      "final_answer": {
+        "answer": 1260.0,
+        "reasoning": "1.  **Calculate connections for Sector A:**\n    Sector A = 240 connections.\n\n2.  **Calculate connections for Sector B:**\n    Sector B handles twice the connections of Sector A.\n    Sector B = 2 * 240 = 480 connections.\n\n3.  **Calculate the sum of connections for Sector A and Sector B:**\n    Sum (A + B) = 240 + 480 = 720 connections.\n\n4.  **Calculate connections for Sector C:**\n    Sector C handles 180 fewer connections than the sum of Sectors A and B.\n    Sector C = 720 - 180 = 540 connections.\n\n5.  **Calculate the total connections:**\n    Total = Sector A + Sector B + Sector C\n    Total = 240 + 480 + 540\n    Total = 720 + 540\n    Total = 1260 connections.",
+        "confidence": 1.0
+      },
+      "verdict": "correct",
+      "judge_score": {
+        "verdict": "correct",
+        "delta": 0.0,
+        "note": "exact int check"
+      },
+      "tokens": {
+        "agent_in": 229,
+        "agent_out": 644,
+        "judge_in": null,
+        "judge_out": null
+      }
+    }
+  ]
+}
