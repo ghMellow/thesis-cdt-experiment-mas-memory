@@ -118,8 +118,8 @@ poetry run python main.py --experiment 1A --experiment-id framing_A2 --role expe
 poetry run python main.py --experiment 1A --experiment-id framing_A3 --role beginner --task task6_vuln_udr --task task7_vuln_amf --task task8_vuln_udm --task task9_vuln_cross --repetitions 3
 ```
 
-**Status:** `[ ] pending`
-**Risultato:** —
+**Status:** `[x] done`
+**Risultato:** task7 beginner 66.7% — scende da 100% in 1A ma superiore al 33.3% di A1. L'hint switch non replica il framing originale. Task6/8/9: 100% invariati (task6 norm=1.000, massimo visto). Conclusione: il framing beginner ha un effetto comportamentale ampio che non si riduce a una singola istruzione tecnica. Vedi F18 in findings.md.
 
 ---
 

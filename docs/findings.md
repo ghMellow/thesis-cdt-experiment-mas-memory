@@ -278,3 +278,31 @@ Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `over
 **Implicazione:** A2 chiude l'ipotesi "framing-come-verbosità". Il paradosso task7 non è spiegabile né dal framing né dallo stile di risposta dell'expert — è un effetto del framing beginner che impone uno stile di scansione strutturato, non un danno del framing expert. Conferma F16.
 
 **Fonte:** `results/evaluation/result_task7_vuln_amf_framing_A2.md`, `docs/experiments_framing.md` §A2
+
+---
+
+## F18 — L'hint tecnico non replica il framing beginner: il ruolo ha un effetto comportamentale ampio non riducibile a una singola istruzione
+
+**Osservato su:** `framing_A3` (beginner + "When reviewing code, scan switch statements and check for missing default cases.") vs baseline `1A` e `A1` su `task7_vuln_amf`, `gemma4:e4b`
+
+**Risultati comparati (task7 — unico discriminante):**
+
+| Configurazione | Beginner task7 | Note |
+| --- | --- | --- |
+| 1A (framing originale) | **100%** (3/3) | Solo framing, nessun hint |
+| A1 (nessun framing) | 33.3% (1/3) | Floor senza alcun segnale |
+| A3 (framing + hint switch) | **66.7%** (2/3) | Hint parzialmente utile ma non sufficiente |
+
+**Task6/8/9:** 100% invariati. task6 norm=1.000 — massimo visto in tutti gli esperimenti.
+
+**Interpretazione:** L'hint "scan switch statements" aggiunge segnale utile rispetto a nessun framing (33.3% → 66.7%), ma non raggiunge il 100% del framing originale. Questo dimostra che il framing "junior technician" non funziona perché il modello legge il ruolo e deduce "devo guardare gli switch" — funziona perché induce uno stile di analisi sistematica e sequenziale del codice che copre più aree in modo strutturato. L'hint tecnico mira a un singolo pattern, il framing orienta l'intero approccio.
+
+**Conclusione ipotesi A:** i tre esperimenti A1, A2, A3 convergono su un'unica spiegazione:
+- Il framing beginner è la causa del paradosso (A1: senza framing il beginner crolla)
+- La verbosità del framing expert non è il problema — è parte del reasoning (A2: il vincolo la peggiora)
+- Il vantaggio del framing beginner è emergente, non riducibile a un'istruzione specifica (A3: l'hint da solo non basta)
+
+Il framing agisce come "stile cognitivo implicito", non come istruzione esplicita.
+
+**Fonte:** `results/evaluation/result_task7_vuln_amf_framing_A3.md`, `docs/experiments_framing.md` §A3
+
