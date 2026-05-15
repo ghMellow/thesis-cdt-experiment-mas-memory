@@ -10,6 +10,7 @@ Punto di ingresso rapido. Per i dettagli vai al documento corrispondente.
 | [overview_call_1.md](overview_call_1.md) | Call iniziali: judge, soglie, rubrica, retry, confidence, token, consistenza, modelli, lingua (§8.1–8.10) |
 | [overview_call_2.md](overview_call_2.md) | Call 2026-05-09: security review 5G, task5–9, snapshot sistema (§8.11 + §10) |
 | [overview_call_3.md](overview_call_3.md) | Call 2026-05-13: presentazione risultati, dubbi metodologici, roadmap 19 maggio |
+| [findings.md](findings.md) | Registro empirico: osservazioni che hanno causato correzioni al codice o alla metodologia |
 
 ---
 

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLMs for 5G Security Review</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f7f3ed;
+            --surface: #ffffff;
+            --surface2: #ede9e2;
+            --border: rgba(0,0,0,0.09);
+            --gold: #7a5018;
+            --gold-dim: #b8843a;
+            --white: #1c1a17;
+            --muted: #9b93a6;
+            --accent: #1a5faf;
+            --danger: #8b2020;
+            --danger-dim: #c0392b;
+            --mono: 'IBM Plex Mono', monospace;
+            --serif: 'Playfair Display', Georgia, serif;
+            --sans: 'Inter', system-ui, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            width: 100%; height: 100%;
+            background: var(--bg);
+            color: var(--white);
+            font-family: var(--sans);
+            overflow: hidden;
+        }
+
+        body::after {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9998; opacity: 0.5;
+        }
+
+        .deck { width: 100vw; height: 100vh; position: relative; }
+
+        section {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            padding: 80px 100px;
+            opacity: 0; transform: translateY(16px);
+            transition: opacity 0.45s cubic-bezier(0.4,0,0.2,1), transform 0.45s cubic-bezier(0.4,0,0.2,1);
+            pointer-events: none;
+        }
+        section.active { opacity: 1; transform: translateY(0); pointer-events: auto; z-index: 1; }
+        section.left-align { align-items: flex-start; justify-content: center; padding-left: 110px; }
+
+        section::before {
+            content: ''; position: absolute;
+            left: 0; top: 0; bottom: 0; width: 3px;
+            background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+            opacity: 0; transition: opacity 0.6s 0.2s;
+        }
+        section.active.left-align::before { opacity: 1; }
+
+        h1 { font-family: var(--serif); font-size: clamp(48px,6vw,80px); font-weight: 700; line-height: 1.1; color: var(--white); letter-spacing: -0.5px; margin-bottom: 24px; }
+        h2 { font-family: var(--serif); font-size: clamp(26px,3.2vw,44px); font-weight: 700; line-height: 1.15; color: var(--white); margin-bottom: 32px; }
+        h3 { font-family: var(--sans); font-size: 11px; font-weight: 500; color: var(--gold); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 14px; }
+
+        .subtitle { font-size: 20px; color: var(--muted); font-weight: 300; line-height: 1.6; }
+        .tagline { font-family: var(--serif); font-style: italic; font-size: 17px; color: var(--gold-dim); margin-top: 36px; letter-spacing: 0.5px; }
+
+        ul { list-style: none; text-align: left; max-width: 900px; width: 100%; }
+        li { font-size: clamp(14px,1.45vw,18px); line-height: 1.7; padding: 11px 0 11px 36px; position: relative; color: rgba(28,26,23,0.82); border-bottom: 1px solid var(--border); }
+        li:last-child { border-bottom: none; }
+        li::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 16px; height: 1px; background: var(--gold); }
+        li strong { color: var(--gold); font-weight: 600; }
+        li em { color: rgba(28,26,23,0.5); font-style: italic; }
+
+        code { font-family: var(--mono); font-size: 0.85em; background: rgba(122,80,24,0.09); color: var(--gold); padding: 2px 8px; border-radius: 3px; border: 1px solid rgba(122,80,24,0.18); }
+
+        .callout { background: rgba(122,80,24,0.06); border: 1px solid rgba(122,80,24,0.22); border-radius: 6px; padding: 16px 22px; font-size: 16px; color: var(--gold); font-weight: 500; max-width: 860px; width: 100%; margin-bottom: 20px; }
+        .callout.danger { background: rgba(139,32,32,0.05); border-color: rgba(139,32,32,0.25); color: var(--danger); }
+        .callout.ok { background: rgba(26,95,175,0.05); border-color: rgba(26,95,175,0.25); color: var(--accent); }
+        .callout.warn { background: rgba(184,132,58,0.08); border-color: rgba(184,132,58,0.35); color: var(--gold-dim); }
+
+        .cards { display: flex; gap: 18px; width: 100%; max-width: 1100px; align-items: stretch; }
+        .card { flex: 1; background: var(--surface); border: 1px solid var(--border); border-top: 2px solid var(--gold-dim); border-radius: 8px; padding: 22px 18px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+        .card.featured { border-top-color: var(--gold); }
+        .card.correct { border-top-color: var(--accent); }
+        .card.wrong { border-top-color: var(--danger); }
+        .card.warn { border-top-color: var(--gold-dim); }
+        .card-title { font-family: var(--serif); font-size: 18px; font-weight: 700; color: var(--white); }
+        .card.featured .card-title { color: var(--gold); }
+        .card.correct .card-title { color: var(--accent); }
+        .card.wrong .card-title { color: var(--danger); }
+        .card-tag { font-family: var(--mono); font-size: 10px; color: var(--gold-dim); text-transform: uppercase; letter-spacing: 2px; }
+        .card.correct .card-tag { color: var(--accent); opacity: 0.7; }
+        .card.wrong .card-tag { color: var(--danger); opacity: 0.7; }
+        .card-row { font-size: 12px; color: rgba(28,26,23,0.6); line-height: 1.6; padding: 5px 0; border-bottom: 1px solid var(--border); }
+        .card-row:last-child { border-bottom: none; }
+        .card-row strong { color: rgba(28,26,23,0.88); font-weight: 500; }
+
+        .score-bars { width: 100%; max-width: 780px; display: flex; flex-direction: column; gap: 18px; }
+        .bar-row { display: flex; flex-direction: column; gap: 5px; }
+        .bar-meta { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+        .bar-meta strong { color: var(--white); font-size: 11px; }
+        .bar-track { height: 9px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 99px; }
+        .bar-zero { background: var(--danger-dim); }
+        .bar-low { background: var(--gold-dim); }
+        .bar-high { background: var(--accent); }
+        .bar-full { background: #2e7d32; }
+
+        .rtable { width: 100%; max-width: 860px; border-collapse: collapse; font-size: 12px; }
+        .rtable th { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gold-dim); padding: 7px 12px; text-align: left; border-bottom: 2px solid var(--border); }
+        .rtable td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: rgba(28,26,23,0.75); font-family: var(--mono); font-size: 11px; }
+        .rtable tr:last-child td { border-bottom: none; }
+        .rtable .vok { color: var(--accent); font-weight: 600; }
+        .rtable .vwrong { color: var(--danger); font-weight: 600; }
+        .rtable .vzero { color: var(--danger); font-weight: 700; }
+        .rtable .vpart { color: var(--gold); }
+        .rtable-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 0; box-shadow: 0 2px 12px rgba(0,0,0,0.04); width: 100%; max-width: 860px; }
+
+        .section-divider { text-align: center; background: radial-gradient(ellipse at 50% 40%, rgba(122,80,24,0.05) 0%, transparent 65%); }
+        .section-divider .big-label { font-family: var(--mono); font-size: 11px; letter-spacing: 5px; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; }
+        .section-divider h2 { font-size: clamp(36px,5vw,68px); margin-bottom: 16px; }
+        .section-divider .rule { width: 50px; height: 1px; background: var(--gold); margin: 20px auto; }
+
+        .two-col { display: flex; gap: 48px; width: 100%; max-width: 1000px; align-items: flex-start; }
+        .two-col .col { flex: 1; }
+
+        .counter { position: fixed; bottom: 36px; left: 52px; font-family: var(--mono); font-size: 12px; color: var(--muted); z-index: 100; letter-spacing: 1px; }
+        .counter span { color: var(--gold); }
+        .progress-bar { position: fixed; bottom: 0; left: 0; height: 2px; background: linear-gradient(to right, var(--gold-dim), var(--gold)); transition: width 0.4s ease; z-index: 100; }
+        .hint { position: fixed; bottom: 34px; right: 52px; font-family: var(--mono); font-size: 11px; color: var(--muted); opacity: 0; transition: opacity 0.3s; z-index: 100; letter-spacing: 1px; }
+        .hint.visible { opacity: 1; }
+
+        .sidebar { position: fixed; left: 0; top: 0; width: 300px; height: 100vh; background: var(--surface); border-right: 1px solid var(--border); padding: 52px 24px; overflow-y: auto; z-index: 200; transform: translateX(-100%); transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); box-shadow: 2px 0 20px rgba(0,0,0,0.08); }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar-title { font-family: var(--mono); font-size: 10px; color: var(--gold-dim); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 28px; }
+        .sidebar-item { font-size: 12px; padding: 9px 12px; margin: 2px 0; color: rgba(28,26,23,0.55); cursor: pointer; border-radius: 4px; transition: all 0.2s; line-height: 1.4; border-left: 2px solid transparent; }
+        .sidebar-item:hover { color: var(--white); background: var(--surface2); }
+        .sidebar-item.active { color: var(--gold); border-left-color: var(--gold); background: rgba(122,80,24,0.06); font-weight: 500; }
+        .sidebar-num { font-family: var(--mono); font-size: 10px; color: var(--gold-dim); margin-right: 8px; }
+
+        .hamburger { position: fixed; top: 28px; left: 28px; width: 36px; height: 36px; cursor: pointer; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; }
+        .hamburger span { width: 22px; height: 1.5px; background: var(--muted); transition: all 0.3s; display: block; }
+        .hamburger:hover span { background: var(--gold); }
+        .overlay { position: fixed; inset: 0; background: rgba(200,190,175,0.5); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.35s; }
+        .overlay.visible { opacity: 1; pointer-events: auto; }
+
+        #slide-title { text-align: center; background: radial-gradient(ellipse at 50% 40%, rgba(122,80,24,0.04) 0%, transparent 65%); }
+        #slide-title .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 28px; }
+        #slide-title h1 { font-size: clamp(52px,7vw,88px); }
+        #slide-title .rule { width: 60px; height: 1px; background: var(--gold); margin: 28px auto; }
+
+        #slide-close { text-align: center; background: radial-gradient(ellipse at 50% 50%, rgba(122,80,24,0.04) 0%, transparent 60%); }
+        #slide-close h2 { font-size: clamp(32px,4vw,56px); margin-bottom: 40px; }
+        .close-line { font-size: 19px; color: rgba(28,26,23,0.5); line-height: 2.1; max-width: 680px; font-weight: 300; }
+        .close-accent { color: var(--gold); font-family: var(--serif); font-style: italic; font-size: 24px; margin-top: 48px; display: block; }
+
+        .anomaly-box { display: flex; gap: 0; max-width: 820px; width: 100%; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+        .anomaly-side { flex: 1; padding: 24px 22px; display: flex; flex-direction: column; gap: 10px; }
+        .anomaly-side.left { background: rgba(139,32,32,0.04); border-right: 1px solid rgba(139,32,32,0.12); }
+        .anomaly-side.right { background: rgba(26,95,175,0.04); }
+        .anomaly-label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
+        .anomaly-side.left .anomaly-label { color: var(--danger); }
+        .anomaly-side.right .anomaly-label { color: var(--accent); }
+        .anomaly-value { font-family: var(--serif); font-size: 28px; font-weight: 700; }
+        .anomaly-side.left .anomaly-value { color: var(--danger); }
+        .anomaly-side.right .anomaly-value { color: var(--accent); }
+        .anomaly-detail { font-size: 12px; color: rgba(28,26,23,0.6); line-height: 1.6; }
+        .anomaly-detail strong { color: rgba(28,26,23,0.85); }
+    </style>
+</head>
+<body>
+
+<div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+<div class="overlay" id="overlay"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-title">Index</div>
+    <div id="sidebar-content"></div>
+</div>
+
+<div class="deck" id="deck">
+
+<!-- 01 TITLE -->
+<section id="slide-title" class="active">
+    <div class="eyebrow">Controlled Experiment · Multi-Agent · 5G · Security Review</div>
+    <h1>Can LLMs Find<br>Real 5G Vulnerabilities?</h1>
+    <div class="rule"></div>
+    <p class="subtitle">Expert vs Beginner framing · Automated rubric evaluation · Real CVEs from free5GC</p>
+    <p class="tagline">Measuring LLM competence on operational tasks and security code review</p>
+</section>
+
+<!-- 02 CONTEXT -->
+<section class="left-align">
+    <h3>Context</h3>
+    <h2>5G Core Networks Run on Open-Source Code</h2>
+    <ul>
+        <li><strong>5G core networks</strong> are the software stack that connects billions of devices — increasingly built on open-source projects like <strong>free5GC</strong>, written in Go</li>
+        <li><strong>A CVE</strong> (Common Vulnerabilities and Exposures) is a publicly disclosed security flaw in real production code — free5GC has several, all found manually by domain experts reading thousands of lines</li>
+        <li><strong>Manual review is expensive:</strong> each bug requires simultaneous knowledge of Go semantics, the Gin web framework, and 3GPP protocol specs</li>
+        <li><strong>Research question:</strong> can a locally-run LLM perform a blind code review and find the same vulnerabilities — without being told what to look for?</li>
+        <li><strong>And:</strong> does telling the model it is a "senior 5G engineer" vs a "junior technician" change what it finds?</li>
+    </ul>
+</section>
+
+<!-- 02b WHAT IS A CVE — CONCRETE EXAMPLE -->
+<section>
+    <h3>What We Are Looking For</h3>
+    <h2 style="margin-bottom:20px;">A CVE Is a Subtle Bug in Real Code</h2>
+    <div class="two-col" style="align-items:flex-start; gap:36px;">
+        <div class="col">
+            <div style="font-family:var(--mono); font-size:10px; color:var(--gold); text-transform:uppercase; letter-spacing:2px; margin-bottom:10px;">Example — UDR handler · 6 CVE advisories</div>
+            <div style="font-family:var(--mono); font-size:12px; line-height:1.9; background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--danger-dim); padding:18px 20px; border-radius:0 8px 8px 0; white-space:pre;">
+<span style="color:var(--muted);">// returns 404 if resource not found</span>
+func GetSubscriptionData(c *gin.Context) {
+  data, err := db.Fetch(id)
+  if err != nil {
+    c.String(http.StatusNotFound, err.Error())
+    <span style="color:var(--danger-dim); font-weight:600;">// ← missing return</span>
+  }
+  <span style="color:var(--muted);">// execution continues with nil data</span>
+  process(data)
+}</div>
+            <div style="margin-top:10px; font-size:12px; color:rgba(28,26,23,0.6); line-height:1.6;">In Gin, writing a 404 response does <em>not</em> stop execution. Without <code>return</code>, the handler calls <code>process(nil)</code> — a flaw repeated across 6 separate endpoints.</div>
+        </div>
+        <div class="col" style="display:flex; flex-direction:column; gap:14px;">
+            <div class="callout danger" style="margin-bottom:0;">Why is this hard to find?</div>
+            <ul style="max-width:100%;">
+                <li>The code <strong>compiles and runs</strong> — no syntax error, no crash in normal cases</li>
+                <li>Requires knowing <strong>Gin-specific</strong> behavior (not standard Go)</li>
+                <li>Pattern repeated across <strong>multiple similar functions</strong> in a 2891-line file</li>
+                <li>A generic security scanner would <strong>not flag it</strong> — domain knowledge required</li>
+            </ul>
+            <div class="callout ok" style="margin-bottom:0; font-size:14px;">The LLM receives only the code — no CVE description, no patch, no hint about what to look for.</div>
+        </div>
+    </div>
+</section>
+
+<!-- 03 EXPERIMENT DESIGN -->
+<section>
+    <h3>Experiment Design</h3>
+    <h2 style="margin-bottom:24px;">Expert vs Beginner — Two Controlled Setups</h2>
+    <div class="cards" style="max-width:960px;">
+        <div class="card featured">
+            <div class="card-tag">Setup 1A · Control</div>
+            <div class="card-title">Same Model, Different Framing</div>
+            <div class="card-row"><strong>Expert</strong> and <strong>Beginner</strong> use the same underlying LLM</div>
+            <div class="card-row">Any difference in results comes <strong>only from the system prompt</strong></div>
+            <div class="card-row">Isolates the pure effect of role framing</div>
+        </div>
+        <div class="card">
+            <div class="card-tag">Setup 1B · Comparison</div>
+            <div class="card-title">Different Models per Role</div>
+            <div class="card-row"><strong>Expert</strong> → larger, more capable model</div>
+            <div class="card-row"><strong>Beginner</strong> → smaller model</div>
+            <div class="card-row">Measures combined effect of framing <strong>and</strong> model capability</div>
+        </div>
+        <div class="card">
+            <div class="card-tag">Repetitions</div>
+            <div class="card-title">Consistency Measurement</div>
+            <div class="card-row">Each task runs <strong>3 times independently</strong> (temperature 0.3)</div>
+            <div class="card-row">Measures real variance — not just a single lucky answer</div>
+            <div class="card-row">Up to 3 retries per attempt if the answer is wrong</div>
+        </div>
+    </div>
+    <p class="tagline" style="margin-top:20px;">Both roles produce structured Markdown output (Reasoning → Answer → Confidence) for uniform automated evaluation</p>
+</section>
+
+<!-- 04 TASKS -->
+<section>
+    <h3>Tasks</h3>
+    <h2 style="margin-bottom:22px;">Three Categories — Increasing Difficulty</h2>
+    <div class="cards" style="max-width:1060px;">
+        <div class="card">
+            <div class="card-tag">Category 1 — Deterministic</div>
+            <div class="card-title">Math Tasks (1–2)</div>
+            <div class="card-row">Integer and float verification</div>
+            <div class="card-row">Ground truth comparison — <strong>no judge needed</strong></div>
+            <div class="card-row">Baseline: are models reliable on unambiguous tasks?</div>
+        </div>
+        <div class="card">
+            <div class="card-tag">Category 2 — Textual</div>
+            <div class="card-title">5G Operational (3–4)</div>
+            <div class="card-row">Anomaly diagnosis, root-cause analysis</div>
+            <div class="card-row">Evaluated by a <strong>judge LLM with rubric</strong></div>
+            <div class="card-row">Tests domain understanding without code</div>
+        </div>
+        <div class="card featured">
+            <div class="card-tag">Category 3 — Security</div>
+            <div class="card-title">Code Review (5–9)</div>
+            <div class="card-row">Real Go code from free5GC (PCF, UDR, AMF, UDM)</div>
+            <div class="card-row">Real published CVEs as ground truth</div>
+            <div class="card-row"><strong>Blind review</strong> — no hints about what to look for</div>
+            <div class="card-row">Each task also has a <em>full-file variant</em> (up to 2891 lines)</div>
+        </div>
+    </div>
+</section>
+
+<!-- 05 EVALUATION -->
+<section>
+    <h3>Evaluation Method</h3>
+    <h2 style="margin-bottom:22px;">Judge LLM + Rubric-Based Scoring</h2>
+    <div class="two-col">
+        <div class="col">
+            <ul>
+                <li><strong>Per-task rubric:</strong> a set of weighted criteria defining what "correct" means for each vulnerability (e.g. "identified the missing return", "located the correct function", "explained the impact")</li>
+                <li><strong>Judge LLM</strong> scores the agent's response against the rubric — it receives the code and the rubric, but <em>not the ground truth text</em></li>
+                <li><strong>Normalized score ≥ 0.7</strong> → verdict: correct (conservative threshold — must cover >70% of rubric criteria)</li>
+                <li><strong>Rubric-based LLM-as-judge</strong> is a validated paradigm — see RUBRICEVAL (Pan et al., 2026, Fudan/Ant Group)</li>
+            </ul>
+        </div>
+        <div class="col">
+            <div class="card" style="border-top-color: var(--accent); gap: 14px;">
+                <div class="card-tag">Example — AMF task</div>
+                <div class="card-title" style="font-size:15px;">Rubric breakdown</div>
+                <div class="card-row"><strong>vulnerability_class_score</strong> 1/1</div>
+                <div class="card-row"><strong>code_location_score</strong> 2/2</div>
+                <div class="card-row"><strong>missing_default_score</strong> 4/4 ← key CVE</div>
+                <div class="card-row"><strong>impact_assessment_score</strong> 2/2</div>
+                <div class="card-row" style="font-size:11px; padding-top:8px;">total 9/9 → norm 1.000 → <span style="color:var(--accent); font-weight:600;">correct</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     RESULTS — hidden until all test runs are complete.
+     Remove the hidden attribute on each section to re-enable.
+     ══════════════════════════════════════ -->
+
+<!-- 06 RESULTS DIVIDER -->
+<section hidden class="section-divider">
+    <div class="big-label">Results</div>
+    <h2>What the Models Actually Did</h2>
+    <div class="rule"></div>
+    <p class="subtitle">Setup 1A · same LLM for both roles · 3 repetitions per task</p>
+</section>
+
+<!-- 07 RESULTS TASKS 1-5 -->
+<section hidden>
+    <h3>Results — Tasks 1–5</h3>
+    <h2 style="margin-bottom:16px;">Baseline: All Tasks Passed</h2>
+    <div class="callout ok">100% accuracy across all repetitions — no differentiation between Expert and Beginner</div>
+    <div class="score-bars" style="max-width:720px;">
+        <div class="bar-row">
+            <div class="bar-meta"><span><strong>Tasks 1–2</strong> · math · both roles</span><span class="vok">100% · deterministic</span></div>
+            <div class="bar-track"><div class="bar-fill bar-full" style="width:100%"></div></div>
+        </div>
+        <div class="bar-row">
+            <div class="bar-meta"><span><strong>Tasks 3–4</strong> · 5G textual · both roles</span><span class="vok">100% · norm 1.000</span></div>
+            <div class="bar-track"><div class="bar-fill bar-full" style="width:100%"></div></div>
+        </div>
+        <div class="bar-row">
+            <div class="bar-meta"><span><strong>Task 5</strong> · PCF CORS · both roles</span><span class="vok">100% · norm 1.000</span></div>
+            <div class="bar-track"><div class="bar-fill bar-full" style="width:100%"></div></div>
+        </div>
+    </div>
+    <ul style="margin-top:22px; max-width:720px;">
+        <li><strong>Tasks 1–4 saturate accuracy</strong> — expert and beginner both score 100%; the framing makes no measurable difference on easy tasks</li>
+        <li><strong>Task 5 (PCF CORS):</strong> <code>AllowAllOrigins + AllowCredentials</code> is a well-known anti-pattern — recognized by both roles on 65 lines of code with no difficulty</li>
+    </ul>
+</section>
+
+<!-- 08 RESULTS TASK 6 -->
+<section hidden>
+    <h3>Results — Task 6 (UDR)</h3>
+    <h2 style="margin-bottom:16px;">A Model Size Threshold</h2>
+    <div class="callout danger">2B parameter model: 0/12 correct — systematic failure across all repetitions and roles</div>
+    <div class="cards" style="max-width:860px;">
+        <div class="card wrong">
+            <div class="card-tag">Small model (2B) — both roles</div>
+            <div class="card-title">0% Accuracy</div>
+            <div class="card-row"><strong>missing_return_score:</strong> 0/4 in every single run</div>
+            <div class="card-row">The primary CVE (6 separate GHSA advisories) never found</div>
+            <div class="card-row">Responses discuss generic Go issues — miss the Gin-specific pattern</div>
+        </div>
+        <div class="card correct">
+            <div class="card-tag">Larger model (4B) — both roles</div>
+            <div class="card-title">100% Accuracy</div>
+            <div class="card-row"><strong>missing_return_score:</strong> 4/4 in all repetitions</div>
+            <div class="card-row">Correctly identifies <code>c.String(404)</code> without <code>return</code></div>
+            <div class="card-row">Explains Gin execution continues after writing the response</div>
+        </div>
+    </div>
+    <ul style="margin-top:18px; max-width:860px;">
+        <li><strong>Why is this hard?</strong> Requires knowing Go semantics + Gin middleware behavior + 3GPP SBI flow simultaneously — a pattern rarely documented in generic security training data</li>
+        <li><strong>Scaling threshold:</strong> 1.5B → 2B fails; 4B resolves it — a clear capability boundary for this type of multi-layer reasoning</li>
+    </ul>
+</section>
+
+<!-- 09 RESULTS TASK 7 — ANOMALY -->
+<section hidden>
+    <h3>Results — Task 7 (AMF)</h3>
+    <h2 style="margin-bottom:20px;">An Unexpected Reversal</h2>
+    <div class="anomaly-box">
+        <div class="anomaly-side left">
+            <div class="anomaly-label">Expert — same model</div>
+            <div class="anomaly-value">66.7%</div>
+            <div class="anomaly-detail">
+                <strong>Rep 3:</strong> 3 retries → all wrong<br>
+                <code>missing_default_score: 0/4</code> every attempt<br>
+                Confidence stays at 1.0 throughout — overconfident on a wrong answer<br>
+                Brier score: 0.33 (penalized for miscalibration)
+            </div>
+        </div>
+        <div class="anomaly-side right">
+            <div class="anomaly-label">Beginner — same model</div>
+            <div class="anomaly-value">100%</div>
+            <div class="anomaly-detail">
+                <strong>All 3 reps:</strong> correct on first attempt<br>
+                <code>missing_default_score: 4/4</code> in 2/3 reps<br>
+                Finds: <em>"The switch statement lacks a robust default case — if an unknown content type is provided, the switch falls through, err remains nil"</em><br>
+                More structured, bullet-point response
+            </div>
+        </div>
+    </div>
+    <p class="tagline" style="margin-top:18px;">Not a context window issue — the prompt difference is 8 tokens. Hypothesis: "senior expert" framing induces verbose analysis of obvious bugs, preventing systematic switch-statement scanning.</p>
+</section>
+
+<!-- 10 RESULTS TASKS 8-9 -->
+<section hidden>
+    <h3>Results — Tasks 8 and 9</h3>
+    <h2 style="margin-bottom:16px;">CVE Found — Rubric Partially Covered</h2>
+    <div class="cards" style="max-width:1000px;">
+        <div class="card correct">
+            <div class="card-tag">Task 8 · UDM · Missing SUPI Validation</div>
+            <div class="card-title">100% Accuracy</div>
+            <div class="card-row">Both roles find <code>IsValidSupi()</code> absent in 6 handlers</div>
+            <div class="card-row"><strong>norm 0.778</strong> — rubric criterion <em>spec_reference_score</em> always 0</div>
+            <div class="card-row">Neither role ever cites the 3GPP specification explicitly</div>
+            <div class="card-row"><em>Open question: should we expect a code reviewer to cite the spec?</em></div>
+        </div>
+        <div class="card correct">
+            <div class="card-tag">Task 9 · Cross-NF · Multi-file</div>
+            <div class="card-title">100% Accuracy</div>
+            <div class="card-row">Finds inconsistency across UDM + UDR functions</div>
+            <div class="card-row"><strong>norm 1.000</strong> — full rubric coverage</div>
+            <div class="card-row">Zero retries, zero semantic inconsistencies across 6 runs</div>
+            <div class="card-row">The cross-file reasoning is stable and precise</div>
+        </div>
+    </div>
+    <p style="font-size:13px; color:var(--muted); margin-top:18px; max-width:860px; text-align:center;">Task 8 norm 0.778 may reflect a rubric design question rather than model failure — pending validation by 5G domain experts.</p>
+</section>
+
+<!-- 11 OPEN PROBLEMS -->
+<section hidden class="left-align">
+    <h3>Open Problems</h3>
+    <h2>What Remains Uncertain</h2>
+    <ul>
+        <li><strong>Is the task 7 reversal about framing or capability?</strong> Follow-up experiments planned: neutral prompt, expert with constrained style, asymmetric model setups — do any close the gap?</li>
+        <li><strong>False positive rate not measured:</strong> models may report vulnerabilities that do not exist — no negative-control task (clean code) exists yet</li>
+        <li><strong>Rubric contamination risk:</strong> the rubric was generated with knowledge of the CVEs — potentially circular. Domain experts need to validate whether the rubric is fair</li>
+        <li><strong>Full-file performance:</strong> the 2891-line UDR file times out — is this a capacity limit or a latency problem on local hardware? Open with larger models</li>
+        <li><strong>Scaling curve incomplete:</strong> 2B → 4B threshold confirmed; the next point (7B, 14B, or larger cloud model) is not yet measured</li>
+    </ul>
+</section>
+
+<!-- 12 NEXT STEPS -->
+<section hidden class="left-align">
+    <h3>Next Steps</h3>
+    <h2>What We Are Doing About It</h2>
+    <ul>
+        <li><strong>Domain expert validation:</strong> sending task 5, 7, 8 results to the 5G engineers who found these CVEs manually — they validate whether the reasoning is plausible and whether the rubric criteria are fair</li>
+        <li><strong>Framing experiments (local):</strong> neutral prompt, expert with concise style, beginner with injected technical hint — isolating what exactly the framing changes on task 7</li>
+        <li><strong>Larger models via cloud API:</strong> extending the scaling curve beyond 4B — does the expert/beginner reversal disappear with more capable models?</li>
+        <li><strong>Negative control task:</strong> clean Go code without known CVEs — measuring false positive rate for each model and framing</li>
+        <li><strong>Retry with judge feedback:</strong> currently retries are blind (model knows it was wrong but not why) — reinject the judge's scoring breakdown to measure if targeted feedback helps</li>
+    </ul>
+</section>
+
+<!-- 13 CLOSE (final, shown once results are ready) -->
+<section hidden id="slide-close">
+    <h2>2B fails task 6. 4B solves it.<br>Beginner beats Expert on task 7.</h2>
+    <div class="close-line">
+        Model size sets a capability threshold for framework-specific vulnerability patterns.<br>
+        Role framing changes performance — but not always in the expected direction.<br>
+        The next questions are about scale, false positives, and what the framing actually does.
+    </div>
+    <span class="close-accent">The systematic failure is a result. The reversal is a hypothesis.</span>
+</section>
+
+<!-- TEMPORARY CLOSE — remove once results slides are unhidden -->
+<section id="slide-close-temp" style="text-align:center; background: radial-gradient(ellipse at 50% 50%, rgba(122,80,24,0.04) 0%, transparent 60%);">
+    <h3>Status</h3>
+    <h2>Experiments In Progress</h2>
+    <div class="close-line">
+        Framework running. Full result set pending.<br>
+        Results will be presented once all experiment runs are complete.
+    </div>
+    <span class="close-accent">Questions? What would you expect the models to find?</span>
+</section>
+
+</div>
+
+<div class="counter"><span id="cur">1</span> / <span id="tot">13</span></div>
+<div class="progress-bar" id="progress"></div>
+<div class="hint" id="hint">← → · space · ESC</div>
+
+<script>
+    const slides = document.querySelectorAll('section:not([hidden])');
+    const total = slides.length;
+    let cur = 0, hintTimer;
+    document.getElementById('tot').textContent = total;
+
+    function show(n) {
+        slides[cur].classList.remove('active');
+        cur = (n + total) % total;
+        slides[cur].classList.add('active');
+        document.getElementById('cur').textContent = cur + 1;
+        document.getElementById('progress').style.width = ((cur+1)/total*100)+'%';
+        updateSidebar();
+    }
+    function flashHint() {
+        const h = document.getElementById('hint');
+        h.classList.add('visible');
+        clearTimeout(hintTimer);
+        hintTimer = setTimeout(() => h.classList.remove('visible'), 2500);
+    }
+    document.addEventListener('keydown', e => {
+        if (['ArrowRight','ArrowDown',' '].includes(e.key)) { e.preventDefault(); show(cur+1); flashHint(); }
+        else if (['ArrowLeft','ArrowUp'].includes(e.key)) { e.preventDefault(); show(cur-1); flashHint(); }
+        else if (e.key === 'Escape') toggleSidebar();
+    });
+    document.addEventListener('mousemove', flashHint);
+    let tx = 0;
+    document.addEventListener('touchstart', e => tx = e.touches[0].clientX, {passive:true});
+    document.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - tx;
+        if (Math.abs(dx) > 45) { show(dx < 0 ? cur+1 : cur-1); flashHint(); }
+    }, {passive:true});
+
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const sc = document.getElementById('sidebar-content');
+
+    slides.forEach((slide, i) => {
+        const title = slide.querySelector('h1,h2')?.textContent?.trim() || `Slide ${i+1}`;
+        const item = document.createElement('div');
+        item.className = 'sidebar-item' + (i===0?' active':'');
+        item.innerHTML = `<span class="sidebar-num">${String(i+1).padStart(2,'0')}</span>${title.slice(0,42)}`;
+        item.addEventListener('click', () => { show(i); toggleSidebar(); });
+        sc.appendChild(item);
+    });
+
+    function toggleSidebar() {
+        const open = sidebar.classList.toggle('open');
+        overlay.classList.toggle('visible', open);
+    }
+    document.getElementById('hamburger').addEventListener('click', toggleSidebar);
+    overlay.addEventListener('click', toggleSidebar);
+
+    function updateSidebar() {
+        document.querySelectorAll('.sidebar-item').forEach((el,i) => el.classList.toggle('active', i===cur));
+    }
+    document.getElementById('progress').style.width = (1/total*100)+'%';
+    flashHint();
+</script>
+</body>
+</html>

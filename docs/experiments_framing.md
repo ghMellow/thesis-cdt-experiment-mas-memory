@@ -1,5 +1,41 @@
 # Framing Experiment Plan — Expert vs Beginner Anomaly
 
+---
+
+## Protocollo di esecuzione (leggi prima di tutto)
+
+Questo file è una **coda di esperimenti**. Ogni sessione con un LLM segue questo protocollo:
+
+1. **Leggi questo file dall'inizio.**
+2. **Trova il primo esperimento con `[ ] pending`** — quello è il prossimo da eseguire.
+3. **Segui le istruzioni dell'esperimento:** branch suggerito, modifiche a `config.py` o `agents/prompts.py`, comando CLI.
+4. **Esegui e attendi il completamento.**
+5. **Aggiorna il campo `Risultato:`** con i dati chiave (accuracy per ruolo, norm score, note anomalie).
+6. **Marca l'esperimento come completato:** cambia `[ ] pending` in `[x] done`.
+7. **Salva il file.** La prossima sessione ripartirà dall'esperimento successivo ancora `[ ] pending`.
+
+### Struttura di ogni esperimento
+
+Ogni esperimento ha questi campi:
+
+- **Setup:** cosa cambia rispetto alla baseline 1A
+- **Predizione:** cosa ci si aspetta e perché
+- **Modello / config.py:** parametri da impostare
+- **Task:** quali task eseguire (primari o completo)
+- **Branch suggerito:** branch git da usare per questa fase
+- **Esperimento id:** cartella in `results/` dove salvare i file
+- **CLI:** comando esatto da eseguire
+- **Status:** `[ ] pending` → `[x] done`
+- **Risultato:** da compilare dopo l'esecuzione
+
+### Cosa fare prima di ogni esperimento
+
+1. Controlla di essere sul branch giusto (`git branch`).
+2. Verifica che `config.py` abbia i valori corretti per l'esperimento.
+3. Verifica che non esistano già file in `results/<experiment_id>/` da run precedenti con config diversa — se sì, eliminarli prima di rieseguire.
+
+---
+
 **Motivazione:** su task7_vuln_amf con gemma4:e4b (4B), beginner batte expert (3/3 vs 2/3).
 L'ipotesi del context window è stata falsificata (differenza 21 chars / ~8 token).
 La causa più probabile: il framing "senior expert" induce analisi verbose sui bug facilmente visibili,
@@ -38,29 +74,50 @@ python main.py --task task6_vuln_udr task7_vuln_amf task8_vuln_udm task9_vuln_cr
 ## Ipotesi A — Framing (il system prompt cambia il comportamento, non il modello)
 
 ### A1 — Prompt neutro
-**Setup:** rimuovere completamente il system prompt (nessun ruolo).
+**Setup:** rimuovere completamente il system prompt (nessun ruolo). In `agents/prompts.py`, impostare `SYSTEM_PROMPTS["expert"] = ""` e `SYSTEM_PROMPTS["beginner"] = ""`.
 **Predizione:** se neutro ≥ expert → il framing "senior engineer" è attivamente dannoso su modelli piccoli.
-**Modello:** gemma4:e4b (locale, use_hosted=False)
+**Modello:** gemma4:e4b (locale, `use_hosted=False` in `config.py`)
 **Task:** primari (task6/7/8/9 excerpt) — se A1 mostra effetto rilevante, estendere ai full
-**Esperimento id:** `framing_A1` (--experiment 1A --role all)
+**Branch suggerito:** `exp/framing-prompts` (crea da main se non esiste)
+**Esperimento id:** `framing_A1`
+**CLI:**
+
+```bash
+python main.py --experiment framing_A1 --role all --task task6_vuln_udr task7_vuln_amf task8_vuln_udm task9_vuln_cross --repetitions 3
+```
+
 **Status:** `[ ] pending`
 **Risultato:** —
 
 ### A2 — Expert con vincolo di stile
-**Setup:** aggiungere al system prompt expert: *"List each finding as a single bullet point. One sentence per finding. No elaboration."*
+**Setup:** aggiungere in coda al system prompt expert in `agents/prompts.py`: *"List each finding as a single bullet point. One sentence per finding. No elaboration."* Il resto del prompt expert rimane invariato.
 **Predizione:** se questo recupera l'accuracy → il problema è la verbosità indotta dal framing, non la conoscenza tecnica.
-**Modello:** gemma4:e4b (locale, use_hosted=False)
+**Modello:** gemma4:e4b (locale, `use_hosted=False`)
 **Task:** primari (task6/7/8/9 excerpt)
-**Esperimento id:** `framing_A2` (--experiment 1A --role expert)
+**Branch suggerito:** `exp/framing-prompts` (stesso di A1)
+**Esperimento id:** `framing_A2`
+**CLI:**
+
+```bash
+python main.py --experiment framing_A2 --role expert --task task6_vuln_udr task7_vuln_amf task8_vuln_udm task9_vuln_cross --repetitions 3
+```
+
 **Status:** `[ ] pending`
 **Risultato:** —
 
 ### A3 — Beginner + expert knowledge injected
-**Setup:** aggiungere al system prompt beginner una frase tecnica aggiuntiva, es. *"When reviewing code, scan switch statements and check for missing default cases."*
+**Setup:** aggiungere in coda al system prompt beginner in `agents/prompts.py`: *"When reviewing code, scan switch statements and check for missing default cases."* Il resto del prompt beginner rimane invariato.
 **Predizione:** se il beginner mantiene 3/3 → il framing non aggiunge nulla su modelli piccoli; se scende → la semplicità del framing era intenzionalmente utile.
-**Modello:** gemma4:e4b (locale, use_hosted=False)
+**Modello:** gemma4:e4b (locale, `use_hosted=False`)
 **Task:** primari (task6/7/8/9 excerpt)
-**Esperimento id:** `framing_A3` (--experiment 1A --role beginner)
+**Branch suggerito:** `exp/framing-prompts` (stesso di A1/A2)
+**Esperimento id:** `framing_A3`
+**CLI:**
+
+```bash
+python main.py --experiment framing_A3 --role beginner --task task6_vuln_udr task7_vuln_amf task8_vuln_udm task9_vuln_cross --repetitions 3
+```
+
 **Status:** `[ ] pending`
 **Risultato:** —
 
@@ -70,31 +127,51 @@ python main.py --task task6_vuln_udr task7_vuln_amf task8_vuln_udm task9_vuln_cr
 
 ### B1 — Scaling su ruolo expert
 
-**Setup:** eseguire solo expert con modelli crescenti: e2b → e4b (già eseguito in 1A) → cloud.
+**Setup:** eseguire solo role=expert con modelli crescenti. e4b è già eseguito in 1A (baseline). Eseguire e2b e poi cloud.
+
+- B1_e2b: in `config.py` impostare `expert_1A local = gemma4:e2b`, `use_hosted=False`
+- B1_cloud: in `config.py` impostare `use_hosted=True` per expert_1A e scegliere il modello cloud disponibile
+
 **Predizione:** se il paradosso sparisce con modelli più grandi → la capacità compensa il framing.
-**Modello:** gemma4:e2b poi gemma4:e4b poi [cloud TBD]
-**Task:** primari (task6/7/8/9 excerpt) — solo role=expert
-**Esperimento id:** `framing_B1_e2b`, `framing_B1_cloud`
+**Branch suggerito:** `exp/framing-models`
+**Esperimento id:** `framing_B1_e2b` (poi `framing_B1_cloud`)
+**CLI:**
+
+```bash
+python main.py --experiment framing_B1_e2b --role expert --task task6_vuln_udr task7_vuln_amf task8_vuln_udm task9_vuln_cross --repetitions 3
+```
+
 **Status:** `[ ] pending` (B1_cloud dipende da accesso modelli cloud)
 **Risultato:** —
 
 ### B2 — Setup asimmetrico (1B): expert=grande, beginner=piccolo
 
-**Setup:** expert su modello cloud grande, beginner su gemma3:4b-cloud.
+**Setup:** expert su modello cloud grande, beginner su gemma3:4b-cloud. Prerequisito: accesso a modelli cloud.
+**config.py:** `expert_1B hosted=gemma4:31b-cloud` · `beginner_1B hosted=gemma3:4b-cloud` · `use_hosted=True`
 **Predizione:** se expert batte beginner → era capacità. Se ancora non batte → è framing.
-**config.py:** expert_1B hosted=gemma4:31b-cloud · beginner_1B hosted=gemma3:4b-cloud · use_hosted=True
-**Task:** completo (task6/7/8/9 excerpt + full)
-**Esperimento id:** `1B` (setup standard, già configurato in config.py)
-**Status:** `[ ] pending`
+**Branch suggerito:** `exp/framing-models` (stesso di B1)
+**Esperimento id:** `framing_B2`
+**CLI:**
+
+```bash
+python main.py --experiment framing_B2 --role all --task task6_vuln_udr task6_vuln_udr_full task7_vuln_amf task7_vuln_amf_full task8_vuln_udm task8_vuln_udm_full task9_vuln_cross --repetitions 3
+```
+
+**Status:** `[ ] pending` (dipende da accesso modelli cloud)
 **Risultato:** —
 
 ### B3 — Setup asimmetrico inverso: expert=e4b, beginner=e2b
 
-**Setup:** expert su e4b, beginner su e2b (modello più piccolo).
+**Setup:** expert su e4b, beginner su e2b. In `config.py`: `expert_1A local=gemma4:e4b` · `beginner_1A local=gemma4:e2b` · `use_hosted=False`.
 **Predizione:** se expert batte beginner → su modelli molto piccoli il framing esperto aiuta.
-**config.py:** expert_1A local=gemma4:e4b · beginner_1A local=gemma4:e2b · use_hosted=False
-**Task:** primari (task6/7/8/9 excerpt)
-**Esperimento id:** `framing_B3` (--experiment 1A --role all)
+**Branch suggerito:** `exp/framing-models` (stesso di B1/B2)
+**Esperimento id:** `framing_B3`
+**CLI:**
+
+```bash
+python main.py --experiment framing_B3 --role all --task task6_vuln_udr task7_vuln_amf task8_vuln_udm task9_vuln_cross --repetitions 3
+```
+
 **Status:** `[ ] pending`
 **Risultato:** —
 
@@ -137,9 +214,33 @@ python main.py --task task6_vuln_udr task7_vuln_amf task8_vuln_udm task9_vuln_cr
 
 ---
 
+## Ipotesi C — Temperatura (fase separata, dopo A e B)
+
+Gli esperimenti A e B usano temperatura fissa 0.3 per isolare la variabile framing. Solo quando A e B sono completati ha senso variare la temperatura — altrimenti si hanno due variabili cambiate contemporaneamente e il risultato non è interpretabile.
+
+### C1 — Temperature sweep su task7/8
+
+**Prerequisito:** A1–A3 e B3 completati. Almeno una conclusione chiara su framing vs capacità.
+
+**Setup:** eseguire task7_vuln_amf e task8_vuln_udm con T ∈ {0.1, 0.3, default_model, 0.7} — stesso modello (gemma4:e4b), stesso prompt (1A standard).
+
+**Predizione:**
+
+- Se accuracy aumenta con T più alta → T=0.3 era troppo deterministica e forzava convergenza sullo stesso errore (F5 generalizzato oltre il retry).
+- Se accuracy è flat → il problema è la capacità o il framing, non la temperatura.
+
+**Cosa misurare:** accuracy per temperatura + varianza tra le 3 ripetizioni (con T alta ci si aspetta più varianza).
+
+**Esperimento id:** `temp_C1_T01`, `temp_C1_T03`, `temp_C1_Tdef`, `temp_C1_T07`
+
+**Status:** `[ ] pending` — dopo completamento A e B
+
+---
+
 ## Note metodologiche
 
-- Tutti gli esperimenti usano 3 ripetizioni per consistenza con le run esistenti.
-- Temperature fissa a 0.3 (stesso valore delle run 1A) per isolare la variabile framing.
+- Tutti gli esperimenti A e B usano 3 ripetizioni per consistenza con le run esistenti.
+- **Temperatura fissa a 0.3** per tutti gli esperimenti A e B — isola la variabile framing. Non cambiare la temperatura in questa fase.
+- Il temperature sweep (C1) è una fase separata, da eseguire solo dopo aver concluso A e B.
 - I risultati vanno salvati in `results/` con experiment_id dedicato (es. `framing_A1`, `framing_A2`) per non mescolarli con 1A/1B.
 - Il template risposta ora è `Reasoning → Answer → Confidence` dopo il fix §6.5 — da usare in tutti i nuovi esperimenti.
