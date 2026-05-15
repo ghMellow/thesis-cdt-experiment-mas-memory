@@ -3,45 +3,54 @@ import os
 # Model mapping for each experiment role, judge, and semantic consistency checks.
 # Each entry: local = model name for local Ollama, hosted = model name on ollama.com,
 # use_hosted = True to route through the hosted API instead of localhost.
+#
+# Local models available: gemma4:e4b (9.6 GB), gemma4:e2b (7.2 GB),
+#                         deepseek-r1:7b (4.7 GB), deepseek-r1:latest (5.2 GB)
+#
+# ── Framing experiment quick-reference (docs/experiments_framing.md) ──────────
+# Change MODELS to match the desired setup before each run.
+#
+# Experiment  | expert_1A          | beginner_1A        | expert_1B           | beginner_1B        | use_hosted
+# ----------- | ------------------ | ------------------ | ------------------- | ------------------ | ----------
+# 1A baseline | gemma4:e4b (local) | gemma4:e4b (local) | —                   | —                  | False
+# 1A hosted   | gemma3:12b-cloud   | gemma3:12b-cloud   | —                   | —                  | True
+# B1 scaling  | gemma4:e2b (local) | —                  | —                   | —                  | False  (then repeat with e4b)
+# B2 asym.    | —                  | —                  | gemma4:31b-cloud    | gemma3:4b-cloud    | True
+# B3 inv.asym | gemma4:e4b (local) | gemma4:e2b (local) | —                   | —                  | False
+#
+# judge:          local=gemma4:e4b  hosted=nemotron-3-super:cloud  (medium usage)
+# semantic_check: local=gemma4:e2b  hosted=gemma3:4b-cloud          (low usage)
+# ─────────────────────────────────────────────────────────────────────────────
 MODELS = {
     "expert_1A": {
-        "local": "gemma4:e2b",
-        "hosted": "gemma3:4b-cloud", #"ministral-3:3b-cloud",
+        "local": "gemma4:e4b",
+        "hosted": "gemma3:12b-cloud",
         "use_hosted": True
     },
     "beginner_1A": {
-        "local": "gemma4:e2b",
-        "hosted": "gemma4:e2b",
-        "use_hosted": False
+        "local": "gemma4:e4b",
+        "hosted": "gemma3:12b-cloud",
+        "use_hosted": True
     },
     "expert_1B": {
-        "local": "deepseek-r1:latest",          
-        "hosted": "gemma4:e2b",          
-        "use_hosted": False
+        "local": "gemma4:e4b",
+        "hosted": "gemma4:31b-cloud",
+        "use_hosted": True
     },
     "beginner_1B": {
-        "local": "gemma4:e2b",          
-        "hosted": "gemma4:e2b",  
-        "use_hosted": False
-     },
+        "local": "gemma4:e4b",
+        "hosted": "gemma3:4b-cloud",
+        "use_hosted": True
+    },
     "judge": {
-        "local": "gemma4:e2b",          
-        "hosted": "gemma4:e2b",          
-        "use_hosted": False
+        "local": "gemma4:e4b",
+        "hosted": "nemotron-3-super:cloud",
+        "use_hosted": True
     },
     "semantic_check": {
-        "local": "gemma4:e2b",        
-        "hosted": "gemma4:e2b",          
-        "use_hosted": False
-    },
-}
-
-# Per-task model overrides: {role_experiment_key: {substring: local_model_name}}.
-# Overrides only the local model name; use_hosted is inherited from the role config.
-# First matching entry wins (dict insertion order, Python 3.7+).
-TASK_MODEL_OVERRIDES: dict = {
-    "beginner_1B": {
-        "vuln": "deepseek-r1:latest",
+        "local": "gemma4:e2b",
+        "hosted": "gemma3:4b-cloud",
+        "use_hosted": True
     },
 }
 

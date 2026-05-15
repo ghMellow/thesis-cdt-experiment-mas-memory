@@ -19,12 +19,16 @@ Sistema operativo. 12 task disponibili, framework LangGraph con retry/judge/toke
 
 ### Modelli (`config.py`)
 
-| Chiave | Modello | Override task vuln |
-| --- | --- | --- |
-| `expert_1A`, `beginner_1A` | gemma4:e2b | — |
-| `expert_1B` | gemma4:e2b | — |
-| `beginner_1B` | deepseek-r1:latest | → qwen2.5-coder:1.5b-base |
-| `judge` | gemma4:e4b | — |
+| Chiave | Local | Hosted | use_hosted |
+| --- | --- | --- | --- |
+| `expert_1A` | gemma4:e4b | gemma3:12b-cloud | True |
+| `beginner_1A` | gemma4:e4b | gemma3:12b-cloud | True |
+| `expert_1B` | gemma4:e4b | gemma4:31b-cloud | True |
+| `beginner_1B` | gemma4:e4b | gemma3:4b-cloud | True |
+| `judge` | gemma4:e4b | nemotron-3-super:cloud | True |
+| `semantic_check` | gemma4:e2b | gemma3:4b-cloud | True |
+
+Vedi header di `config.py` per la quick-reference dei setup framing (A1/A2/B1/B2/B3).
 
 ### Task disponibili
 
@@ -48,7 +52,6 @@ Sistema operativo. 12 task disponibili, framework LangGraph con retry/judge/toke
 - [x] Semantic consistency check a due fasi (string equality → LLM)
 - [x] Token tracking agent + judge per ripetizione
 - [x] Context window logging all'avvio via Ollama `/api/show`
-- [x] Override modello per-task (`TASK_MODEL_OVERRIDES` in `config.py`)
 - [x] Task security review task5–task9 (CVE reali free5GC)
 - [x] Retry neutro con risposta precedente (senza feedback judge)
 - [x] Output Markdown per agent/judge (template Answer/Reasoning/Confidence + parsing)

@@ -226,6 +226,8 @@ def _run_agent(state: ExperimentState) -> ExperimentState:
     agent_response["elapsed_seconds"] = round(time.perf_counter() - t0, 2)
     agent_response["tokens_in"] = in_tok
     agent_response["tokens_out"] = out_tok
+    agent_response["prompt_system"] = system_prompt
+    agent_response["prompt_user"] = task_content
 
     attempts = state.get("attempts", 0) + 1
     history = state.get("history", [])
@@ -249,12 +251,11 @@ def _check_answer(state: ExperimentState) -> ExperimentState:
             agent_answer=state["final_answer"],
             ground_truth=state["ground_truth"],
         )
-        state.update(
-            {
-                "verdict": verdict,
-                "judge_score": {"verdict": verdict, "delta": delta, "note": note},
-            }
-        )
+        math_judge_score = {"verdict": verdict, "delta": delta, "note": note}
+        if state.get("history"):
+            state["history"][-1]["judge_score"] = math_judge_score
+            state["history"][-1]["verdict"] = verdict
+        state.update({"verdict": verdict, "judge_score": math_judge_score})
         return state
 
     rubric = state.get("rubric", {})
@@ -293,7 +294,7 @@ def _check_answer(state: ExperimentState) -> ExperimentState:
     judge_score["normalized_score"] = normalized
 
     verdict = "correct" if total_max and normalized >= TEXTUAL_PASS_RATIO else "wrong"
-    
+
     # Print rubric breakdown and verdict to stdout
     logger.info("=== Judge Evaluation ===")
     for field, score in judge_score.items():
@@ -301,7 +302,11 @@ def _check_answer(state: ExperimentState) -> ExperimentState:
             logger.info("  %s: %s", field, score)
     logger.info("  total_score: %.1f / %d (normalized: %.1f)", total_score, total_max, normalized)
     logger.info("  threshold: %.1f | verdict: %s", TEXTUAL_PASS_RATIO, verdict)
-    
+
+    if state.get("history"):
+        state["history"][-1]["judge_score"] = judge_score
+        state["history"][-1]["verdict"] = verdict
+
     state.update({"verdict": verdict, "judge_score": judge_score})
     return state
 
@@ -310,17 +315,10 @@ def _save_result(state: ExperimentState) -> ExperimentState:
     finished_at = datetime.now(timezone.utc).isoformat()
     start_perf = state.get("start_perf")
     elapsed_seconds = time.perf_counter() - start_perf if start_perf is not None else None
-    payload = {
-        # --- run config ---
-        "task_id": state["task_id"],
-        "task_type": state["task_type"],
-        "experiment_id": state["experiment_id"],
-        "agent_role": state["agent_role"],
-        "model": state["model"],
-        "is_hosted": state.get("is_hosted", False),
+
+    rep_payload = {
+        # --- repetition index ---
         "repetition": state["repetition"],
-        "task_path": state["task_path"],
-        "sol_path": state["sol_path"],
         # --- timing ---
         "started_at": state.get("started_at"),
         "finished_at": finished_at,
@@ -328,7 +326,8 @@ def _save_result(state: ExperimentState) -> ExperimentState:
         # --- agent ---
         "attempts": state["attempts"],
         "history": state["history"],
-        "final_answer": state["final_answer"],
+        # final_answer: clean 3-field view of history[-1] for quick access without full history traversal
+        "final_answer": {k: state["final_answer"][k] for k in ("answer", "reasoning", "confidence") if k in state["final_answer"]},
         # --- judge ---
         "verdict": state["verdict"],
         "judge_score": state.get("judge_score", {}),
@@ -340,6 +339,7 @@ def _save_result(state: ExperimentState) -> ExperimentState:
             "judge_out": state.get("judge_tokens_out") or None,
         },
     }
+
     out_dir = (
         Path(config.RESULTS_PATH)
         / state["task_id"]
@@ -347,10 +347,37 @@ def _save_result(state: ExperimentState) -> ExperimentState:
         / state["agent_role"]
     )
     out_dir.mkdir(parents=True, exist_ok=True)
-    prefix = f"rep{state['repetition']}_{_model_slug(state['model'], state.get('is_hosted', False))}"
-    (out_dir / f"{prefix}.json").write_text(json.dumps(payload, indent=2, ensure_ascii=True))
-    solution_payload = {"task_id": state["task_id"], "ground_truth": state["ground_truth"]}
-    (out_dir / f"{prefix}_solution.json").write_text(json.dumps(solution_payload, indent=2, ensure_ascii=True))
+    slug = _model_slug(state["model"], state.get("is_hosted", False))
+    result_file = out_dir / f"{slug}.json"
+
+    if result_file.exists():
+        try:
+            existing = json.loads(result_file.read_text(encoding="utf-8"))
+        except Exception:
+            existing = None
+    else:
+        existing = None
+
+    if existing and "repetitions" in existing:
+        existing["repetitions"].append(rep_payload)
+        payload = existing
+    else:
+        payload = {
+            # --- run config (common across all repetitions) ---
+            "task_id": state["task_id"],
+            "task_type": state["task_type"],
+            "experiment_id": state["experiment_id"],
+            "agent_role": state["agent_role"],
+            "model": state["model"],
+            "judge_model": resolve_model_config("judge")[0],
+            "temperature": TEMPERATURE,
+            "is_hosted": state.get("is_hosted", False),
+            "task_path": state["task_path"],
+            "sol_path": state["sol_path"],
+            "repetitions": [rep_payload],
+        }
+
+    result_file.write_text(json.dumps(payload, indent=2, ensure_ascii=True))
     return state
 
 

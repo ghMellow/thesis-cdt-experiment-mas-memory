@@ -3,7 +3,7 @@
 import json
 import re
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 
 def _slugify(value: str) -> str:
@@ -72,9 +72,15 @@ def _result_exists(results_path: str, experiment_id: str, role: str, task_id: st
         / task_id
         / experiment_id
         / role
-        / f"rep{repetition}_{_model_slug(model, is_hosted)}.json"
+        / f"{_model_slug(model, is_hosted)}.json"
     )
-    return result_path.exists()
+    if not result_path.exists():
+        return False
+    try:
+        data = json.loads(result_path.read_text(encoding="utf-8"))
+        return any(r.get("repetition") == repetition for r in data.get("repetitions", []))
+    except Exception:
+        return False
 
 
 def _answers_equal(a: Dict[str, Any], b: Dict[str, Any]) -> bool:

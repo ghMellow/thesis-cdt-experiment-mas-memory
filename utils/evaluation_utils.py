@@ -34,13 +34,21 @@ def _collect_results(results_path: str) -> Dict[str, Dict[str, List[Dict[str, An
             data.setdefault(experiment_id, {})
             for role_dir in sorted(p for p in experiment_dir.iterdir() if p.is_dir()):
                 role = role_dir.name
-                result_files = sorted(
-                    f for f in role_dir.glob("*.json") if not f.name.endswith("_solution.json")
-                )
+                result_files = sorted(role_dir.glob("*.json"))
                 data[experiment_id].setdefault(role, [])
-                data[experiment_id][role].extend(
-                    json.loads(f.read_text(encoding="utf-8")) for f in result_files
-                )
+                for f in result_files:
+                    try:
+                        file_data = json.loads(f.read_text(encoding="utf-8"))
+                    except Exception:
+                        continue
+                    if "repetitions" in file_data:
+                        # New format: single file with run_config + repetitions array
+                        run_config = {k: v for k, v in file_data.items() if k != "repetitions"}
+                        for rep in file_data["repetitions"]:
+                            data[experiment_id][role].append({**run_config, **rep})
+                    else:
+                        # Old format: one file per repetition
+                        data[experiment_id][role].append(file_data)
     return data
 
 
@@ -338,7 +346,13 @@ def _build_experiment_report(
                     f"{p.get('attempts')} | {_fmt(float(conf), 3) if isinstance(conf, (int, float)) else 'n/a'} "
                     f"| {score_info} |"
                 )
-            anomalies_section.append("")
+            anomalies_section += [
+                "",
+                "_`rep` = repetition index. `attempts` = total LLM calls (all failed). "
+                "`confidence` = agent self-reported confidence on the final answer. "
+                "`score/delta` = normalized rubric score (textual) or |answer − ground_truth| (math)._",
+                "",
+            ]
 
         if retried_list:
             anomalies_section += [f"### Retries triggered ({len(retried_list)})", ""]
@@ -351,7 +365,13 @@ def _build_experiment_report(
                     f"| {p['_role']} | {p.get('task_id')} | {p.get('repetition')} | "
                     f"{p.get('attempts')} | {p.get('verdict')} |"
                 )
-            anomalies_section.append("")
+            anomalies_section += [
+                "",
+                "_Each row is one repetition. `rep` = repetition index (1-based). "
+                "`attempts` = LLM calls within that repetition (2 means wrong on attempt 1, correct on attempt 2). "
+                "`final_verdict` = outcome after all attempts._",
+                "",
+            ]
 
         if inconsistencies:
             anomalies_section += [f"### Truly inconsistent reasoning ({len(inconsistencies)})", ""]
@@ -390,22 +410,17 @@ def _write_evaluation_reports(results_path: str, task_filter: Optional[List[str]
             n_results,
             ", ".join(sorted(roles)) or "none",
         )
-        
-        # Generate aggregated report
-        report = _build_experiment_report(experiment_id, roles, task_filter=task_filter)
-        (eval_dir / f"scores_{experiment_id}.md").write_text(report, encoding="utf-8")
-        logger.info("Written scores_%s.md", experiment_id)
-        
-        # Generate per-task reports
+
         all_payloads = [p for payloads in roles.values() for p in payloads]
         if task_filter is not None:
             all_payloads = [p for p in all_payloads if p.get("task_id") in task_filter]
-        
+
         task_ids = sorted(set(p.get("task_id") for p in all_payloads if p.get("task_id")))
         for task_id in task_ids:
             task_report = _build_experiment_report(experiment_id, roles, task_filter=task_filter, per_task_id=task_id)
-            (eval_dir / f"scores_{experiment_id}_{task_id}.md").write_text(task_report, encoding="utf-8")
-            logger.info("Written scores_%s_%s.md", experiment_id, task_id)
+            filename = f"result_{task_id}_{experiment_id}.md"
+            (eval_dir / filename).write_text(task_report, encoding="utf-8")
+            logger.info("Written %s", filename)
 
     # Comparison report
     lines = [

@@ -42,6 +42,10 @@ La presentazione copriva in ordine: overview → setup → ruoli → architettur
 
 **Da verificare — riferimento in letteratura:** Un relatore ha chiesto esplicitamente se l'approccio "rubrica con punteggi per categoria usata come prompt del judge" sia descritto in qualche paper. Il tesista non ha trovato un riferimento specifico. Dato che la rubrica è la metrica principale dell'esperimento, è necessario verificare se esiste un termine tecnico consolidato e una citazione. Cercare in letteratura su: LLM-as-judge evaluation, rubric-based scoring, reference-free evaluation con LLM judge. Aggiungere la citazione nella presentazione e nel report finale.
 
+> ✅ **Trovato:** **RUBRICEVAL** (Pan et al., 2026, Fudan University / Ant Group) — benchmark di meta-valutazione per LLM judge a livello di rubrica. Rilevante perché: (1) valida esplicitamente il paradigma "rubric-based LLM-as-judge" come approccio consolidato; (2) §5.1 dimostra empiricamente che la valutazione rubric-level supera checklist-level (+7–12 punti BAcc); (3) anche GPT-4o raggiunge solo 55.97% su casi difficili, contestualizzando l'uso di modelli small come judge. Documento salvato in `docs/RUBRICEVAL.md`.
+>
+> **Differenza da dichiarare:** RUBRICEVAL usa giudizi binari per criterio (soddisfatto/no), mentre qui il judge assegna punteggi scalari (0–N). Stessa famiglia metodologica, formulazione diversa — da citare come variante nella sezione metodi.
+
 Nota: per task6 il finding primario (missing return) vale 4/9 punti e non viene mai trovato da ≤2B → il modello non supera mai la soglia indipendentemente da dove si mette la threshold. La soglia non è il bottleneck su task6.
 
 **Retry consapevole** — confermato come funzionante e sensato: al retry il modello vede la propria risposta precedente e il prompt "review your previous attempt below and then rethink from scratch". Il modello sa di aver sbagliato ma non sa perché (nessun feedback del judge). Questo è intenzionale.
@@ -59,6 +63,8 @@ Nota: per task6 il finding primario (missing return) vale 4/9 punti e non viene 
 **Osservazione su task7 expert:** confidence 1.0 su risposta sbagliata → Brier Score 1.0 per quella ripetizione. Questo è il caso peggiore — overconfidence totale su errore. Brier Score medio task7 expert = 0.33.
 
 **Azione:** approfondire la metrica e la sua interpretazione prima del 19. Se rimane nella presentazione, la formula deve comparire con una riga di spiegazione. Altrimenti toglierla.
+
+> ✅ **Decisione:** tenerlo con caveat esplicito. Il BS misura calibrazione della confidenza rispetto al verdetto del judge (`is_correct = verdict correct/wrong`), **non** rispetto a ground truth assoluta — il verdetto è esso stesso LLM-derived e rumoroso. Questo va dichiarato come limitazione. Il valore diagnostico rimane: task7 expert rep3 (BS=1.0 su un attempt, media=0.33 > 0.25) è il segnale più forte di overconfidence sistematica. Anchor points per la slide: 0 (perfetto) · 0.25 (baseline "rispondo sempre 0.5") · 1.0 (confidence 1.0 su errore).
 
 ### 2.3 Soglia TEXTUAL_PASS_RATIO = 0.7 — giustificazione da aggiungere
 
@@ -114,6 +120,16 @@ Questo sarebbe una forma di **continual prompt improvement** — potenzialmente 
 
 **Azione:** estrarre i file di risultato task7 expert rep3 e confrontare i reasoning dei 3 tentativi. Questo risponde a una domanda metodologica chiara.
 
+> ✅ **Analisi completata (2026-05-14):** I 3 reasoning dell'expert rep3 sono **quasi identici nel contenuto** — tutti e 3 trovano esattamente gli stessi 4 bug con phrasing leggermente variato:
+> 1. Undefined variable `reqbody`
+> 2. Hardcoded error in `HTTPN1N2MessageTransfer`
+> 3. Brittle Content-Type parsing
+> 4. Inconsistent error context setting in `HTTPAMFStatusChangeSubscribeModify`
+>
+> Nessuno dei 3 tentativi trova mai il **missing default case** nello switch di `HTTPUEContextTransfer` — il CVE target. Il 3° attempt aggiunge un 5° finding (`Incomplete Handlers`) ma ignora ancora il target. La `confidence` rimane 1.0 su tutti e 3 i tentativi.
+>
+> **Conclusione metodologica:** il retry senza feedback del judge non rompe la convergenza su T=0.3. Il modello non ripete la risposta verbatim ma converge sullo stesso errore strutturale — non scansiona mai lo switch statement. Il retry è utile solo se accompagnato da un segnale direzionale (quale finding manca), non come pure re-generation.
+
 ### 3.4 Inconsistenza task7: beginner batte expert
 
 **Discussione:** beginner 100% accuracy, expert 66.7% su AMF. Un relatore suggerisce di stampare il prompt completo (system_prompt + task_content) per entrambi i ruoli e confrontarne la lunghezza/complessità.
@@ -121,6 +137,21 @@ Questo sarebbe una forma di **continual prompt improvement** — potenzialmente 
 **Ipotesi principale:** il prompt expert è più lungo e articolato → con un modello piccolo (2B) il modello "si perde" nel contesto più lungo. Fenomeno già osservato: modelli a volte funzionano peggio su task complessi perché il reasoning si allunga a dismisura.
 
 **Azione:** estrarre e confrontare la dimensione del full prompt per expert vs beginner su task7. Salvare questo confronto come dato — è un risultato interessante di per sé.
+
+> ✅ **Ipotesi falsificata (2026-05-14):** la differenza di lunghezza è trascurabile.
+>
+> | | Expert | Beginner |
+> |---|---|---|
+> | `system_prompt` | 268 chars | 247 chars |
+> | `task_content` | 8544 chars | 8544 chars |
+> | Totale | 8812 chars | 8791 chars |
+> | Token stimati (log) | ~2662 | ~2654 |
+>
+> Differenza: 21 caratteri / ~8 token. Non è un problema di context window.
+>
+> **Spiegazione del paradosso:** il framing "senior expert" porta il modello ad analisi elaborate e verbosa sui bug che trova subito (undefined variable, hardcoded error) — li espande in dettaglio e non arriva mai alla scansione sistematica dello switch. Il framing "junior technician" produce una risposta più diretta e strutturata per bullet point, che scansiona il flusso di controllo del codice in ordine e cattura il default mancante.
+>
+> Su un modello piccolo (4B), il framing "esperto" non produce code review migliore — produce analisi più prolissa sugli stessi bug, mancando il target CVE. Il beginner trova il missing default case con phrasing diretto: *"The switch statement for content type lacks a robust default case... If an unknown content type is provided, the switch falls through, err remains nil, and the function proceeds to call the processor with potentially uninitialized or incorrectly deserialized data"* → `missing_default_score=4/4`.
 
 ### 3.5 False positive rate — non tracciato
 
@@ -266,6 +297,8 @@ Dal log di esecuzione (`docs/log.md`), i dati effettivi su task6_full chiariscon
 - Il formato attuale dei risultati Markdown ha il layout da sistemare — renderlo più leggibile e uniforme.
 - La struttura del path dei risultati è un problema separato trattato in §3.6 (modello come dimensione esplicita).
 
+> ✅ **Implementato (2026-05-14):** ogni entry di `history[n]` ora contiene `prompt_system` e `prompt_user` (task_content con eventuale retry context), `elapsed_seconds`, `tokens_in`, `tokens_out`, `judge_score` (breakdown per criterio di quel tentativo), `verdict`. Aggiunti anche `temperature` e `judge_model` in `run_config`. `final_answer` a livello top è ora un subset pulito a 3 campi (`answer`, `reasoning`, `confidence`) per evitare duplicazione con `history[-1]`. Schema aggiornato in `results/schema_textual.json` e `results/schema_math.json`.
+
 ### 6.2 Visualizzazione parametrica — proposta relatore
 
 **Idea:** visualizzare graficamente come varia la performance al variare dei parametri. Esempio: accuracy vs temperatura, o numero di step per arrivare a verdict correct vs temperatura.
@@ -286,6 +319,16 @@ Questo trasforma i risultati da una tabella statica a una curva — utile per id
 
 **Stato:** non implementato, non prioritario. Tenerlo come proposta futura per la fase di analisi avanzata.
 
+### 6.5 Ordine campi nel template risposta — bug di format compliance
+
+**Finding (2026-05-14):** analizzando `task1_math_int` con `gemma3:4b-cloud`, tutti e 3 i rep mostravano `attempt 1 wrong` con `answer=840` nonostante il reasoning calcolasse correttamente `1260`. Il modello non sbagliava il ragionamento — sbagliava il campo `### Answer` perché il template chiedeva `Answer` **prima** di `Reasoning`.
+
+**Causa:** il modello è forzato a committare il numero finale nel campo `### Answer` prima di sviluppare il calcolo in `### Reasoning`. Produce un'ipotesi iniziale errata (840), poi nel reasoning si autocorregge a 1260 — ma il parser legge il campo answer già committato.
+
+**Fix applicato:** invertito l'ordine in tutti i 12 file di task (`Reasoning → Answer → Confidence`). Il parser non cambia — usa regex per nome heading, non per posizione.
+
+> ✅ **Implementato (2026-05-14):** tutti i template ora seguono l'ordine `### Reasoning / ### Answer / ### Confidence`. Questo forza chain-of-thought prima del commit sulla risposta finale. Il fix è retroattivo su tutti i task inclusi i `*_full`.
+
 ---
 
 ## Sezione 7 — Roadmap sintetica
@@ -293,24 +336,24 @@ Questo trasforma i risultati da una tabella statica a una curva — utile per id
 ### 7.1 Prima del 19 maggio
 
 - [ ] **Presentazione inglese breve** (vedi §8)
-- [ ] **Estrarre reasoning task7 expert rep3** (3 retry) — verificare se si ripete lo stesso errore
-- [ ] **Estrarre full prompt** expert vs beginner task7 e confrontare lunghezza
+- [x] **Estrarre reasoning task7 expert rep3** (3 retry) — quasi identici, convergono su stessi 4 bug, missing default case mai trovato (§3.3)
+- [x] **Estrarre full prompt** expert vs beginner task7 — differenza 21 chars / ~8 token, ipotesi contesto lungo falsificata (§3.4)
 - [ ] **Rieseguire task6 blind** con gemma4:e4b (senza special attention)
 - [ ] **Preparare estratti** per gli esperti 5G: task5, task7, task8 (§4)
 - [ ] **Approfondire Brier Score** — decidere se tenerlo o toglierlo dalla presentazione
-- [ ] **Trovare riferimento in letteratura per la rubrica** — "LLM-as-judge", "rubric-based evaluation", "reference-free LLM scoring". È la metrica principale: serve una citazione prima del 19
-- [ ] **Investigare timeout task6_full** — il problema è il judge (non l'agent): aumentare il timeout del judge per i task full-file e rieseguire (vedi §5.1)
+- [x] **Trovare riferimento in letteratura per la rubrica** — RUBRICEVAL (Pan et al., 2026) trovato e documentato in `docs/RUBRICEVAL.md`. Vedi §2.1 per dettagli e punti da citare.
+- [x] **Investigare timeout task6_full** — il problema è il judge (non l'agent): aumentare il timeout del judge per i task full-file e rieseguire (vedi §5.1). Implementato: task con "full" nel nome ottengono `TASK_TIMEOUT_SECONDS × FULL_TASK_TIMEOUT_MULTIPLIER` (default ×2 = 1200s). Configurabile in `config.py`. Log stampa `Full task detected → timeout Xs → Ys`.
 - [ ] **Validazione rubrica da esperti 5G** → eventuale revisione criteri
 
 ### 7.2 Medio termine (dopo esami giugno)
 
 - [ ] Accedere a modelli più grandi (Ollama Cloud / Google API) — eseguire task6 excerpt e confrontare con curva scaling
 - [ ] Setup 1B completo con qwen2.5-coder:1.5b-base (eliminare run vecchie deepseek)
-- [ ] Salvare prompt completo per ogni run (§6.1)
+- [x] Salvare prompt completo per ogni run (§6.1) — `history[n].prompt_system` e `history[n].prompt_user` (2026-05-14)
 - [ ] Retry con feedback judge reiniettato
 - [ ] Task controllo negativo (false positive rate)
 - [ ] Varianti full-file task7_full (501r) e task8_full (858r) con timeout aumentato
-- [ ] **Tracciamento score intermedi per-attempt:** attualmente il JSON di risultato persiste solo il `judge_score` dell'ultimo tentativo. I punteggi per categoria dei tentativi precedenti (es. `missing_default_score` nei 3 retry di task7 expert rep3) non vengono salvati — erano recuperabili solo dai log manuali in `overview_call_3.md`. Modificare la struttura del risultato per salvare il breakdown per categoria del judge per ogni attempt nell'array `history`, non solo per l'ultimo. Questo è necessario per analisi post-hoc del comportamento del retry (es. quale categoria migliora/non migliora tra tentativi).
+- [x] **Tracciamento score intermedi per-attempt:** ogni `history[n]` ora include `judge_score` (breakdown completo per criterio di quel tentativo) e `verdict`. Il `judge_score` top-level rimane quello dell'ultimo attempt. Implementato in `_check_answer` via `state["history"][-1]["judge_score"] = judge_score` (2026-05-14).
 
 ### 7.3 Lungo termine / open questions
 

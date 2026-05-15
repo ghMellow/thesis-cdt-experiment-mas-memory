@@ -12,23 +12,13 @@ from typing import Any, Dict, List, Optional
 
 import config
 from agents._llm_utils import resolve_model_config
-from config import FULL_TASK_SUFFIX, FULL_TASK_TIMEOUT_MULTIPLIER, MODELS, OLLAMA_BASE_URL, REPETITIONS, RESULTS_PATH, TASK_MODEL_OVERRIDES, TASK_TIMEOUT_SECONDS, TASKS_PATH
+from config import FULL_TASK_SUFFIX, FULL_TASK_TIMEOUT_MULTIPLIER, MODELS, OLLAMA_BASE_URL, REPETITIONS, RESULTS_PATH, TASK_TIMEOUT_SECONDS, TASKS_PATH
 from utils.evaluation_utils import _record_consistency_finding, _write_evaluation_reports
 from utils.experiment_utils import ExperimentState, _build_graph, _fetch_model_context_window, _time_limit
 from utils.task_utils import _answers_equal, _list_tasks, _result_exists
 
 
 logger = logging.getLogger(__name__)
-
-
-def _resolve_task_model(exp_id: str, role: str, task_id: str) -> tuple:
-    """Return (model_name, is_hosted) for the given role/experiment/task combination."""
-    key = f"{role}_{exp_id}"
-    model, is_hosted = resolve_model_config(key)
-    for substring, override in TASK_MODEL_OVERRIDES.get(key, {}).items():
-        if substring in task_id:
-            return override, is_hosted
-    return model, is_hosted
 
 
 class _SpinnerClearHandler(logging.StreamHandler):
@@ -113,15 +103,14 @@ def main() -> None:
     for experiment in experiments:
         for task_path in tasks:
             for repetition in range(1, args.repetitions + 1):
-                count_model, count_is_hosted = _resolve_task_model(experiment["id"], experiment["role"], task_path.stem)
                 if _result_exists(
                     RESULTS_PATH,
                     experiment["id"],
                     experiment["role"],
                     task_path.stem,
                     repetition,
-                    count_model,
-                    count_is_hosted,
+                    experiment["model"],
+                    experiment["is_hosted"],
                 ):
                     continue
                 remaining_repetitions += 1
@@ -167,15 +156,8 @@ def main() -> None:
             ctx_str,
         )
         for task_path in tasks:
-            task_model, task_is_hosted = _resolve_task_model(experiment["id"], experiment["role"], task_path.stem)
-            if task_model not in ctx_cache:
-                ctx_cache[task_model] = None if task_is_hosted else _fetch_model_context_window(task_model, OLLAMA_BASE_URL)
-            task_ctx_str = (
-                f" [model={task_model}{'(hosted)' if task_is_hosted else ''}]"
-                if task_model != experiment["model"] else ""
-            )
             logger.info("")
-            logger.info("---- Task %s%s ----", task_path.stem, task_ctx_str)
+            logger.info("---- Task %s ----", task_path.stem)
             sol_path = task_path.with_name(task_path.stem + "_sol.md")
             previous_answer: Optional[Dict[str, Any]] = None
 
@@ -186,8 +168,8 @@ def main() -> None:
                     experiment["role"],
                     task_path.stem,
                     repetition,
-                    task_model,
-                    task_is_hosted,
+                    experiment["model"],
+                    experiment["is_hosted"],
                 ):
                     logger.info("Skip %s rep %s (already exists)", task_path.stem, repetition)
                     continue
@@ -198,8 +180,8 @@ def main() -> None:
                     "task_path": str(task_path),
                     "sol_path": str(sol_path),
                     "agent_role": experiment["role"],
-                    "model": task_model,
-                    "is_hosted": task_is_hosted,
+                    "model": experiment["model"],
+                    "is_hosted": experiment["is_hosted"],
                     "attempts": 0,
                     "history": [],
                     "experiment_id": experiment["id"],
