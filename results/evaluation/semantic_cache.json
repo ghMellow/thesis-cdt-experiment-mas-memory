@@ -38,5 +38,21 @@
   "expert/task9_vuln_cross/26a93fbaa219fda2": {
     "equivalent": true,
     "explanation": "All three passages present the exact same set of critical security findings, vulnerability classifications, and proposed fixes regarding input validation and cross-NF inconsistencies."
+  },
+  "expert/task6_vuln_udr/95b064b382b3e51f": {
+    "equivalent": false,
+    "explanation": "The two sets of reasoning cover related but distinct findings, focusing on different code locations and specific aspects of input validation and control flow errors."
+  },
+  "expert/task7_vuln_amf/0858944fea2cd8bd": {
+    "equivalent": true,
+    "explanation": "Both reasoning passages identify the same four critical flaws (variable usage, missing deserialization, flawed content type handling, and inconsistent context setting) with identical impacts and functionally equivalent fixes."
+  },
+  "expert/task8_vuln_udm/4df60d994aef67a5": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same core vulnerabilities regarding inconsistent SUPI and PLMN-ID validation, the specific handlers involved, the resulting security impact, and the required corrective actions."
+  },
+  "expert/task9_vuln_cross/8f538a51220fe3b5": {
+    "equivalent": true,
+    "explanation": "All three reasoning passages describe the exact same set of cross-file inconsistencies and per-file vulnerabilities regarding input validation, error handling, and control flow logic."
   }
 }
