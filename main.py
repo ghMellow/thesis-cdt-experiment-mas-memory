@@ -63,6 +63,12 @@ def main() -> None:
         help="Max seconds per task repetition (0 = no timeout)",
     )
     parser.add_argument(
+        "--experiment-id",
+        dest="experiment_id",
+        default=None,
+        help="Override the results folder name (e.g. framing_A1). Model config still resolved from --experiment.",
+    )
+    parser.add_argument(
         "--export-graph",
         dest="export_graph",
         help="Export LangGraph to a PNG file and exit",
@@ -98,6 +104,9 @@ def main() -> None:
         experiments = [exp for exp in experiments if exp["role"] == args.role]
     if not experiments:
         raise ValueError("No experiments matched the provided filters")
+    if args.experiment_id:
+        for exp in experiments:
+            exp["id"] = args.experiment_id
 
     remaining_repetitions = 0
     for experiment in experiments:
@@ -229,7 +238,8 @@ def main() -> None:
     _record_consistency_finding(consistency_lines)
     logger.info("Writing evaluation reports")
     executed_tasks = [task_path.stem for task_path in tasks] if tasks else None
-    _write_evaluation_reports(RESULTS_PATH, task_filter=executed_tasks)
+    executed_experiment_ids = list(dict.fromkeys(exp["id"] for exp in experiments))
+    _write_evaluation_reports(RESULTS_PATH, task_filter=executed_tasks, experiment_ids=executed_experiment_ids)
     logger.info("Execution complete")
 
 

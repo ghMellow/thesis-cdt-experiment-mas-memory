@@ -25,12 +25,12 @@ MODELS = {
     "expert_1A": {
         "local": "gemma4:e4b",
         "hosted": "gemma3:12b-cloud",
-        "use_hosted": True
+        "use_hosted": False  # framing_A1: local gemma4:e4b, no hosted
     },
     "beginner_1A": {
         "local": "gemma4:e4b",
         "hosted": "gemma3:12b-cloud",
-        "use_hosted": True
+        "use_hosted": False  # framing_A1: local gemma4:e4b, no hosted
     },
     "expert_1B": {
         "local": "gemma4:e4b",
@@ -50,7 +50,7 @@ MODELS = {
     "semantic_check": {
         "local": "gemma4:e2b",
         "hosted": "gemma3:4b-cloud",
-        "use_hosted": True
+        "use_hosted": False  # framing_A1: use local to avoid hosted 500 errors
     },
 }
 

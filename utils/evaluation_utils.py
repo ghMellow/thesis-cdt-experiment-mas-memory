@@ -163,7 +163,8 @@ def _detect_inconsistencies(
             cache_updated = True
 
         verdict = "equiv" if result.get("equivalent", False) else "differ"
-        logger.info("  → %s", verdict)
+        explanation = result.get("explanation", "")
+        logger.info("  → %s | %s", verdict, explanation)
         if result.get("equivalent", False):
             n_surface_equiv += 1
         else:
@@ -396,12 +397,17 @@ def _build_experiment_report(
     return "\n".join(lines) + "\n"
 
 
-def _write_evaluation_reports(results_path: str, task_filter: Optional[List[str]] = None) -> None:
+def _write_evaluation_reports(
+    results_path: str,
+    task_filter: Optional[List[str]] = None,
+    experiment_ids: Optional[List[str]] = None,
+) -> None:
     data = _collect_results(results_path)
     eval_dir = Path(results_path) / "evaluation"
     eval_dir.mkdir(parents=True, exist_ok=True)
 
-    for experiment_id in ["1A", "1B"]:
+    ids_to_report = experiment_ids if experiment_ids else ["1A", "1B"]
+    for experiment_id in ids_to_report:
         roles = data.get(experiment_id, {})
         n_results = sum(len(v) for v in roles.values())
         logger.info(
@@ -422,26 +428,27 @@ def _write_evaluation_reports(results_path: str, task_filter: Optional[List[str]
             (eval_dir / filename).write_text(task_report, encoding="utf-8")
             logger.info("Written %s", filename)
 
-    # Comparison report
-    lines = [
-        "# Comparison 1A vs 1B",
-        "",
-        "| role | accuracy_1A | accuracy_1B | delta |",
-        "| --- | --- | --- | --- |",
-    ]
-    has_delta = False
-    for role in ["expert", "beginner"]:
-        payloads_1a = data.get("1A", {}).get(role, [])
-        payloads_1b = data.get("1B", {}).get(role, [])
-        acc_1a = (sum(1 for p in payloads_1a if p.get("verdict") == "correct") / len(payloads_1a)) if payloads_1a else None
-        acc_1b = (sum(1 for p in payloads_1b if p.get("verdict") == "correct") / len(payloads_1b)) if payloads_1b else None
-        delta = (acc_1b - acc_1a) if acc_1a is not None and acc_1b is not None else None
-        if delta and abs(delta) > 0:
-            has_delta = True
-        lines.append(
-            f"| {role} | {_fmt_ratio(acc_1a)} | {_fmt_ratio(acc_1b)} | {_fmt_delta(delta)} |"
-        )
-    lines.append("")
-    if not has_delta:
-        lines.append("No accuracy difference between 1A and 1B.")
-    (eval_dir / "comparison.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    # Comparison report — only meaningful when both 1A and 1B are in scope
+    if "1A" in ids_to_report and "1B" in ids_to_report:
+        lines = [
+            "# Comparison 1A vs 1B",
+            "",
+            "| role | accuracy_1A | accuracy_1B | delta |",
+            "| --- | --- | --- | --- |",
+        ]
+        has_delta = False
+        for role in ["expert", "beginner"]:
+            payloads_1a = data.get("1A", {}).get(role, [])
+            payloads_1b = data.get("1B", {}).get(role, [])
+            acc_1a = (sum(1 for p in payloads_1a if p.get("verdict") == "correct") / len(payloads_1a)) if payloads_1a else None
+            acc_1b = (sum(1 for p in payloads_1b if p.get("verdict") == "correct") / len(payloads_1b)) if payloads_1b else None
+            delta = (acc_1b - acc_1a) if acc_1a is not None and acc_1b is not None else None
+            if delta and abs(delta) > 0:
+                has_delta = True
+            lines.append(
+                f"| {role} | {_fmt_ratio(acc_1a)} | {_fmt_ratio(acc_1b)} | {_fmt_delta(delta)} |"
+            )
+        lines.append("")
+        if not has_delta:
+            lines.append("No accuracy difference between 1A and 1B.")
+        (eval_dir / "comparison.md").write_text("\n".join(lines) + "\n", encoding="utf-8")

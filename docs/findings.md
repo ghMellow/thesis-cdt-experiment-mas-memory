@@ -231,3 +231,26 @@ Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `over
 - Documentare il confronto come risultato metodologico: "retry neutro vs retry guidato" è una variabile sperimentale interessante di per sé.
 
 **Fonte:** `overview_call_3.md` §3.3, `overview_call_1.md` §8.4, F5
+
+---
+
+## F16 — Il framing "junior technician" aiuta attivamente su task7; rimuoverlo penalizza il beginner
+
+**Osservato su:** `framing_A1` (prompt neutro, nessun ruolo) vs baseline `1A` su `task7_vuln_amf`, `gemma4:e4b`
+
+**Risultati comparati:**
+
+| Configurazione | Expert task7 | Beginner task7 |
+| --- | --- | --- |
+| 1A (framing standard) | 66.7% (2/3) | **100% (3/3)** |
+| framing_A1 (nessun ruolo) | 66.7% (2/3) | **33.3% (1/3)** |
+
+**Task6, task8, task9:** invariati — 100% entrambi i ruoli in entrambe le configurazioni.
+
+**Interpretazione:** il framing "senior expert" non è attivamente dannoso sull'expert (accuracy identica, 66.7%). Il paradosso è interamente spiegato dal framing **beginner**: il prompt "junior technician" induceva una scansione sistematica e diretta del codice che cattura il `default` mancante nello switch. Senza quel framing, il beginner scende da 100% a 33.3% — convergendo sullo stesso pattern di fallimento dell'expert (trova i 4 bug superficiali, non arriva al CVE target).
+
+**Implicazione metodologica:** il framing non è una variabile neutra su modelli piccoli. Il framing beginner aggiunge informazione comportamentale utile — non descrive il livello di conoscenza del modello, ma impone uno stile di risposta più efficace per questo tipo di task. Il paradosso F6 è confermato come effetto framing, non capacità.
+
+**Pre-requisito A2:** ripristinare i prompt originali in `agents/prompts.py` prima di eseguire A2 (che modifica solo il prompt expert con vincolo di stile).
+
+**Fonte:** `results/evaluation/result_task7_vuln_amf_framing_A1.md`, `docs/experiments_framing.md` §A1

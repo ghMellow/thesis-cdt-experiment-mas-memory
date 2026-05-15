@@ -60,13 +60,13 @@ Ogni esperimento specifica se il task set è **completo** (tutti e 7 sopra) o **
 CLI di riferimento per i task completo:
 
 ```bash
-python main.py --task task6_vuln_udr task6_vuln_udr_full task7_vuln_amf task7_vuln_amf_full task8_vuln_udm task8_vuln_udm_full task9_vuln_cross
+poetry run python main.py --task task6_vuln_udr --task task6_vuln_udr_full --task task7_vuln_amf --task task7_vuln_amf_full --task task8_vuln_udm --task task8_vuln_udm_full --task task9_vuln_cross
 ```
 
 CLI per i task primari (excerpt only, più veloce):
 
 ```bash
-python main.py --task task6_vuln_udr task7_vuln_amf task8_vuln_udm task9_vuln_cross
+poetry run python main.py --task task6_vuln_udr --task task7_vuln_amf --task task8_vuln_udm --task task9_vuln_cross
 ```
 
 ---
@@ -83,11 +83,11 @@ python main.py --task task6_vuln_udr task7_vuln_amf task8_vuln_udm task9_vuln_cr
 **CLI:**
 
 ```bash
-python main.py --experiment framing_A1 --role all --task task6_vuln_udr task7_vuln_amf task8_vuln_udm task9_vuln_cross --repetitions 3
+poetry run python main.py --experiment 1A --experiment-id framing_A1 --role all --task task6_vuln_udr --task task7_vuln_amf --task task8_vuln_udm --task task9_vuln_cross --repetitions 3
 ```
 
-**Status:** `[ ] pending`
-**Risultato:** —
+**Status:** `[x] done`
+**Risultato:** task7 discriminante: expert 66.7% (=1A), beginner 33.3% (era 100% in 1A). Rimuovere il framing penalizza il beginner di -66.7pp su task7 — il framing "junior technician" era attivamente utile. Task6/8/9: 100% entrambi, invariati. Conclusione: il paradosso è causato dal framing beginner (aiuta), non da un danno del framing expert. Pre-requisito A2: ripristinare i prompt originali in `agents/prompts.py` (vedi F16 in findings.md).
 
 ### A2 — Expert con vincolo di stile
 **Setup:** aggiungere in coda al system prompt expert in `agents/prompts.py`: *"List each finding as a single bullet point. One sentence per finding. No elaboration."* Il resto del prompt expert rimane invariato.
@@ -99,7 +99,7 @@ python main.py --experiment framing_A1 --role all --task task6_vuln_udr task7_vu
 **CLI:**
 
 ```bash
-python main.py --experiment framing_A2 --role expert --task task6_vuln_udr task7_vuln_amf task8_vuln_udm task9_vuln_cross --repetitions 3
+poetry run python main.py --experiment 1A --experiment-id framing_A2 --role expert --task task6_vuln_udr --task task7_vuln_amf --task task8_vuln_udm --task task9_vuln_cross --repetitions 3
 ```
 
 **Status:** `[ ] pending`
@@ -115,7 +115,7 @@ python main.py --experiment framing_A2 --role expert --task task6_vuln_udr task7
 **CLI:**
 
 ```bash
-python main.py --experiment framing_A3 --role beginner --task task6_vuln_udr task7_vuln_amf task8_vuln_udm task9_vuln_cross --repetitions 3
+poetry run python main.py --experiment 1A --experiment-id framing_A3 --role beginner --task task6_vuln_udr --task task7_vuln_amf --task task8_vuln_udm --task task9_vuln_cross --repetitions 3
 ```
 
 **Status:** `[ ] pending`
@@ -138,7 +138,7 @@ python main.py --experiment framing_A3 --role beginner --task task6_vuln_udr tas
 **CLI:**
 
 ```bash
-python main.py --experiment framing_B1_e2b --role expert --task task6_vuln_udr task7_vuln_amf task8_vuln_udm task9_vuln_cross --repetitions 3
+poetry run python main.py --experiment 1A --experiment-id framing_B1_e2b --role expert --task task6_vuln_udr --task task7_vuln_amf --task task8_vuln_udm --task task9_vuln_cross --repetitions 3
 ```
 
 **Status:** `[ ] pending` (B1_cloud dipende da accesso modelli cloud)
@@ -154,7 +154,7 @@ python main.py --experiment framing_B1_e2b --role expert --task task6_vuln_udr t
 **CLI:**
 
 ```bash
-python main.py --experiment framing_B2 --role all --task task6_vuln_udr task6_vuln_udr_full task7_vuln_amf task7_vuln_amf_full task8_vuln_udm task8_vuln_udm_full task9_vuln_cross --repetitions 3
+poetry run python main.py --experiment 1B --experiment-id framing_B2 --role all --task task6_vuln_udr --task task6_vuln_udr_full --task task7_vuln_amf --task task7_vuln_amf_full --task task8_vuln_udm --task task8_vuln_udm_full --task task9_vuln_cross --repetitions 3
 ```
 
 **Status:** `[ ] pending` (dipende da accesso modelli cloud)
@@ -169,7 +169,7 @@ python main.py --experiment framing_B2 --role all --task task6_vuln_udr task6_vu
 **CLI:**
 
 ```bash
-python main.py --experiment framing_B3 --role all --task task6_vuln_udr task7_vuln_amf task8_vuln_udm task9_vuln_cross --repetitions 3
+poetry run python main.py --experiment 1A --experiment-id framing_B3 --role all --task task6_vuln_udr --task task7_vuln_amf --task task8_vuln_udm --task task9_vuln_cross --repetitions 3
 ```
 
 **Status:** `[ ] pending`
