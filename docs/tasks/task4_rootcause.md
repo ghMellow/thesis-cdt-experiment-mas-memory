@@ -33,14 +33,14 @@ Reason systematically by ruling out unlikely causes.
 Reply ONLY in Markdown using this template:
 
 ```md
+### Reasoning
+...
+
 ### Answer
 root_cause: ...
 diagnostic_steps:
 - step 1...
 - step 2...
-
-### Reasoning
-...
 
 ### Confidence
 0.0

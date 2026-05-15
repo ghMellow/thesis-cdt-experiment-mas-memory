@@ -271,11 +271,11 @@ Pay particular attention to consistency across handlers handling the same error 
 Reply ONLY in Markdown using this template:
 
 ```md
-### Answer
-Brief summary of the main findings (1-3 sentences)
-
 ### Reasoning
 Detailed analysis for each finding: class, location, impact, fix
+
+### Answer
+Brief summary of the main findings (1-3 sentences)
 
 ### Confidence
 0.0

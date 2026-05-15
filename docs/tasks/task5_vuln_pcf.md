@@ -98,11 +98,11 @@ Identify all security vulnerabilities or misconfigurations present in this file.
 Reply ONLY in Markdown using this template:
 
 ```md
-### Answer
-Brief summary of the main vulnerability found (1-2 sentences)
-
 ### Reasoning
 Detailed analysis: vulnerability class, location, impact in 5G context, proposed fix
+
+### Answer
+Brief summary of the main vulnerability found (1-2 sentences)
 
 ### Confidence
 0.0

@@ -24,11 +24,11 @@ Solve the problem step by step.
 Reply ONLY in Markdown using this template:
 
 ```md
-### Answer
-<integer>
-
 ### Reasoning
 ...
+
+### Answer
+<integer>
 
 ### Confidence
 0.0

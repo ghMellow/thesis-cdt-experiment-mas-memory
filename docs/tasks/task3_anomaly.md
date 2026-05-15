@@ -37,11 +37,11 @@ Justify your classification by citing the relevant parameters.
 Reply ONLY in Markdown using this template:
 
 ```md
-### Answer
-NORMAL | MINOR_ANOMALY | CRITICAL_ANOMALY
-
 ### Reasoning
 ...
+
+### Answer
+NORMAL | MINOR_ANOMALY | CRITICAL_ANOMALY
 
 ### Confidence
 0.0

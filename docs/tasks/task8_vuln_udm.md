@@ -206,11 +206,11 @@ Identify all security vulnerabilities or inconsistencies in this file. For each 
 Reply ONLY in Markdown using this template:
 
 ```md
-### Answer
-Brief summary of main findings (1-3 sentences)
-
 ### Reasoning
 Detailed analysis: vulnerability class, location, impact, fix
+
+### Answer
+Brief summary of main findings (1-3 sentences)
 
 ### Confidence
 0.0

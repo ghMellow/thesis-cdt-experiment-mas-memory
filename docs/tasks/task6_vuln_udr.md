@@ -316,11 +316,11 @@ Identify all security vulnerabilities or logic errors present in this code. For 
 Reply ONLY in Markdown using this template:
 
 ```md
-### Answer
-Brief summary listing the main vulnerability types found (1-3 sentences)
-
 ### Reasoning
 Detailed analysis for each finding: class, location, impact, fix
+
+### Answer
+Brief summary listing the main vulnerability types found (1-3 sentences)
 
 ### Confidence
 0.0

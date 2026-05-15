@@ -26,12 +26,12 @@ Round results to 2 decimal places.
 Reply ONLY in Markdown using this template:
 
 ```md
+### Reasoning
+...
+
 ### Answer
 mean: 0.00
 std: 0.00
-
-### Reasoning
-...
 
 ### Confidence
 0.0
