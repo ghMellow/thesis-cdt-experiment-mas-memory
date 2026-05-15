@@ -6,5 +6,37 @@
   "expert/task1_math_int/710dd5c3fdbb1ad5": {
     "equivalent": true,
     "explanation": "All three reasoning passages follow the identical logical steps and arrive at the same final conclusion."
+  },
+  "beginner/task6_vuln_udr/e912032c211315ea": {
+    "equivalent": true,
+    "explanation": "All three reasoning passages identify the same three security findings and propose identical fixes for each."
+  },
+  "beginner/task7_vuln_amf/78ec506a22cd151a": {
+    "equivalent": true,
+    "explanation": "Both passages identify the same five core vulnerabilities and propose identical fixes for each one."
+  },
+  "beginner/task8_vuln_udm/505c76892ff58e24": {
+    "equivalent": true,
+    "explanation": "All three passages describe the same vulnerability, affected handlers, security impact, and proposed fix for inconsistent input validation of the SUPI parameter."
+  },
+  "beginner/task9_vuln_cross/34473fd07153f923": {
+    "equivalent": true,
+    "explanation": "All three reasoning passages identify the exact same set of security vulnerabilities, their impacts, and their proposed fixes, despite varying the structure and emphasis of the presentation."
+  },
+  "expert/task6_vuln_udr/0f0415075e187136": {
+    "equivalent": true,
+    "explanation": "All three reasoning passages identify the same three vulnerabilities (control flow error, regex bypass, and query parameter flaws) and propose identical fixes."
+  },
+  "expert/task7_vuln_amf/4afd54b607229647": {
+    "equivalent": true,
+    "explanation": "All three reasoning passages identify the exact same five logical and implementation flaws, their corresponding impacts, and the identical corrective actions."
+  },
+  "expert/task8_vuln_udm/b8bf3f73dfd19d42": {
+    "equivalent": true,
+    "explanation": "All three passages describe the same vulnerability, affected handlers, security impact, and proposed fixes regarding inconsistent input validation of SUPI and PLMN-ID parameters."
+  },
+  "expert/task9_vuln_cross/26a93fbaa219fda2": {
+    "equivalent": true,
+    "explanation": "All three passages present the exact same set of critical security findings, vulnerability classifications, and proposed fixes regarding input validation and cross-NF inconsistencies."
   }
 }

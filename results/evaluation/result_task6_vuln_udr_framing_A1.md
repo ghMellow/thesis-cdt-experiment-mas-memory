@@ -1,4 +1,4 @@
-# 1A — task1_math_int
+# framing_A1 — task6_vuln_udr
 
 ## Summary
 
@@ -9,7 +9,7 @@
 | wrong | 0 |
 | retried (attempts > 1) | 0 |
 | truly inconsistent tasks | 0 |
-| surface-only differences (semantically equiv.) | 2 |
+| surface-only differences (semantically equiv.) | 8 |
 
 _truly inconsistent_: LLM confirmed different conclusions across repetitions. _surface-only_: string-different but semantically equivalent (paraphrases, same logic).
 
@@ -17,10 +17,10 @@ All tasks passed with full consistency — no anomalies detected.
 
 ## Scores by role
 
-| role | accuracy | avg_confidence | brier_score | avg_attempts | avg_math_delta |
+| role | accuracy | avg_confidence | brier_score | avg_attempts | avg_textual_norm |
 | --- | --- | --- | --- | --- | --- |
-| beginner | 100.0% | 1.000 | 0.0000 | 1.00 | 0.000 |
-| expert | 100.0% | 1.000 | 0.0000 | 1.00 | 0.000 |
+| beginner | 100.0% | 0.500 | 0.2500 | 1.00 | 0.963 |
+| expert | 100.0% | 0.500 | 0.2500 | 1.00 | 0.963 |
 
 **Legend**
 
