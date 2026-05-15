@@ -54,5 +54,21 @@
   "expert/task9_vuln_cross/8f538a51220fe3b5": {
     "equivalent": true,
     "explanation": "All three reasoning passages describe the exact same set of cross-file inconsistencies and per-file vulnerabilities regarding input validation, error handling, and control flow logic."
+  },
+  "beginner/task6_vuln_udr/355052a50ebbb0fe": {
+    "equivalent": false,
+    "explanation": "The second reasoning passage introduces a new finding regarding JSON unmarshalling validation that is not present in the first passage."
+  },
+  "beginner/task7_vuln_amf/8840054478b8f64c": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same four distinct vulnerabilities, describe the same impact, and propose the identical fixes."
+  },
+  "beginner/task8_vuln_udm/ceef645a33a841b3": {
+    "equivalent": true,
+    "explanation": "All three passages describe the same vulnerability, scope, impact, and proposed fix regarding the missing input validation for the SUPI parameter across multiple handlers."
+  },
+  "beginner/task9_vuln_cross/7d8420163cbc9bd3": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same critical vulnerabilities, including overly permissive CORS, missing default switch cases in AMF, improper flow control in UDR handlers, and inconsistencies in SUPI/UE ID validation across Network Functions."
   }
 }
