@@ -172,8 +172,8 @@ poetry run python main.py --experiment 1B --experiment-id framing_B2 --role all 
 poetry run python main.py --experiment 1A --experiment-id framing_B3 --role all --task task6_vuln_udr --task task7_vuln_amf --task task8_vuln_udm --task task9_vuln_cross --repetitions 3
 ```
 
-**Status:** `[ ] pending`
-**Risultato:** —
+**Status:** `[x] done`
+**Risultato:** task7 — il paradosso si inverte: expert (e4b) 33.3% > beginner (e2b) 0.0%. In 1A era beginner 100% > expert 66.7%. Task8 — expert 100% vs beginner 0.0% (in 1A entrambi a 77.8% norm). Task6/9 invariati al 100%. Il beginner su e2b esaurisce MAX_RETRIES su task7 e task8 (avg_attempts=3.00, Brier=1.000). Conclusione: il paradosso è framing × capacità — il vantaggio del framing beginner richiede capacità sufficiente. Vedi F19 in findings.md.
 
 ---
 

@@ -70,5 +70,37 @@
   "beginner/task9_vuln_cross/7d8420163cbc9bd3": {
     "equivalent": true,
     "explanation": "All three passages identify the same critical vulnerabilities, including overly permissive CORS, missing default switch cases in AMF, improper flow control in UDR handlers, and inconsistencies in SUPI/UE ID validation across Network Functions."
+  },
+  "beginner/task6_vuln_udr/13beca7f54d4ed2c": {
+    "equivalent": true,
+    "explanation": "All reasoning passages identify the same three core vulnerabilities (Control Flow/IDOR, Regex Bypass, and Contextual IDOR) and propose identical fixes."
+  },
+  "beginner/task7_vuln_amf/d1fd570dff4d386c": {
+    "equivalent": true,
+    "explanation": "Both passages identify the same core vulnerabilities: undefined variable usage, information leakage via error responses, inconsistent error handling, and mixing application logic with system errors."
+  },
+  "beginner/task8_vuln_udm/ee0b1971025e36ae": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same core issue—inconsistent input validation for identifiers across API handlers—and detail the resulting security and logic risks."
+  },
+  "beginner/task9_vuln_cross/c9946c012020afc3": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same core security finding: inconsistent input validation and handling of subscriber identifiers (SUPI/UE ID) across the network functions."
+  },
+  "expert/task6_vuln_udr/8ffe0400d5e90edf": {
+    "equivalent": false,
+    "explanation": "The reasoning passages are not equivalent because the first set of findings includes a Denial of Service risk, which is absent in the other sets."
+  },
+  "expert/task7_vuln_amf/8bfb92aa32ad09e1": {
+    "equivalent": true,
+    "explanation": "All three reasoning passages identify the same five critical vulnerabilities, focusing on undefined variable usage, brittle content-type parsing, hardcoded logic, inconsistent error handling, and missing deserialization/processing steps."
+  },
+  "expert/task8_vuln_udm/eb9bc2163fcb5f4d": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same core vulnerability (inconsistent input validation, CWE-20) across multiple handlers, detail the resulting security impacts, and propose the identical fix of implementing centralized validation mirroring the pattern used in HandleGetAmData."
+  },
+  "expert/task9_vuln_cross/9b0b93bd46cda2c6": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same critical security vulnerabilities, including input validation bypass, improper error handling, and inconsistent UE identifier validation across the system."
   }
 }

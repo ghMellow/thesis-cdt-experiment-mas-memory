@@ -28,9 +28,9 @@ MODELS = {
         "use_hosted": False  # framing_A1: local gemma4:e4b, no hosted
     },
     "beginner_1A": {
-        "local": "gemma4:e4b",
+        "local": "gemma4:e2b",
         "hosted": "gemma3:12b-cloud",
-        "use_hosted": False  # framing_A1: local gemma4:e4b, no hosted
+        "use_hosted": False  # framing_B3: local gemma4:e2b (smaller model, asymmetric)
     },
     "expert_1B": {
         "local": "gemma4:e4b",

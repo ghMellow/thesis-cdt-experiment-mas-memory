@@ -306,3 +306,39 @@ Il framing agisce come "stile cognitivo implicito", non come istruzione esplicit
 
 **Fonte:** `results/evaluation/result_task7_vuln_amf_framing_A3.md`, `docs/experiments_framing.md` §A3
 
+---
+
+## F19 — Il paradosso beginner > expert è capacity-dependent: su gemma4:e2b il framing beginner collassa
+
+**Osservato su:** `framing_B3` — expert=gemma4:e4b vs beginner=gemma4:e2b, prompt originali, task6/7/8/9
+
+**Risultati B3 vs baseline 1A (entrambi e4b):**
+
+| task | 1A expert (e4b) | 1A beginner (e4b) | B3 expert (e4b) | B3 beginner (e2b) |
+| --- | --- | --- | --- | --- |
+| task6_vuln_udr | 100% / norm 0.926 | 100% / norm 0.926 | 100% / norm 0.926 | 100% / norm 0.926 |
+| task7_vuln_amf | 66.7% / norm — | **100%** / norm — | 33.3% / norm 0.667 | **0.0%** / norm 0.037 |
+| task8_vuln_udm | 77.8% norm | 77.8% norm | **100%** / norm 0.815 | **0.0%** / norm 0.408 |
+| task9_vuln_cross | 100% | 100% | 100% / norm 0.963 | 100% / norm 0.889 |
+
+**Dati diagnostici critici:**
+
+- Beginner task7 e task8: avg_attempts=3.00, Brier=1.000 — tutte le ripetizioni esaurite a MAX_RETRIES, sempre wrong con confidence=1.0 (caso peggiore possibile).
+- Expert task8: 100% con avg_attempts=1.33 — supera il 77.8% norm di 1A (recovery completa).
+- Expert task7: scende da 66.7% (1A) a 33.3% (B3) — plausibilmente rumore statistico (3 rep, 1 vs 2 correct), stesso modello e4b.
+- Task6/9: invariati al 100% per entrambi — non discriminanti, capacità e4b sufficiente per entrambi i framing.
+
+**Interpretazione:**
+
+Il paradosso task7 (beginner=100% > expert=66.7% in 1A) scompare quando il beginner scende a e2b: expert=33.3% > beginner=0.0%. Il vantaggio comportamentale del framing "junior technician" richiede capacità del modello sufficiente per manifestarsi.
+
+Su gemma4:e2b il modello non riesce a tradurre lo stile di analisi sistematica indotto dal framing beginner in risposte corrette — probabilmente perché la scansione sistematica richiede più working memory e ragionamento contestuale di quanto e2b possa sostenere. Il framing expert (che su e4b induceva verbosità a scapito del target su task7) è comunque più robusto: anche su task7 l'expert mantiene 1/3 correct, mentre il beginner non ne prende nessuno.
+
+Task8 è il caso più marcato: in 1A entrambi erano a ~77.8% norm (nessun vincitore); in B3 expert=100% e beginner=0.0%. Il beginner su e2b non ha la profondità tecnica per affrontare l'analisi UDM più articolata.
+
+**Conclusione ipotesi B (parziale, B3):**
+
+Il paradosso beginner > expert non è un effetto puro del framing — è framing × capacità. Il framing beginner amplifica un vantaggio latente del modello; quando la capacità scende sotto una soglia (tra e2b e e4b), il vantaggio si azzera e il framing expert risulta più robusto. B1 (solo expert su e2b) e B2 (modelli cloud) completeranno il quadro.
+
+**Fonte:** `results/evaluation/result_task7_vuln_amf_framing_B3.md`, `results/evaluation/result_task8_vuln_udm_framing_B3.md`, `docs/experiments_framing.md` §B3
+
