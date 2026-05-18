@@ -118,5 +118,21 @@
   "expert/task9_vuln_cross/194030f15f3b3a9c": {
     "equivalent": true,
     "explanation": "All passages identify critical inconsistencies in input validation for subscriber identifiers across Network Functions and list specific vulnerabilities in PCF, AMF, UDM, and UDR."
+  },
+  "expert/task6_vuln_udr/fb8415c29dd9d745": {
+    "equivalent": false,
+    "explanation": "The reasoning passages describe three distinct vulnerabilities (control flow bypass, regex logic error, and input validation) with different locations and specific impacts."
+  },
+  "expert/task7_vuln_amf/8e065d87aa0ec321": {
+    "equivalent": true,
+    "explanation": "All four reasoning passages identify the same four critical security and logic flaws (Information Exposure, Input Validation/Nil Risk, Inconsistent State Management, and Denial of Service risks) with identical impacts and recommended fixes."
+  },
+  "expert/task8_vuln_udm/cdac13742c4504a0": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same core vulnerability, list the same vulnerable handlers, describe the same security impacts, and propose the same fix."
+  },
+  "expert/task9_vuln_cross/f0c41ca67d0c1af7": {
+    "equivalent": true,
+    "explanation": "All three reasoning passages present the exact same set of claims regarding cross-file inconsistencies and per-file vulnerabilities with identical explanations and proposed fixes."
   }
 }

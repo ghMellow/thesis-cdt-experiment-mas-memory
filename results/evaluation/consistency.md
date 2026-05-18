@@ -64,3 +64,12 @@
 - framing_B1_e2b expert task8_vuln_udm: rep 3 differs from rep 2
 - framing_B1_e2b expert task9_vuln_cross: rep 2 differs from rep 1
 - framing_B1_e2b expert task9_vuln_cross: rep 3 differs from rep 2
+
+- framing_B1_cloud expert task6_vuln_udr: rep 2 differs from rep 1
+- framing_B1_cloud expert task6_vuln_udr: rep 3 differs from rep 2
+- framing_B1_cloud expert task7_vuln_amf: rep 2 differs from rep 1
+- framing_B1_cloud expert task7_vuln_amf: rep 3 differs from rep 2
+- framing_B1_cloud expert task8_vuln_udm: rep 2 differs from rep 1
+- framing_B1_cloud expert task8_vuln_udm: rep 3 differs from rep 2
+- framing_B1_cloud expert task9_vuln_cross: rep 2 differs from rep 1
+- framing_B1_cloud expert task9_vuln_cross: rep 3 differs from rep 2

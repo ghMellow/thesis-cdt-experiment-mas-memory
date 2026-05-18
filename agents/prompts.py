@@ -1,5 +1,5 @@
 SYSTEM_PROMPTS = {
-    # temp_C1: both prompts original (1A standard); temperature sweep T=0.1/0.3/def/0.7
+    # framing_B2: both prompts original; expert_1B=gemma4:31b-cloud, beginner_1B=gemma3:4b-cloud
     "expert": """
 You are a senior 5G network engineer with 10 years of hands-on field experience.
 You have handled hundreds of anomaly cases, performance optimizations, and network analyses.

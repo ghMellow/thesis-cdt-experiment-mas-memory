@@ -381,3 +381,50 @@ B1_cloud e B2 (cloud) verificheranno se la soglia si sposta verso l'alto: con mo
 
 **Fonte:** `results/evaluation/result_task7_vuln_amf_framing_B1_e2b.md`, `results/evaluation/result_task8_vuln_udm_framing_B1_e2b.md`, `docs/experiments_framing.md` §B1
 
+---
+
+## F21 — Con gemma4:31b-cloud il framing expert raggiunge il 100%: il paradosso sparisce con capacità sufficiente
+
+**Osservato su:** `framing_B1_cloud` — solo role=expert su gemma4:31b-cloud, prompt originali, task6/7/8/9
+
+**Risultati B1_cloud:**
+
+| task | accuracy | norm | avg_attempts | Brier |
+| --- | --- | --- | --- | --- |
+| task6_vuln_udr | 100% | **1.000** | 1.00 | 0.000 |
+| task7_vuln_amf | **100%** | 0.926 | 1.00 | 0.002 |
+| task8_vuln_udm | **100%** | 0.852 | 1.00 | 0.000 |
+| task9_vuln_cross | 100% | **1.000** | 1.00 | 0.000 |
+
+Zero retry su tutte le ripetizioni. Brier ≈ 0 su tutti i task (unica eccezione: task7 Brier=0.002, un rep con confidence=0.95 invece di 1.0 — calibrazione quasi perfetta).
+
+**Quadro scaling completo — expert framing su task7 (il discriminante):**
+
+| Modello | Expert task7 |
+| --- | --- |
+| gemma4:e2b (~2B params) | 0.0% |
+| gemma4:e4b (~4B params) | 66.7% |
+| gemma4:31b-cloud (~31B params) | **100%** |
+
+**Interpretazione:**
+
+Il paradosso task7 (beginner e4b = 100% > expert e4b = 66.7% in 1A) è interamente spiegato dalla capacità del modello. Con 31B parametri il framing expert non soffre della verbosity trap che colpisce i modelli piccoli: il modello ha sufficiente capacità per sviluppare l'analisi elaborata **e** completare la scansione sistematica che porta al `default` mancante nello switch.
+
+Zero retry indica che il 31b non entra mai in convergenza sui bug superficiali — riesce a identificare il CVE target al primo tentativo in ogni ripetizione. Il Brier≈0 su task7 (dove e4b aveva Brier=0.667 e e2b aveva Brier=1.000) mostra calibrazione quasi perfetta: il modello è sicuro quando ha ragione.
+
+Task6 e task9 con norm=1.000 confermano che il 31b raggiunge copertura rubrica massima su questi task — superiore a e4b (norm=0.926 su task6).
+
+Task8 norm=0.852 — il `spec_reference_score=0` sistematico (F13) sembra parzialmente risolto su modelli più grandi, ma non completamente. 31b raggiunge comunque il verdict correct.
+
+**Conclusione ipotesi B (completa per scaling locale + cloud expert):**
+
+Il paradosso beginner > expert è un artefatto di capacità:
+
+- e2b: capacità insufficiente → né expert né beginner funzionano su task difficili
+- e4b: zona di transizione → beginner ha vantaggio (100% vs 66.7%) perché il framing beginner compensa la verbosity trap dell'expert
+- 31b: capacità sufficiente → l'expert framing raggiunge il 100% senza la verbosity trap
+
+Il framing beginner non è superiore all'expert in assoluto — è superiore solo nella finestra di capacità in cui l'expert soffre la verbosity trap ma ha già abbastanza capacità per beneficiare del framing sistematico del beginner. B2 verificherà se il paradosso persiste confrontando expert 31b vs beginner 4b-cloud in un setup 1B asimmetrico.
+
+**Fonte:** `results/evaluation/result_task7_vuln_amf_framing_B1_cloud.md`, `results/evaluation/result_task8_vuln_udm_framing_B1_cloud.md`, `docs/experiments_framing.md` §B1
+

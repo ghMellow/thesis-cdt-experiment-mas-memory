@@ -141,8 +141,9 @@ poetry run python main.py --experiment 1A --experiment-id framing_A3 --role begi
 poetry run python main.py --experiment 1A --experiment-id framing_B1_e2b --role expert --task task6_vuln_udr --task task7_vuln_amf --task task8_vuln_udm --task task9_vuln_cross --repetitions 3
 ```
 
-**Status:** `[x] done` (B1_e2b); B1_cloud `[ ] pending` — dipende da accesso modelli cloud
+**Status:** `[x] done` (B1_e2b + B1_cloud)
 **Risultato (B1_e2b):** task7 expert (e2b) 0.0% — identico al beginner e2b in B3. Task8 0.0% (norm=0.593 vs beginner 0.408 — framing expert dà più copertura parziale ma sotto soglia). Task6/9 100%. Conclusione: l'advantage di expert su B3 task7 (33.3% vs 0%) era interamente effetto del modello (e4b > e2b), non del framing. Su e2b né il framing expert né il beginner funzionano sui task difficili. Vedi F20 in findings.md.
+**Risultato (B1_cloud):** task7 expert (31b) **100%** — il paradosso scompare. Tutti e 4 i task al 100% con zero retry, Brier≈0. Norm: task6=1.000, task7=0.926, task8=0.852, task9=1.000. Scaling completo: e2b=0% → e4b=66.7% → 31b=100% su task7 expert. Vedi F21 in findings.md.
 
 ### B2 — Setup asimmetrico (1B): expert=grande, beginner=piccolo
 
