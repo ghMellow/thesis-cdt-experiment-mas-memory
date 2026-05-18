@@ -102,5 +102,21 @@
   "expert/task9_vuln_cross/9b0b93bd46cda2c6": {
     "equivalent": true,
     "explanation": "All three passages identify the same critical security vulnerabilities, including input validation bypass, improper error handling, and inconsistent UE identifier validation across the system."
+  },
+  "expert/task6_vuln_udr/9d03d87de86df82c": {
+    "equivalent": true,
+    "explanation": "All four reasoning passages identify the same three core security findings (Control Flow/Return, Regex Flaw, and Data/Access Control risks) with identical descriptions, locations, impacts, and fixes."
+  },
+  "expert/task7_vuln_amf/46550a424ed7f37e": {
+    "equivalent": true,
+    "explanation": "Both passages identify the same critical issues regarding undefined variable usage, information exposure through error concatenation, and inconsistent error handling and formatting."
+  },
+  "expert/task8_vuln_udm/d82c2bcebe4ccf5b": {
+    "equivalent": true,
+    "explanation": "All three passages identify the critical inconsistency in input validation for the SUPI across different handlers and detail the resulting security risks like IDOR and DoS."
+  },
+  "expert/task9_vuln_cross/194030f15f3b3a9c": {
+    "equivalent": true,
+    "explanation": "All passages identify critical inconsistencies in input validation for subscriber identifiers across Network Functions and list specific vulnerabilities in PCF, AMF, UDM, and UDR."
   }
 }

@@ -342,3 +342,42 @@ Il paradosso beginner > expert non è un effetto puro del framing — è framing
 
 **Fonte:** `results/evaluation/result_task7_vuln_amf_framing_B3.md`, `results/evaluation/result_task8_vuln_udm_framing_B3.md`, `docs/experiments_framing.md` §B3
 
+---
+
+## F20 — Su gemma4:e2b il framing expert non recupera: la capacità è il fattore limitante, non il framing
+
+**Osservato su:** `framing_B1_e2b` — solo role=expert su gemma4:e2b, prompt originali, task6/7/8/9
+
+**Risultati B1_e2b e quadro comparativo completo su task7 e task8:**
+
+| Esperimento | Modello | Framing | task7 accuracy | task7 norm | task8 accuracy | task8 norm |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1A | e4b | expert | 66.7% | — | — | 0.778 |
+| 1A | e4b | beginner | **100%** | — | — | 0.778 |
+| B3 | e4b | expert | 33.3% | 0.667 | **100%** | 0.815 |
+| B3 | e2b | beginner | 0.0% | 0.037 | 0.0% | 0.408 |
+| **B1_e2b** | **e2b** | **expert** | **0.0%** | **0.111** | **0.0%** | **0.593** |
+
+**Dati diagnostici B1_e2b:**
+
+- task7: avg_attempts=3.00, Brier=1.000 — tutte le rep esaurite a MAX_RETRIES, sempre wrong con confidence=1.0. Identico al beginner e2b in B3.
+- task8: avg_attempts=3.00, Brier=1.000 — stesso collasso totale. Norm=0.593 vs 0.408 del beginner e2b — il framing expert dà più copertura parziale ma non supera la soglia 0.7.
+- task6/9: 100% — invariati rispetto a tutte le configurazioni precedenti.
+
+**Interpretazione:**
+
+Il risultato chiave: expert e2b = 0.0% su task7, identico a beginner e2b (B3). Il framing non fa differenza quando la capacità del modello è sotto soglia. Questo chiarisce un'ambiguità lasciata aperta da B3: in B3 l'expert (e4b) batteva il beginner (e2b) 33.3% vs 0.0% su task7 — quel vantaggio era interamente dovuto alla differenza di modello (e4b > e2b), non al framing expert. B1_e2b lo conferma mettendo il framing expert su e2b: stesso 0.0%.
+
+Unica eccezione parziale: su task8 l'expert e2b ottiene norm=0.593 contro beginner e2b 0.408. Il framing expert produce maggiore copertura della rubrica anche su modelli piccoli, ma non abbastanza da superare la soglia del verdict. Il framing ha un effetto residuo, non un effetto sufficiente.
+
+**Conclusione ipotesi B (da B3 + B1_e2b):**
+
+Il paradosso beginner > expert è un effetto framing × capacità con soglia binaria tra e2b e e4b:
+- **e4b (capacità sufficiente):** il framing beginner produce vantaggio reale su task7 (100% vs 66.7%)
+- **e2b (capacità insufficiente):** né il framing expert né il framing beginner funzionano sui task difficili — la capacità è il collo di bottiglia
+- Il vantaggio del framing expert su B3 task7 era interamente un artefatto della differenza di modello, non del framing
+
+B1_cloud e B2 (cloud) verificheranno se la soglia si sposta verso l'alto: con modelli più grandi, il framing expert recupera il vantaggio o il paradosso beginner > expert persiste?
+
+**Fonte:** `results/evaluation/result_task7_vuln_amf_framing_B1_e2b.md`, `results/evaluation/result_task8_vuln_udm_framing_B1_e2b.md`, `docs/experiments_framing.md` §B1
+

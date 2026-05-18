@@ -25,12 +25,12 @@ MODELS = {
     "expert_1A": {
         "local": "gemma4:e4b",
         "hosted": "gemma3:12b-cloud",
-        "use_hosted": False  # framing_A1: local gemma4:e4b, no hosted
+        "use_hosted": False  # temp_C1: local gemma4:e4b (same as 1A baseline)
     },
     "beginner_1A": {
-        "local": "gemma4:e2b",
+        "local": "gemma4:e4b",
         "hosted": "gemma3:12b-cloud",
-        "use_hosted": False  # framing_B3: local gemma4:e2b (smaller model, asymmetric)
+        "use_hosted": False  # temp_C1: local gemma4:e4b (same as 1A baseline)
     },
     "expert_1B": {
         "local": "gemma4:e4b",
@@ -59,7 +59,8 @@ OLLAMA_HOSTED_BASE_URL = "https://ollama.com/v1"
 OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY", "")
 
 # Generation temperature — use > 0 to measure real consistency across repetitions.
-TEMPERATURE = 0.3
+# temp_C1_T01: set to 0.1 (sweep: 0.1 → 0.3 → model_default → 0.7)
+TEMPERATURE = 0.1
 # Max attempts per task before stopping.
 MAX_RETRIES = 3
 # Repetitions per task for consistency checks.

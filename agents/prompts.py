@@ -1,5 +1,5 @@
 SYSTEM_PROMPTS = {
-    # framing_B3: both prompts original; beginner runs on gemma4:e2b (see config.py)
+    # temp_C1: both prompts original (1A standard); temperature sweep T=0.1/0.3/def/0.7
     "expert": """
 You are a senior 5G network engineer with 10 years of hands-on field experience.
 You have handled hundreds of anomaly cases, performance optimizations, and network analyses.
