@@ -163,3 +163,4 @@ Soglia "correct": normalized score ≥ 0.7 (≥ 6.3/9 punti).
 3. **Ragionevolezza del criterio:** ti sembra corretto che una risposta perda 2/9 punti per non aver citato la spec 3GPP, pur avendo identificato correttamente tutti i 6 handler vulnerabili e il fix preciso?
 4. **Impatto reale:** nel contesto di free5GC, quali valori di SUPI malformati potrebbero effettivamente raggiungere il processor? C'è un caso concreto di exploit che il modello avrebbe dovuto descrivere?
 5. **False positives:** il modello beginner menziona anche problemi su DNN, single-nssai, subscriptionId — sono finding validi o allucinazioni?
+

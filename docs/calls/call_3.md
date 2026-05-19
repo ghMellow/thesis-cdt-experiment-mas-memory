@@ -178,7 +178,7 @@ I supervisori hanno implicitamente citato il problema ("vedere cosa si inventa")
 
 Un relatore ha chiesto esplicitamente di inviare i risultati agli esperti 5G (che hanno identificato i CVE manualmente) per validazione umana del ragionamento.
 
-> **Nota modello:** le run nei log (`docs/log.md`) usano `gemma4:e4b` per setup 1A — il config è stato aggiornato dopo il fallimento di una versione precedente su task6. Il file `index_overview.md` riporta ancora la versione precedente come modello 1A: da aggiornare.
+> **Nota modello:** le run nei log (docs/archive/log.md) usano `gemma4:e4b` per setup 1A — il config è stato aggiornato dopo il fallimento di una versione precedente su task6. Il file `status.md` riporta ancora la versione precedente come modello 1A: da aggiornare.
 
 ### 4.0 Dati concreti dai log di esecuzione
 
@@ -260,7 +260,7 @@ Per ogni task, un documento Markdown con:
 
 ### 5.1 Problema attuale — diagnosi corretta dal log
 
-Dal log di esecuzione (`docs/log.md`), i dati effettivi su task6_full chiariscono la situazione:
+Dal log di esecuzione (docs/archive/log.md), i dati effettivi su task6_full chiariscono la situazione:
 
 - **L'agent non va in timeout:** i tre tentativi dell'agent completano regolarmente (~124s ciascuno, ~29K token in input).
 - **Il finding primario non viene trovato:** `missing_return_score=0` in tutti i tentativi — questo è un problema di **capacità** del modello, non di tempo.

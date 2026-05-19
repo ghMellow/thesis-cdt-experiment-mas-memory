@@ -2,7 +2,7 @@
 
 Questa sessione è partita da una chat nel gruppo (Andrea Bernardini) sull'idea di testare LLM locali su CVE reali in codice Go free5GC.
 Il sistema è stato esteso con i task security (task5–9) in vista della prossima call, in cui emergeranno i dubbi operativi (sezione "Domande aperte" in fondo).
-Per lo stato corrente e i puntatori agli altri documenti vedi [index_overview.md](index_overview.md).
+Per lo stato corrente e i puntatori agli altri documenti vedi [status.md](../status.md).
 
 ---
 

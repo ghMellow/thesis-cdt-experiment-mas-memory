@@ -6,10 +6,10 @@ Punto di ingresso rapido. Per i dettagli vai al documento corrispondente.
 
 | Documento | Contenuto |
 | --- | --- |
-| [overview_sistema.md](overview_sistema.md) | §1–7 + §9: mappa codice, flusso, valutazione, report — **riferimento stabile** |
-| [overview_call_1.md](overview_call_1.md) | Call iniziali: judge, soglie, rubrica, retry, confidence, token, consistenza, modelli, lingua (§8.1–8.10) |
-| [overview_call_2.md](overview_call_2.md) | Call 2026-05-09: security review 5G, task5–9, snapshot sistema (§8.11 + §10) |
-| [overview_call_3.md](overview_call_3.md) | Call 2026-05-13: presentazione risultati, dubbi metodologici, roadmap 19 maggio |
+| [architecture.md](architecture.md) | §1–7 + §9: mappa codice, flusso, valutazione, report — **riferimento stabile** |
+| [calls/call_1.md](calls/call_1.md) | Call iniziali: judge, soglie, rubrica, retry, confidence, token, consistenza, modelli, lingua (§8.1–8.10) |
+| [calls/call_2.md](calls/call_2.md) | Call 2026-05-09: security review 5G, task5–9, snapshot sistema (§8.11 + §10) |
+| [calls/call_3.md](calls/call_3.md) | Call 2026-05-13: presentazione risultati, dubbi metodologici, roadmap 19 maggio |
 | [findings.md](findings.md) | Registro empirico: osservazioni che hanno causato correzioni al codice o alla metodologia |
 
 ---
@@ -89,10 +89,10 @@ Quando viene chiesto di aggiornare o rigenerare la presentazione, seguire questo
 
 **1. Leggi prima questi file (in ordine):**
 
-1. `docs/index_overview.md` — stato attuale: modelli, task, checklist
-2. `docs/overview_sistema.md` — mappa codice e flusso (slide architettura)
-3. `docs/overview_call_1.md` — sfide e decisioni base (slide sfide aperte)
-4. `docs/overview_call_2.md` — risultati security review, decisioni recenti (slide risultati/prossimi passi)
+1. `docs/status.md` — stato attuale: modelli, task, checklist
+2. `docs/architecture.md` — mappa codice e flusso (slide architettura)
+3. `docs/calls/call_1.md` — sfide e decisioni base (slide sfide aperte)
+4. `docs/calls/call_2.md` — risultati security review, decisioni recenti (slide risultati/prossimi passi)
 5. `results/evaluation/scores_1A.md` e `scores_1B.md` — se ci sono risultati da mostrare
 
 **2. Mapping slide → sorgente (struttura attuale come riferimento):**
@@ -100,17 +100,17 @@ Quando viene chiesto di aggiornare o rigenerare la presentazione, seguire questo
 | Slide | Contenuto | Sorgente |
 | --- | --- | --- |
 | 01 Titolo | nome progetto, tagline | fisso |
-| 02 Cos'è | obiettivo, ruoli, setup, consistenza | `overview_sistema.md` §1 |
-| 03 Setup 1A vs 1B | controllo vs confronto | `overview_sistema.md` §2 |
-| 04 Ruoli | expert / beginner / JSON output | `overview_sistema.md` §2 |
-| 05 Task | math vs textual, SVG | `overview_sistema.md` §2 + task list da questo file |
-| 06 Mappa codice | file e responsabilità | `overview_sistema.md` §3 |
-| 07 Flusso LangGraph | SVG grafo nodi | `overview_sistema.md` §5 |
-| 08 Ripetizioni vs retry | parametri esecuzione | `overview_sistema.md` §5 |
-| 09 Judge LLM | input/output, SVG | `overview_sistema.md` §6.2 |
-| 10 Output | file risultati, report | `overview_sistema.md` §7 |
-| 11 Metriche | accuracy / confidence / consistenza | `overview_sistema.md` §6 |
-| 12 Sfide aperte | problemi da risolvere | `overview_call_1.md` §8.1–8.10 (proposte non ancora implementate) |
+| 02 Cos'è | obiettivo, ruoli, setup, consistenza | `architecture.md` §1 |
+| 03 Setup 1A vs 1B | controllo vs confronto | `architecture.md` §2 |
+| 04 Ruoli | expert / beginner / JSON output | `architecture.md` §2 |
+| 05 Task | math vs textual, SVG | `architecture.md` §2 + task list da questo file |
+| 06 Mappa codice | file e responsabilità | `architecture.md` §3 |
+| 07 Flusso LangGraph | SVG grafo nodi | `architecture.md` §5 |
+| 08 Ripetizioni vs retry | parametri esecuzione | `architecture.md` §5 |
+| 09 Judge LLM | input/output, SVG | `architecture.md` §6.2 |
+| 10 Output | file risultati, report | `architecture.md` §7 |
+| 11 Metriche | accuracy / confidence / consistenza | `architecture.md` §6 |
+| 12 Sfide aperte | problemi da risolvere | `calls/call_1.md` §8.1–8.10 (proposte non ancora implementate) |
 | 13 Chiusura | tagline | fisso |
 
 Aggiungere slide nuove (es. risultati security, confronto modelli) dopo la slide 11, prima della chiusura.
@@ -138,7 +138,7 @@ Aggiungere slide nuove (es. risultati security, confronto modelli) dopo la slide
 
 Dopo ogni modifica al codice:
 
-- Aggiorna il file `overview_sistema.md` se cambia la mappa codice, il flusso o la valutazione.
-- Aggiungi una nuova sezione `§8.N` in `overview_call_1.md` o crea `overview_call_<tema>.md` per nuove call.
+- Aggiorna il file `architecture.md` se cambia la mappa codice, il flusso o la valutazione.
+- Aggiungi una nuova sezione `§8.N` in `calls/call_1.md` o crea `docs/calls/call_<N>.md` per nuove call.
 - Aggiorna questo index (tabelle modelli/task e checklist) se cambia la configurazione.
 - Usa `> ✅ **Implementato:**` / `> ⚠️ **Correzione:**` inline nel documento di dettaglio corrispondente.

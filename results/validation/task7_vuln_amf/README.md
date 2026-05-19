@@ -215,3 +215,4 @@ Soglia "correct": normalized score ≥ 0.7 (≥ 6.3/9 punti).
 3. **Finding secondario:** l'inconsistenza `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)` vs `c.Set(..., problemDetail.Cause)` — è effettivamente presente nei 5 handler citati? Quanto è rilevante rispetto al finding primario?
 4. **Risposta expert "quasi corretta"?** L'expert identifica correttamente diversi problemi reali (hardcoded error in applicationjson, brittle content-type parsing) ma manca il CVE principale. La sua analisi è tecnicamente valida come security review, anche se non trova il finding target?
 5. **Anomalia beginner > expert:** avendo letto il codice manualmente, hai una spiegazione intuitiva di perché il finding del default case possa sfuggire a un'analisi approfondita e venire trovato da un'analisi più superficiale?
+

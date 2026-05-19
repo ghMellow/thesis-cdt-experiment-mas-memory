@@ -2,7 +2,7 @@
 
 Questo documento raccoglie i finding emersi durante lo sviluppo e i test del sistema che hanno portato a **correzioni al codice**, **cambiamenti di design** o **revisioni metodologiche**. Non è un verbale di call — è un registro delle cose che non funzionavano come atteso e di come sono state risolte.
 
-Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `overview_call_3.md`.
+Per il verbale delle call vedi `calls/call_1.md`, `calls/call_2.md`, `calls/call_3.md`.
 
 ---
 
@@ -16,7 +16,7 @@ Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `over
 
 **Fix:** invertito l'ordine in tutti i 12 file di task: `### Reasoning → ### Answer → ### Confidence`. Il parser usa regex per nome heading (non per posizione) quindi non richiede modifiche al codice.
 
-**Fonte:** `overview_call_3.md` §6.5
+**Fonte:** `calls/call_3.md` §6.5
 
 ---
 
@@ -30,7 +30,7 @@ Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `over
 
 **Fix:** passaggio dal formato JSON a template Markdown (`### Answer / ### Reasoning / ### Confidence` per l'agente; `### Scores / ### Feedback` per il judge). Il parsing interno converte in JSON con regex per heading, con fallback JSON se il modello non rispetta il template. Fix retroattivo su tutti i task e il judge.
 
-**Fonte:** `overview_call_1.md` §8.10, `overview_call_2.md` Snapshot 2026-05-09
+**Fonte:** `calls/call_1.md` §8.10, `calls/call_2.md` Snapshot 2026-05-09
 
 ---
 
@@ -38,13 +38,13 @@ Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `over
 
 **Osservato su:** documentazione vs `config.py`
 
-**Sintomo:** `overview_sistema.md` riportava "temperatura 0". Il valore effettivo in `config.py` è `TEMPERATURE = 0.3`.
+**Sintomo:** `architecture.md` riportava "temperatura 0". Il valore effettivo in `config.py` è `TEMPERATURE = 0.3`.
 
 **Implicazione:** con temperatura > 0 le ripetizioni misurano **varianza LLM reale** — non solo stabilità del parsing. I confronti tra ripetizioni (consistenza, Brier Score) hanno significato diverso rispetto a temperatura 0.
 
-**Fix:** aggiunta nota `⚠️ Correzione` in `overview_sistema.md`. Il valore non è stato cambiato (0.3 è la scelta deliberata per riproducibilità cross-modello).
+**Fix:** aggiunta nota `⚠️ Correzione` in `architecture.md`. Il valore non è stato cambiato (0.3 è la scelta deliberata per riproducibilità cross-modello).
 
-**Fonte:** `overview_sistema.md` §1
+**Fonte:** `architecture.md` §1
 
 ---
 
@@ -56,7 +56,7 @@ Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `over
 
 **Fix:** tutti i file `docs/tasks/*.md` sono stati tradotti in inglese per uniformità. Le label di classificazione in task3 (`NORMAL / MINOR_ANOMALY / CRITICAL_ANOMALY`) e la ground truth/rubrica di task4 sono state tradotte coerentemente.
 
-**Fonte:** `overview_call_1.md` §8.10
+**Fonte:** `calls/call_1.md` §8.10
 
 ---
 
@@ -70,7 +70,7 @@ Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `over
 
 **Implicazione metodologica:** il retry è utile solo se accompagnato da un segnale su quale finding manca (feedback del judge) — non come pure re-generation. Il design attuale (retry neutro, senza feedback) è intenzionale per preservare l'integrità del test, ma questo finding documenta il limite.
 
-**Fonte:** `overview_call_3.md` §3.3
+**Fonte:** `calls/call_3.md` §3.3
 
 ---
 
@@ -86,7 +86,7 @@ Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `over
 
 **Implicazione:** su modelli piccoli (4B), il framing "esperto" non produce code review migliore — produce analisi più prolissa sugli stessi bug, mancando il target CVE. Il ruolo non è un proxy affidabile della qualità su modelli piccoli.
 
-**Fonte:** `overview_call_3.md` §3.4
+**Fonte:** `calls/call_3.md` §3.4
 
 ---
 
@@ -102,7 +102,7 @@ Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `over
 
 **Fix:** task con `"full"` nel nome ottengono `TASK_TIMEOUT_SECONDS × FULL_TASK_TIMEOUT_MULTIPLIER` (default ×2 = 1200s). Configurabile in `config.py`. Il log stampa `Full task detected → timeout Xs → Ys`.
 
-**Fonte:** `overview_call_3.md` §5.1 e §7.1
+**Fonte:** `calls/call_3.md` §5.1 e §7.1
 
 ---
 
@@ -116,9 +116,9 @@ Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `over
 
 **Implicazione:** il confronto 1A vs 1B su beginner non è valido per task5/task6 — il modello è diverso da quello atteso. Non c'è modo di saperlo dal path del file.
 
-**Fix parziale (non ancora implementato):** eliminare i file vecchi e rieseguire con qwen. Soluzione strutturale pendente in §3.6 di `overview_call_3.md`: aggiungere il modello come dimensione esplicita nel path dei risultati.
+**Fix parziale (non ancora implementato):** eliminare i file vecchi e rieseguire con qwen. Soluzione strutturale pendente in §3.6 di `calls/call_3.md`: aggiungere il modello come dimensione esplicita nel path dei risultati.
 
-**Fonte:** `overview_call_2.md` Analisi risultati preliminari, `overview_call_3.md` §3.6
+**Fonte:** `calls/call_2.md` Analisi risultati preliminari, `calls/call_3.md` §3.6
 
 ---
 
@@ -130,7 +130,7 @@ Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `over
 
 **Fix:** ogni entry di `history[n]` ora contiene `prompt_system` e `prompt_user` (task_content con eventuale retry context), oltre a `elapsed_seconds`, `tokens_in`, `tokens_out`, `judge_score` (breakdown per criterio di quel tentativo), `verdict`. Aggiunti anche `temperature` e `judge_model` in `run_config`.
 
-**Fonte:** `overview_call_3.md` §6.1
+**Fonte:** `calls/call_3.md` §6.1
 
 ---
 
@@ -144,7 +144,7 @@ Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `over
 
 **Fix (parziale):** separare nettamente i risultati con hint da quelli blind. Rieseguire task6 con gemma4:e4b senza special attention come baseline blind pulita. Nella presentazione: mostrare prima i risultati blind, poi come nota il confronto con hint.
 
-**Fonte:** `overview_call_3.md` §3.1
+**Fonte:** `calls/call_3.md` §3.1
 
 ---
 
@@ -160,7 +160,7 @@ Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `over
 
 **Fix (pendente):** includere il testo completo della rubrica nel pacchetto per la validazione esterna (esperti 5G). Documentare il processo di generazione come limitation metodologica nella presentazione.
 
-**Fonte:** `overview_call_3.md` §3.2
+**Fonte:** `calls/call_3.md` §3.2
 
 ---
 
@@ -177,7 +177,7 @@ Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `over
 
 **Fix:** aggiunta formula + anchor points (0 / 0.25 / 1.0) nella slide. Il segnale più forte: task7 expert rep3 con BS=1.0 su un attempt (confidence 1.0 su risposta wrong) — overconfidence totale su errore.
 
-**Fonte:** `overview_call_3.md` §2.2
+**Fonte:** `calls/call_3.md` §2.2
 
 ---
 
@@ -191,7 +191,7 @@ Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `over
 
 **Fix (pendente):** validazione da esperti 5G — il criterio rimane in rubrica fino a revisione esterna.
 
-**Fonte:** `overview_call_3.md` §4.0
+**Fonte:** `calls/call_3.md` §4.0
 
 ---
 
@@ -205,7 +205,7 @@ Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `over
 
 **Implicazione:** la soglia 0.7 è ragionevole e confermata da un relatore come scelta conservativa giustificabile ("il modello deve coprire almeno i 2/3 dei criteri della rubrica"). Il problema su task6 è la capacità del modello, non la soglia.
 
-**Fonte:** `overview_call_3.md` §2.1, §2.3
+**Fonte:** `calls/call_3.md` §2.1, §2.3
 
 ---
 
@@ -230,7 +230,7 @@ Per il verbale delle call vedi `overview_call_1.md`, `overview_call_2.md`, `over
 - Eseguire entrambe le modalità sullo stesso task (es. task7 expert) e confrontare: se il feedback rompe la convergenza → il problema del retry neutro era l'assenza di segnale direzionale, non la temperatura.
 - Documentare il confronto come risultato metodologico: "retry neutro vs retry guidato" è una variabile sperimentale interessante di per sé.
 
-**Fonte:** `overview_call_3.md` §3.3, `overview_call_1.md` §8.4, F5
+**Fonte:** `calls/call_3.md` §3.3, `calls/call_1.md` §8.4, F5
 
 ---
 

@@ -228,7 +228,7 @@
 
         /* ── COVER ── */
         #s01 { background: radial-gradient(ellipse at 50% 40%, rgba(122,80,24,0.06) 0%, transparent 65%), var(--bg); }
-        #s01 .logo-mark { width: 52px; height: 52px; background: var(--purple); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 22px; box-shadow: 0 6px 20px rgba(122,80,24,0.30); }
+        /*#s01 .logo-mark { width: 52px; height: 52px; background: var(--purple); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 22px; box-shadow: 0 6px 20px rgba(122,80,24,0.30); }*/
 
         /* ── SUMMARY CLOSING ── */
         #s16 .summary-grid { display: flex; gap: 14px; max-width: 900px; width: 100%; margin-top: 24px; }
@@ -291,79 +291,96 @@
 </section>
 
 <!-- ══════════════════════════════════════
-     02 · WHY THIS PROJECT
+     01b · THESIS TIMELINE
 ══════════════════════════════════════ -->
-<section id="s02" class="left">
-    <div class="eyebrow">Motivation</div>
-    <h2>From Paper-Reading to a Real Experiment</h2>
-    <ul class="dl">
-        <li><strong>Starting point:</strong> after months of paper-reading on LLM evaluation and multi-agent systems, we needed a concrete empirical exercise on a real, non-trivial domain</li>
-        <li><strong>Q1 &mdash; Framing:</strong> does a &ldquo;senior 5G engineer&rdquo; system prompt change what the model finds vs a &ldquo;junior technician&rdquo; prompt?</li>
-        <li><strong>Q2 &mdash; Capacity:</strong> does model size dominate? Can a larger model outperform a smaller one regardless of role framing?</li>
-        <li><strong>Q3 &mdash; Blind CVE detection:</strong> can a locally-run LLM identify real published vulnerabilities in Go 5G production code without any hints?</li>
-        <li><strong>Why 5G / free5GC?</strong> Published GHSA advisories as ground truth, real Go code, genuine domain difficulty &mdash; a hard problem with measurable answers</li>
-    </ul>
-</section>
-
-<!-- ══════════════════════════════════════
-     03 · EXPERIMENTAL DESIGN
-══════════════════════════════════════ -->
-<section id="s03">
-    <div class="eyebrow">Experimental Design</div>
-    <h2 style="margin-bottom:20px;">Two Setups &middot; Two Roles &middot; Three Repetitions</h2>
-    <div class="cards">
-        <div class="card featured">
-            <div class="card-tag">Setup 1A &middot; Control</div>
-            <div class="card-title">Same Model, Different Framing</div>
-            <div class="card-row">Both Expert and Beginner run on the <strong>same underlying LLM</strong></div>
-            <div class="card-row">Any difference in results comes <strong>only from the system prompt</strong></div>
-            <div class="card-row">Isolates the pure effect of role framing on output quality</div>
+<section id="s_timeline" class="center">
+    <div class="eyebrow">Thesis Context</div>
+    <h2 style="margin-bottom:40px;">Where This Experiment Fits</h2>
+    <div style="position:relative;max-width:840px;width:100%;">
+        <!-- connector line -->
+        <div style="position:absolute;top:30px;left:10%;right:10%;height:2px;background:linear-gradient(to right,var(--border-strong),var(--purple-light),var(--border-strong));"></div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <!-- Node 1: Literature Review -->
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:14px;">
+                <div style="width:60px;height:60px;border-radius:50%;background:var(--surface);border:2px solid var(--border-strong);display:flex;align-items:center;justify-content:center;position:relative;z-index:1;box-shadow:var(--shadow-sm);">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.8" stroke-linecap="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Literature Review</div>
+                    <div style="font-size:12px;color:var(--text-muted);line-height:1.55;max-width:140px;">CDT papers: largely theoretical, few empirical agent benchmarks</div>
+                </div>
+            </div>
+            <!-- Node 2: experiment-mas (current) -->
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:14px;">
+                <div style="width:64px;height:64px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;position:relative;z-index:1;margin-top:-2px;box-shadow:0 4px 20px rgba(122,80,24,0.35);">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/></svg>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:12px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">experiment-mas</div>
+                    <div style="display:inline-block;background:var(--purple-dim);color:var(--purple);font-size:9px;font-weight:600;padding:2px 10px;border-radius:999px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;font-family:var(--mono);">Today</div>
+                    <div style="font-size:12px;color:var(--text-sec);line-height:1.55;max-width:140px;">Hands-on: real CVEs, multi-agent, rubric evaluation. Build intuition before the full system.</div>
+                </div>
+            </div>
+            <!-- Node 3: ... (TBD steps) -->
+            <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:14px;padding:0 8px;">
+                <div style="width:44px;height:44px;border-radius:50%;background:var(--surface2);border:2px dashed rgba(0,0,0,0.18);display:flex;align-items:center;justify-content:center;position:relative;z-index:1;margin-top:8px;opacity:0.55;">
+                    <span style="font-size:16px;font-weight:700;color:var(--text-faint);letter-spacing:1px;line-height:1;">···</span>
+                </div>
+                <div style="text-align:center;opacity:0.45;">
+                    <div style="font-size:11px;color:var(--text-muted);line-height:1.4;max-width:80px;">other steps TBD</div>
+                </div>
+            </div>
+            <!-- Node 4: CDT -->
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:14px;">
+                <div style="width:60px;height:60px;border-radius:50%;background:var(--surface);border:2px dashed var(--border-strong);display:flex;align-items:center;justify-content:center;position:relative;z-index:1;box-shadow:var(--shadow-sm);opacity:0.65;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M9 10 Q10.5 7.5 12 10 Q13.5 12.5 15 10"/><circle cx="12" cy="10" r="1"/></svg>
+                </div>
+                <div style="text-align:center;opacity:0.65;">
+                    <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">CDT Build</div>
+                    <div style="font-size:12px;color:var(--text-muted);line-height:1.55;max-width:140px;">Full Cognitive Digital Twin on a 5G cell, applying the intuitions built here</div>
+                </div>
+            </div>
         </div>
-        <div class="card info">
-            <div class="card-tag">Setup 1B &middot; Comparison</div>
-            <div class="card-title">Different Models per Role</div>
-            <div class="card-row"><strong>Expert</strong> &rarr; larger, more capable model</div>
-            <div class="card-row"><strong>Beginner</strong> &rarr; smaller model</div>
-            <div class="card-row">Measures combined effect of framing <strong>and</strong> model capacity</div>
-        </div>
-        <div class="card warn">
-            <div class="card-tag">Repetitions &amp; Output Format</div>
-            <div class="card-title">Consistency Measurement</div>
-            <div class="card-row">Each task runs <strong>3&times; independently</strong> at low fixed temperature</div>
-            <div class="card-row">Up to <strong>3 retries</strong> per attempt if the answer is wrong</div>
-            <div class="card-row">Structured output: <strong>Reasoning &rarr; Answer &rarr; Confidence</strong></div>
-        </div>
+    </div>
+    <div class="callout gray" style="margin-top:32px;text-align:left;font-size:13px;max-width:840px;">
+        <strong>Motivation:</strong> CDT literature is rich in theory but sparse in empirical evidence. This experiment provides measurable, reproducible baselines for the multi-agent evaluation framework at the core of the thesis.
     </div>
 </section>
 
 <!-- ══════════════════════════════════════
-     04 · TASK PROGRESSION
+     01c · EXPERIMENT OVERVIEW
 ══════════════════════════════════════ -->
-<section id="s04">
-    <div class="eyebrow">Tasks</div>
-    <h2 style="margin-bottom:20px;">Three Categories &mdash; Increasing Difficulty</h2>
-    <div class="cards">
+<section id="s_overview">
+    <div class="eyebrow">experiment-mas &middot; Overview</div>
+    <h2 style="margin-bottom:20px;">The Experiment at a Glance</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:900px;width:100%;">
+        <div class="card featured">
+            <div class="card-tag">1 &middot; Research Questions</div>
+            <div class="card-title">Why?</div>
+            <div class="card-row"><strong>Q1 &middot; Framing:</strong> does the role <strong>prompt</strong> change what the model finds?</div>
+            <div class="card-row"><strong>Q2 &middot; Capacity:</strong> does <strong>model size</strong> dominate over role framing?</div>
+            <div class="card-row"><strong>Q3 &middot; Blind CVE:</strong> can a local LLM find real vulns without hints?</div>
+        </div>
         <div class="card info">
-            <div class="card-tag">Category 1 &middot; Deterministic</div>
-            <div class="card-title">Math Tasks (1&ndash;2)</div>
-            <div class="card-row">5G network arithmetic: integer results and float statistics</div>
-            <div class="card-row">Ground truth = exact answer &mdash; <strong>no judge needed</strong></div>
-            <div class="card-row">Establishes a reliable baseline for the framework</div>
+            <div class="card-tag">2 &middot; Experimental Design</div>
+            <div class="card-title">How?</div>
+            <div class="card-row">Two roles: <strong>Expert</strong> (senior 5G engineer) &middot; <strong>Beginner</strong> (junior technician)</div>
+            <div class="card-row">Two setups: same model for both, or larger model for Expert only</div>
+            <div class="card-row">3&times; repetitions per task, output: Reasoning &rarr; Answer &rarr; Confidence</div>
         </div>
         <div class="card warn">
-            <div class="card-tag">Category 2 &middot; Textual</div>
-            <div class="card-title">5G Operational (3&ndash;4)</div>
-            <div class="card-row">Anomaly classification, root-cause analysis</div>
-            <div class="card-row">Evaluated by a <strong>judge LLM with rubric</strong></div>
-            <div class="card-row">Tests 5G domain knowledge without code reading</div>
+            <div class="card-tag">3 &middot; Tasks</div>
+            <div class="card-title">What?</div>
+            <div class="card-row"><strong>Category 1:</strong> deterministic math, exact baseline</div>
+            <div class="card-row"><strong>Category 2:</strong> 5G textual, anomaly &amp; root-cause analysis</div>
+            <div class="card-row"><strong>Category 3:</strong> security, real CVEs in Go 5G code, blind review</div>
         </div>
-        <div class="card featured">
-            <div class="card-tag">Category 3 &middot; Security</div>
-            <div class="card-title">CVE Code Review (5&ndash;9)</div>
-            <div class="card-row">Real Go code from free5GC: PCF, UDR, AMF, UDM</div>
-            <div class="card-row">Published CVEs (GHSA advisories) as ground truth</div>
-            <div class="card-row"><strong>Blind review</strong> &mdash; no hints, no CVE descriptions</div>
-            <div class="card-row">Also includes <em>full-file variants</em> up to 2891 lines</div>
+        <div class="card ok">
+            <div class="card-tag">4 &middot; Evaluation</div>
+            <div class="card-title">How do we score?</div>
+            <div class="card-row">Math: Python exact match, no judge needed</div>
+            <div class="card-row">Textual &amp; Security: separate judge LLM + rubric per task</div>
+            <div class="card-row">Normalized score &ge; 0.7 &rarr; verdict <em>correct</em></div>
         </div>
     </div>
 </section>
@@ -429,20 +446,20 @@
 ══════════════════════════════════════ -->
 <section id="s06">
     <div class="eyebrow">Evaluation Method</div>
-    <h2 style="margin-bottom:20px;">Judge LLM + Rubric-Based Scoring</h2>
+    <h2 style="margin-bottom:12px;">Judge LLM + Rubric-Based Scoring</h2>
     <div class="two-col">
         <div class="col">
             <ul class="dl" style="max-width:100%;">
-                <li><strong>Separate model:</strong> judge is a different LLM &mdash; receives the code + rubric, but <em>never the ground truth text</em></li>
-                <li><strong>Rubric categories:</strong> weighted criteria per task &mdash; vulnerability class, code location, security impact, fix quality</li>
-                <li><strong>Threshold:</strong> normalized total &ge; 0.7 &rarr; verdict <em>correct</em></li>
-                <li><strong>Methodology:</strong> <span style="font-family:var(--mono);font-size:0.85em;background:var(--purple-dim);color:var(--purple-dark);padding:2px 7px;border-radius:4px;">RubricEval</span> &mdash; Pan et al., 2026 &mdash; validates rubric-based LLM-as-judge at scale</li>
-                <li><strong>Known limitation:</strong> rubric built from CVE patches &rarr; potential circularity; flagged for external domain expert validation</li>
+                <li style="font-size:15px;padding:9px 0 9px 28px;"><strong>Separate model:</strong> judge is a different LLM. It receives the task scenario, the agent response, and the rubric, but <em>never the ground truth text</em></li>
+                <li style="font-size:15px;padding:9px 0 9px 28px;"><strong>Rubric categories:</strong> weighted criteria per task: vulnerability class, code location, security impact, fix quality</li>
+                <li style="font-size:15px;padding:9px 0 9px 28px;"><strong>Threshold:</strong> normalized total &ge; 0.7 &rarr; verdict <em>correct</em></li>
+                <li style="font-size:15px;padding:9px 0 9px 28px;"><strong>Methodology:</strong> <span style="font-family:var(--mono);font-size:0.85em;background:var(--purple-dim);color:var(--purple-dark);padding:2px 7px;border-radius:4px;">RubricEval</span> (Pan et al., 2026) validates rubric-based LLM-as-judge at scale</li>
+                <li style="font-size:15px;padding:9px 0 9px 28px;"><strong>Agent vs judge:</strong> the agent receives only source code and its role framing, no rubric and no expected answers. The judge is guided by the rubric by design, but since the rubric was derived from the same published patches, a <em>potential circularity</em> exists and is flagged for external validation.</li>
             </ul>
         </div>
         <div class="col" style="justify-content:center;">
-            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--text-muted);margin-bottom:8px;">Rubric &mdash; AMF task (task7) &middot; <code>_sol.md</code></div>
-            <div class="cb" style="font-size:10px;line-height:1.7;">{
+            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--text-muted);margin-bottom:6px;">Rubric &middot; AMF task (task7) &middot; <code>_sol.md</code></div>
+            <div class="cb" style="font-size:10px;line-height:1.5;">{
   <span class="str">"rubrica"</span>: {
 <span class="hl">    <span class="str">"missing_default_score"</span>: {
       <span class="str">"max"</span>: <span class="kw">4</span>,  <span class="cm">// ← key CVE criterion</span>
@@ -477,43 +494,54 @@
 </section>
 
 <!-- ══════════════════════════════════════
-     07 · DOMAIN CONTEXT
+     07 · DOMAIN CONTEXT + CVE GROUND TRUTH
 ══════════════════════════════════════ -->
 <section id="s07">
     <div class="eyebrow">Domain</div>
-    <h2 style="margin-bottom:18px;">5G Core Networks &amp; free5GC</h2>
+    <h2 style="margin-bottom:12px;">free5GC &middot; Real Advisories as Ground Truth</h2>
     <div class="two-col" style="gap:28px;">
-        <div class="col" style="display:flex;flex-direction:column;gap:12px;">
+        <div class="col" style="display:flex;flex-direction:column;gap:11px;">
             <div class="callout purple" style="margin:0;">
-                <strong>free5GC</strong> &mdash; open-source Go implementation of a complete 5G core network, used in academic research and real deployments.
+                <strong>free5GC</strong> is an open-source Go implementation of a complete 5G Core network, used in academic research and early deployments.
             </div>
             <ul class="dl" style="max-width:100%;">
-                <li>Multiple <strong>published CVEs</strong> (GHSA advisories) across PCF, AMF, UDM, UDR &mdash; all discovered manually by domain experts</li>
-                <li>Each bug requires simultaneous knowledge of <strong>Go semantics</strong>, the <strong>Gin web framework</strong>, and <strong>3GPP protocol specs</strong></li>
-                <li style="background:rgba(139,32,32,0.07);border:1px solid rgba(139,32,32,0.22);border-radius:6px;padding:10px 14px 10px 28px;"><strong style="color:var(--red);">A generic static analysis tool would not flag any of these</strong> &mdash; all require <strong>semantic and domain-level understanding</strong></li>
+                <li style="font-size:15px;padding:9px 0 9px 28px;"><strong>GHSA (GitHub Security Advisory):</strong> GitHub&rsquo;s advisory format. Each entry includes the patch diff, affected versions, and a link to the fix commit. Written by project maintainers, these are the ground truth for our detection experiment.</li>
+                <li style="font-size:15px;padding:9px 0 9px 28px;"><strong>Invisible to the compiler:</strong> none of these bugs are caught by <code>go vet</code> or standard static analysis. A missing <code>return</code> in Gin, an empty <code>switch</code> default, a missing validator call — all syntactically valid Go. Detecting them requires knowing how Gin handles control flow, how 3GPP defines valid inputs, and where the 5G Core trusts caller data.</li>
             </ul>
         </div>
         <div class="col" style="justify-content:center;">
             <div class="nf-grid">
                 <div class="nf-box">
-                    <div class="nf-name">PCF</div>
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px;">
+                        <div class="nf-name">PCF</div>
+                        <span class="badge purple" style="font-size:9px;">GHSA-98cp</span>
+                    </div>
                     <div class="nf-full">Policy Control Function</div>
-                    <div class="nf-desc">Manages QoS policies and charging rules for PDU sessions. Exposes OAM API for network management.</div>
+                    <div class="nf-desc">CORS: <code>AllowAllOrigins</code> + <code>AllowCredentials</code> simultaneously enabled</div>
                 </div>
                 <div class="nf-box amf">
-                    <div class="nf-name">AMF</div>
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px;">
+                        <div class="nf-name">AMF</div>
+                        <span class="badge blue" style="font-size:9px;">GHSA-r99v</span>
+                    </div>
                     <div class="nf-full">Access &amp; Mobility Management</div>
-                    <div class="nf-desc">Handles UE registration, connection, and mobility &mdash; entry point for all device access to the core.</div>
+                    <div class="nf-desc">Missing <code>default</code> case in Content-Type switch: nil request passed to handler</div>
                 </div>
                 <div class="nf-box udm">
-                    <div class="nf-name">UDM</div>
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px;">
+                        <div class="nf-name">UDM</div>
+                        <span class="badge" style="font-size:9px;background:rgba(46,125,50,0.1);color:#2e7d32;">GHSA-585v</span>
+                    </div>
                     <div class="nf-full">Unified Data Management</div>
-                    <div class="nf-desc">Stores subscriber profiles, authentication credentials, and service parameters per SUPI identifier.</div>
+                    <div class="nf-desc"><code>IsValidSupi()</code> missing in 6 of 8 SBI handlers: no input validation on subscriber IDs</div>
                 </div>
                 <div class="nf-box udr">
-                    <div class="nf-name">UDR</div>
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px;">
+                        <div class="nf-name">UDR</div>
+                        <span class="badge amber" style="font-size:9px;">GHSA-wrwh &times;6</span>
+                    </div>
                     <div class="nf-full">Unified Data Repository</div>
-                    <div class="nf-desc">Raw data storage layer queried by UDM and PCF. Exposes a REST SBI API over HTTP/Gin.</div>
+                    <div class="nf-desc">Missing <code>return</code> after 404 in Gin handlers: execution continues with nil data</div>
                 </div>
             </div>
         </div>
@@ -525,7 +553,7 @@
 ══════════════════════════════════════ -->
 <section id="s08">
     <div class="eyebrow">Security Tasks</div>
-    <h2 style="margin-bottom:18px;">Five CVE Tasks &mdash; Real Published Vulnerabilities</h2>
+    <h2 style="margin-bottom:18px;">Five CVE Tasks &middot; Real Published Vulnerabilities</h2>
     <div class="dtable-wrap">
         <table class="dtable">
             <thead>
@@ -574,7 +602,7 @@
                 <tr>
                     <td style="font-family:var(--mono);font-weight:600;">task9</td>
                     <td><span class="badge gray">All 4</span></td>
-                    <td>Cross-NF inconsistency &mdash; per-file bugs + cross-file patterns</td>
+                    <td>Cross-NF inconsistency: per-file bugs + cross-file patterns</td>
                     <td style="font-family:var(--mono);font-size:10px;color:var(--text-muted);">Multi-CVE</td>
                     <td><span class="badge green">Blind</span></td>
                     <td style="color:var(--text-sec);font-size:12px;">High</td>
@@ -582,13 +610,220 @@
             </tbody>
         </table>
     </div>
-    <p style="font-size:13px;color:var(--text-sec);margin-top:12px;text-align:center;">&#9888;&nbsp;task6 includes a &ldquo;Pay special attention to&hellip;&rdquo; hint &mdash; results require separate interpretation</p>
+    <p style="font-size:13px;color:var(--text-sec);margin-top:12px;text-align:center;">&#9888;&nbsp;task6 includes a &ldquo;Pay special attention to&hellip;&rdquo; hint; results require separate interpretation</p>
 </section>
 
 <!-- ══════════════════════════════════════
-     09 · CVE DEEP DIVE — task5 & task6
+     09 · TASK & RUBRIC CONSTRUCTION
 ══════════════════════════════════════ -->
 <section id="s09">
+    <div class="eyebrow">Setup</div>
+    <h2 style="margin-bottom:12px;">Task and Rubric Construction</h2>
+    <div class="two-col" style="gap:28px;align-items:flex-start;">
+        <div class="col" style="display:flex;flex-direction:column;gap:12px;">
+            <div class="callout purple" style="margin:0;">
+                Tasks and rubrics were built using <strong>Claude Sonnet 4.6</strong> (cloud), which read the real CVE patches and the free5GC source code to produce task excerpts and scoring criteria.
+            </div>
+            <ul class="dl" style="max-width:100%;">
+                <li style="font-size:15px;padding:9px 0 9px 28px;"><strong>Task excerpts:</strong> full file version and a shorter selection of the most relevant sections. No code was rewritten, only selected.</li>
+                <li style="font-size:15px;padding:9px 0 9px 28px;"><strong>Rubrics:</strong> per-task weighted criteria derived from the published GHSA patches. What a competent reviewer should identify, at what granularity, and with what score weight.</li>
+                <li style="font-size:15px;padding:9px 0 9px 28px;"><strong>Asymmetry by design:</strong> a powerful cloud model sets the problem; local models run inference on consumer hardware. This separation is intentional and itself becomes a variable to test.</li>
+            </ul>
+        </div>
+        <div class="col" style="display:flex;flex-direction:column;gap:10px;justify-content:center;">
+            <div class="card featured">
+                <div class="card-tag">Problem setup &middot; cloud</div>
+                <div class="card-title">Claude Sonnet 4.6</div>
+                <div class="card-row">Reads CVE patches + source code</div>
+                <div class="card-row">Produces task excerpts and rubrics</div>
+                <div class="card-row">Knows the expected answer</div>
+            </div>
+            <div style="text-align:center;font-size:22px;color:var(--text-faint);line-height:1;">&#8595;</div>
+            <div class="card info">
+                <div class="card-tag">Inference &middot; local</div>
+                <div class="card-title">gemma4:e4b &middot; gemma4:e2b &middot; ...</div>
+                <div class="card-row">Receives only: code + role framing</div>
+                <div class="card-row">No rubric, no expected answer</div>
+                <div class="card-row">Runs entirely on consumer hardware</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     10 · RESULTS (NAIVE / 1A)
+══════════════════════════════════════ -->
+<section id="s10">
+    <div class="eyebrow">Results &middot; Setup 1A</div>
+    <h2 style="margin-bottom:10px;">Baseline Results — gemma4:e4b, both roles</h2>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Model: <strong>gemma4:e4b</strong> local &middot; T=0.3 &middot; max 3 attempts &middot; threshold 0.7 &middot; rep1 (submitted to domain experts for validation)</p>
+    <div class="dtable-wrap" style="max-width:1060px;">
+        <table class="dtable">
+            <thead>
+                <tr>
+                    <th>Task</th><th>NF</th>
+                    <th>Expert verdict</th><th>Expert score</th><th>Attempts</th>
+                    <th>Beginner verdict</th><th>Beginner score</th><th>Attempts</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="font-family:var(--mono);font-size:11px;">task5</td>
+                    <td><span class="badge purple" style="font-size:9px;">PCF</span></td>
+                    <td style="color:#2e7d32;font-weight:600;">correct</td>
+                    <td style="font-family:var(--mono);color:var(--amber);">8/9</td><td style="font-family:var(--mono);">1</td>
+                    <td style="color:#2e7d32;font-weight:600;">correct</td>
+                    <td style="font-family:var(--mono);">9/9</td><td style="font-family:var(--mono);">1</td>
+                </tr>
+                <tr>
+                    <td style="font-family:var(--mono);font-size:11px;">task6 *</td>
+                    <td><span class="badge" style="font-size:9px;background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border);">UDR</span></td>
+                    <td style="color:#2e7d32;font-weight:600;">correct</td>
+                    <td style="font-family:var(--mono);">9/9</td><td style="font-family:var(--mono);">1</td>
+                    <td style="color:#2e7d32;font-weight:600;">correct</td>
+                    <td style="font-family:var(--mono);">9/9</td><td style="font-family:var(--mono);">1</td>
+                </tr>
+                <tr style="background:var(--red-bg);">
+                    <td style="font-family:var(--mono);font-size:11px;">task7</td>
+                    <td><span class="badge" style="font-size:9px;background:var(--green-bg);color:var(--green);border-color:var(--green-border);">AMF</span></td>
+                    <td style="color:var(--red);font-weight:600;">wrong</td>
+                    <td style="font-family:var(--mono);">5/9</td><td style="font-family:var(--mono);">3</td>
+                    <td style="color:#2e7d32;font-weight:600;">correct</td>
+                    <td style="font-family:var(--mono);">9/9</td><td style="font-family:var(--mono);">1</td>
+                </tr>
+                <tr>
+                    <td style="font-family:var(--mono);font-size:11px;">task8</td>
+                    <td><span class="badge" style="font-size:9px;background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border);">UDM</span></td>
+                    <td style="color:#2e7d32;font-weight:600;">correct</td>
+                    <td style="font-family:var(--mono);">7/9</td><td style="font-family:var(--mono);">3</td>
+                    <td style="color:#2e7d32;font-weight:600;">correct</td>
+                    <td style="font-family:var(--mono);">7/9</td><td style="font-family:var(--mono);">2</td>
+                </tr>
+                <tr>
+                    <td style="font-family:var(--mono);font-size:11px;">task9</td>
+                    <td><span class="badge" style="font-size:9px;">Cross</span></td>
+                    <td style="color:#2e7d32;font-weight:600;">correct</td>
+                    <td style="font-family:var(--mono);">9/9</td><td style="font-family:var(--mono);">1</td>
+                    <td style="color:#2e7d32;font-weight:600;">correct</td>
+                    <td style="font-family:var(--mono);">9/9</td><td style="font-family:var(--mono);">1</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:10px;max-width:1060px;flex-wrap:wrap;">
+        <div class="callout amber" style="margin:0;font-size:12px;flex:1;min-width:280px;">
+            <strong>task5:</strong> both correct, but expert scores 8/9 vs beginner 9/9. Expert gives a broader architectural analysis but misses the explicit AllowAllOrigins + AllowCredentials spec violation — same attention-style pattern as task7, milder.<br><br>
+            <strong>* task6 has an explicit hint</strong> in the prompt (the three vulnerable handlers are named directly). Results are not comparable to blind tasks.
+        </div>
+        <div class="callout red" style="margin:0;font-size:12px;flex:1;min-width:280px;">
+            <strong>task7:</strong> expert exhausts all 3 retries, score stalls at 5/9. Beginner correct on first attempt. Same model, same code. This is the Expert Paradox.
+        </div>
+    </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     12 · FINDINGS — EXPERT PARADOX
+══════════════════════════════════════ -->
+<section id="s12">
+    <div class="eyebrow">Findings &middot; Framing</div>
+    <h2 style="margin-bottom:12px;">The Expert Paradox</h2>
+    <div class="two-col" style="gap:24px;align-items:flex-start;max-width:1060px;width:100%;">
+        <div class="col" style="display:flex;flex-direction:column;gap:8px;">
+            <div class="callout red" style="margin:0;font-size:12px;">
+                On task7, <strong>Beginner outperforms Expert</strong> (same model). Expert finds real bugs and earns partial points but never reaches the switch statement — highest-weighted criterion (4/9).
+            </div>
+            <ul class="dl" style="max-width:100%;">
+                <li style="font-size:13px;padding:8px 0 8px 28px;"><strong>Not length (F6):</strong> prompts differ by ~8 tokens</li>
+                <li style="font-size:13px;padding:8px 0 8px 28px;"><strong>Not verbosity (F17):</strong> "one sentence per finding" makes it worse — verbosity is part of the reasoning chain</li>
+                <li style="font-size:13px;padding:8px 0 8px 28px;"><strong>Not a single instruction (F18):</strong> "scan switch statements" hint recovers 66.7%, not 100%</li>
+                <li style="font-size:13px;padding:8px 0 8px 28px;"><strong>No framing is not the answer (A1):</strong> removing role drops Beginner 100% &rarr; 33.3%, Expert unchanged</li>
+                <li style="font-size:13px;padding:8px 0 8px 28px;"><strong>Capacity-dependent (F19/F20/F21):</strong> scaling expert-only: e2b 0.0% &rarr; e4b 66.7% &rarr; 31b 100%. The paradox is a framing &times; capacity interaction, not a structural expert limitation</li>
+            </ul>
+        </div>
+        <div class="col" style="display:flex;flex-direction:column;gap:8px;">
+            <div class="callout purple" style="margin:0;font-size:12px;">
+                <strong>Open question:</strong> framing shapes attention style, not knowledge. Scaling resolves the paradox (31b expert = 100%) but does not answer what minimum context a CDT needs without cloud access.
+            </div>
+            <div class="dtable-wrap" style="margin-top:4px;">
+                <table class="dtable">
+                    <thead>
+                        <tr>
+                            <th>Config</th>
+                            <th>Expert task7</th>
+                            <th>Beginner task7</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-family:var(--mono);font-size:11px;">1A &middot; both e4b</td>
+                            <td style="color:var(--amber);font-weight:600;font-family:var(--mono);">66.7%</td>
+                            <td style="color:#2e7d32;font-weight:600;font-family:var(--mono);">100%</td>
+                        </tr>
+                        <tr>
+                            <td style="font-family:var(--mono);font-size:11px;">A1 &middot; no framing</td>
+                            <td style="color:var(--amber);font-weight:600;font-family:var(--mono);">66.7%</td>
+                            <td style="color:var(--red);font-weight:600;font-family:var(--mono);">33.3%</td>
+                        </tr>
+                        <tr>
+                            <td style="font-family:var(--mono);font-size:11px;">A3 &middot; hint only</td>
+                            <td style="color:var(--text-muted);font-family:var(--mono);font-size:11px;">n/a</td>
+                            <td style="color:var(--amber);font-weight:600;font-family:var(--mono);">66.7%</td>
+                        </tr>
+                        <tr>
+                            <td style="font-family:var(--mono);font-size:11px;">B3 &middot; e4b / e2b</td>
+                            <td style="color:var(--red);font-weight:600;font-family:var(--mono);">33.3%</td>
+                            <td style="color:var(--red);font-weight:600;font-family:var(--mono);">0.0%</td>
+                        </tr>
+                        <tr>
+                            <td style="font-family:var(--mono);font-size:11px;">B1_e2b &middot; expert only</td>
+                            <td style="color:var(--red);font-weight:600;font-family:var(--mono);">0.0%</td>
+                            <td style="color:var(--text-muted);font-family:var(--mono);font-size:11px;">n/a</td>
+                        </tr>
+                        <tr>
+                            <td style="font-family:var(--mono);font-size:11px;">B1_cloud &middot; 31b expert</td>
+                            <td style="color:#2e7d32;font-weight:600;font-family:var(--mono);">100%</td>
+                            <td style="color:var(--text-muted);font-family:var(--mono);font-size:11px;">n/a</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p style="font-size:11px;color:var(--text-muted);">task7 is the main discriminant. B3 also shows task8: expert e4b 100% vs beginner e2b 0.0%.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     13 · FUTURE WORK
+══════════════════════════════════════ -->
+<section id="s13">
+    <div class="eyebrow">Future Work</div>
+    <h2 style="margin-bottom:20px;">Next Steps</h2>
+    <div class="cards" style="max-width:1060px;">
+        <div class="card info">
+            <div class="card-tag">Pending experiments</div>
+            <div class="card-title">Complete B1 and B2</div>
+            <div class="card-row">B1: expert-only on a smaller model. B2: hosted cloud models (GPT-4o, Claude) as oracle upper bound. Needed to close the framing &times; capacity hypothesis.</div>
+        </div>
+        <div class="card warn">
+            <div class="card-tag">Methodology</div>
+            <div class="card-title">Feedback-guided retry</div>
+            <div class="card-row">Current retry is neutral: the model knows it was wrong, not why. Retry with judge breakdown would test guided correction. A different measure, but valuable as comparison (F15).</div>
+        </div>
+        <div class="card ok">
+            <div class="card-tag">Towards CDT</div>
+            <div class="card-title">Problem setup with local models</div>
+            <div class="card-row">Tasks and rubrics were built with Claude 4.6 (cloud). In an autonomous CDT the system must define its own evaluation criteria from observed anomalies, using only local resources. Can a small model replace the cloud model in the setup phase?</div>
+        </div>
+    </div>
+    <div class="callout purple" style="margin-top:14px;max-width:1060px;font-size:13px;">
+        Long-term goal: a CDT that continuously monitors a 5G cell, autonomously identifies anomaly patterns, formulates its own evaluation criteria, and evolves its detection capability without external supervision.
+    </div>
+</section>
+
+</div><!-- /deck -->
+<!-- ── UI CHROME placeholder fix: old s09–s16 cut below -->
+<div style="display:none;">
     <div class="eyebrow">CVE Deep Dive &mdash; task5 &amp; task6</div>
     <h2 style="margin-bottom:18px;">CORS Misconfiguration and the Gin Control Flow Bug</h2>
     <div class="two-col" style="gap:24px;">
@@ -811,17 +1046,15 @@
         </div>
     </div>
     <p style="font-size:12px;color:var(--text-muted);margin-top:20px;font-style:italic;">The systematic failure is a result. The reversal is a hypothesis. The validation package is ready.</p>
-</section>
-
-</div><!-- /deck -->
+</div><!-- end hidden old content -->
 
 <!-- ── UI CHROME ── -->
 <div class="nav-bar">
     <button class="nav-btn" id="btn-prev" title="Previous (&#8592;)">&#8592;</button>
-    <div class="slide-count"><span id="cur">1</span> / <span id="tot">16</span></div>
+    <div class="slide-count"><span id="cur">1</span> / <span id="tot">8</span></div>
     <button class="nav-btn" id="btn-next" title="Next (&#8594;)">&#8594;</button>
 </div>
-<div class="progress" id="progress" style="width:6.25%"></div>
+<div class="progress" id="progress" style="width:14.286%"></div>
 <div class="hint" id="hint">&#8592; &#8594; to navigate &middot; ESC for index</div>
 
 <script>

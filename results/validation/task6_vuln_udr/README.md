@@ -173,3 +173,4 @@ Soglia "correct": normalized score ≥ 0.7 (≥ 6.3/9 punti).
 3. **L'hint invalida il test?** Detto diversamente: un analista umano che leggesse per la prima volta `api_datarepository.go` (2891 righe) troverebbe questi pattern senza un pointer? O il file è abbastanza grande da richiedere una direzione?
 4. **Finding 3 (query parameter):** il problema con `strings.Split(param[0], ",")` che ignora le occorrenze successive dello stesso parametro — è un bug reale nel file originale, o è un'analisi eccessiva?
 5. **Rubrica circolare:** la rubrica per task6 è stata generata dall'analisi dei file CVE. I criteri di valutazione ti sembrano ragionevoli e non circolari rispetto a ciò che un analista umano cercherebbe?
+

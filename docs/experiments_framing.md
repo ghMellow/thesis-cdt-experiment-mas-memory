@@ -209,7 +209,7 @@ poetry run python main.py --experiment 1A --experiment-id framing_B3 --role all 
 3. **A3** — completa il quadro del framing
 4. **B3** — test locale asimmetrico inverso senza cloud
 5. **B1_e2b** — scaling verso il basso, locale
-6. **B2 + B1_cloud** — dopo accesso a modelli cloud (§5.2 di overview_call_3.md)
+6. **B2 + B1_cloud** — dopo accesso a modelli cloud (§5.2 di calls/call_3.md)
 
 ---
 
@@ -232,7 +232,7 @@ Gli esperimenti A e B usano temperatura fissa 0.3 per isolare la variabile frami
 
 **Prerequisito:** A1–A3 e B3 completati. Almeno una conclusione chiara su framing vs capacità.
 
-**Setup:** eseguire task7_vuln_amf e task8_vuln_udm con T ∈ {0.1, 0.3, default_model, 0.7} — stesso modello (gemma4:e4b), stesso prompt (1A standard).
+**Setup:** eseguire task7_vuln_amf e task8_vuln_udm con T ∈ {0.1, 0.7} — stesso modello (gemma4:e4b), stesso prompt (1A standard). T=0.3 e T=default sono già coperti da tutti gli esperimenti A e B esistenti.
 
 **Predizione:**
 
@@ -243,7 +243,7 @@ Gli esperimenti A e B usano temperatura fissa 0.3 per isolare la variabile frami
 
 **Modello / config.py:** `expert_1A local=gemma4:e4b`, `use_hosted=False` — ripristinare se si viene da B2.
 
-**Esperimento id:** `temp_C1_T01`, `temp_C1_T03`, `temp_C1_Tdef`, `temp_C1_T07`
+**Esperimento id:** `temp_C1_T01`, `temp_C1_T07`
 
 **Branch suggerito:** `exp/framing-models` (stesso di B)
 
@@ -253,14 +253,9 @@ Gli esperimenti A e B usano temperatura fissa 0.3 per isolare la variabile frami
 # T=0.1
 poetry run python main.py --experiment 1A --experiment-id temp_C1_T01 --role expert --task task7_vuln_amf --task task8_vuln_udm --repetitions 3 --temperature 0.1
 
-# T=0.3 (baseline, già noto da 1A)
-poetry run python main.py --experiment 1A --experiment-id temp_C1_T03 --role expert --task task7_vuln_amf --task task8_vuln_udm --repetitions 3 --temperature 0.3
-
 # T=0.7
 poetry run python main.py --experiment 1A --experiment-id temp_C1_T07 --role expert --task task7_vuln_amf --task task8_vuln_udm --repetitions 3 --temperature 0.7
 ```
-
-Nota: `temp_C1_Tdef` (temperatura default del modello) richiede di non passare `--temperature` e di impostare `TEMPERATURE = None` in config.py — da valutare se necessario dopo T=0.1/0.3/0.7.
 
 **Status:** `[ ] pending` — A e B completati ✅
 

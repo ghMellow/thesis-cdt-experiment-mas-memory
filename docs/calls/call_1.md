@@ -3,7 +3,7 @@
 Prima call: ho presentato il sistema che avevo costruito (LangGraph, ruoli, task math/textual, judge, report).
 Da questa presentazione sono emersi i dubbi operativi documentati qui sotto.
 Non riscrivere — aggiungere solo annotazioni `✅` / `⚠️` sotto le proposte già implementate.
-Per lo stato corrente vedi [index_overview.md](index_overview.md).
+Per lo stato corrente vedi [status.md](../status.md).
 
 ---
 

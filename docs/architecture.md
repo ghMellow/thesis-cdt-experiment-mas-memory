@@ -1,7 +1,7 @@
 # Sistema — Multi-Agent Experiment 5G
 
 Riferimento stabile: mappa del codice, flusso di esecuzione, valutazione, report.
-Per lo stato corrente e i puntatori alle call vedi [index_overview.md](index_overview.md).
+Per lo stato corrente e i puntatori alle call vedi [status.md](status.md).
 
 ---
 

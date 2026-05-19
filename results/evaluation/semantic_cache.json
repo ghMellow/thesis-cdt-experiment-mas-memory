@@ -134,5 +134,37 @@
   "expert/task9_vuln_cross/f0c41ca67d0c1af7": {
     "equivalent": true,
     "explanation": "All three reasoning passages present the exact same set of claims regarding cross-file inconsistencies and per-file vulnerabilities with identical explanations and proposed fixes."
+  },
+  "beginner/task6_vuln_udr/8a25968c957177b5": {
+    "equivalent": true,
+    "explanation": "Reasoning passages 1 and 3 present the exact same set of vulnerability findings, impacts, and proposed fixes, making them semantically equivalent."
+  },
+  "beginner/task7_vuln_amf/a92f9cd47c6ede8c": {
+    "equivalent": true,
+    "explanation": "All three reasoning passages identify the same five logical flaws in the code and propose functionally equivalent fixes."
+  },
+  "beginner/task8_vuln_udm/3929b1551d835742": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same set of affected handlers, the same core issue of inconsistent input validation for SUPI and PLMN-ID, and the same proposed fix."
+  },
+  "beginner/task9_vuln_cross/5b730a89506bc634": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same critical security flaws—cross-file inconsistency in ID validation, missing switch default cases, improper return handling, insecure CORS configuration, and input validation issues—with consistent impacts and suggested fixes."
+  },
+  "expert/task6_vuln_udr/3793a4a776f71573": {
+    "equivalent": true,
+    "explanation": "All three reasoning passages identify the same three security vulnerabilities (control flow bypass, regex bypass, and input handling flaws) with identical impacts and corresponding fixes."
+  },
+  "expert/task7_vuln_amf/d2452608f7e39920": {
+    "equivalent": true,
+    "explanation": "All four passages identify the same five core security and logic flaws in the code and propose equivalent remediation strategies."
+  },
+  "expert/task8_vuln_udm/b94f37e59cbb2dd0": {
+    "equivalent": true,
+    "explanation": "All four passages describe the same vulnerability, the same inconsistent handling of the supi parameter, the same security impacts, and the same proposed fix."
+  },
+  "expert/task9_vuln_cross/f2e0c511c70a745a": {
+    "equivalent": true,
+    "explanation": "All three reasoning passages identify the same critical cross-file validation inconsistencies and the same set of per-file vulnerabilities with identical impact assessments and proposed fixes."
   }
 }
