@@ -69,6 +69,12 @@ def main() -> None:
         help="Override the results folder name (e.g. framing_A1). Model config still resolved from --experiment.",
     )
     parser.add_argument(
+        "--temperature",
+        type=float,
+        default=None,
+        help="Override generation temperature (default: value from config.py)",
+    )
+    parser.add_argument(
         "--export-graph",
         dest="export_graph",
         help="Export LangGraph to a PNG file and exit",
@@ -78,6 +84,9 @@ def main() -> None:
     handler = _SpinnerClearHandler(sys.stderr)
     handler.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(message)s", datefmt="%H:%M:%S"))
     logging.basicConfig(level=logging.INFO, handlers=[handler])
+
+    if args.temperature is not None:
+        config.TEMPERATURE = args.temperature
 
     graph = _build_graph()
     if args.export_graph:

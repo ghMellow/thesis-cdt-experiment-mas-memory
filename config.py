@@ -15,7 +15,7 @@ import os
 # 1A baseline | gemma4:e4b (local) | gemma4:e4b (local) | —                   | —                  | False
 # 1A hosted   | gemma3:12b-cloud   | gemma3:12b-cloud   | —                   | —                  | True
 # B1 scaling  | gemma4:e2b (local) | —                  | —                   | —                  | False  (then repeat with e4b)
-# B2 asym.    | —                  | —                  | gemma4:31b-cloud    | gemma3:4b-cloud    | True
+# B2 asym.    | —                  | —                  | gemma4:31b-cloud    | gemma4:e4b (local) | mixed (gemma3:4b/12b-cloud → 500 su ollama.com con payload tecnici)
 # B3 inv.asym | gemma4:e4b (local) | gemma4:e2b (local) | —                   | —                  | False
 #
 # judge:          local=gemma4:e4b  hosted=nemotron-3-super:cloud  (medium usage)
@@ -24,13 +24,13 @@ import os
 MODELS = {
     "expert_1A": {
         "local": "gemma4:e4b",
-        "hosted": "gemma3:12b-cloud",
-        "use_hosted": False  # temp_C1: local gemma4:e4b (same as 1A baseline)
+        "hosted": "gemma4:31b-cloud",
+        "use_hosted": True  # framing_B1_cloud: hosted gemma4:31b-cloud (scaling up expert)
     },
     "beginner_1A": {
         "local": "gemma4:e4b",
         "hosted": "gemma3:12b-cloud",
-        "use_hosted": False  # temp_C1: local gemma4:e4b (same as 1A baseline)
+        "use_hosted": False
     },
     "expert_1B": {
         "local": "gemma4:e4b",
@@ -39,8 +39,8 @@ MODELS = {
     },
     "beginner_1B": {
         "local": "gemma4:e4b",
-        "hosted": "gemma3:4b-cloud",
-        "use_hosted": True
+        "hosted": "gemma3:12b-cloud",
+        "use_hosted": False  # gemma3:12b-cloud → 500 su ollama.com con payload tecnici
     },
     "judge": {
         "local": "gemma4:e4b",
@@ -59,8 +59,7 @@ OLLAMA_HOSTED_BASE_URL = "https://ollama.com/v1"
 OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY", "")
 
 # Generation temperature — use > 0 to measure real consistency across repetitions.
-# temp_C1_T01: set to 0.1 (sweep: 0.1 → 0.3 → model_default → 0.7)
-TEMPERATURE = 0.1
+TEMPERATURE = 0.3
 # Max attempts per task before stopping.
 MAX_RETRIES = 3
 # Repetitions per task for consistency checks.

@@ -158,8 +158,17 @@ poetry run python main.py --experiment 1A --experiment-id framing_B1_e2b --role 
 poetry run python main.py --experiment 1B --experiment-id framing_B2 --role all --task task6_vuln_udr --task task6_vuln_udr_full --task task7_vuln_amf --task task7_vuln_amf_full --task task8_vuln_udm --task task8_vuln_udm_full --task task9_vuln_cross --repetitions 3
 ```
 
-**Status:** `[ ] pending` (dipende da accesso modelli cloud)
-**Risultato:** —
+**Status:** `[x] done`
+**Risultato:** task7 discriminante: expert (31b) 66.7% > beginner (12b) 33.3% — paradosso invertito rispetto a 1A (era beginner 100% > expert 66.7%). Task6/8/9 100% entrambi. Expert avg_attempts task7=2.33 (stessi retry del beginner). Sorpresa: expert 31b qui al 66.7% vs 100% in B1_cloud — plausibilmente rumore su 3 rep. Beginner 12b al 33.3% peggiore del beginner e4b in 1A — probabile effetto architettura (gemma3 vs gemma4) o framing non ottimale su cloud. Vedi F22 in findings.md.
+
+> ⚠️ **Problema 2026-05-19:** i modelli cloud di ollama.com (`gemma3:4b-cloud` e `gemma3:12b-cloud`) restituiscono 500 Internal Server Error per task content di lunghezza tecnica (~11KB+). Il curl con payload minimo funziona → problema lato server con input lunghi. L'expert (gemma4:31b-cloud) ha completato tutti i task (excerpt + full) senza errori.
+> **Workaround adottato:** beginner_1B usa `gemma3:12b-cloud` (da `gemma3:4b-cloud`), task `_full` esclusi per il beginner. CLI effettivo da usare (solo excerpt):
+>
+> ```bash
+> poetry run python main.py --experiment 1B --experiment-id framing_B2 --role all --task task6_vuln_udr --task task7_vuln_amf --task task8_vuln_udm --task task9_vuln_cross --repetitions 3
+> ```
+>
+> I risultati expert sui task full già salvati restano validi. L'asimmetria 31b vs 12b è ancora significativa per la domanda B2.
 
 ### B3 — Setup asimmetrico inverso: expert=e4b, beginner=e2b
 
@@ -232,9 +241,28 @@ Gli esperimenti A e B usano temperatura fissa 0.3 per isolare la variabile frami
 
 **Cosa misurare:** accuracy per temperatura + varianza tra le 3 ripetizioni (con T alta ci si aspetta più varianza).
 
+**Modello / config.py:** `expert_1A local=gemma4:e4b`, `use_hosted=False` — ripristinare se si viene da B2.
+
 **Esperimento id:** `temp_C1_T01`, `temp_C1_T03`, `temp_C1_Tdef`, `temp_C1_T07`
 
-**Status:** `[ ] pending` — dopo completamento A e B
+**Branch suggerito:** `exp/framing-models` (stesso di B)
+
+**CLI:** il flag `--temperature` è disponibile in `main.py` per sovrascrivere `config.TEMPERATURE` a runtime.
+
+```bash
+# T=0.1
+poetry run python main.py --experiment 1A --experiment-id temp_C1_T01 --role expert --task task7_vuln_amf --task task8_vuln_udm --repetitions 3 --temperature 0.1
+
+# T=0.3 (baseline, già noto da 1A)
+poetry run python main.py --experiment 1A --experiment-id temp_C1_T03 --role expert --task task7_vuln_amf --task task8_vuln_udm --repetitions 3 --temperature 0.3
+
+# T=0.7
+poetry run python main.py --experiment 1A --experiment-id temp_C1_T07 --role expert --task task7_vuln_amf --task task8_vuln_udm --repetitions 3 --temperature 0.7
+```
+
+Nota: `temp_C1_Tdef` (temperatura default del modello) richiede di non passare `--temperature` e di impostare `TEMPERATURE = None` in config.py — da valutare se necessario dopo T=0.1/0.3/0.7.
+
+**Status:** `[ ] pending` — A e B completati ✅
 
 ---
 

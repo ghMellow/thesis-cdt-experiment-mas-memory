@@ -428,3 +428,51 @@ Il framing beginner non è superiore all'expert in assoluto — è superiore sol
 
 **Fonte:** `results/evaluation/result_task7_vuln_amf_framing_B1_cloud.md`, `results/evaluation/result_task8_vuln_udm_framing_B1_cloud.md`, `docs/experiments_framing.md` §B1
 
+---
+
+## F22 — B2 (1B asimmetrico): il paradosso si inverte su cloud ma l'expert non raggiunge il 100% su task7
+
+**Osservato su:** `framing_B2` — expert=gemma4:31b-cloud vs beginner=gemma3:12b-cloud (workaround: gemma3:4b-cloud restituiva 500 su ollama.com per payload tecnici), prompt originali, task6/7/8/9 excerpt
+
+**Risultati B2:**
+
+| task | expert accuracy | expert norm | expert Brier | beginner accuracy | beginner norm | beginner Brier |
+| --- | --- | --- | --- | --- | --- | --- |
+| task6_vuln_udr | 100% | 0.963 | 0.000 | 100% | **1.000** | 0.170 |
+| task7_vuln_amf | **66.7%** | 0.778 | 0.333 | **33.3%** | 0.667 | 0.667 |
+| task8_vuln_udm | 100% | 0.815 | 0.000 | 100% | 0.778 | 0.003 |
+| task9_vuln_cross | 100% | **1.000** | 0.000 | 100% | 0.926 | 0.250 |
+
+avg_attempts task7: entrambi 2.33 — sia expert che beginner entrano in retry su task7.
+
+**Quadro comparativo task7 completo:**
+
+| Esperimento | Expert | Beginner | Expert task7 | Beginner task7 |
+| --- | --- | --- | --- | --- |
+| 1A | e4b | e4b | 66.7% | **100%** |
+| B2 | 31b-cloud | 12b-cloud | **66.7%** | 33.3% |
+| B1_cloud | 31b-cloud | — | **100%** | — |
+
+**Interpretazione:**
+
+Il paradosso si inverte: in B2 expert=66.7% > beginner=33.3% su task7, mentre in 1A era beginner=100% > expert=66.7%. Il framing expert batte il framing beginner quando i modelli sono diversi (31b vs 12b). Questo conferma l'ipotesi B: la capacità del modello determina chi vince.
+
+Sorprendente: in B1_cloud lo stesso expert (31b-cloud) raggiungeva il 100% su task7, mentre in B2 si ferma al 66.7%. Il modello è identico; la differenza potrebbe essere rumore statistico su 3 ripetizioni (2/3 vs 3/3), oppure un lieve effetto del contesto dell'esperimento (setup 1B vs 1A). Non è interpretabile con certezza su campione così piccolo.
+
+Il beginner (12b-cloud) al 33.3% su task7 — peggiore del beginner e4b (100% in 1A). Questo è inatteso: 12b-cloud dovrebbe essere più capace di e4b locale. L'ipotesi più probabile: il framing "junior technician" ottimizzato per modelli piccoli locali non si trasferisce ugualmente su un modello cloud con architettura diversa (gemma3 vs gemma4). Il workaround gemma3:12b invece di gemma3:4b introduce una variabile confondente.
+
+**Calibrazione:**
+
+Il beginner ha confidence sistematicamente più bassa dell'expert (0.633 su task6, 0.500 su task9 vs 1.000 dell'expert). Su task7 entrambi riportano confidence=1.000 anche sui wrong — overconfidence identica. Il Brier del beginner sui task corretti è non-zero (task6: 0.170, task9: 0.250) perché la confidence bassa penalizza anche i verdetti corretti.
+
+**Conclusione ipotesi B (completa):**
+
+- e2b: collasso totale per entrambi i framing — capacità insufficiente
+- e4b: zona di transizione — framing beginner ha vantaggio (100% vs 66.7%)
+- 31b vs 12b (B2): framing expert recupera il vantaggio (66.7% vs 33.3%) — ma non raggiunge il 100%
+- 31b vs — (B1_cloud): framing expert al 100% senza competizione
+
+Il paradosso beginner > expert è un effetto framing × capacità confinato alla finestra e4b. Con modelli cloud (anche asimmetrici), il framing expert è superiore o equivalente. Il workaround gemma3:12b invece di gemma3:4b lascia aperta la domanda sull'asimmetria estrema (31b vs 4b).
+
+**Fonte:** `results/evaluation/result_task*_framing_B2.md`, `docs/experiments_framing.md` §B2
+

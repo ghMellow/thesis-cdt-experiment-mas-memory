@@ -25,7 +25,6 @@ from config import (
     MAX_RETRIES,
     MODELS,
     OLLAMA_BASE_URL,
-    TEMPERATURE,
     TEXTUAL_PASS_RATIO,
 )
 from utils.task_utils import _load_task
@@ -219,7 +218,7 @@ def _run_agent(state: ExperimentState) -> ExperimentState:
         task_content=task_content,
         system_prompt=system_prompt,
         model=state["model"],
-        temperature=TEMPERATURE,
+        temperature=config.TEMPERATURE,
         base_url=OLLAMA_BASE_URL,
         is_hosted=state.get("is_hosted", False),
     )
@@ -267,7 +266,7 @@ def _check_answer(state: ExperimentState) -> ExperimentState:
         agent_response=state["final_answer"],
         system_prompt=_build_judge_prompt(rubric),
         model=judge_model,
-        temperature=TEMPERATURE,
+        temperature=config.TEMPERATURE,
         base_url=OLLAMA_BASE_URL,
         is_hosted=judge_is_hosted,
     )
@@ -370,7 +369,7 @@ def _save_result(state: ExperimentState) -> ExperimentState:
             "agent_role": state["agent_role"],
             "model": state["model"],
             "judge_model": resolve_model_config("judge")[0],
-            "temperature": TEMPERATURE,
+            "temperature": config.TEMPERATURE,
             "is_hosted": state.get("is_hosted", False),
             "task_path": state["task_path"],
             "sol_path": state["sol_path"],
