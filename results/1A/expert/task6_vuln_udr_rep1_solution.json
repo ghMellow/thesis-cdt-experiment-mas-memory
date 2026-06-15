@@ -1,7 +1,0 @@
-{
-  "task_id": "task6_vuln_udr",
-  "ground_truth": {
-    "answer": "Three handlers (Delete/Get/Put for InfluenceData subs-to-notify) are missing a return statement after sending a 404 response, causing execution to continue into the processor even when the request should be rejected. Additionally, the ueId regex validation is trivially bypassed because the pattern ends with '|.+' which matches any non-empty string.",
-    "type": "textual_security_review"
-  }
-}
