@@ -347,12 +347,12 @@ Questo trasforma i risultati da una tabella statica a una curva — utile per id
 
 ### 7.2 Medio termine (dopo esami giugno)
 
-- [ ] Accedere a modelli più grandi (Ollama Cloud / Google API) — eseguire task6 excerpt e confrontare con curva scaling
+- [x] Accedere a modelli più grandi — **eseguito** via Ollama Cloud: B1_cloud (gemma4:31b-cloud, expert 100% su task7), B2 (31b vs 12b, expert>beginner). Curva scaling expert task7: e2b=0% → e4b=66.7% → 31b=100%. Vedi F21–F22 in `findings.md`.
 - [ ] Setup 1B completo con qwen2.5-coder:1.5b-base (eliminare run vecchie deepseek)
 - [x] Salvare prompt completo per ogni run (§6.1) — `history[n].prompt_system` e `history[n].prompt_user` (2026-05-14)
 - [ ] Retry con feedback judge reiniettato
 - [ ] Task controllo negativo (false positive rate)
-- [ ] Varianti full-file task7_full (501r) e task8_full (858r) con timeout aumentato
+- [x] Varianti full-file — B2 expert (gemma4:31b-cloud) ha eseguito excerpt + full su task6/7/8/9. task7_full e task8_full non eseguiti su local (rimangono pending per e4b).
 - [x] **Tracciamento score intermedi per-attempt:** ogni `history[n]` ora include `judge_score` (breakdown completo per criterio di quel tentativo) e `verdict`. Il `judge_score` top-level rimane quello dell'ultimo attempt. Implementato in `_check_answer` via `state["history"][-1]["judge_score"] = judge_score` (2026-05-14).
 
 ### 7.3 Lungo termine / open questions

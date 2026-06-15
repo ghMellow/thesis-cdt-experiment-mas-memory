@@ -2,7 +2,15 @@
   "permissions": {
     "allow": [
       "Bash(mkdir -p /Users/nicolotermine/zMellow/GitHub-Poli/thesis-cdt-experiment-mas-memory/MARATHON-DESIGNSYSTEM)",
-      "Bash(mkdir -p /Users/nicolotermine/zMellow/GitHub-Poli/thesis-cdt-experiment-mas-memory/MARATHON-DESIGNSYSTEM/presentations/mas-team-update)"
+      "Bash(mkdir -p /Users/nicolotermine/zMellow/GitHub-Poli/thesis-cdt-experiment-mas-memory/MARATHON-DESIGNSYSTEM/presentations/mas-team-update)",
+      "Read(//Users/nicolotermine/.claude/projects/-Users-nicolotermine-zMellow-GitHub-Poli-thesis-cdt-experiment-mas-memory-memory/memory/**)",
+      "Bash(git log *)",
+      "Read(//Users/nicolotermine/.claude/**)",
+      "Read(//Users/nicolotermine/.claude/projects/**)",
+      "Bash(awk '{print $6, $7, $8, $9}')",
+      "Bash(python3)",
+      "Bash(python3 -c ' *)",
+      "Read(//Users/nicolotermine/.Trash/**)"
     ],
     "additionalDirectories": [
       "/Users/nicolotermine/zMellow/GitHub-Poli/thesis-cdt-experiment-mas-memory",

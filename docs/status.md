@@ -14,9 +14,11 @@ Punto di ingresso rapido. Per i dettagli vai al documento corrispondente.
 
 ---
 
-## Stato attuale (snapshot 2026-05-09)
+## Stato attuale (snapshot 2026-06-09)
 
 Sistema operativo. 12 task disponibili, framework LangGraph con retry/judge/token tracking/semantic consistency.
+
+**Serie framing completata (A1–A3, B1–B3):** il paradosso beginner>expert su task7 è completamente spiegato — effetto framing × capacità confinato alla finestra e4b. Vedi `docs/findings.md` F16–F22 e `docs/experiments_framing.md`. **Prossimo:** C1 — temperature sweep T∈{0.1, 0.7} su task7/8.
 
 ### Modelli (`config.py`)
 
@@ -56,9 +58,17 @@ Vedi header di `config.py` per la quick-reference dei setup framing (A1/A2/B1/B2
 - [x] Task security review task5–task9 (CVE reali free5GC)
 - [x] Retry neutro con risposta precedente (senza feedback judge)
 - [x] Output Markdown per agent/judge (template Answer/Reasoning/Confidence + parsing)
+- [x] Prompt completo salvato per ogni run (`history[n].prompt_system` + `prompt_user`)
+- [x] Score intermedi per-attempt in `history[n].judge_score` + `verdict`
+- [x] Framing experiments A1–A3: effetto framing beginner isolato e spiegato (F16–F18)
+- [x] Framing experiments B1–B3: paradosso confermato come framing × capacità — scala e2b→e4b→31b (F19–F22)
+- [x] Accesso modelli cloud (gemma4:31b, gemma3:12b via Ollama Cloud — usati in B1_cloud/B2)
+- [ ] **C1 — Temperature sweep** T∈{0.1, 0.7} su task7/8 expert e4b (prossimo esperimento)
 - [ ] Retry con feedback del judge reiniettato
-- [ ] Convertire output JSON in report Markdown strutturato per l'AI
+- [ ] Rieseguire task6 blind (senza special attention) — baseline pulita
 - [ ] False positive rate tracking / task "controllo negativo"
+- [ ] Preparare estratti per validazione esperti 5G (task5, task7, task8)
+- [ ] Convertire output JSON in report Markdown strutturato per l'AI
 - [ ] Profiling sistematico VRAM/latency per modello
 
 ---
