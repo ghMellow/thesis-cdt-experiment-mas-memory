@@ -47,6 +47,16 @@ I task sono in `docs/tasks/` e sono di due tipi:
 - `math`: verifica numerica deterministica in Python (ground truth)
 - `textual`: scoring tramite judge LLM con rubrica → l'agente produce una risposta testuale che viene valutata da un modello "giudice" (judge) che applica criteri di valutazione strutturati (rubrica) per assegnare un punteggio invece di confrontare semplicemente con una ground truth numerica
 
+> ✅ **Implementato:** aggiunto un secondo gruppo di task `textual` (`task5`–`task10`), dominio **code security review** su handler SBI reali di free5GC (Go). Ogni task presenta uno snippet di codice con una o piu' vulnerabilita' reali (analisi statica in `File_Free5gc_Vulnerabili/ANALISI_VULNERABILITA.md`, mappate a GHSA/CVE dove disponibili) e chiede di identificare vulnerabilita', impatto e fix in formato `{"vulnerability", "impact", "fix"}`. La rubrica del judge include sempre `vuln_identified_score`, `impact_assessment_score`, `fix_proposed_score`, `false_positives_score`, `clarity_score`, `confidence_calibration_score`. Mappa task → vulnerabilita':
+> - `task5_vuln_pcf`: V1 — CORS misconfiguration (PCF, GHSA-98cp-84m9-q3qp)
+> - `task6_vuln_udr_return`: V2 — missing `return` dopo 404 (UDR, 6 GHSA)
+> - `task7_vuln_udr_regex`: V3 + V4 — regex di validazione `ueId` inefficace + assenza validazione formato (UDR)
+> - `task8_vuln_amf`: V6 + V7 — `c.Set` con struct intera (information exposure) + `switch` senza `default` (AMF, GHSA-r99v-75p9-xqm5)
+> - `task9_vuln_udr_nosql`: V5 — query param `supis` non validato in filtro MongoDB `$in` (UDR)
+> - `task10_vuln_udm_validator`: V8 — `validator.IsValidSupi` applicato in modo incoerente tra handler SDM (UDM, GHSA-585v-hcgf-jhfr)
+>
+> I task vengono scoperti automaticamente da `_list_tasks` (glob su `docs/tasks/*.md` non `_sol.md`), nessuna modifica al codice e' stata necessaria.
+
 ---
 
 ## 3) Mappa del codice (dove sta cosa)

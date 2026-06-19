@@ -37,6 +37,6 @@ Se il documento non rispecchia il codice, segnalalo prima di procedere.
 ## Note operative
 
 - I modelli sono in `config.py` → non fare riferimento a nomi di modello fissi nel codice o nei commenti.
-- I task sono in `docs/tasks/` → 2 math (`task1_math_int`, `task2_math_real`), 2 textual (`task3_anomaly`, `task4_rootcause`).
+- I task sono in `docs/tasks/` → 2 math (`task1_math_int`, `task2_math_real`), 8 textual: `task3_anomaly`, `task4_rootcause` (anomaly/root-cause 5G) e `task5`–`task10` (code security review su handler SBI free5GC, vedi `docs/overview.md` §2 e `File_Free5gc_Vulnerabili/ANALISI_VULNERABILITA.md`).
 - I risultati sono in `results/` → non commitarli salvo richiesta esplicita.
 - Il judge non riceve la `ground_truth` testuale — la rubrica è la definizione operativa di "corretto".
