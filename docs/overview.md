@@ -262,6 +262,8 @@ Alla fine di una run, `utils/evaluation_utils.py` genera:
 - **Situazione attuale**: task set piccolo (4 task) e spesso ben vincolato.
 - **Proposte future**: task borderline e ambiguita' controllata, piu' casi e rubriche piu' discriminanti.
 
+> ✅ **Implementato (parziale):** aggiunti 4 task `textual` di **code vulnerability detection** su codice reale free5gc (uno per Network Function): `task5_vuln_pcf` (CORS/DoS, GHSA-98cp-84m9-q3qp), `task6_vuln_amf` (missing default case, GHSA-r99v-75p9-xqm5), `task7_vuln_udm` (missing `validator.IsValidSupi`, GHSA-585v-hcgf-jhfr), `task8_vuln_udr` (missing `return` dopo il 404, 6 GHSA). Sono task ad alta competenza di dominio (difficolta' crescente PCF→UDR) pensati per discriminare meglio `expert` vs `beginner`. Scelte di scope: uno per NF, scoring solo judge+rubrica (nessuna modifica al codice), agente che deve **solo identificare** la vulnerabilita'. Codice e materiale sorgente in `File_Free5gc_Vulnerabili/` (incl. `Patch_Spiegazione.md`). Resta da fare: hardening dello scoring (vedi §8.1) per evitare che il judge premi risposte plausibili su task open-ended.
+
 ### 8.7 Token/costi/tempi non tracciati in modo completo
 
 - **Dubbio (call)**: senza token/latency per chiamata non si confronta costo/qualita'.

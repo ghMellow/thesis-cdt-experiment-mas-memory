@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(mkdir -p /Users/nicolotermine/zMellow/GitHub-Poli/thesis-cdt-experiment-mas-memory/MARATHON-DESIGNSYSTEM)",
-      "Bash(mkdir -p /Users/nicolotermine/zMellow/GitHub-Poli/thesis-cdt-experiment-mas-memory/MARATHON-DESIGNSYSTEM/presentations/mas-team-update)"
+      "Bash(mkdir -p /Users/nicolotermine/zMellow/GitHub-Poli/thesis-cdt-experiment-mas-memory/MARATHON-DESIGNSYSTEM/presentations/mas-team-update)",
+      "Bash(grep -nE 'bson\\\\.M|regexp|Unmarshal|\\\\$where|\\\\$regex|ByName|c\\\\.Param|c\\\\.Query|Deserialize|isValid|IsValid|validator|json\\\\.Marshal|filter' UDR/api_datarepository.go)",
+      "Bash(grep -nB3 '404 page not found' UDR/api_datarepository.go)"
     ],
     "additionalDirectories": [
       "/Users/nicolotermine/zMellow/GitHub-Poli/thesis-cdt-experiment-mas-memory",
