@@ -288,6 +288,12 @@ Alla fine di una run, `utils/evaluation_utils.py` genera:
 
 > ✅ **Parzialmente implementato:** il campo `model` e' salvato in ogni JSON di risultato. All'avvio `main.py` chiama `_fetch_model_context_window(model, base_url)` via `POST /api/show` a Ollama e logga la context window per ogni modello distinto nella run. Il profiling sistematico e il confronto tra quantizzazioni restano da fare.
 
+### 8.11 Genesi dei task vuln e prompting per la scoperta
+
+- **Dubbio (call/relatori)**: come sono stati posti i problemi all'AI in modo che proponesse vulnerabilità *oltre* quelle fornite? La chat originale della scoperta (~9 mag) è persa.
+- **Situazione attuale**: la scoperta di V3 (regex `|.+`, poi GHSA-6gxq-gpr8-xgjp) è documentata da una catena di artefatti datati (`File_Free5gc_Vulnerabili/ANALISI_VULNERABILITA.md` con V3 "non mappato a CVE" → `Correzzione_Esperto.md` "aperto CVE in attesa di risposta" → GHSA). Il metodo di prompting (richiesta aperta vs vincolata) e la trasformazione mirato→divergente dei prompt reali sono ricostruiti in [`metodologia_prompting_scoperta.md`](metodologia_prompting_scoperta.md).
+- **Proposte future**: riprodurre la capacità di scoperta su codice **nuovo** mantenendo il prompt answer-free (la ground truth resta solo lato judge); eventualmente reintegrare un task cross-file (eliminato dalla scelta "uno per NF" del 19 giu). Protocollo di test sperimentale (analisi vs design, varianti A0/A1/A2 e B0/B1, griglia di annotazione) in [`test_prompting_scoperta.md`](test_prompting_scoperta.md).
+
 ### 8.10 Lingua dei prompt e memoria condivisa
 
 - **Dubbio (call)**: prompt IT vs EN e assenza di memoria condivisa possono cambiare performance.
