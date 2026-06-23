@@ -26,13 +26,13 @@ Conta **solo ciò che accade prima del cutoff**. Il tentativo è **RIUSCITO** so
 | Lineage / branch | Sessioni | Cutoff | Input pre-cutoff | **Regex riscoperta pre-cutoff?** |
 |---|---|---|---|---|
 | **Origine** (→ `main`) | persa (commit `bbbbd6a`, 9 mag) | nessuno (scoperta vera) | solo `.go` + Patch_Spiegazione | ✅ **SÌ** (ma sessione irrecuperabile) |
-| **15 giu** (`test_fallimentare`) | `69257807`, `32b9e5ff` | **(b)** immediato | ANALISI (V3) già nel contesto | ❌ **NO** (trascritta da V3) |
-| **19 giu** (`test-reproducibility`) | `fc420802`, `ebcd1147`, `3c441a0a` | **(b)**/(a) | `ebcd1147` solo `.go`; altri ANALISI | ❌ **NO** (cieco: regex letta ma **invertita**) |
+| **15 giu** (`failed/recreate-biased`) | `69257807`, `32b9e5ff` | **(b)** immediato | ANALISI (V3) già nel contesto | ❌ **NO** (trascritta da V3) |
+| **19 giu** (`failed/recreate-blind-inverted`) | `fc420802`, `ebcd1147`, `3c441a0a` | **(b)**/(a) | `ebcd1147` solo `.go`; altri ANALISI | ❌ **NO** (cieco: regex letta ma **invertita**) |
 | **Corrente** (`9c7c92ef`) | questa | **(b)** | letto staged ANALISI (V3) + poi GHSA dall'utente | ❌ **NO** (contesto contaminato) |
 
 **Conclusione:** **la scoperta spontanea della regex non è mai stata riprodotta.** L'unica genuina è l'originale, persa. Tutti i tentativi successivi o avevano l'ANALISI nel contesto (→ trascrizione) o, nell'unico run davvero "alla cieca" (`ebcd1147`), **hanno fallito** — peggio, il modello ha interpretato la regex come *validazione presente*, concludendo l'opposto del bug reale.
 
-> Correzione rispetto a una stesura precedente di questo doc: avevo segnato `test_fallimentare` come "RIUSCITO" perché *esisteva* `task7_udr_regex`. Errato: quel task deriva dall'ANALISI passata al modello, non da una riscoperta. Per il criterio §1 è **NO**.
+> Correzione rispetto a una stesura precedente di questo doc: avevo segnato `failed/recreate-biased` come "RIUSCITO" perché *esisteva* `task7_udr_regex`. Errato: quel task deriva dall'ANALISI passata al modello, non da una riscoperta. Per il criterio §1 è **NO**.
 
 ---
 
@@ -40,7 +40,7 @@ Conta **solo ciò che accade prima del cutoff**. Il tentativo è **RIUSCITO** so
 
 La regex *come task* esiste in alcuni branch — ma vedi §2 per la riscoperta. Legenda: ✅ presente · ◑ secondario · ❌ assente
 
-| CVE / difetto | `test_fallimentare` | `test-reproducibility` | `main` (+exp/*) |
+| CVE / difetto | `failed/recreate-biased` | `failed/recreate-blind-inverted` | `main` (+exp/*) |
 |---|---|---|---|
 | PCF CORS (98cp) | ✅ `task5` | ✅ `task5` | ✅ `task5` |
 | AMF missing default (r99v) | ✅ `task8_amf` | ✅ `task6_amf` | ✅ `task7` |
@@ -59,12 +59,12 @@ La regex *come task* esiste in alcuni branch — ma vedi §2 per la riscoperta. 
 - È qui che la regex fu **scoperta da Claude** (non era nel materiale dei colleghi) e che nacquero **spontaneamente** anche il task cross-NF e le varianti `_full` (l'utente aveva solo chiesto di "integrare la cartella"). Confermato a memoria dall'utente in `3194d8ab`.
 - **Verdetto: riscoperta SÌ — ma irriproducibile (persa).**
 
-### 4.2 `test_fallimentare` (15 giu) — ❌ NO (trascrizione)
+### 4.2 `failed/recreate-biased` (15 giu) — ❌ NO (trascrizione)
 - **Sessioni:** `69257807` (esplorazione) → `32b9e5ff` (creazione 6 task granulari, incl. `task7_udr_regex`).
 - **Cutoff (b) immediato:** in `69257807` l'utente apre con `@ANALISI_VULNERABILITA.md` → l'analisi (V3 = regex) è iniettata come attachment **al messaggio 0**. In `32b9e5ff` il prompt cita esplicitamente *"ANALISI_VULNERABILITA.md … un'analisi già fatta da un collega"* e chiede un task *"per ciascuna vulnerabilità identificata nell'analisi"*; il modello legge l'ANALISI come primo atto.
 - **Verdetto: NO.** `task7_udr_regex` (per quanto sia il trattamento più completo) è **trascrizione di V3**, non riscoperta. Il prompt-pivot *"devo riprodurre la scoperta di una CVE … dammi il prompt senza farti dare il contesto"* arriva dopo, a contesto già bruciato.
 
-### 4.3 `test-reproducibility` (19 giu) — ❌ NO (cieco fallito e invertito)
+### 4.3 `failed/recreate-blind-inverted` (19 giu) — ❌ NO (cieco fallito e invertito)
 - **Sessioni:** `fc420802`, `ebcd1147`, `3c441a0a`.
 - `fc420802` e `3c441a0a`: il modello **legge `ANALISI_VULNERABILITA.md` prima dei `.go`** → cutoff (b) immediato, nessuna finestra di scoperta. In `3c441a0a` il modello **articola lui stesso il bias**: *"avendo davanti l'ANALISI, il compito è diventato confermare la lista, non cercare cosa è rotto"*.
 - `ebcd1147` — **unico tentativo davvero cieco** (prompt: *"leggi i file di codice e spiegami le vulnerabilità, non guardare altro materiale"*): legge SOLO i `.go`, cita le righe 2569-2570 (la regex) **ma le interpreta come *presenza* di validazione**, non come la falla `|.+`. Conclude che EE-subscription è l'handler *protetto* — **il contrario del bug reale**.
@@ -88,6 +88,7 @@ La regex *come task* esiste in alcuni branch — ma vedi §2 per la riscoperta. 
 
 ## 6) Note di tracciabilità
 
+- **Rinomina branch (23 giu):** `test_fallimentare` → `failed/recreate-biased`; `test-reproducibility` → `failed/recreate-blind-inverted`; `test_cve_3` (= pre-cartella, commit `2438b71`) → `base/pre-cartella` (opzionale). Base pulita per i test senza bias: branch `cve-clean-test` da `2438b71` con **solo** i `.go` + `Patch_Spiegazione.md` (niente `ANALISI_VULNERABILITA.md` né `Correzzione_Esperto.md`).
 - Sessioni chat: `~/.claude/projects/-Users-nicolotermine-zMellow-GitHub-Poli-thesis-cdt-experiment-mas-memory/*.jsonl`.
 - Mapping sessione→lineage e cutoff: §4 (da subagent).
 - Le modifiche pendenti a `ANALISI_VULNERABILITA.md` (promozione regex a §2.5 / GHSA-6gxq) della sessione corrente sono in `stash@{0}` su `test_cve_3` — da riconciliare separatamente.
