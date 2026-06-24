@@ -47,6 +47,25 @@ I task sono in `docs/tasks/` e sono di due tipi:
 - `math`: verifica numerica deterministica in Python (ground truth)
 - `textual`: scoring tramite judge LLM con rubrica → l'agente produce una risposta testuale che viene valutata da un modello "giudice" (judge) che applica criteri di valutazione strutturati (rubrica) per assegnare un punteggio invece di confrontare semplicemente con una ground truth numerica
 
+**Famiglie di task disponibili:**
+
+| Task                 | Tipo    | Dominio                            | Note                               |
+| -------------------- | ------- | ---------------------------------- | ---------------------------------- |
+| task1_math_int       | math    | 5G calcolo intero                  | deterministico                     |
+| task2_math_real      | math    | 5G calcolo reale                   | deterministico con tolleranza      |
+| task3_anomaly        | textual | classificazione anomalia nodo      | risposta enum                      |
+| task4_rootcause      | textual | root cause analysis firmware       | risposta strutturata               |
+| task5_vuln_pcf       | textual | security review PCF (66 righe)     | singolo bug, contesto breve        |
+| task6_vuln_amf_short | textual | security review AMF snippet        | singolo bug, ~40 righe             |
+| task6_vuln_amf_long  | textual | security review AMF file completo  | singolo bug, ~500 righe            |
+| task7_vuln_udm_short | textual | security review UDM snippet        | singolo bug, ~70 righe             |
+| task7_vuln_udm_long  | textual | security review UDM file completo  | 8 handler esposti, ~860 righe      |
+| task8_vuln_udr_short | textual | security review UDR snippet        | 3 bug in una funzione, ~30 righe   |
+| task8_vuln_udr_long  | textual | security review UDR file grande    | 4 pattern di bug, ~1200 righe      |
+| task9_vuln_cross     | textual | security review cross-NF           | 3 bug da AMF+UDM+UDR, ~80 righe    |
+
+**Dimensione contesto come variabile sperimentale**: i task `_short` e `_long` dello stesso numero testano lo stesso tipo di vulnerability con contesti radicalmente diversi. La differenza di score misura la capacità del modello di mantenere attenzione su contesti lunghi. I token in input per ogni run sono loggati da `agent_runner.py` e salvati in `tokens.agent_in` del risultato JSON.
+
 ---
 
 ## 3) Mappa del codice (dove sta cosa)

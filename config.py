@@ -20,8 +20,8 @@ TEXTUAL_PASS_RATIO = 0.7
 
 # Ollama server endpoint.
 OLLAMA_BASE_URL = "http://localhost:11434"
-# Max tokens per response — 1024 is sufficient for a full JSON with reasoning.
-OLLAMA_NUM_PREDICT = 1024
+# Max tokens per response — 2048 to handle multi-bug security tasks (task8_long has ~8 entries).
+OLLAMA_NUM_PREDICT = 2048
 # Max time to wait for a single Ollama response (seconds).
 # Keep this >= TASK_TIMEOUT_SECONDS to avoid client timeouts before task timeouts.
 # If --task-timeout is higher, runtime bumps this to ~10% above task_timeout.

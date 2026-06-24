@@ -1,0 +1,599 @@
+# Task 7b — 5G Core Security Review: UDM Subscriber Data Handler (Full File)
+
+**ID:** task7_vuln_udm_long  
+**Tipo:** textual  
+**Difficoltà:** alta
+
+---
+
+## Scenario
+
+You are reviewing the complete source file for the **UDM (Unified Data Management)** Subscriber Data Management SBI handlers in a 5G core network implementation. The file implements HTTP handlers for retrieving, subscribing, and managing UE subscription data using SUPI (Subscription Permanent Identifier) and GPSI identifiers.
+
+```go
+package sbi
+
+import (
+	"encoding/json"
+	"net/http"
+	"net/url"
+	"strings"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/free5gc/openapi"
+	"github.com/free5gc/openapi/models"
+	"github.com/free5gc/udm/internal/logger"
+	"github.com/free5gc/util/metrics/sbi"
+	"github.com/free5gc/util/validator"
+)
+
+func (s *Server) getSubscriberDataManagementRoutes() []Route {
+	return []Route{
+		{
+			"Index",
+			http.MethodGet,
+			"/",
+			s.HandleIndex,
+		},
+	}
+}
+
+// GetAmData - retrieve a UE's Access and Mobility Subscription Data
+func (s *Server) HandleGetAmData(c *gin.Context) {
+	query := url.Values{}
+	query.Set("plmn-id", c.Query("plmn-id"))
+	query.Set("supported-features", c.Query("supported-features"))
+
+	logger.SdmLog.Infof("Handle GetAmData")
+
+	// TS 29.503 6.1.3.5.2
+	// Validate SUPI format
+	supi := c.Params.ByName("supi")
+	if !validator.IsValidSupi(supi) {
+		problemDetail := models.ProblemDetails{
+			Title:  "Malformed request syntax",
+			Status: http.StatusBadRequest,
+			Detail: "Supi is invalid",
+			Cause:  "MANDATORY_IE_INCORRECT",
+		}
+		logger.SdmLog.Warnln("Supi is invalid")
+		c.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(int(problemDetail.Status)))
+		c.JSON(int(problemDetail.Status), problemDetail)
+		return
+	}
+
+	// use c.Request.URL.Query() only for getPlmnIDStruct
+	plmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())
+	if problemDetails != nil {
+		c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)
+		c.JSON(int(problemDetails.Status), problemDetails)
+		return
+	}
+
+	var plmnID string
+	if plmnIDStruct != nil {
+		plmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc
+	}
+	supportedFeatures := query.Get("supported-features")
+
+	s.Processor().GetAmDataProcedure(c, supi, plmnID, supportedFeatures)
+}
+
+func (s *Server) getPlmnIDStruct(
+	queryParameters url.Values,
+) (plmnIDStruct *models.PlmnId, problemDetails *models.ProblemDetails) {
+	values, exists := queryParameters["plmn-id"]
+	if !exists {
+		return nil, nil
+	}
+	if len(values) == 0 || strings.TrimSpace(values[0]) == "" {
+		problemDetails = &models.ProblemDetails{
+			Title:  "Invalid Parameter",
+			Status: http.StatusBadRequest,
+			Cause:  "plmn-id parameter cannot be empty",
+		}
+		return nil, problemDetails
+	}
+
+	plmnIDJson := values[0]
+	plmnIDStruct = &models.PlmnId{}
+	err := json.Unmarshal([]byte(plmnIDJson), plmnIDStruct)
+	if err != nil {
+		logger.SdmLog.Warnln("Unmarshal Error in targetPlmnListtruct: ", err)
+		problemDetails = &models.ProblemDetails{
+			Title:  "Invalid Parameter",
+			Status: http.StatusBadRequest,
+			Cause:  "Failed to parse plmn-id JSON",
+			InvalidParams: []models.InvalidParam{{
+				Param:  "plmn-id",
+				Reason: err.Error(),
+			}},
+		}
+		return nil, problemDetails
+	}
+	return plmnIDStruct, nil
+}
+
+// Info - Nudm_Sdm Info service operation
+func (s *Server) HandleInfo(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{})
+}
+
+// PutUpuAck - Nudm_Sdm Info for UPU service operation
+func (s *Server) HandlePutUpuAck(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{})
+}
+
+// GetSmfSelectData - retrieve a UE's SMF Selection Subscription Data
+func (s *Server) HandleGetSmfSelectData(c *gin.Context) {
+	query := url.Values{}
+	query.Set("plmn-id", c.Query("plmn-id"))
+	query.Set("supported-features", c.Query("supported-features"))
+
+	logger.SdmLog.Infof("Handle GetSmfSelectData")
+
+	supi := c.Params.ByName("supi")
+	// use c.Request.URL.Query() only for getPlmnIDStruct
+	plmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())
+	if problemDetails != nil {
+		c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)
+		c.JSON(int(problemDetails.Status), problemDetails)
+		return
+	}
+	var plmnID string
+	if plmnIDStruct != nil {
+		plmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc
+	}
+	supportedFeatures := query.Get("supported-features")
+
+	s.Processor().GetSmfSelectDataProcedure(c, supi, plmnID, supportedFeatures)
+}
+
+// GetSmsMngData - retrieve a UE's SMS Management Subscription Data
+func (s *Server) HandleGetSmsMngData(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+// GetSmsData - retrieve a UE's SMS Subscription Data
+func (s *Server) HandleGetSmsData(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+// GetSupi - retrieve multiple data sets
+func (s *Server) HandleGetSupi(c *gin.Context) {
+	query := url.Values{}
+	query.Set("plmn-id", c.Query("plmn-id"))
+	query.Set("dataset-names", c.Query("dataset-names"))
+	query.Set("supported-features", c.Query("supported-features"))
+
+	logger.SdmLog.Infof("Handle GetSupiRequest")
+
+	supi := c.Params.ByName("supi")
+	// use c.Request.URL.Query() only for getPlmnIDStruct
+	plmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())
+	if problemDetails != nil {
+		c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)
+		c.JSON(int(problemDetails.Status), problemDetails)
+		return
+	}
+	var plmnID string
+	if plmnIDStruct != nil {
+		plmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc
+	}
+	dataSetNames := strings.Split(query.Get("dataset-names"), ",")
+	supportedFeatures := query.Get("supported-features")
+
+	s.Processor().GetSupiProcedure(c, supi, plmnID, dataSetNames, supportedFeatures)
+}
+
+// GetSharedData - retrieve shared data
+func (s *Server) HandleGetSharedData(c *gin.Context) {
+	logger.SdmLog.Infof("Handle GetSharedData")
+
+	sharedDataIds := c.QueryArray("shared-data-ids")
+	supportedFeatures := c.QueryArray("supported-features")
+
+	supportedFeature := ""
+	if len(supportedFeatures) > 0 {
+		supportedFeature = supportedFeatures[0]
+	}
+
+	s.Processor().GetSharedDataProcedure(c, sharedDataIds, supportedFeature)
+}
+
+// SubscribeToSharedData - subscribe to notifications for shared data
+func (s *Server) HandleSubscribeToSharedData(c *gin.Context) {
+	var sharedDataSubsReq models.SdmSubscription
+
+	requestBody, err := c.GetRawData()
+	if err != nil {
+		problemDetail := models.ProblemDetails{
+			Title:  "System failure",
+			Status: http.StatusInternalServerError,
+			Detail: err.Error(),
+			Cause:  "SYSTEM_FAILURE",
+		}
+		logger.SdmLog.Errorf("Get Request Body error: %+v", err)
+		c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)
+		c.JSON(http.StatusInternalServerError, problemDetail)
+		return
+	}
+
+	err = openapi.Deserialize(&sharedDataSubsReq, requestBody, "application/json")
+	if err != nil {
+		problemDetail := "[Request Body] " + err.Error()
+		rsp := models.ProblemDetails{
+			Title:  "Malformed request syntax",
+			Status: http.StatusBadRequest,
+			Detail: problemDetail,
+		}
+		logger.SdmLog.Errorln(problemDetail)
+		c.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(int(rsp.Status)))
+		c.JSON(int(rsp.Status), rsp)
+		return
+	}
+
+	logger.SdmLog.Infof("Handle SubscribeToSharedData")
+
+	s.Processor().SubscribeToSharedDataProcedure(c, &sharedDataSubsReq)
+}
+
+// Subscribe - subscribe to notifications
+func (s *Server) HandleSubscribe(c *gin.Context) {
+	var sdmSubscriptionReq models.SdmSubscription
+
+	requestBody, err := c.GetRawData()
+	if err != nil {
+		problemDetail := models.ProblemDetails{
+			Title:  "System failure",
+			Status: http.StatusInternalServerError,
+			Detail: err.Error(),
+			Cause:  "SYSTEM_FAILURE",
+		}
+		logger.SdmLog.Errorf("Get Request Body error: %+v", err)
+		c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)
+		c.JSON(http.StatusInternalServerError, problemDetail)
+		return
+	}
+
+	err = openapi.Deserialize(&sdmSubscriptionReq, requestBody, "application/json")
+	if err != nil {
+		problemDetail := "[Request Body] " + err.Error()
+		rsp := models.ProblemDetails{
+			Title:  "Malformed request syntax",
+			Status: http.StatusBadRequest,
+			Detail: problemDetail,
+		}
+		logger.SdmLog.Errorln(problemDetail)
+		c.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(int(rsp.Status)))
+		c.JSON(int(rsp.Status), rsp)
+		return
+	}
+
+	logger.SdmLog.Infof("Handle Subscribe")
+
+	supi := c.Params.ByName("supi")
+	s.Processor().SubscribeProcedure(c, &sdmSubscriptionReq, supi)
+}
+
+// Unsubscribe - unsubscribe from notifications
+func (s *Server) HandleUnsubscribe(c *gin.Context) {
+	logger.SdmLog.Infof("Handle Unsubscribe")
+
+	// TS 29.503 6.1.3.4.2
+	// Validate SUPI and GPSI format the UE ID (SUPI or GPSI)
+	ueId := c.Params.ByName("ueId")
+	valid := validator.IsValidGpsi(ueId) || validator.IsValidSupi(ueId)
+	if !valid {
+		problemDetail := models.ProblemDetails{
+			Title:  "Malformed request syntax",
+			Status: http.StatusBadRequest,
+			Detail: "UE ID is invalid",
+			Cause:  "MANDATORY_IE_INCORRECT",
+		}
+		logger.SdmLog.Warnln("UE ID is invalid")
+		c.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(int(problemDetail.Status)))
+		c.JSON(int(problemDetail.Status), problemDetail)
+		return
+	}
+	subscriptionID := c.Params.ByName("subscriptionId")
+
+	s.Processor().UnsubscribeProcedure(c, ueId, subscriptionID)
+}
+
+// UnsubscribeForSharedData - unsubscribe from notifications for shared data
+func (s *Server) HandleUnsubscribeForSharedData(c *gin.Context) {
+	logger.SdmLog.Infof("Handle UnsubscribeForSharedData")
+
+	subscriptionID := c.Params.ByName("subscriptionId")
+	s.Processor().UnsubscribeForSharedDataProcedure(c, subscriptionID)
+}
+
+// Modify - modify the subscription
+func (s *Server) HandleModify(c *gin.Context) {
+	var sdmSubsModificationReq models.SdmSubsModification
+
+	// TS 29.503 6.1.3.4.2
+	// Validate SUPI and GPSI format the UE ID (SUPI or GPSI)
+	ueId := c.Params.ByName("ueId")
+	valid := validator.IsValidGpsi(ueId) || validator.IsValidSupi(ueId)
+	if !valid {
+		problemDetail := models.ProblemDetails{
+			Title:  "Malformed request syntax",
+			Status: http.StatusBadRequest,
+			Detail: "UE ID is invalid",
+			Cause:  "MANDATORY_IE_INCORRECT",
+		}
+		logger.SdmLog.Warnln("UE ID is invalid")
+		c.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(int(problemDetail.Status)))
+		c.JSON(int(problemDetail.Status), problemDetail)
+		return
+	}
+	subscriptionID := c.Params.ByName("subscriptionId")
+
+	requestBody, err := c.GetRawData()
+	if err != nil {
+		problemDetail := models.ProblemDetails{
+			Title:  "System failure",
+			Status: http.StatusInternalServerError,
+			Detail: err.Error(),
+			Cause:  "SYSTEM_FAILURE",
+		}
+		logger.SdmLog.Errorf("Get Request Body error: %+v", err)
+		c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)
+		c.JSON(http.StatusInternalServerError, problemDetail)
+		return
+	}
+
+	err = openapi.Deserialize(&sdmSubsModificationReq, requestBody, "application/json")
+	if err != nil {
+		problemDetail := "[Request Body] " + err.Error()
+		rsp := models.ProblemDetails{
+			Title:  "Malformed request syntax",
+			Status: http.StatusBadRequest,
+			Detail: problemDetail,
+		}
+		logger.SdmLog.Errorln(problemDetail)
+		c.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(int(rsp.Status)))
+		c.JSON(int(rsp.Status), rsp)
+		return
+	}
+
+	logger.SdmLog.Infof("Handle Modify")
+
+	s.Processor().ModifyProcedure(c, &sdmSubsModificationReq, ueId, subscriptionID)
+}
+
+// ModifyForSharedData - modify the subscription
+func (s *Server) HandleModifyForSharedData(c *gin.Context) {
+	var sharedDataSubscriptions models.SdmSubsModification
+	requestBody, err := c.GetRawData()
+	if err != nil {
+		problemDetail := models.ProblemDetails{
+			Title:  "System failure",
+			Status: http.StatusInternalServerError,
+			Detail: err.Error(),
+			Cause:  "SYSTEM_FAILURE",
+		}
+		logger.SdmLog.Errorf("Get Request Body error: %+v", err)
+		c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)
+		c.JSON(http.StatusInternalServerError, problemDetail)
+		return
+	}
+
+	err = openapi.Deserialize(&sharedDataSubscriptions, requestBody, "application/json")
+	if err != nil {
+		problemDetail := "[Request Body] " + err.Error()
+		rsp := models.ProblemDetails{
+			Title:  "Malformed request syntax",
+			Status: http.StatusBadRequest,
+			Detail: problemDetail,
+		}
+		logger.SdmLog.Errorln(problemDetail)
+		c.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(int(rsp.Status)))
+		c.JSON(int(rsp.Status), rsp)
+		return
+	}
+
+	logger.SdmLog.Infof("Handle ModifyForSharedData")
+
+	supi := c.Params.ByName("supi")
+	subscriptionID := c.Params.ByName("subscriptionId")
+
+	s.Processor().ModifyForSharedDataProcedure(c, &sharedDataSubscriptions, supi, subscriptionID)
+}
+
+// GetTraceData - retrieve a UE's Trace Configuration Data
+func (s *Server) HandleGetTraceData(c *gin.Context) {
+	logger.SdmLog.Infof("Handle GetTraceData")
+
+	supi := c.Params.ByName("supi")
+	plmnID := c.Query("plmn-id")
+
+	s.Processor().GetTraceDataProcedure(c, supi, plmnID)
+}
+
+// GetUeContextInSmfData - retrieve a UE's UE Context In SMF Data
+func (s *Server) HandleGetUeContextInSmfData(c *gin.Context) {
+	logger.SdmLog.Infof("Handle GetUeContextInSmfData")
+
+	supi := c.Params.ByName("supi")
+	supportedFeatures := c.Query("supported-features")
+
+	s.Processor().GetUeContextInSmfDataProcedure(c, supi, supportedFeatures)
+}
+
+// GetUeContextInSmsfData - retrieve a UE's UE Context In SMSF Data
+func (s *Server) HandleGetUeContextInSmsfData(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+// GetNssai - retrieve a UE's subscribed NSSAI
+func (s *Server) HandleGetNssai(c *gin.Context) {
+	query := url.Values{}
+	query.Set("plmn-id", c.Query("plmn-id"))
+	query.Set("supported-features", c.Query("supported-features"))
+
+	logger.SdmLog.Infof("Handle GetNssai")
+
+	supi := c.Params.ByName("supi")
+	// use c.Request.URL.Query() only for getPlmnIDStruct
+	plmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())
+	if problemDetails != nil {
+		c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)
+		c.JSON(int(problemDetails.Status), problemDetails)
+		return
+	}
+	var plmnID string
+	if plmnIDStruct != nil {
+		plmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc
+	}
+	supportedFeatures := query.Get("supported-features")
+
+	s.Processor().GetNssaiProcedure(c, supi, plmnID, supportedFeatures)
+}
+
+// GetSmData - retrieve a UE's Session Management Subscription Data
+func (s *Server) HandleGetSmData(c *gin.Context) {
+	query := url.Values{}
+	query.Set("plmn-id", c.Query("plmn-id"))
+	query.Set("dnn", c.Query("dnn"))
+	query.Set("single-nssai", c.Query("single-nssai"))
+	query.Set("supported-features", c.Query("supported-features"))
+
+	logger.SdmLog.Infof("Handle GetSmData")
+
+	supi := c.Params.ByName("supi")
+	// use c.Request.URL.Query() only for getPlmnIDStruct
+	plmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())
+	if problemDetails != nil {
+		c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)
+		c.JSON(int(problemDetails.Status), problemDetails)
+		return
+	}
+	var plmnID string
+	if plmnIDStruct != nil {
+		plmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc
+	}
+	Dnn := query.Get("dnn")
+	Snssai := query.Get("single-nssai")
+	supportedFeatures := query.Get("supported-features")
+
+	s.Processor().GetSmDataProcedure(c, supi, plmnID, Dnn, Snssai, supportedFeatures)
+}
+
+// GetIdTranslationResult - retrieve a UE's SUPI
+func (s *Server) HandleGetIdTranslationResult(c *gin.Context) {
+	logger.SdmLog.Infof("Handle GetIdTranslationResultRequest")
+
+	// TS 29.503 6.1.3.12.2
+	// Validate SUPI and GPSI format the UE ID (SUPI or GPSI)
+	ueId := c.Params.ByName("ueId")
+	valid := validator.IsValidGpsi(ueId) || validator.IsValidSupi(ueId)
+	if !valid {
+		problemDetail := models.ProblemDetails{
+			Title:  "Malformed request syntax",
+			Status: http.StatusBadRequest,
+			Detail: "UE ID is invalid",
+			Cause:  "MANDATORY_IE_INCORRECT",
+		}
+		logger.SdmLog.Warnln("UE ID is invalid")
+		c.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(int(problemDetail.Status)))
+		c.JSON(int(problemDetail.Status), problemDetail)
+		return
+	}
+
+	s.Processor().GetIdTranslationResultProcedure(c, ueId)
+}
+
+func (s *Server) HandleGetMultipleIdentifiers(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{})
+}
+
+func (s *Server) HandleGetGroupIdentifiers(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{})
+}
+
+func (s *Server) HandleGetLcsBcaData(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{})
+}
+
+func (s *Server) HandleGetLcsMoData(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{})
+}
+
+func (s *Server) HandleGetLcsPrivacyData(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{})
+}
+
+func (s *Server) HandleGetMbsData(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{})
+}
+
+func (s *Server) HandleGetProseData(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{})
+}
+
+func (s *Server) HandleGetUcData(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{})
+}
+
+func (s *Server) HandleGetUeCtxInAmfData(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{})
+}
+
+func (s *Server) HandleGetV2xData(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{})
+}
+
+func (s *Server) HandleGetIndividualSharedData(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{})
+}
+
+func (s *Server) HandleCAGAck(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{})
+}
+
+func (s *Server) HandleGetEcrData(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{})
+}
+
+func (s *Server) HandleSNSSAIsAck(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{})
+}
+
+func (s *Server) HandleUpdateSORInfo(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{})
+}
+
+func (s *Server) HandleUpuAck(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{})
+}
+```
+
+---
+
+## Question
+
+Review the complete file above for security vulnerabilities. Focus in particular on input validation consistency across all handlers that process UE identifiers. List all issues you find, specifying the type, the exact handler and location, and the potential impact of each.
+
+---
+
+## Agent Instructions
+
+Reply ONLY in JSON format. Include one entry per distinct vulnerability or handler with a missing control:
+
+```json
+{
+  "answer": [
+    {
+      "vulnerability_type": "...",
+      "location": "...",
+      "impact": "..."
+    }
+  ],
+  "reasoning": "...",
+  "confidence": 0.0
+}
+```
