@@ -47,6 +47,12 @@ I task sono in `docs/tasks/` e sono di due tipi:
 - `math`: verifica numerica deterministica in Python (ground truth)
 - `textual`: scoring tramite judge LLM con rubrica → l'agente produce una risposta testuale che viene valutata da un modello "giudice" (judge) che applica criteri di valutazione strutturati (rubrica) per assegnare un punteggio invece di confrontare semplicemente con una ground truth numerica
 
+Task disponibili:
+- `task1_math_int`, `task2_math_real`: matematica 5G (calcoli numerici)
+- `task3_anomaly`, `task4_rootcause`: analisi testuale 5G (classificazione, root cause)
+- `task5_vuln_missing_return`, `task6_vuln_logic_bug`, `task7_vuln_cors`: security code review su codice reale free5GC (difficoltà crescente: bassa / media / alta)
+- `task8_vuln_cross_nf`: cross-NF vulnerability propagation — catena UDM→UDR nel PDU session establishment; richiede ragionamento su interazione tra NF (difficoltà alta)
+
 ---
 
 ## 3) Mappa del codice (dove sta cosa)
