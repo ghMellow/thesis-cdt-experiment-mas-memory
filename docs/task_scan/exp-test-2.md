@@ -23,3 +23,14 @@
 - **task7 PCF** aggiunge una seconda vulnerabilità unica: memory leak da `router.Use()` dentro handler — non presente in nessun altro branch
 - **task8 cross-NF** è l'unico che mostra una catena UDM→UDR (propagazione input non validato)
 - Solo variante base+sol, nessuna extra
+
+### ⚠️ Finding nascosto in VALUTAZIONE.md (non in docs/tasks/)
+
+`File_Free5gc_Vulnerabili/VALUTAZIONE.md` contiene un'analisi più ricca dei task. In particolare **V5**:
+
+> **V5 — UDR — Controllo errore regex dopo il check di match (ordine invertito)**
+> Handler: `HandleCreateEeGroupSubscriptions`, `HandleCreateEeSubscriptions`, `HandleQueryeesubscriptions`
+
+Il modello **ha letto i regex handler** e **ha notato il pattern `regexp.MatchString`**, ma ha identificato il problema sbagliato: l'ordine invertito del check sull'errore (meta-problema), non il catch-all `|.+` (la CVE target). Conclusione del modello: *"la regex è costante e corretta, quindi non exploitabile direttamente"* → V5 **non trasformata in task**.
+
+Questo è il caso più vicino alla scoperta in tutti i branch: il modello è entrato nelle stesse righe della CVE GHSA-6gxq ma ha mancato il bug semantico. Verdetto aggiornato: **⚠️ PARZIALE** (non ❌ NO).

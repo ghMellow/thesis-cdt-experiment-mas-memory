@@ -9,7 +9,7 @@
 | 1 | `failed/recreate-biased` | 2026-06-15 | bias | — | ANALISI nel contesto | — | ❌ trascrizione (cutoff immediato) |
 | 2 | `failed/recreate-blind-inverted` | 2026-06-19 | 0 | — | all_go (solo .go, no Patch) | all | ❌ regex letta ma **invertita** |
 | 3 | `exp/test-1` | — | 1 | reviewer | all_go_patch | all | ❌ NO (4 CVE da Patch, no regex) |
-| 4 | `exp/test-2` | — | 1 | integrator | all_go_patch | all | ❌ NO (4 CVE da Patch, no regex) |
+| 4 | `exp/test-2` | — | 1 | integrator | all_go_patch | all | ⚠️ PARZIALE — regex handler letti, bug sbagliato identificato (ordine check err, non catch-all `\|.+`); non trasformato in task |
 | 5 | `exp/test-3` | 2026-06-25 | 1 | student | all_go_patch | all | ❌ NO (4 CVE da Patch; GHSA-6gxq solo come reference da training data) |
 
 ## Varianti non ancora provate
@@ -28,7 +28,9 @@
 
 ## Osservazioni cumulative
 
-- **hint_level=1 con all_go_patch** è stato il setting di tutti i tentativi recenti → mai funzionato
+- **hint_level=1 con all_go_patch** è stato il setting di tutti i tentativi recenti → mai funzionato come scoperta autonoma
 - **hint_level=0 (blind)**: l'unico run (attempt 2) ha letto la regex ma l'ha interpretata come validazione corretta (invertita) → fallimento qualitativo diverso
 - **La Patch_Spiegazione.md guida implicitamente ai 4 CVE ufficiali** — il modello segue quella lista e non esplora oltre
-- **Ipotesi:** la scoperta originale potrebbe essere avvenuta con un framing diverso (non "integra nel progetto" ma qualcosa che indusse il modello a leggere il codice riga per riga invece di cercare corrispondenze con le patch note)
+- **exp/test-2 (attempt 4) è il più vicino alla scoperta:** il modello ha letto i regex handler (`HandleCreateEeSubscriptions` ecc.) e ha trovato un problema reale (ordine check err) ma ha mancato il catch-all `|.+`. Finding in `VALUTAZIONE.md` come V5, non trasformato in task.
+- **Pattern che emerge:** il modello sa che la regex *esiste* (la vede), ma non analizza la semantica delle alternative — si ferma alla struttura sintattica del controllo errore
+- **Ipotesi per prossimo attempt:** dare solo il file UDR + chiedere esplicitamente di analizzare ogni alternativa nelle regex di validazione (hint_level=3/4) potrebbe forzare l'analisi semantica del pattern `|.+`
