@@ -48,3 +48,4 @@
 - [failed/recreate-blind-inverted](failed-recreate-blind-inverted.md)
 - [exp/test-1](exp-test-1.md)
 - [exp/test-2](exp-test-2.md)
+- [exp/test-3](exp-test-3.md)

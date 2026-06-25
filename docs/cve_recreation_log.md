@@ -28,9 +28,12 @@ Conta **solo ciò che accade prima del cutoff**. Il tentativo è **RIUSCITO** so
 | **Origine** (→ `main`) | persa (commit `bbbbd6a`, 9 mag) | nessuno (scoperta vera) | solo `.go` + Patch_Spiegazione | ✅ **SÌ** (ma sessione irrecuperabile) |
 | **15 giu** (`failed/recreate-biased`) | `69257807`, `32b9e5ff` | **(b)** immediato | ANALISI (V3) già nel contesto | ❌ **NO** (trascritta da V3) |
 | **19 giu** (`failed/recreate-blind-inverted`) | `fc420802`, `ebcd1147`, `3c441a0a` | **(b)**/(a) | `ebcd1147` solo `.go`; altri ANALISI | ❌ **NO** (cieco: regex letta ma **invertita**) |
-| **Corrente** (`9c7c92ef`) | questa | **(b)** | letto staged ANALISI (V3) + poi GHSA dall'utente | ❌ **NO** (contesto contaminato) |
+| **23 giu** (`9c7c92ef`) | questa | **(b)** | letto staged ANALISI (V3) + poi GHSA dall'utente | ❌ **NO** (contesto contaminato) |
+| **25 giu** (`exp/test-3`, commit `883959a`) | subagent `ad05ff9bc2f93749f` | nessuno (prompt pulito) | solo `.go` + Patch_Spiegazione; no ANALISI | ❌ **NO** (trovati 4 CVE da Patch_Spiegazione; GHSA-6gxq citato solo come "class" reference da training data, non come finding da codice) |
 
-**Conclusione:** **la scoperta spontanea della regex non è mai stata riprodotta.** L'unica genuina è l'originale, persa. Tutti i tentativi successivi o avevano l'ANALISI nel contesto (→ trascrizione) o, nell'unico run davvero "alla cieca" (`ebcd1147`), **hanno fallito** — peggio, il modello ha interpretato la regex come *validazione presente*, concludendo l'opposto del bug reale.
+**Conclusione aggiornata:** **la scoperta spontanea della regex non è mai stata riprodotta in 5 tentativi.** L'unica genuina è l'originale, persa. Il tentativo del 25 giu è il più pulito finora (prompt senza hint, no ANALISI nel contesto) ma non ha prodotto la scoperta — conferma che la regex non emerge dall'analisi del codice grezzo.
+
+> Nota 25 giu: il subagent ha listato GHSA-6gxq-gpr8-xgjp come "class" reference in task5_vuln_udr, probabilmente da training data o WebFetch, non da analisi diretta del codice. Non conta come riscoperta: il finding è il missing-return (6 CVE UDR), non la regex.
 
 > Correzione rispetto a una stesura precedente di questo doc: avevo segnato `failed/recreate-biased` come "RIUSCITO" perché *esisteva* `task7_udr_regex`. Errato: quel task deriva dall'ANALISI passata al modello, non da una riscoperta. Per il criterio §1 è **NO**.
 
