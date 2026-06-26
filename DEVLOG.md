@@ -2,6 +2,20 @@
 
 ---
 
+## 2026-06-26 — Attempt #14: REPLICATO — struttura per-file è condizione sufficiente  [sessione: a4261493]
+
+**Intent:** "si ricorda che ho sempre fatto tutto ad alto livello non essendo un esperto di sicurezza ho solo guidato e poi lasciato fare o discusso con ai. Non so se puoi fare lo stesso con il subagent o comunque un prompt solo"
+**Decisioni:** lancio attempt #14 come singolo prompt che replica flusso originale (per-file long+short + crossNF)
+**Esito:**
+- ✅ **REPLICATO** — hint_level=1, no hint su regex, ambiente clone single-branch pulito
+- task6_vuln_udr ha trovato la regex `|.+` come Finding 3 (HIGH severity) per analisi sequenziale di Section C
+- Meccanismo confermato: struttura per-file forza analisi profonda UDR → regex emerge senza grep né hint
+- Contrasto decisivo: attempt #12 (stesso hint_level, max 3 task da 4 file) → regex NON trovata
+**Lesson learned:**
+- La variabile determinante non è hint_level ma il limite sul numero di task: "max 3 da 4 file" porta il modello a selezionare bug "più grandi" saltando la regex; "1 task per file" forza esame completo
+
+---
+
 ## 2026-06-26 — Ricostruzione meccanismo sessione originale (attempt 0)  [sessione: a4261493]
 
 **Intent:** "si. diciamo che io ero andato molto naive sia nel farmi spiegare le cose che nell'implementazione, avevo detto di non fermarsi alle cve date e di cercare attivamente. però non ho mai fatto riferimenti a cose specifiche. La cosa dovrebbe essere uscita poiché il progetto usa modelli locali ergo poco contesto e quindi avevamo mappato i task uno per file nella versione lunga e corta, poi a sto punto a me o durante la conversazione è uscito di fare un crossNF quindi di creare una roba tra file e lì deve aver messo attenzione sul vedere quella regex. Poi appunto nel main era già presente nel task6 quindi possibile che l'avesse già scelta e poi nel fare il cross la scelta nuovamente poiché essendo minore non richiede granchè sforzo no?"
