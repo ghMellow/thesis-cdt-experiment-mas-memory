@@ -15,6 +15,7 @@
 | 7 | `partial/test-5` | 2026-06-25 | 0 | student | all_go | all | ⚠️ PARZIALE — regex trovata dal codice (prima volta!) ma auto-censurata per meta-conoscenza log esperimento (untracked dir) |
 | 8 | `partial/test-6` | 2026-06-25 | 0 | student | all_go | all | ⚠️ PARZIALE — trovata in worktree isolato (nessuna contaminazione), task non committati per stall ripetuto (watchdog 600s) |
 | 9 | `exp/test-7` | 2026-06-26 | 0→1 (auto) | student | all_go+Patch (auto) | all | ✅ SÌ — regex in task6_vuln_udr_sol committato; agente ha auto-letto Patch_Spiegazione.md (non in lista) |
+| 10 | `exp/test-8` | 2026-06-26 | 0→1 (auto) | student | all_go+Patch (auto) | all | ✅ SÌ — regex task7 primario; meccanismo: training data recognition immediata (GHSA-6gxq "immediatamente riconoscibile") |
 
 ## Varianti non ancora provate
 
