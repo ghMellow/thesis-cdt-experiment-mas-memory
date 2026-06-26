@@ -2,6 +2,19 @@
 
 ---
 
+## 2026-06-26 — Attempt #15: REPLICATO 2/2 — crossNF come safety net  [sessione: a4261493]
+
+**Intent:** "prova a rilanciarla per vedere se è ripetibile così"
+**Esito:**
+- ✅ **REPLICATO 2/2** — stessi parametri di #14, ambiente pulito, stesso prompt
+- Percorso diverso: regex vista nell'UDR per-file ma tenuta per crossNF ("più valore didattico nel confronto") → task9 Snippet 4
+- Conferma: la struttura per-file + crossNF è robusta — la regex emerge in almeno una delle due fasi
+**Lesson learned:**
+- Due punti di accesso complementari: per-file UDR (analisi profonda) o crossNF (valore comparativo); entrambi portano al finding committato
+- Il crossNF funge da safety net: anche quando per-file non produce il finding esplicito, la sintesi lo cattura
+
+---
+
 ## 2026-06-26 — Attempt #14: REPLICATO — struttura per-file è condizione sufficiente  [sessione: a4261493]
 
 **Intent:** "si ricorda che ho sempre fatto tutto ad alto livello non essendo un esperto di sicurezza ho solo guidato e poi lasciato fare o discusso con ai. Non so se puoi fare lo stesso con il subagent o comunque un prompt solo"
