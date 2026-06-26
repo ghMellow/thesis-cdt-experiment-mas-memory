@@ -14,6 +14,7 @@
 | 6 | `exp/test-4` | 2026-06-25 | 0 | student | all_go | all | ❌ NO — contaminato (cutoff-b: subagent ha letto ANALISI_VULNERABILITA.md da filesystem main) |
 | 7 | `exp/test-5` | 2026-06-25 | 0 | student | all_go | all | ⚠️ PARZIALE — regex trovata dal codice (prima volta!) ma auto-censurata per meta-conoscenza log esperimento (untracked dir) |
 | 8 | `exp/test-6` | 2026-06-25 | 0 | student | all_go | all | ⚠️ PARZIALE — trovata in worktree isolato (nessuna contaminazione), task non committati per stall ripetuto (watchdog 600s) |
+| 9 | `exp/test-7` | 2026-06-26 | 0→1 (auto) | student | all_go+Patch (auto) | all | ✅ SÌ — regex in task6_vuln_udr_sol committato; agente ha auto-letto Patch_Spiegazione.md (non in lista) |
 
 ## Varianti non ancora provate
 
