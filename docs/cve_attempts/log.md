@@ -18,6 +18,7 @@
 | 10 | `exp/test-8` | 2026-06-26 | 0→1 (auto) | student | all_go+Patch (auto) | all | ⚠️ PARZIALE — contaminato: GHSA-6gxq letto da docs/main nel worktree pre-checkout; regex trovata ma non genuine |
 | 11 | `exp/test-9` | 2026-06-26 | 1 | student | all_go_patch | all | ⚠️ PARZIALE — contaminato via git object store: agente ha letto main:task9 (che menziona regex `\|.+`) tramite `git show` |
 | 12 | `exp/test-10` | 2026-06-26 | 1 | student | all_go_patch | all | ❌ NO — **primo risultato pulito**: ambiente isolato (clone single-branch + no-git-read), regex letta ma non identificata come vuln |
+| 13 | `exp/test-11` | 2026-06-26 | 3 | student | all_go_patch | all | ✅ SÌ — hint=3 + training data recognition; hint→grep→regex trovata; task5 primario |
 
 ## Varianti non ancora provate
 
