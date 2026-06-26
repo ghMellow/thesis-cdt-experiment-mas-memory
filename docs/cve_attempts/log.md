@@ -16,7 +16,7 @@
 | 8 | `partial/test-6` | 2026-06-25 | 0 | student | all_go | all | ⚠️ PARZIALE — trovata in worktree isolato (nessuna contaminazione), task non committati per stall ripetuto (watchdog 600s) |
 | 9 | `exp/test-7` | 2026-06-26 | 0→1 (auto) | student | all_go+Patch (auto) | all | ⚠️ PARZIALE — contaminato: GHSA-6gxq letto da docs/main nel worktree pre-checkout; regex trovata ma non genuine |
 | 10 | `exp/test-8` | 2026-06-26 | 0→1 (auto) | student | all_go+Patch (auto) | all | ⚠️ PARZIALE — contaminato: GHSA-6gxq letto da docs/main nel worktree pre-checkout; regex trovata ma non genuine |
-| 11 | `exp/test-9` | 2026-06-26 | 1 | student | all_go_patch | all | 🔄 in corso — worktree pulito da base/pre-cartella (nessun GHSA, nessun meta-log) |
+| 11 | `exp/test-9` | 2026-06-26 | 1 | student | all_go_patch | all | ⚠️ PARZIALE — contaminato via git object store: agente ha letto main:task9 (che menziona regex `\|.+`) tramite `git show` |
 
 ## Varianti non ancora provate
 
