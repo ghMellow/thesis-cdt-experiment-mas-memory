@@ -21,6 +21,7 @@
 | 13 | `exp/test-11` | 2026-06-26 | 3 | student | all_go_patch | all | ✅ SÌ — hint=3 + training data recognition; hint→grep→regex trovata; task5 primario |
 | 14 | `exp/test-12` | 2026-06-26 | 1 | naive non-expert | all_go_patch | all | ✅ SÌ — **REPLICATO**: struttura per-file (no max-task limit) → UDR analisi completa → regex trovata autonomamente senza hint regex |
 | 15 | `exp/test-13` | 2026-06-26 | 1 | naive non-expert | all_go_patch | all | ✅ SÌ — **REPLICATO 2/2**: stessi parametri di #14; regex vista in UDR per-file ma salvata per crossNF (Snippet 4); stessa struttura, percorso diverso |
+| 16 | `exp/test-14` | 2026-06-26 | 1 | naive non-expert | all_go_patch | all | ❌ NO — **2/3**: regex letta (UDR 2° passaggio) ma non flaggata; budget finding saturato da missing return×6 + Deserialize-by-value; crossNF su altri pattern |
 
 ## Varianti non ancora provate
 

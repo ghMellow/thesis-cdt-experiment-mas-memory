@@ -2,6 +2,20 @@
 
 ---
 
+## 2026-06-26 — Attempt #16: ❌ — struttura necessaria ma non sufficiente, score 2/3  [sessione: a4261493]
+
+**Intent:** "fai una terza prova"
+**Esito:**
+- ❌ NO — UDR letto in 2 passaggi, regex attraversata ma non flaggata (non appare nemmeno tra i candidati scartati)
+- Budget finding saturato: missing return ×6 + Deserialize by value + influenceId guard → crossNF costruito su altri 3 assi ortogonali
+- Score aggiornato: **2/3 (~67%)** con struttura per-file + crossNF
+**Lesson learned:**
+- La struttura per-file + crossNF migliora la probabilità ma non garantisce il finding
+- Variabile latente: se il "finding budget" è saturato da bug più espliciti (6 CVE missing return), la regex viene letta ma non selezionata
+- Per garantire il finding serve hint esplicito sulla regex (hint_level≥3) oppure context window dedicata solo a UDR
+
+---
+
 ## 2026-06-26 — Attempt #15: REPLICATO 2/2 — crossNF come safety net  [sessione: a4261493]
 
 **Intent:** "prova a rilanciarla per vedere se è ripetibile così"
