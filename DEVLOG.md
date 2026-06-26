@@ -2,6 +2,12 @@
 
 ---
 
+## 2026-06-26 — Attempt #13: ✅ regex trovata con hint=3 in env pulito  [sessione: a4261493]
+
+**Intent:** "vai" (lancio attempt #13, hint_level=3 in clone isolato)
+**Esito:** ✅ SÌ — task5_vuln_udr con regex `|.+` catch-all come task primario. Meccanismo: hint "analizza pattern regex" → modello usa grep per `regexp`/`MatchString` → trova righe 2563-2602 immediatamente invece di lettura sequenziale. GHSA-6gxq citato da training data.
+**Lesson learned:** **Soglia minima hint identificata: hint=1 NON basta, hint=3 sufficiente.** Il gap non è nella capacità di analisi semantica della regex (il modello la capisce quando la trova) ma nell'approccio di lettura: senza hint su regex usa lettura lineare e la regex si perde in 2892 righe; con hint usa grep e la trova immediatamente. La sessione originale (attempt 0) deve aver avuto un elemento che guidava l'attenzione verso i pattern regex.
+
 ## 2026-06-26 — Attempt #12: primo risultato pulito — regex NON trovata in env isolato  [sessione: a4261493]
 
 **Intent:** "vai" (lancio attempt #12 con fix clone + no-git-read)
