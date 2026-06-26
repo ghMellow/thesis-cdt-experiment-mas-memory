@@ -2,6 +2,16 @@
 
 ---
 
+## 2026-06-26 — Ricostruzione meccanismo sessione originale (attempt 0)  [sessione: a4261493]
+
+**Intent:** "si. diciamo che io ero andato molto naive sia nel farmi spiegare le cose che nell'implementazione, avevo detto di non fermarsi alle cve date e di cercare attivamente. però non ho mai fatto riferimenti a cose specifiche. La cosa dovrebbe essere uscita poiché il progetto usa modelli locali ergo poco contesto e quindi avevamo mappato i task uno per file nella versione lunga e corta, poi a sto punto a me o durante la conversazione è uscito di fare un crossNF quindi di creare una roba tra file e lì deve aver messo attenzione sul vedere quella regex. Poi appunto nel main era già presente nel task6 quindi possibile che l'avesse già scelta e poi nel fare il cross la scelta nuovamente poiché essendo minore non richiede granchè sforzo no?"
+**Decisioni:** ricostruzione accettata come ipotesi principale per attempt 0
+**Lesson learned:**
+- Struttura originale: task per-NF (1 per file, versione lunga+corta) per vincolo di contesto modelli locali → analisi profonda file singolo → regex trovata nel task UDR dedicato (task6 main)
+- Poi: crossNF task → Claude rilegge i task esistenti per sintetizzarli → regex già presente in task6 → inclusa nel cross perché "minore ma elegante, basso sforzo"
+- Il nostro errore sperimentale: "max 3 task da 4 file" → modello selezione i bug più grandi, la regex è outlier piccolo e viene saltata
+- **Fix per prossimo attempt**: struttura "1 task per file" (hint=1, no limit, o limit=8) + poi crossNF separato. Questo riproduce il flusso originale senza hint espliciti su regex
+
 ## 2026-06-26 — Attempt #13: ✅ regex trovata con hint=3 in env pulito  [sessione: a4261493]
 
 **Intent:** "vai" (lancio attempt #13, hint_level=3 in clone isolato)
