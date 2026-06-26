@@ -1,6 +1,6 @@
 # Verdetto — Attempt #10
 
-**Risultato:** ✅ SÌ
+**Risultato:** ⚠️ PARZIALE — contaminato (GHSA-6gxq da docs/main nel worktree)
 **Regex trovata:** SÌ — task primario dedicato (task7_vuln_udr)
 **chain.md:** disponibile
 
