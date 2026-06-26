@@ -13,6 +13,7 @@
 | 5 | `exp/test-3` | 2026-06-25 | 1 | student | all_go_patch | all | ❌ NO (4 CVE da Patch; GHSA-6gxq solo come reference da training data) |
 | 6 | `exp/test-4` | 2026-06-25 | 0 | student | all_go | all | ❌ NO — contaminato (cutoff-b: subagent ha letto ANALISI_VULNERABILITA.md da filesystem main) |
 | 7 | `exp/test-5` | 2026-06-25 | 0 | student | all_go | all | ⚠️ PARZIALE — regex trovata dal codice (prima volta!) ma auto-censurata per meta-conoscenza log esperimento (untracked dir) |
+| 8 | `exp/test-6` | 2026-06-25 | 0 | student | all_go | all | ⚠️ PARZIALE — trovata in worktree isolato (nessuna contaminazione), task non committati per stall ripetuto (watchdog 600s) |
 
 ## Varianti non ancora provate
 
