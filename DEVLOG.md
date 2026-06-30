@@ -2,6 +2,12 @@
 
 ---
 
+## 2026-06-29 — Revisione chat backup  [sessione: e201e804]
+
+**Revisione chat:** rivedute 19 sessioni (backup) + 11 sessioni non ancora in backup (projects/), arco 2026-06-15 → 2026-06-29. Eliminate: nessuna. Entry retroattive aggiunte: 5 (Jun 15, 19, 22, 24, 25). Sessioni non in backup da Jun 9 non ancora agganciato al DEVLOG — richiedono sessione dedicata.
+
+---
+
 ## 2026-06-26 — Attempt #16: ❌ — struttura necessaria ma non sufficiente, score 2/3  [sessione: a4261493]
 
 **Intent:** "fai una terza prova"
@@ -97,6 +103,23 @@
 
 ---
 
+## 2026-06-25 — Analisi vulnerabilità Free5gc + progettazione task cross-NF  [sessione: 3580d283]
+
+**Intent:** "hai il contesto del progetto?" → poi: "leggili completamente e cerca anche altre vulnerabilità oltre a quelle date o partendo da quelle e trovandone altre" + "segna il tutto in un file di valutazione" (concessione su struttura e profondità).
+
+**Esito:**
+
+- Lettura completa della cartella `File_Free5gc_Vulnerabili/` (PCF, AMF, UDM, UDR + ANALISI + Patch_Spiegazione)
+- Creato file di valutazione con vulnerabilità trovate e contesto per riprendere ognuna
+- Proposto e approvato task **cross-NF**: snippet da NF diverse che interagiscono tra loro (non file interi per evitare context explosion)
+- Confermato che gli snippet cross-NF si "interpolano" — interazioni tra NF, non file singoli concatenati
+
+**Decisioni:**
+
+- Task cross-NF confermato; versione solo breve (file interi insieme troppo onerosi per la context window dei modelli locali)
+
+---
+
 ## 2026-06-25 — Attempt #6 e #7: bug strutturale filesystem + prima scoperta autonoma della regex  [sessione: a4261493]
 
 **Intent:** "procedi" — continuare la ricreazione CVE con la skill /cve-attempt.
@@ -125,6 +148,74 @@
 **Lesson learned:** la sessione originale è irrecuperabile (backup transcript partito dopo) → il log è reverse-engineering di `bbbbd6a`. Le estensioni di valore (task cross-NF, varianti `_full`, scoperta della regex poi GHSA-6gxq) furono **iniziative autonome del modello** abilitate da prompt a bassa costrizione — il fenomeno stesso che si vuole riprodurre.
 
 **Correzione (stessa sessione):** l'utente ha precisato il criterio vero = il **cutoff** (riscoperta spontanea *prima* che l'obiettivo sia rivelato o che venga passata l'ANALISI). Rianalizzato con 2 subagent: **nessun tentativo ha riscoperto la regex** prima del cutoff. `test_fallimentare` aveva l'ANALISI (V3) nel contesto dal msg 0 → trascrizione, non scoperta; `test-reproducibility` nell'unico run cieco (`ebcd1147`) ha letto la regex ma l'ha **invertita** (presa per validazione corretta). Verdetto corretto: `test_fallimentare` NON è "RIUSCITO" — *esistenza del task ≠ riscoperta*. L'unica riscoperta genuina resta l'originale persa. Doc `cve_recreation_log.md` riscritto di conseguenza.
+
+---
+
+## 2026-06-24 — Decisioni architetturali task 6-8 + implementazione varianti long/short  [sessione: 2bcd9c2f]
+
+**Intent:** "ho aggiunto la seguente cartella @File_Free5gc_Vulnerabili/ [...] al momento devo capire come integrarle nel resto del progetto per trasformarle in task da usare per testare modelli locali con un judge" (concessione su struttura e format).
+
+**Decisioni:**
+
+- Versione **lunga e breve** per task 6-8: testare come i modelli locali reagiscono a contesti diversi
+- Mapping: 1 task per cartella (NF) nella versione lunga + corta; cross-NF solo breve (file interi insieme troppo costosi in token)
+- Rubrica: delegata al modello ("vedi tu") con vincolo = pipeline agent → judge con rubrica per assegnare score
+- "vai implementale" → implementazione diretta senza ulteriore discussione
+
+**Esito:**
+
+- Task 6-8 implementati con varianti `_short` / `_full`
+- Rubrica definita autonomamente seguendo il formato dei task 1-4 esistenti
+
+---
+
+## 2026-06-22 — Scoperta CVE GHSA-6gxq-gpr8-xgjp + correzione rubrica UDR/PCF  [sessione: ba6c86f9]
+
+**Intent:** "la seguente CVE è stata creata nei @docs/tasks?" → verifica se la CVE già pubblicata (UDR ueId validation, regex `|.+`) è già presente nei task.
+
+**Esito:**
+
+- Verifica completata: CVE GHSA-6gxq-gpr8-xgjp collegata al task esistente UDR
+- Analisi finding secondario AMF: verificato ma non determinante → rimosso dal giudizio di validazione (come per UDR)
+- **Correzione rubrica** richiesta dall'utente:
+  - PCF: struttura confermata, riproposta invariata
+  - UDR: rimosso `missing_return_score` dal giudizio regex (riguarda vuln diversa); `vulnerability_identified_score 5`
+  - Finding "Identifica AllowAllOrigins + AllowCredentials come violazione spec" → score 5; "trova il missing return" → score 5
+
+**Decisioni:**
+
+- Punteggio critico vs secondario: l'utente preferisce differenziare più nettamente (5 vs 2) piuttosto che distribuire uniformemente
+- Finding AMF secondario escluso esplicitamente dal judge
+
+---
+
+## 2026-06-19 — Prima integrazione Free5gc nel progetto + decisioni struttura task  [sessione: ebcd1147]
+
+**Intent:** "Ho aggiunto la cartella @File_Free5gc_Vulnerabili/ [...] Leggi i file di codice e spiegami la libreria. Come possiamo integrarle nel progetto? Cosa proponi?" (concessione totale su struttura).
+
+**Decisioni:**
+
+- Uno task per NF (non aggregati)
+- Solo judge + rubrica — no verifica hard-coded; prompt per approfondire judge che premia risposte plausibili salvato per futuro
+- Solo identificare le vulnerabilità (non fix, non exploit)
+- Non guardare altro materiale del progetto durante l'analisi
+
+**Esito:**
+
+- Prima proposta di integrazione delle vulnerabilità Free5gc nel framework task esistente
+- Struttura one-per-NF confermata come baseline
+
+---
+
+## 2026-06-15 — Creazione task Free5gc da Patch_Spiegazione.md  [sessione: 32b9e5ff]
+
+**Intent:** prompt di sistema dettagliato: "Nella cartella File_Free5gc_Vulnerabili/ trovi materiale [...] Per ciascuna vulnerabilità identificata nell'analisi, crea il task corrispondente seguendo lo stesso formato e livello di dettaglio degli esempi esistenti. Aggiorna docs/status.md e CLAUDE.md." (prompt strutturato, non concessione libera).
+
+**Esito:**
+
+- Lettura di PCF/api_oam.go, AMF/api_communication.go, UDM/api_subscriberdatamanagement.go, UDR/api_datarepository.go + ANALISI_VULNERABILITA.md + Patch_Spiegazione.md
+- Task 5-9 creati seguendo il formato task 1-4 (scenario .md + soluzione _sol.md con rubrica)
+- Documentazione aggiornata (status.md, CLAUDE.md)
 
 ---
 
