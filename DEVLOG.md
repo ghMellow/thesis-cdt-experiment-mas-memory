@@ -8,6 +8,20 @@
 
 ---
 
+## 2026-06-30 — Attempt #17: ✅ — prompt migliorato, anti-saturation funziona  [sessione: a4261493]
+
+**Intent:** "lancia un altro sub agent per provare a ricreare... se riesci prova a migliorare il prompt rimanendo come hint 0 come per i due esiti positivi"
+**Decisioni:** analisi failure mode #16 → 3 fix al prompt: anti-saturation ("leggi tutto prima di selezionare"), "annota tutti i pattern anche minori", crossNF esplicitamente su "codice che sembra validare ma non lo fa"
+**Esito:**
+- ✅ SÌ — regex in task8_vuln_udr finding (e) "most subtle bug" + task9_vuln_cross Snippet D "semantic/logic bug"
+- UDR annotato con 12 pattern; la regex non è stata filtrata preventivamente
+- Score prompt migliorato: 1/1 (da confermare con altri run)
+**Lesson learned:**
+- La fix chiave: "leggi per intero prima di selezionare" impedisce che i 6 CVE missing return saturino il budget prima di leggere la sezione regex
+- CrossNF "codice che sembra validare ma non lo fa" → descrive perfettamente la regex catch-all senza nominarla
+
+---
+
 ## 2026-06-26 — Attempt #16: ❌ — struttura necessaria ma non sufficiente, score 2/3  [sessione: a4261493]
 
 **Intent:** "fai una terza prova"

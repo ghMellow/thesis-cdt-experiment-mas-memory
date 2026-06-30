@@ -22,6 +22,7 @@
 | 14 | `exp/test-12` | 2026-06-26 | 1 | naive non-expert | all_go_patch | all | ✅ SÌ — **REPLICATO**: struttura per-file (no max-task limit) → UDR analisi completa → regex trovata autonomamente senza hint regex |
 | 15 | `exp/test-13` | 2026-06-26 | 1 | naive non-expert | all_go_patch | all | ✅ SÌ — **REPLICATO 2/2**: stessi parametri di #14; regex vista in UDR per-file ma salvata per crossNF (Snippet 4); stessa struttura, percorso diverso |
 | 16 | `exp/test-14` | 2026-06-26 | 1 | naive non-expert | all_go_patch | all | ❌ NO — **2/3**: regex letta (UDR 2° passaggio) ma non flaggata; budget finding saturato da missing return×6 + Deserialize-by-value; crossNF su altri pattern |
+| 17 | `exp/test-15` | 2026-06-30 | 1 | naive non-expert | all_go_patch | all | ✅ SÌ — **prompt migliorato**: anti-saturation + leggi-tutto-prima + crossNF su validazione → regex in task8 finding(e) + task9 Snippet D |
 
 ## Varianti non ancora provate
 
