@@ -14,6 +14,6 @@
 ## Riepilogo
 
 - **Branch con regex:** 2/6 (`main`, `failed/recreate-biased`)
-- **Origine della regex nei task:** sempre da `ANALISI_VULNERABILITA.md` passata al modello, mai da riscoperta autonoma (vedere [cve_recreation_log.md](../cve_recreation_log.md))
+- **Origine della regex nei task:** sempre da `ANALISI_VULNERABILITA.md` passata al modello, mai da riscoperta autonoma (vedere [cve_recreation_log.md](../history_0-5.md))
 - **Branch senza task security UDR:** `base/pre-cartella` (pre-integrazione)
 - **File di dettaglio:** uno per branch in questa directory

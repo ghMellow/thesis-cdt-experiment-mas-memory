@@ -1,3 +1,11 @@
+# Trascrizione audio grezza — call di progetto
+
+> Trascrizione automatica non editata di una call (materiale-fonte). Include chiacchiere
+> iniziali e rumore da speech-to-text. I verbali strutturati sono in `../call_1.md`,
+> `../call_2.md`, `../call_3.md`.
+
+---
+
 Faccio affaticata Eh, sto facendo un sacco di cose sto un attimo morendo dietro tutto.
 
 No, no, no è purtroppo no purtroppo no infatti è Quello mi servirebbe un po' di relax.

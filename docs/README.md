@@ -16,6 +16,7 @@ Come è fatto e come gira il progetto di sperimentazione.
 | [experiments_framing.md](experiments_framing.md) | Coda di esperimenti framing (expert vs beginner) |
 | [changelog.md](changelog.md) | Storico modifiche |
 | [calls/](calls/) | Verbali storici delle call (call_1, call_2, call_3) |
+| [calls/transcripts/](calls/transcripts/) | Trascrizioni audio grezze delle call (materiale-fonte dei verbali) |
 | [tasks/](tasks/) | I task di code review usati dagli agenti |
 
 ## 🔬 Esperimento CVE — "la singolarità"
@@ -28,7 +29,7 @@ Riproduzione della scoperta spontanea della regex `|.+` (GHSA-6gxq-gpr8-xgjp) in
 | [cve_experiment/hands_on.md](cve_experiment/hands_on.md) | Guida pratica: i prompt che funzionano + come rifare il test |
 | [cve_experiment/attempts/log.md](cve_experiment/attempts/log.md) | Log tecnico di tutti i tentativi (#0–#18) — **fonte autoritativa** |
 | [cve_experiment/attempts/](cve_experiment/attempts/) | Dettaglio per tentativo: `attempt_<N>/` (params, prompt, chain, findings, verdict) |
-| [cve_recreation_log.md](cve_recreation_log.md) | Storico narrativo dei primi tentativi (#0–#5) — superato dal log sopra |
+| [cve_experiment/history_0-5.md](cve_experiment/history_0-5.md) | Storico narrativo dei primi tentativi (#0–#5) — superato dal log sopra |
 
 **Dati gestiti dalle skill** (non modificare a mano):
 
@@ -44,7 +45,7 @@ Riproduzione della scoperta spontanea della regex `|.+` (GHSA-6gxq-gpr8-xgjp) in
 |----------|-----------|
 | [presentations/](presentations/) | Speech outline della tesi (`presentation_new.md`) |
 | [reference/](reference/) | Materiale esterno (modelli Ollama, paper RUBRICEVAL) |
-| [archive/](archive/) | Materiale storico (vecchi log, trascrizioni) |
+| [archive/](archive/) | Materiale storico grezzo (vecchio stack trace di debug) |
 
 ---
 

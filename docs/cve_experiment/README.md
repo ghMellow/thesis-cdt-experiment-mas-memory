@@ -118,7 +118,7 @@ Il prompt "migliorato" (#17–18) aggiunge tre istruzioni — *leggi tutto il fi
 - **Log tecnico di tutti i tentativi:** [attempts/log.md](attempts/log.md)
 - **Dettaglio per tentativo** (parametri, prompt verbatim, catena di ragionamento, verdetto): `attempts/attempt_<N>/`
 - **Prompt che funzionano + come rifare il test tu stesso:** [hands_on.md](hands_on.md)
-- **Storico dei primi tentativi (#0–#5), narrativo:** [../cve_recreation_log.md](../cve_recreation_log.md)
+- **Storico dei primi tentativi (#0–#5), narrativo:** [history_0-5.md](history_0-5.md)
 
 ---
 

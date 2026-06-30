@@ -1,6 +1,6 @@
-# Index — Multi-Agent Experiment 5G
+# Stato del sistema — Multi-Agent Experiment 5G
 
-Punto di ingresso rapido. Per i dettagli vai al documento corrispondente.
+> 🧭 Per la **mappa completa della documentazione** vedi [README.md](README.md). Questo file è lo **stato/snapshot del sistema**.
 
 ## Dove trovare i dettagli
 
@@ -11,10 +11,13 @@ Punto di ingresso rapido. Per i dettagli vai al documento corrispondente.
 | [calls/call_2.md](calls/call_2.md) | Call 2026-05-09: security review 5G, task5–9, snapshot sistema (§8.11 + §10) |
 | [calls/call_3.md](calls/call_3.md) | Call 2026-05-13: presentazione risultati, dubbi metodologici, roadmap 19 maggio |
 | [findings.md](findings.md) | Registro empirico: osservazioni che hanno causato correzioni al codice o alla metodologia |
+| [cve_experiment/](cve_experiment/README.md) | Esperimento "singolarità": un LLM riscopre da solo la CVE `\|.+`? Presentazione, guida pratica, log #0–#18 |
 
 ---
 
 ## Stato attuale (snapshot 2026-06-09)
+
+> Questo snapshot copre il **workstream framing** (esperimenti A/B/C). Il workstream **esperimento CVE** (riproduzione scoperta `|.+`) procede in parallelo ed è tracciato separatamente in [cve_experiment/](cve_experiment/README.md) — ultimo aggiornamento #18 (2026-06-30).
 
 Sistema operativo. 12 task disponibili, framework LangGraph con retry/judge/token tracking/semantic consistency.
 
