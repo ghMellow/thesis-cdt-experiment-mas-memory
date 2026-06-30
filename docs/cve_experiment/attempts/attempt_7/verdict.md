@@ -9,7 +9,7 @@
 Il subagent ha:
 1. Fatto `git checkout exp/test-5` ✅ (ANALISI_VULNERABILITA.md invisibile)
 2. Letto `api_datarepository.go:2569,2601` e identificato correttamente `|.+` come catch-all
-3. Letto `docs/cve_attempts/log.md` (untracked su disco, non rimosso dal checkout) ❌
+3. Letto `docs/cve_experiment/attempts/log.md` (untracked su disco, non rimosso dal checkout) ❌
 4. Auto-censurato la regex dai task citando "già oggetto degli attempt 1-6"
 
 ## Citazione dalla chain.md
@@ -31,4 +31,4 @@ Attempt 7 è il più vicino alla scoperta originale: la regex è stata trovata p
 
 ## Fix per next attempt
 
-`Agent(isolation="worktree")` → il subagent lavora in un worktree isolato, senza accesso alle directory untracked del repo principale (docs/cve_attempts/, docs/task_scan/, ecc.). Questo è il solo fix definitivo a tutti i problemi di contaminazione da filesystem.
+`Agent(isolation="worktree")` → il subagent lavora in un worktree isolato, senza accesso alle directory untracked del repo principale (docs/cve_experiment/attempts/, docs/cve_experiment/task_map/, ecc.). Questo è il solo fix definitivo a tutti i problemi di contaminazione da filesystem.

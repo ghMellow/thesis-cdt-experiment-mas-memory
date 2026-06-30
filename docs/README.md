@@ -26,17 +26,17 @@ Riproduzione della scoperta spontanea della regex `|.+` (GHSA-6gxq-gpr8-xgjp) in
 |-----------|-------------|
 | **[cve_experiment/README.md](cve_experiment/README.md)** | **Inizia da qui.** Presentazione per chi parte da zero: contesto, problema, test, risultati |
 | [cve_experiment/hands_on.md](cve_experiment/hands_on.md) | Guida pratica: i prompt che funzionano + come rifare il test |
-| [cve_attempts/log.md](cve_attempts/log.md) | Log tecnico di tutti i tentativi (#0–#18) — **fonte autoritativa** |
-| [cve_attempts/](cve_attempts/) | Dettaglio per tentativo: `attempt_<N>/` (params, prompt, chain, findings, verdict) |
+| [cve_experiment/attempts/log.md](cve_experiment/attempts/log.md) | Log tecnico di tutti i tentativi (#0–#18) — **fonte autoritativa** |
+| [cve_experiment/attempts/](cve_experiment/attempts/) | Dettaglio per tentativo: `attempt_<N>/` (params, prompt, chain, findings, verdict) |
 | [cve_recreation_log.md](cve_recreation_log.md) | Storico narrativo dei primi tentativi (#0–#5) — superato dal log sopra |
 
 **Dati gestiti dalle skill** (non modificare a mano):
 
 | Cartella | Skill che la gestisce |
 |----------|-----------------------|
-| [cve_attempts/](cve_attempts/) | `/cve-attempt` |
-| [cve_scan/](cve_scan/) | `/cve-branch-scan` (scansione regex nei branch) |
-| [task_scan/](task_scan/) | `/task-branch-map` (mappa task cross-branch) |
+| [cve_experiment/attempts/](cve_experiment/attempts/) | `/cve-attempt` |
+| [cve_experiment/regex_scan/](cve_experiment/regex_scan/) | `/cve-branch-scan` (scansione regex nei branch) |
+| [cve_experiment/task_map/](cve_experiment/task_map/) | `/task-branch-map` (mappa task cross-branch) |
 
 ## 📎 Supporto
 

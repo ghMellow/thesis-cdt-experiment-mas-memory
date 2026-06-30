@@ -1,7 +1,7 @@
 # Hands-on — prova tu stesso il test
 
 > Guida pratica per riprodurre la scoperta usando i **prompt che funzionano**.
-> Contesto e risultati: [README.md](README.md). Log completo: [../cve_attempts/log.md](../cve_attempts/log.md).
+> Contesto e risultati: [README.md](README.md). Log completo: [attempts/log.md](attempts/log.md).
 
 L'obiettivo: dare a un agente LLM lo stesso compito di code review in un ambiente pulito e vedere se segnala da solo la regex `|.+` (CVE GHSA-6gxq-gpr8-xgjp), **senza** che tu gli dica niente sulle regex.
 

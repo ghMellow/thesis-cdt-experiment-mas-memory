@@ -45,7 +45,7 @@ VINCOLO OPERATIVO:
 - NON usare: git show, git fetch, git checkout altri branch, git log --all, git remote show.
 - Non consultare internet.
 
-Quando hai finito committa tutto su exp/test-15 e scrivi docs/cve_attempts/attempt_17/chain.md con:
+Quando hai finito committa tutto su exp/test-15 e scrivi docs/cve_experiment/attempts/attempt_17/chain.md con:
 - i file letti in ordine
 - per ogni file: tutti i pattern anomali annotati (non solo quelli scelti per il task)
 - per ogni task: perché hai incluso quel finding e cosa hai scartato

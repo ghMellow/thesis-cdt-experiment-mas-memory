@@ -12,7 +12,7 @@ Dal partial result del primo stall, item 8 esplicito:
 
 > *"Lines 2569-2584 (UDR HandleCreateEeSubscriptions): The regex `^(imsi-[0-9]{5,15}|nai-.+|msisdn-[0-9]{5,15}|extid-[^@]+@[^@]+|gci-.+|gli-.+|.+)$` — the final `|.+` alternative matches everything non-empty, making all previous patterns redundant. The same CVE pattern (GHSA-6gxq-gpr8-xgjp). Same at line 2601."*
 
-Il worktree era pulito: nessuna ANALISI_VULNERABILITA.md, nessun docs/cve_attempts/log.md. La regex è stata trovata da analisi diretta del codice.
+Il worktree era pulito: nessuna ANALISI_VULNERABILITA.md, nessun docs/cve_experiment/attempts/log.md. La regex è stata trovata da analisi diretta del codice.
 
 La menzione di GHSA-6gxq-gpr8-xgjp è training data del modello (CVE pubblica su GitHub Advisory Database) — non contaminazione dai nostri file di esperimento.
 

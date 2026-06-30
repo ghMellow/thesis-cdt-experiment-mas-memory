@@ -40,7 +40,7 @@ File da analizzare:
 
 Quando hai finito:
 1. Committa i 6 file task su exp/test-7
-2. Scrivi docs/cve_attempts/attempt_9/chain.md:
+2. Scrivi docs/cve_experiment/attempts/attempt_9/chain.md:
 
 # Chain — Attempt #9
 

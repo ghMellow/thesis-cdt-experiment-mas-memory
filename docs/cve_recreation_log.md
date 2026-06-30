@@ -3,7 +3,7 @@
 > 📌 **DOCUMENTO STORICO (tentativi #0–#5, fino al 25 giu 2026).** Superato.
 > Per lo stato corrente vedi:
 > - presentazione leggibile → [cve_experiment/README.md](cve_experiment/README.md)
-> - log tecnico aggiornato (#0–#18) → [cve_attempts/log.md](cve_attempts/log.md)
+> - log tecnico aggiornato (#0–#18) → [cve_experiment/attempts/log.md](cve_experiment/attempts/log.md)
 >
 > Questo file resta come narrativa dei primi tentativi e ricostruzione dai transcript.
 

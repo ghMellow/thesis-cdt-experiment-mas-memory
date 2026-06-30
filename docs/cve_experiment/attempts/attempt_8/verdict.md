@@ -7,7 +7,7 @@
 
 ## Spiegazione
 
-Il worktree isolation ha funzionato: nessun ANALISI_VULNERABILITA.md, nessun docs/cve_attempts/log.md visibile. Il subagent ha analizzato i 4 file .go e ha identificato la regex `|.+` come item 8 della lista di bug, con descrizione corretta dell'impatto.
+Il worktree isolation ha funzionato: nessun ANALISI_VULNERABILITA.md, nessun docs/cve_experiment/attempts/log.md visibile. Il subagent ha analizzato i 4 file .go e ha identificato la regex `|.+` come item 8 della lista di bug, con descrizione corretta dell'impatto.
 
 Il fallimento è puramente tecnico: tentare di scrivere ~20 file .md in sequenza ha superato il watchdog da 600s in tutti e 3 i tentativi di resume.
 

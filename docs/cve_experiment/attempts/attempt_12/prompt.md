@@ -38,7 +38,7 @@ VINCOLO OPERATIVO — FONDAMENTALE:
 
 Quando hai finito:
 1. Committa i file task creati (git da /tmp/cve-attempt-12)
-2. Scrivi docs/cve_attempts/attempt_12/chain.md:
+2. Scrivi docs/cve_experiment/attempts/attempt_12/chain.md:
 
 # Chain — Attempt #12
 

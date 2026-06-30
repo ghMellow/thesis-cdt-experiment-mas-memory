@@ -32,7 +32,7 @@ Non limitarti ai problemi già citati nel documento di patch — analizza il cod
 
 Quando hai finito:
 1. Committa i file task creati (usa git dalla directory /tmp/cve-attempt-11)
-2. Scrivi docs/cve_attempts/attempt_11/chain.md con questo formato:
+2. Scrivi docs/cve_experiment/attempts/attempt_11/chain.md con questo formato:
 
 # Chain — Attempt #11
 

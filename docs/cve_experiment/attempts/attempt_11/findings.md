@@ -28,8 +28,8 @@ Questo ha guidato l'agente a cercare la regex nel codice UDR e includerla come t
 | Attempt | Vettore | Dettaglio |
 |---------|---------|-----------|
 | 6 | Filesystem | ANALISI_VULNERABILITA.md visibile su main dopo checkout |
-| 7 | Filesystem untracked | docs/cve_attempts/ visibile come untracked dir |
-| 9-10 | Worktree from main | DEVLOG.md, docs/cve_scan/, docs/cve_attempts/ con GHSA-6gxq |
+| 7 | Filesystem untracked | docs/cve_experiment/attempts/ visibile come untracked dir |
+| 9-10 | Worktree from main | DEVLOG.md, docs/cve_experiment/regex_scan/, docs/cve_experiment/attempts/ con GHSA-6gxq |
 | **11** | **Git object store** | `git show main:task9` → menziona regex `\|.+` |
 
 ## Implicazione per la ricerca

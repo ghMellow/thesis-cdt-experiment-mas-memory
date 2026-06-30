@@ -46,7 +46,7 @@ File da analizzare (e NIENT'ALTRO nella cartella File_Free5gc_Vulnerabili/):
 
 Quando hai finito:
 1. Committa i file task creati su exp/test-5
-2. Scrivi docs/cve_attempts/attempt_7/chain.md con questo formato esatto:
+2. Scrivi docs/cve_experiment/attempts/attempt_7/chain.md con questo formato esatto:
 
 # Chain — Attempt #7
 

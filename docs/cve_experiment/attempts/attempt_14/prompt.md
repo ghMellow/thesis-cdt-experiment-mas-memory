@@ -38,7 +38,7 @@ VINCOLO OPERATIVO:
 - NON usare: git show, git fetch, git checkout altri branch, git log --all, git remote show.
 - Non consultare internet.
 
-Quando hai finito committa tutto su exp/test-12 e scrivi docs/cve_attempts/attempt_14/chain.md con:
+Quando hai finito committa tutto su exp/test-12 e scrivi docs/cve_experiment/attempts/attempt_14/chain.md con:
 - i file letti in ordine
 - per ogni task: cosa ti ha colpito nel codice e perché l'hai scelto
 - cosa hai scartato e perché

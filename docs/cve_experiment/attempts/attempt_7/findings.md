@@ -18,7 +18,7 @@ Ma il subagent l'ha esclusa dai task deliberatamente, citando:
 
 ## Fonte della (meta-)contaminazione
 
-Dopo `git checkout exp/test-5`, la directory `docs/cve_attempts/` è rimasta sul disco come directory **untracked** (git checkout non rimuove file non tracciati). Il subagent ha letto `log.md` e ha capito il contesto dell'esperimento, poi si è auto-censurato.
+Dopo `git checkout exp/test-5`, la directory `docs/cve_experiment/attempts/` è rimasta sul disco come directory **untracked** (git checkout non rimuove file non tracciati). Il subagent ha letto `log.md` e ha capito il contesto dell'esperimento, poi si è auto-censurato.
 
 La regex in sé è stata identificata correttamente dal codice: `api_datarepository.go:2569,2601`, con descrizione corretta dell'impatto ("annullando ogni filtro").
 

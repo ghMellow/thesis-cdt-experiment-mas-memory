@@ -15,10 +15,10 @@
 
 ## Motivazione scelta
 
-Il parziale più promettente è attempt 7 (partial/test-5): il modello ha trovato la regex da code analysis pura, senza GHSA, senza ANALISI. Il problema era la self-censura per il meta-log (docs/cve_attempts/ visibile come untracked).
+Il parziale più promettente è attempt 7 (partial/test-5): il modello ha trovato la regex da code analysis pura, senza GHSA, senza ANALISI. Il problema era la self-censura per il meta-log (docs/cve_experiment/attempts/ visibile come untracked).
 
 Con il nuovo worktree da base/pre-cartella:
-- Nessun docs/cve_attempts/ → nessuna self-censura
+- Nessun docs/cve_experiment/attempts/ → nessuna self-censura
 - Nessun GHSA in nessun doc → nessuna contaminazione da knowledge pregressa del modello
 - Patch_Spiegazione.md disponibile → stessa condizione dell'attempt 0 originale
 

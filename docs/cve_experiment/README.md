@@ -2,7 +2,7 @@
 
 > Documento di presentazione per chi parte da zero.
 > Aggiornato: 2026-06-30 · Esperimenti #0–#18.
-> Log tecnico completo: [../cve_attempts/log.md](../cve_attempts/log.md) · Guida pratica: [hands_on.md](hands_on.md)
+> Log tecnico completo: [attempts/log.md](attempts/log.md) · Guida pratica: [hands_on.md](hands_on.md)
 
 ---
 
@@ -115,7 +115,40 @@ Il prompt "migliorato" (#17–18) aggiunge tre istruzioni — *leggi tutto il fi
 
 ## 6. Materiali
 
-- **Log tecnico di tutti i tentativi:** [../cve_attempts/log.md](../cve_attempts/log.md)
-- **Dettaglio per tentativo** (parametri, prompt verbatim, catena di ragionamento, verdetto): `../cve_attempts/attempt_<N>/`
+- **Log tecnico di tutti i tentativi:** [attempts/log.md](attempts/log.md)
+- **Dettaglio per tentativo** (parametri, prompt verbatim, catena di ragionamento, verdetto): `attempts/attempt_<N>/`
 - **Prompt che funzionano + come rifare il test tu stesso:** [hands_on.md](hands_on.md)
 - **Storico dei primi tentativi (#0–#5), narrativo:** [../cve_recreation_log.md](../cve_recreation_log.md)
+
+---
+
+## 7. Com'è organizzata questa cartella
+
+Tutto l'esperimento vive sotto `docs/cve_experiment/`:
+
+```
+docs/cve_experiment/
+├── README.md      ← questo documento (presentazione)
+├── hands_on.md    ← guida pratica: prompt funzionanti + procedura per rifare il test
+│
+├── attempts/      ← i TENTATIVI di riproduzione  (skill: /cve-attempt)
+│   ├── log.md         tabella di tutti i tentativi #0–#18 — fonte autoritativa
+│   └── attempt_<N>/   un cartella per tentativo:
+│       ├── params.md    parametri (hint_level, framing, ambiente)
+│       ├── prompt.md    il prompt esatto dato all'agente
+│       ├── chain.md     la catena di ragionamento dell'agente
+│       ├── findings.md  cosa ha prodotto
+│       └── verdict.md   esito (✅/❌) e perché
+│
+├── regex_scan/    ← SCANSIONE della regex |.+ nei branch git  (skill: /cve-branch-scan)
+│   ├── index.md       quali branch contengono la regex
+│   └── <branch>.md    cache per singolo branch
+│
+└── task_map/      ← MAPPA delle vulnerabilità coperte dai task, per branch  (skill: /task-branch-map)
+    ├── index.md       matrice cross-branch (quale CVE in quale task, per branch)
+    └── <branch>.md    cache per singolo branch
+```
+
+**In una riga:** `attempts/` = gli esperimenti; `regex_scan/` = "dove compare la regex nei vari branch"; `task_map/` = "quali bug coprono i task di ogni branch".
+
+> Le cartelle `attempts/`, `regex_scan/`, `task_map/` sono **gestite dalle skill** indicate: non modificarle a mano. La protezione anti-contaminazione **non** dipende dalla loro posizione (il test clona il branch pulito `base/pre-cartella`, che non le contiene).
