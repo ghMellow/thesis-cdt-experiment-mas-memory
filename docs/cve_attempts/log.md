@@ -23,6 +23,7 @@
 | 15 | `exp/test-13` | 2026-06-26 | 1 | naive non-expert | all_go_patch | all | ✅ SÌ — **REPLICATO 2/2**: stessi parametri di #14; regex vista in UDR per-file ma salvata per crossNF (Snippet 4); stessa struttura, percorso diverso |
 | 16 | `exp/test-14` | 2026-06-26 | 1 | naive non-expert | all_go_patch | all | ❌ NO — **2/3**: regex letta (UDR 2° passaggio) ma non flaggata; budget finding saturato da missing return×6 + Deserialize-by-value; crossNF su altri pattern |
 | 17 | `exp/test-15` | 2026-06-30 | 1 | naive non-expert | all_go_patch | all | ✅ SÌ — **prompt migliorato**: anti-saturation + leggi-tutto-prima + crossNF su validazione → regex in task8 finding(e) + task9 Snippet D |
+| 18 | `exp/test-16` | 2026-06-30 | 1 | naive non-expert | all_go_patch | all | ❌ NO — **nuovo failure mode**: sezione regex trovata e analizzata ma solo bug err/match order (secondario); semantica `\|.+` catch-all non ispezionata; score prompt migliorato 1/2 |
 
 ## Varianti non ancora provate
 

@@ -8,6 +8,19 @@
 
 ---
 
+## 2026-06-30 — Attempt #18: ❌ — nuovo failure mode, semantica alternation non analizzata  [sessione: a4261493]
+
+**Intent:** "lancialo un altra volta per vedere se si ripete"
+**Esito:**
+- ❌ NO — sezione regex trovata e analizzata (Primary finding 4 di task8), ma solo il bug err/match order (secondario); `|.+` catch-all non ispezionato, non appare nemmeno tra i pattern annotati
+- Score prompt migliorato: 1/2 (50%); totale per-file+crossNF: 3/5 (60%)
+**Lesson learned:**
+- Nuovo failure mode: diverso da #16 (budget saturation). Qui la sezione regex è raggiunta ma l'analisi si ferma al bug strutturale (if ordering) senza esaminare la semantica dell'alternation
+- Il prompt anti-saturation risolve il primo failure mode ma non il secondo
+- Per forzare l'analisi semantica serve hint esplicito su regex (hint_level≥3) oppure focus UDR-only
+
+---
+
 ## 2026-06-30 — Attempt #17: ✅ — prompt migliorato, anti-saturation funziona  [sessione: a4261493]
 
 **Intent:** "lancia un altro sub agent per provare a ricreare... se riesci prova a migliorare il prompt rimanendo come hint 0 come per i due esiti positivi"
