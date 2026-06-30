@@ -2,13 +2,15 @@
 
 ## Documenti di riferimento
 
-La documentazione è suddivisa in file tematici sotto `docs/`:
+La documentazione è suddivisa in file tematici sotto `docs/`. **Indice di navigazione: `docs/README.md`.**
 
+- `docs/README.md` — **mappa della documentazione**: sistema, esperimento CVE, supporto
 - `docs/status.md` — **stato attuale**: modelli, task, CLI, checklist funzionalità
 - `docs/architecture.md` — mappa codice, flusso LangGraph, valutazione, report (stabile)
 - `docs/calls/call_1.md` — call iniziali §8.1–8.10 (verbale storico)
 - `docs/calls/call_2.md` — call 2026-05-09: security review 5G, task5–9 (verbale + snapshot)
 - `docs/calls/call_3.md` — call 2026-05-13: presentazione risultati, dubbi metodologici, roadmap
+- `docs/cve_experiment/` — esperimento "singolarità" CVE: presentazione (`README.md`) + guida pratica (`hands_on.md`); log tecnico in `docs/cve_attempts/log.md`
 
 **Repo e documentazione devono essere sempre allineati.**
 

@@ -1,7 +1,9 @@
 # CVE Recreation Attempts — Log
 > Target: regex `|.+` (GHSA-6gxq-gpr8-xgjp) nella validazione `ueId` dell'UDR in free5GC
-> Aggiornato: 2026-06-26
+> Aggiornato: 2026-06-30
 > Dettagli attempt: `docs/cve_attempts/attempt_<N>/`
+> **Presentazione leggibile dei risultati:** [../cve_experiment/README.md](../cve_experiment/README.md)
+> **Per rifare il test:** [../cve_experiment/hands_on.md](../cve_experiment/hands_on.md)
 
 | # | Branch | Data | hint_level | framing | input_files | nf_focus | Risultato |
 |---|--------|------|------------|---------|-------------|----------|-----------|

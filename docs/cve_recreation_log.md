@@ -1,5 +1,12 @@
 # CVE Recreation Log — free5GC vulnerability tasks
 
+> 📌 **DOCUMENTO STORICO (tentativi #0–#5, fino al 25 giu 2026).** Superato.
+> Per lo stato corrente vedi:
+> - presentazione leggibile → [cve_experiment/README.md](cve_experiment/README.md)
+> - log tecnico aggiornato (#0–#18) → [cve_attempts/log.md](cve_attempts/log.md)
+>
+> Questo file resta come narrativa dei primi tentativi e ricostruzione dai transcript.
+
 > Documentazione dei tentativi (su branch git distinti) di **ri-produrre la scoperta spontanea di una CVE** avvenuta integrando la cartella `File_Free5gc_Vulnerabili/`.
 > La chat originale che fece quella scoperta è andata persa. La domanda di questo documento NON è "il task della CVE esiste da qualche parte?" ma: **in un tentativo di ricreazione, il modello ha *riscoperto* la CVE da solo PRIMA del "cutoff" (cioè prima che gli venisse rivelato l'obiettivo o passata la risposta)?**
 >
