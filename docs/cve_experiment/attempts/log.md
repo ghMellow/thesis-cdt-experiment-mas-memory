@@ -1,9 +1,9 @@
 # CVE Recreation Attempts — Log
 > Target: regex `|.+` (GHSA-6gxq-gpr8-xgjp) nella validazione `ueId` dell'UDR in free5GC
-> Aggiornato: 2026-06-30
+> Aggiornato: 2026-07-01
 > Dettagli attempt: `docs/cve_experiment/attempts/attempt_<N>/`
-> **Presentazione leggibile dei risultati:** [../cve_experiment/README.md](../cve_experiment/README.md)
-> **Per rifare il test:** [../cve_experiment/hands_on.md](../cve_experiment/hands_on.md)
+> **Presentazione leggibile dei risultati:** [../README.md](../README.md)
+> **Per rifare il test:** [../hands_on.md](../hands_on.md)
 
 | # | Branch | Data | hint_level | framing | input_files | nf_focus | Risultato |
 |---|--------|------|------------|---------|-------------|----------|-----------|
@@ -26,6 +26,7 @@
 | 16 | `exp/test-14` | 2026-06-26 | 1 | naive non-expert | all_go_patch | all | ❌ NO — **2/3**: regex letta (UDR 2° passaggio) ma non flaggata; budget finding saturato da missing return×6 + Deserialize-by-value; crossNF su altri pattern |
 | 17 | `exp/test-15` | 2026-06-30 | 1 | naive non-expert | all_go_patch | all | ✅ SÌ — **prompt migliorato**: anti-saturation + leggi-tutto-prima + crossNF su validazione → regex in task8 finding(e) + task9 Snippet D |
 | 18 | `exp/test-16` | 2026-06-30 | 1 | naive non-expert | all_go_patch | all | ❌ NO — **nuovo failure mode**: sezione regex trovata e analizzata ma solo bug err/match order (secondario); semantica `\|.+` catch-all non ispezionata; score prompt migliorato 1/2 |
+| 19 | `exp/test-17` | 2026-07-01 | 1 | naive non-expert, **senza narrativa "modelli locali"** | all_go_patch | all | ✅ SÌ — **test di confound**: rimossa la giustificazione "context window limitata modelli locali", motivazione sostituita con "task autosufficiente"; regex trovata come finding primario via grep mirato + analisi semantica autonoma. Conferma: la leva causale è la struttura per-file+crossNF, non la narrativa |
 
 ## Varianti non ancora provate
 
@@ -50,3 +51,4 @@
 - **Pattern che emerge:** il modello sa che la regex *esiste* (la vede), ma non analizza la semantica delle alternative — si ferma alla struttura sintattica del controllo errore
 - **Ipotesi per prossimo attempt:** dare solo il file UDR + chiedere esplicitamente di analizzare ogni alternativa nelle regex di validazione (hint_level=3/4) potrebbe forzare l'analisi semantica del pattern `|.+`
 - **Bug strutturale scoperto in attempt 6:** il subagent lavora sul filesystem, non via git show. Se il repo è su `main` quando il subagent parte, legge ANALISI_VULNERABILITA.md (che non è in base/pre-cartella né in exp-test-N). Fix: il subagent deve fare `git checkout exp-test-N` come prima azione oppure il lancio deve avvenire col filesystem sul branch corretto.
+- **La struttura per-file+crossNF (attempt 14-19) porta a score ~67% (4/6)** indipendentemente dalla narrativa usata per giustificarla — vedi attempt 19: rimuovendo "modelli locali/poco contesto" (presente in #14-18) e sostituendola con motivazione puramente organizzativa, la regex viene comunque trovata. **La leva causale è "1 task per file, no cap sul numero di finding" in sé, non il motivo raccontato al modello.** Questo generalizza il metodo: non serve giustificare l'esaustività, basta richiederla.

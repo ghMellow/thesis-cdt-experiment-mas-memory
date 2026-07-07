@@ -1,7 +1,7 @@
 # La "singolarità" — un LLM ha scoperto da solo una vulnerabilità 5G?
 
 > Documento di presentazione per chi parte da zero.
-> Aggiornato: 2026-06-30 · Esperimenti #0–#18.
+> Aggiornato: 2026-07-01 · Esperimenti #0–#19.
 > Log tecnico completo: [attempts/log.md](attempts/log.md) · Guida pratica: [hands_on.md](hands_on.md)
 
 ---
@@ -102,12 +102,22 @@ Analizzando i tentativi falliti **in ambiente pulito** sono emersi due meccanism
 
 Il prompt "migliorato" (#17–18) aggiunge tre istruzioni — *leggi tutto il file prima di selezionare*, *annota anche i difetti minori*, *nel task di sintesi cerca il codice che "sembra validare ma non valida"* — e risolve il primo failure mode, ma non sempre il secondo.
 
+### 4.3 È la struttura o è la scusa che le diamo? (test di confound, #19)
+
+Un dubbio rimasto aperto: in tutti i tentativi #14–18 la richiesta "un task per file" era motivata nel prompt con *"il progetto usa modelli LLM locali con finestra di contesto limitata"*. Questa frase era identica sia nei successi sia nei fallimenti — quindi da sola non spiega la varianza, ma restava un **fattore non isolato**: forse contribuiva comunque a un effetto medio, magari spingendo il modello a "prendere sul serio" ogni singolo file.
+
+**Tentativo #19** ha rimosso del tutto quella narrativa, sostituendola con una motivazione puramente organizzativa ("voglio un task per ogni file, così ognuno è autosufficiente e leggibile da solo") — a parità di tutto il resto (stessa struttura, stesso hint_level=1, stesso ambiente pulito).
+
+**Risultato: ✅ la regex è stata trovata comunque**, con la stessa qualità di analisi (formalizzazione esplicita dell'alternation, riconoscimento del pattern come "the main finding... not present in the patch doc"). Il modello l'ha raggiunta con lettura completa + un grep mirato generico (`regexp.MatchString`, non un hint sulla regex specifica), dichiarando esplicitamente di non aspettarsela.
+
+**Conclusione:** la leva causale è la **struttura in sé** (nessun limite artificiale al numero di finding per file, poi sintesi cross-file) — non il motivo che diamo al modello per giustificarla. Score aggregato aggiornato: **4/6 (~67%)** su tutti i tentativi con questa struttura, indipendentemente dalla narrativa usata.
+
 ---
 
 ## 5. Conclusioni per i colleghi
 
-1. **Sì, è riproducibile.** La scoperta spontanea della sessione originale non era un artefatto: si ottiene in ~60% dei casi in ambiente pulito, senza dare indizi sulla regex.
-2. **La leva è strutturale.** Non serve dire al modello *cosa* cercare; serve *come* fargli organizzare l'analisi (un task per file + sintesi cross-file). Un vincolo nato da una limitazione tecnica (poca memoria di contesto) si è rivelato la chiave metodologica.
+1. **Sì, è riproducibile.** La scoperta spontanea della sessione originale non era un artefatto: si ottiene in ~67% dei casi in ambiente pulito, senza dare indizi sulla regex.
+2. **La leva è strutturale, non narrativa.** Non serve dire al modello *cosa* cercare, né *perché* deve essere esaustivo; basta chiedergli di esserlo (un task per file, nessun cap sul numero di finding + sintesi cross-file). Verificato per esclusione: rimuovendo la giustificazione "modelli locali" il risultato non cambia (§4.3).
 3. **C'è una soglia di garanzia.** Se si vuole il finding al 100%, basta passare a hint_level=3 (suggerire di guardare le regex) — ma quello non è più "scoperta autonoma".
 4. **La maggior parte della fatica è stata l'igiene sperimentale.** Dimostrare che il modello non stesse "barando" è stato più difficile che ottenere il risultato.
 

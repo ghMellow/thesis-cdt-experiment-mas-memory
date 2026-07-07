@@ -2,6 +2,21 @@
 
 ---
 
+## 2026-07-01 — Attempt #19: test di confound — narrativa "modelli locali" non causale  [sessione: a4261493]
+
+**Intent:** "ma diciamo l'hint aiuta a guidare il modello... la domanda è quindi capire come in maniera naive guidare il modello per far trovare a lui le cose" + "lancia un subagent come fatto negli altri casi (skill) e modifica il prompt per questo test"
+**Decisioni:** rimossa dal prompt ogni menzione di "modelli locali/context window limitata" (presente identica in #14-18), sostituita con motivazione puramente organizzativa ("task autosufficiente"). Stessa struttura per-file+crossNF, stesso hint_level=1, stesso ambiente pulito (clone da base/pre-cartella, branch exp/test-17)
+**Esito:**
+- ✅ SÌ — regex trovata come "the main finding... not present in the patch doc" in task8_vuln_udr
+- Metodo: lettura completa di tutti i file + grep mirato generico (`regexp.MatchString`) su UDR per efficienza (2892 righe), non come risposta a un hint. Chain.md: "non perché mi aspettassi di trovarla"
+- Score aggregato struttura per-file+crossNF: 4/6 (~67%), indipendente dalla narrativa
+**Lesson learned:**
+- La leva causale è la struttura in sé (nessun cap sul numero di finding per file + sintesi cross-file), non il motivo raccontato al modello per giustificarla
+- Generalizza il metodo: non serve inventare/spiegare perché il modello deve essere esaustivo, basta richiederglielo direttamente — questo rende la tecnica applicabile a scenari dove "modelli locali" non è un framing plausibile
+- Aggiornati docs/cve_experiment/README.md (§4.3) e attempts/log.md con il risultato
+
+---
+
 ## 2026-06-29 — Revisione chat backup  [sessione: e201e804]
 
 **Revisione chat:** rivedute 19 sessioni (backup) + 11 sessioni non ancora in backup (projects/), arco 2026-06-15 → 2026-06-29. Eliminate: nessuna. Entry retroattive aggiunte: 5 (Jun 15, 19, 22, 24, 25). Sessioni non in backup da Jun 9 non ancora agganciato al DEVLOG — richiedono sessione dedicata.
