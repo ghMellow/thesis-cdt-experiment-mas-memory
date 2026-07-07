@@ -1,7 +1,7 @@
 # La "singolarità" — un LLM ha scoperto da solo una vulnerabilità 5G?
 
 > Documento di presentazione per chi parte da zero.
-> Aggiornato: 2026-07-01 · Esperimenti #0–#21.
+> Aggiornato: 2026-07-08 · Esperimenti #0–#21.
 > Log tecnico completo: [attempts/log.md](attempts/log.md) · Guida pratica: [hands_on.md](hands_on.md)
 
 ---
@@ -113,21 +113,24 @@ Un dubbio rimasto aperto: in tutti i tentativi #14–18 la richiesta "un task pe
 
 **Conclusione:** la leva causale è la **struttura in sé** (nessun limite artificiale al numero di finding per file, poi sintesi cross-file) — non il motivo che diamo al modello per giustificarla.
 
-**Due repliche indipendenti (#20, #21)** dello stesso identico prompt hanno però ridimensionato la fiducia in un successo garantito:
+**Due repliche indipendenti (#20, #21)** dello stesso identico prompt hanno ridimensionato la fiducia in un successo garantito, ma non nel modo inizialmente pensato:
 
 - **#20 fallisce** per il terzo failure mode appena descritto (scope coverage): grep mirato su pattern diversi, la sezione regex non viene mai raggiunta.
-- **#21 riesce**, ma il `chain.md` scritto dal modello rivela un dettaglio importante: ha cercato `|.+` esplicitamente **dopo aver riconosciuto la CVE GHSA-6gxq-gpr8-xgjp da training data** vedendo l'import `regexp` nel file — non come esito di un'analisi puramente bottom-up (a differenza di #19, dove il modello scrive "non perché mi aspettassi di trovarla"). Il criterio del cutoff resta soddisfatto (nessun hint nel prompt), ma il meccanismo è diverso: qui il codice ha "innescato" un ricordo, non prodotto una scoperta ex novo.
+- **#21 riesce.** Il `chain.md` scritto dal modello citava "riconoscimento" della CVE GHSA-6gxq-gpr8-xgjp da training data dopo aver visto l'import `regexp` — a una prima lettura sembrava indicare recognition invece di scoperta bottom-up. **Verifica con l'autore dell'esperimento:** la CVE è stata scoperta dal team a maggio 2026, quindi non può materialmente trovarsi nel training set di nessun modello con cutoff antecedente (Sonnet 5: gennaio 2026). La frase nel chain.md è dunque **confabulazione nel self-report**, non recall reale — il modello ha trovato il bug per analisi diretta e genuina della regex, ma nel narrare il proprio processo ha aggiunto un riferimento CVE plausibile senza poterlo realmente conoscere.
 
-Score aggiornato: **6/9 (~67%)** su tutta la famiglia di tentativi con questa struttura (con e senza narrativa), ma con **meccanismi eterogenei** dietro il "successo" — bottom-up puro in alcuni casi, recognition-driven in altri.
+Questo è un finding a sé, distinto dal test di confound: **i chain.md auto-riportati dai modelli non sono una fonte affidabile al 100% su *come* è avvenuta una scoperta.** Un modello può descrivere una scoperta genuina come un "riconoscimento" perché è una narrazione più autorevole, anche quando non ha alcuna base reale — va sempre incrociato con evidenza esterna verificabile (qui: la data di scoperta della CVE).
+
+Score aggiornato: **6/9 (~67%)** su tutta la famiglia di tentativi con questa struttura (con e senza narrativa) — **tutti i successi confermati sono scoperte bottom-up genuine**, nessuna contaminazione né recall training-data possibile per questa CVE specifica.
 
 ---
 
 ## 5. Conclusioni per i colleghi
 
-1. **Sì, è riproducibile — ma non sempre nello stesso modo.** La scoperta spontanea della sessione originale non era un artefatto isolato: si ottiene in ~67% dei casi in ambiente pulito, senza dare indizi sulla regex. Le repliche mostrano però che il meccanismo dietro un "successo" varia — a volte è ragionamento bottom-up genuino, a volte il codice attiva un ricordo di training.
-2. **La leva è strutturale, non narrativa.** Non serve dire al modello *cosa* cercare, né *perché* deve essere esaustivo; basta chiedergli di esserlo (un task per file, nessun cap sul numero di finding + sintesi cross-file). Verificato per esclusione: rimuovendo la giustificazione "modelli locali" il risultato medio non cambia (§4.3), ma resta stocastico (§4.2).
+1. **Sì, è riproducibile.** La scoperta spontanea della sessione originale non era un artefatto isolato: si ottiene in ~67% dei casi in ambiente pulito, senza dare indizi sulla regex. Tutti i successi verificati sono scoperte bottom-up genuine — nessuna contaminazione, nessun recall da training possibile per questa CVE (scoperta dal team a maggio 2026, quindi non presente in alcun training set usato).
+2. **La leva è strutturale, non narrativa.** Non serve dire al modello *cosa* cercare, né *perché* deve essere esaustivo; basta chiedergli di esserlo (un task per file, nessun cap sul numero di finding + sintesi cross-file). Verificato per esclusione: rimuovendo la giustificazione "modelli locali" il risultato medio non cambia (§4.3), ma resta stocastico (§4.2) — il fallimento residuo dipende da *come* il modello sceglie di esplorare un file grande, non da cosa gli viene detto.
 3. **C'è una soglia di garanzia.** Se si vuole il finding al 100%, basta passare a hint_level=3 (suggerire di guardare le regex) — ma quello non è più "scoperta autonoma".
-4. **La maggior parte della fatica è stata l'igiene sperimentale.** Dimostrare che il modello non stesse "barando" è stato più difficile che ottenere il risultato — e anche quando l'ambiente è certificato pulito, resta da distinguere *scoperta* da *riconoscimento*: sono entrambe legittime scientificamente (il modello non ha ricevuto la risposta), ma raccontano storie diverse su *cosa* stiamo effettivamente misurando.
+4. **La maggior parte della fatica è stata l'igiene sperimentale.** Dimostrare che il modello non stesse "barando" è stato più difficile che ottenere il risultato.
+5. **I self-report dei modelli (chain.md) vanno verificati, non presi per buoni.** In un caso (#21) il modello ha descritto la propria scoperta come "riconoscimento da training data" — un'affermazione risultata falsa una volta verificata la data reale di pubblicazione della CVE. La scoperta sottostante era comunque genuina; solo la narrazione del processo era fuorviante. Lezione generale: quando si usa il ragionamento auto-riportato di un LLM come dato sperimentale, va sempre incrociato con fatti esterni verificabili.
 
 ---
 

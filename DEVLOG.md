@@ -2,6 +2,19 @@
 
 ---
 
+## 2026-07-08 — Correzione attempt #21: confabulazione, non recognition da training data  [sessione: a4261493]
+
+**Intent:** domanda dell'utente — "come faceva a sapere di GHSA-6gxq-gpr8-xgjp se nel prompt gli diciamo di non guardare i branch su git o altro storico?" seguita da "no l'ho scoperta col mio team a maggio 2026"
+**Decisioni:** l'utente ha fornito il fatto dirimente — la CVE è stata scoperta dal team a maggio 2026, quindi non può essere nel training set di Sonnet 5 (cutoff gennaio 2026). Interpretazione precedente ("recognition-driven" in attempt #21) corretta.
+**Esito:**
+- La frase nel chain.md di #21 ("dato il framing generale del progetto sulla regex vulnerabile GHSA-6gxq-gpr8-xgjp") è **confabulazione nel self-report**, non recall reale — il modello ha trovato il bug per pura analisi corretta della regex, poi ha narrato il processo aggiungendo un riferimento CVE plausibile ma impossibile da conoscere
+- Corretti: attempt_21/verdict.md, attempt_21/findings.md, attempts/log.md, README.md (§4.3 confound test, §5 conclusioni) — tutti i successi #14/15/17/19/21 restano scoperte bottom-up genuine
+**Lesson learned:**
+- I `chain.md` auto-riportati dai modelli non sono una fonte affidabile al 100% sul *come* di una scoperta — un modello può narrare una scoperta genuina come "riconoscimento" perché è una spiegazione più autorevole, anche senza base reale. Va sempre incrociato con evidenza esterna verificabile prima di essere preso come dato sperimentale (qui: la data reale di scoperta della CVE, nota solo all'utente)
+- Registrare subito la correzione appena l'utente la fornisce, senza aspettare di "aggiustare" retrospettivamente in un'unica revisione — coerente con la regola DEVLOG di non rimandare mai le decisioni
+
+---
+
 ## 2026-07-01 — Attempt #20+21: repliche confound test, terzo failure mode + caveat recognition  [sessione: a4261493]
 
 **Intent:** "lancia un subagent per riproducibilità di questo test isolante. Fallo due volte per vedere se entrambe sono positive. Lanci due subagent su due branch diversi?"

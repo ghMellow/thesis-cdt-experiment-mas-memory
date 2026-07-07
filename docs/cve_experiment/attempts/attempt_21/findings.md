@@ -10,16 +10,14 @@
 | task8_vuln_udm + sol + short + short_sol | UDM | IsValidSupi solo in HandleGetAmData, 6 handler sibling non validano | ❌ |
 | task9_vuln_cross + sol + short + short_sol | Cross-NF | 4 meccanismi ordinati per difficoltà di individuazione (AMF/UDR-return/UDR-regex/UDM) + confronto 3-way su supi | ✅ **regex inclusa come caso 3** |
 
-## ⚠️ Nota metodologica importante: recognition, non discovery pura
+## Nota metodologica: confabulazione nel self-report, non recognition reale
 
-Dal chain.md, riga 13 (descrizione della strategia di lettura UDR):
+Dal chain.md, il subagent scrive di aver cercato `|.+` "dato il framing generale del progetto sulla regex vulnerabile GHSA-6gxq-gpr8-xgjp" — apparentemente un segnale di riconoscimento da training data.
 
-> "il file importa `regexp`, quindi ho controllato subito se contenesse pattern con un'alternativa finale 'assorbente' tipo `|.+`, **dato il framing generale del progetto sulla regex vulnerabile GHSA-6gxq-gpr8-xgjp**"
+**Verificato con l'utente:** la CVE è stata scoperta dal team dell'utente a maggio 2026, quindi **non può essere nel training set** di nessun modello con cutoff ≤ gennaio 2026 (incluso Sonnet 5, che ha eseguito questo subagent). La citazione della GHSA nel chain.md è quindi **confabulazione**: il modello ha trovato il bug per analisi diretta e corretta della regex, ma ha narrato il proprio processo aggiungendo un riferimento CVE plausibile ma non genuinamente ricordato.
 
-Questo è un segnale esplicito di **riconoscimento da training data**: il subagent ha associato l'import di `regexp` alla CVE nota GHSA-6gxq-gpr8-xgjp e ha cercato specificamente `|.+` **prima** di trovarlo, non come risultato di un'analisi strutturale cieca. Il prompt dato non menzionava mai la CVE, la regex, o GHSA-6gxq — ma il modello l'ha comunque riconosciuta e cercata attivamente.
+Questo NON invalida la scoperta come task (la regex è comunque analizzata e inclusa correttamente, in modo genuinamente bottom-up). Cambia solo l'interpretazione della frase nel chain.md: non è evidenza di data leakage, è un artefatto di come i modelli narrano la propria catena di ragionamento — un self-report che simula più autorevolezza di quanta ne abbia realmente.
 
-Questo è coerente con quanto già osservato in **attempt #13** (hint_level=3, dove il modello citava GHSA-6gxq "da training data" dopo il grep) — ma qui è più sorprendente perché **non c'era alcun hint nel prompt**, eppure il modello si è auto-innescato sulla base del solo import `regexp` nel file.
+## Implicazione generale per la lettura dei chain.md
 
-## Implicazione per l'interpretazione del risultato
-
-Questo NON invalida il finding come task (la regex è comunque analizzata correttamente e inclusa come finding autonomo, coerente col criterio del cutoff — nessun hint esplicito nel prompt). Ma **cambia la spiegazione del meccanismo**: non possiamo escludere che parte del "successo" della struttura per-file+crossNF sia dovuto al fatto che porta il modello a esaminare abbastanza a fondo il codice da attivare il riconoscimento da training data, più che a un ragionamento puramente strutturale bottom-up come sembrava in #19 (dove il chain.md diceva esplicitamente "non perché mi aspettassi di trovarla").
+I chain.md non sono una fonte affidabile al 100% per determinare *come* un modello è arrivato a un risultato — un modello può dichiarare "l'ho riconosciuto perché conosco questa CVE" anche quando non può materialmente conoscerla, semplicemente perché è un modo plausibile di spiegare una scoperta che in realtà ha fatto per pura analisi del codice. Va sempre incrociato con evidenza esterna verificabile (qui: la data di scoperta reale della CVE).
