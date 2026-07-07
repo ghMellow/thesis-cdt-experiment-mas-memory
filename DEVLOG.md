@@ -2,6 +2,21 @@
 
 ---
 
+## 2026-07-01 — Attempt #20+21: repliche confound test, terzo failure mode + caveat recognition  [sessione: a4261493]
+
+**Intent:** "lancia un subagent per riproducibilità di questo test isolante. Fallo due volte per vedere se entrambe sono positive. Lanci due subagent su due branch diversi?"
+**Decisioni:** due branch/clone indipendenti (exp/test-18, exp/test-19), stesso prompt esatto di #19, lanciati in parallelo
+**Esito:**
+- **#20 ❌ NO** — nuovo (terzo) failure mode "scope coverage": su UDR (2891 righe) il modello usa grep mirato su 2 pattern specifici (missing-return, Deserialize-by-value); la sezione regex non produce hit e non viene mai letta — né scartata né saturata, semplicemente fuori scope
+- **#21 ✅ SÌ, con caveat** — regex trovata come task5 primario, MA il chain.md rivela recognition esplicita da training data: "ho controllato... dato il framing generale del progetto sulla regex vulnerabile GHSA-6gxq-gpr8-xgjp" — il modello ha riconosciuto la CVE vedendo l'import `regexp`, PRIMA di leggere la regex stessa. Cutoff comunque rispettato (nessun hint nel prompt) ma meccanismo diverso da #19 (bottom-up puro)
+- Score struttura senza narrativa "modelli locali" su 3 run (19+20+21): 2/3 (~67%), ma con meccanismi eterogenei
+**Lesson learned:**
+- Il "come" un modello esplora un file grande (lettura lineare vs grep mirato, su quali pattern) è la vera variabile stocastica residua, poco controllabile dal solo prompt strutturale
+- "Successo" non è omogeneo: va distinto scoperta bottom-up genuina da recognition training-data innescata dal codice — entrambe legittime rispetto al criterio del cutoff, ma raccontano storie diverse
+- Aggiornati docs/cve_experiment/README.md (§4.2 terzo failure mode, §4.3 esteso, §5 conclusioni riviste), attempts/log.md
+
+---
+
 ## 2026-07-01 — Attempt #19: test di confound — narrativa "modelli locali" non causale  [sessione: a4261493]
 
 **Intent:** "ma diciamo l'hint aiuta a guidare il modello... la domanda è quindi capire come in maniera naive guidare il modello per far trovare a lui le cose" + "lancia un subagent come fatto negli altri casi (skill) e modifica il prompt per questo test"
