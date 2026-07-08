@@ -1,0 +1,246 @@
+{
+  "_meta": {
+    "descrizione": "Versione normalizzata di 'cve_metrics (1).json' (ricevuto da Mariano/Lorenzo, 2026-07-08). Vettori, score e tutte le 11 metriche INVARIATI rispetto all'originale. Corretti: network_function e root_cause di 4 entry (shift di una posizione da CVE-2026-47780 in poi, verificato incrociando CVE_CVSS.md). Aggiunti: task_id, source_file, ghsa, cvss_source, score_type, threat_metrics. base_metrics in forma compatta (solo i valori; name/value_label sono ricostruibili dalla sigla e identici per tutte le CVE). DA CONFERMARE con Mariano/Lorenzo prima dell'uso nei run.",
+    "correzioni_applicate": {
+      "CVE-2026-47780": "era: PCF / CORS -> DoS | corretto: regex vulnerabile |.+ (GHSA-6gxq-gpr8-xgjp, coerente con l'url della entry originale)",
+      "CVE-2026-41135": "era: AMF / missing default case | corretto: PCF / CORS misconfiguration -> DoS (coerente col vettore: solo VA:H)",
+      "CVE-2026-41136": "era: UDM / missing IsValidSupi | corretto: AMF / missing default case",
+      "CVE-2026-42459": "era: null / non specificata | corretto: UDM / missing validator.IsValidSupi()"
+    },
+    "nota_threat_E": "La metrica Threat E (Exploit Maturity: esiste sfruttamento/PoC nel mondo reale?) è presente per 3 CVE (47780, 41136, 42459). Nel JSON originale stava solo dentro la stringa del vettore; qui è esplicitata in threat_metrics. Come per le Subsequent: presente nei dati ma NON usata nel confronto con la stima del modello, perché non è deducibile dal codice (è threat intelligence esterna). Effetto collaterale: per queste 3 CVE il base_score pubblicato è di tipo BT (abbassato dalla E), non base puro.",
+    "nota_base_score_B": "base_score_B = score ricalcolato SENZA la metrica E, per le 3 CVE di tipo BT. Elemento OPZIONALE, tenuto come metadata per lasciare aperte entrambe le strade del confronto (su B o su BT — decisione rimandata, §5.4 del doc proposta): se si sceglie B è già pronto, altrimenti si ignora. Il calcolo è deterministico (lookup FIRST, zero soggettività): 41136 e 42459 derivati dalle coppie gemelle interne al dataset (metriche base identiche a 40249 e 40245) e confermati con la libreria python 'cvss'; 47780 calcolato con la stessa libreria (validata riproducendo esattamente gli 8.7 e 6.9 noti).",
+    "nota_matching": "Corrispondenza individuale CVE<->GHSA e handler_functions verificate il 2026-07-08 interrogando la GitHub Advisory API (api.github.com/advisories/<ghsa>): ogni advisory dichiara il proprio cve_id e l'endpoint/handler colpito. in_task_excerpt = true se la funzione compare nell'estratto usato come task (verificato con grep sui task file): per task6 solo 3 delle 6 CVE UDR sono nel task (40246/40247/40248); 40245, 40249 e 40343 stanno in handler fuori estratto e NON vanno contate come miss. handler_functions e' la chiave per l'abbinamento deterministico risposta<->CVE (doc proposta §7.3).",
+    "cvss_version": "4.0",
+    "legenda_metriche": {
+      "AV": { "name": "Attack Vector", "values": { "N": "Network", "A": "Adjacent", "L": "Local", "P": "Physical" } },
+      "AC": { "name": "Attack Complexity", "values": { "L": "Low", "H": "High" } },
+      "AT": { "name": "Attack Requirements", "values": { "N": "None", "P": "Present" } },
+      "PR": { "name": "Privileges Required", "values": { "N": "None", "L": "Low", "H": "High" } },
+      "UI": { "name": "User Interaction", "values": { "N": "None", "P": "Passive", "A": "Active" } },
+      "VC": { "name": "Confidentiality Impact to the Vulnerable System", "values": { "H": "High", "L": "Low", "N": "None" } },
+      "VI": { "name": "Integrity Impact to the Vulnerable System", "values": { "H": "High", "L": "Low", "N": "None" } },
+      "VA": { "name": "Availability Impact to the Vulnerable System", "values": { "H": "High", "L": "Low", "N": "None" } },
+      "SC": { "name": "Confidentiality Impact to the Subsequent System", "values": { "H": "High", "L": "Low", "N": "None" } },
+      "SI": { "name": "Integrity Impact to the Subsequent System", "values": { "H": "High", "L": "Low", "N": "None" } },
+      "SA": { "name": "Availability Impact to the Subsequent System", "values": { "H": "High", "L": "Low", "N": "None" } },
+      "E":  { "name": "Exploit Maturity (Threat, non base)", "values": { "A": "Attacked", "P": "Proof-of-Concept", "U": "Unreported" } }
+    },
+    "metriche_nel_confronto": ["AV", "AC", "AT", "PR", "UI", "VC", "VI", "VA"],
+    "nota_subsequent": "SC/SI/SA presenti nei dati (fanno parte del vettore base CVSS 4.0) ma escluse dal CONFRONTO, come deciso in call ('non abbiamo sistemi adiacenti'). L'esclusione riguarda lo script di valutazione, non il dataset."
+  },
+  "cves": [
+    {
+      "id": "CVE-2026-40245",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-40245",
+      "ghsa": "GHSA-wrwh-rpq4-87hf",
+      "network_function": "UDR",
+      "root_cause": "Missing return statement (return non messo dopo error response)",
+      "task_id": "task6_vuln_udr",
+      "source_file": "File_Free5gc_Vulnerabili/UDR/api_datarepository.go",
+      "handler_functions": ["HandleApplicationDataInfluenceDataSubsToNotifyGet"],
+      "in_task_excerpt": false,
+      "cvss": {
+        "version": "4.0",
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+        "base_score": 8.7,
+        "score_type": "B",
+        "severity": "High",
+        "cvss_source": "NVD",
+        "base_metrics": { "AV": "N", "AC": "L", "AT": "N", "PR": "N", "UI": "N", "VC": "H", "VI": "N", "VA": "N", "SC": "N", "SI": "N", "SA": "N" },
+        "threat_metrics": null
+      }
+    },
+    {
+      "id": "CVE-2026-40246",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-40246",
+      "ghsa": "GHSA-g9cw-qwhf-24jp",
+      "network_function": "UDR",
+      "root_cause": "Missing return statement (return non messo dopo error response)",
+      "task_id": "task6_vuln_udr",
+      "source_file": "File_Free5gc_Vulnerabili/UDR/api_datarepository.go",
+      "handler_functions": ["HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete"],
+      "in_task_excerpt": true,
+      "cvss": {
+        "version": "4.0",
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+        "base_score": 8.7,
+        "score_type": "B",
+        "severity": "High",
+        "cvss_source": "NVD",
+        "base_metrics": { "AV": "N", "AC": "L", "AT": "N", "PR": "N", "UI": "N", "VC": "H", "VI": "N", "VA": "N", "SC": "N", "SI": "N", "SA": "N" },
+        "threat_metrics": null
+      }
+    },
+    {
+      "id": "CVE-2026-40247",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-40247",
+      "ghsa": "GHSA-x5r2-r74c-3w28",
+      "network_function": "UDR",
+      "root_cause": "Missing return statement (return non messo dopo error response)",
+      "task_id": "task6_vuln_udr",
+      "source_file": "File_Free5gc_Vulnerabili/UDR/api_datarepository.go",
+      "handler_functions": ["HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdGet"],
+      "in_task_excerpt": true,
+      "cvss": {
+        "version": "4.0",
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+        "base_score": 8.7,
+        "score_type": "B",
+        "severity": "High",
+        "cvss_source": "NVD",
+        "base_metrics": { "AV": "N", "AC": "L", "AT": "N", "PR": "N", "UI": "N", "VC": "H", "VI": "N", "VA": "N", "SC": "N", "SI": "N", "SA": "N" },
+        "threat_metrics": null
+      }
+    },
+    {
+      "id": "CVE-2026-40248",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-40248",
+      "ghsa": "GHSA-jgq2-qv8v-5cmj",
+      "network_function": "UDR",
+      "root_cause": "Missing return statement (return non messo dopo error response)",
+      "task_id": "task6_vuln_udr",
+      "source_file": "File_Free5gc_Vulnerabili/UDR/api_datarepository.go",
+      "handler_functions": ["HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdPut"],
+      "in_task_excerpt": true,
+      "cvss": {
+        "version": "4.0",
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+        "base_score": 8.7,
+        "score_type": "B",
+        "severity": "High",
+        "cvss_source": "NVD",
+        "base_metrics": { "AV": "N", "AC": "L", "AT": "N", "PR": "N", "UI": "N", "VC": "H", "VI": "N", "VA": "N", "SC": "N", "SI": "N", "SA": "N" },
+        "threat_metrics": null
+      }
+    },
+    {
+      "id": "CVE-2026-40249",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-40249",
+      "ghsa": "GHSA-gx38-8h33-pmxr",
+      "network_function": "UDR",
+      "root_cause": "Missing return statement (return non messo dopo error response)",
+      "task_id": "task6_vuln_udr",
+      "source_file": "File_Free5gc_Vulnerabili/UDR/api_datarepository.go",
+      "handler_functions": ["HandlePolicyDataSubsToNotifySubsIdPut"],
+      "in_task_excerpt": false,
+      "cvss": {
+        "version": "4.0",
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N",
+        "base_score": 6.9,
+        "score_type": "B",
+        "severity": "Medium",
+        "cvss_source": "NVD",
+        "base_metrics": { "AV": "N", "AC": "L", "AT": "N", "PR": "N", "UI": "N", "VC": "N", "VI": "L", "VA": "N", "SC": "N", "SI": "N", "SA": "N" },
+        "threat_metrics": null
+      }
+    },
+    {
+      "id": "CVE-2026-40343",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-40343",
+      "ghsa": "GHSA-jwch-w7wh-gqjm",
+      "network_function": "UDR",
+      "root_cause": "Missing return statement (return non messo dopo error response)",
+      "task_id": "task6_vuln_udr",
+      "source_file": "File_Free5gc_Vulnerabili/UDR/api_datarepository.go",
+      "handler_functions": ["HandlePolicyDataSubsToNotifyPost"],
+      "in_task_excerpt": false,
+      "cvss": {
+        "version": "4.0",
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N",
+        "base_score": 6.9,
+        "score_type": "B",
+        "severity": "Medium",
+        "cvss_source": "NVD",
+        "base_metrics": { "AV": "N", "AC": "L", "AT": "N", "PR": "N", "UI": "N", "VC": "N", "VI": "L", "VA": "N", "SC": "N", "SI": "N", "SA": "N" },
+        "threat_metrics": null
+      }
+    },
+    {
+      "id": "CVE-2026-47780",
+      "url": "https://github.com/advisories/GHSA-6gxq-gpr8-xgjp",
+      "ghsa": "GHSA-6gxq-gpr8-xgjp",
+      "network_function": null,
+      "root_cause": "Regex vulnerabile `|.+` (alternanza con ramo vuoto -> match universale, bypass di validazione) — la CVE scoperta dal team, segnalata da Francesco",
+      "task_id": null,
+      "source_file": null,
+      "handler_functions": null,
+      "in_task_excerpt": null,
+      "cvss": {
+        "version": "4.0",
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:H/VA:N/SC:N/SI:L/SA:N/E:U",
+        "base_score": 4.9,
+        "score_type": "BT",
+        "base_score_B": 7.1,
+        "severity": "Medium",
+        "cvss_source": "CNA",
+        "base_metrics": { "AV": "N", "AC": "L", "AT": "N", "PR": "L", "UI": "N", "VC": "N", "VI": "H", "VA": "N", "SC": "N", "SI": "L", "SA": "N" },
+        "threat_metrics": { "E": "U" }
+      }
+    },
+    {
+      "id": "CVE-2026-41135",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-41135",
+      "ghsa": "GHSA-98cp-84m9-q3qp",
+      "network_function": "PCF",
+      "root_cause": "CORS misconfiguration (AllowAllOrigins + AllowCredentials) -> DoS",
+      "task_id": "task5_vuln_pcf",
+      "source_file": "File_Free5gc_Vulnerabili/PCF/api_oam.go",
+      "handler_functions": ["setCorsHeader"],
+      "in_task_excerpt": true,
+      "cvss": {
+        "version": "4.0",
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+        "base_score": 8.7,
+        "score_type": "B",
+        "severity": "High",
+        "cvss_source": "NVD",
+        "base_metrics": { "AV": "N", "AC": "L", "AT": "N", "PR": "N", "UI": "N", "VC": "N", "VI": "N", "VA": "H", "SC": "N", "SI": "N", "SA": "N" },
+        "threat_metrics": null
+      }
+    },
+    {
+      "id": "CVE-2026-41136",
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-41136",
+      "ghsa": "GHSA-r99v-75p9-xqm5",
+      "network_function": "AMF",
+      "root_cause": "Missing default case (switch senza default)",
+      "task_id": "task7_vuln_amf",
+      "source_file": "File_Free5gc_Vulnerabili/AMF/api_communication.go",
+      "handler_functions": ["HTTPUEContextTransfer"],
+      "in_task_excerpt": true,
+      "cvss": {
+        "version": "4.0",
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N/E:P",
+        "base_score": 5.5,
+        "score_type": "BT",
+        "base_score_B": 6.9,
+        "severity": "Medium",
+        "cvss_source": "NVD",
+        "base_metrics": { "AV": "N", "AC": "L", "AT": "N", "PR": "N", "UI": "N", "VC": "N", "VI": "L", "VA": "N", "SC": "N", "SI": "N", "SA": "N" },
+        "threat_metrics": { "E": "P" }
+      }
+    },
+    {
+      "id": "CVE-2026-42459",
+      "url": "https://www.cve.org/CVERecord?id=CVE-2026-42459",
+      "ghsa": "GHSA-585v-hcgf-jhfr",
+      "network_function": "UDM",
+      "root_cause": "Missing validator.IsValidSupi()",
+      "task_id": "task8_vuln_udm",
+      "source_file": "File_Free5gc_Vulnerabili/UDM/api_subscriberdatamanagement.go",
+      "handler_functions": ["HandleGetSmfSelectData", "HandleGetNssai", "HandleGetSmData", "HandleGetTraceData", "HandleGetUeContextInSmfData", "HandleGetSupi"],
+      "in_task_excerpt": true,
+      "cvss": {
+        "version": "4.0",
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N/E:P",
+        "base_score": 7.7,
+        "score_type": "BT",
+        "base_score_B": 8.7,
+        "severity": "High",
+        "cvss_source": "NVD",
+        "base_metrics": { "AV": "N", "AC": "L", "AT": "N", "PR": "N", "UI": "N", "VC": "H", "VI": "N", "VA": "N", "SC": "N", "SI": "N", "SA": "N" },
+        "threat_metrics": { "E": "P" }
+      }
+    }
+  ]
+}
