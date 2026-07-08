@@ -2,6 +2,31 @@
 
 ---
 
+## 2026-07-08 — Rubrica v2 con CVSS: impianto proposto + audit dati CVE  [sessione: 3ee4778c]
+
+**Intent:** "aiutami a capire come impostare la rubrica per il mio obiettivo. discutiamone perchè da qui il progetto attuale prende una piega diversa-evolve" (post decima call); poi "genera un documento che rappresenta lo stato attuale [...] così poi lo condivido vedo cosa mi dicono e partiamo"
+**Divergenze (proposte AI oltre la call):**
+- valutazione ibrida: Blocco B (CVSS) confrontato con script Python deterministico, **senza** judge LLM (analogo ai task math)
+- sub-score A e B separati nel report (non solo somma) per confrontabilità exp2 vs 2b e correlazione semantica↔CVSS
+- distinzione fase 2: CVSS auto-assegnato = trigger/struttura, non validazione; rubrica testuale generata dal finding = solo spiegazione (circolarità se usata per valutare)
+- escludere metrica Threat E dal perimetro stimato dal modello (non deducibile dal codice)
+- (su richiesta utente "la tua valutazione?") aggiunto §7 al doc con 3 rischi: potere discriminante basso del Blocco B su 10 CVE quasi omogenee; fasce ±0.5 più strette del disaccordo CNA-vs-NVD osservato; **matching finding↔CVE non definito** (task6 = 6 CVE in un file) + canale `additional_findings` — indicato come bloccante per l'implementazione. Nel JSON aggiunto `base_score_B` per 41136 (6.9) e 42459 (8.7), derivati dalle coppie gemelle interne al dataset (metriche base identiche a 40249/40245), verificate via script
+**Decisioni:** l'utente ha confermato la lettura a due fasi e l'impianto misto; scelte finali su soglia, B vs BT, e CVE 47780 rimandate al feedback del team (doc di allineamento creato apposta)
+**Esito:**
+- creato `docs/proposta_rubrica_cvss.md` (impianto §1–5 + segnalazioni dati §6) e indicizzato in `docs/README.md`
+- audit incrociato `cve_metrics (1).json` vs `CVE_CVSS.md`: **shift di 1 posizione** in `network_function`/`root_cause` da CVE-2026-47780 in poi (47780 si auto-contraddice: root_cause CORS ma url GHSA-6gxq-gpr8-xgjp); 3 vettori con metrica E → score BT non base; manca mapping CVE→task/file
+- creata bozza `File_Free5gc_Vulnerabili/cve_metrics_normalized.json` (richiesta utente "così capisco visivamente"): etichette corrette, vettori/score invariati (verificato con script python di confronto), aggiunti task_id/source_file/ghsa/cvss_source/score_type/threat_metrics, `_meta` con le 4 correzioni esplicite; mapping task/file ricavato dai task sol (GHSA-98cp→task5/PCF, 6×GHSA UDR→task6, GHSA-r99v→task7/AMF, GHSA-585v→task8/UDM; 47780 senza task). Validazione finale rimandata a conferma di Mariano/Lorenzo
+- feedback utente su §7: rischi 1-2 ok ma tutto resta aperto, priorità a implementare fase 1; punto 3 era formulato male (sembrava riguardare la CVE scoperta/fase 2) → riscritto come dettaglio operativo di fase 1: abbinamento risposta↔CVE necessario per task6 (6 CVE in un file) e task9, finding non abbinati contati a parte senza valutarli
+- su richiesta utente: `base_score_B` declassato a metadata opzionale (nota_base_score_B: 'se si sceglie B è pronto, altrimenti si ignora'), metrica E documentata in nota_threat_E in stile nota_subsequent (presente nei dati — nell'originale solo dentro la stringa vettore — ma non usata nel confronto); calcolato base_score_B=7.1 per 47780 con libreria python `cvss` (deterministico, validata riproducendo gli 8.7/6.9 noti)
+- domanda utente "il giudice non può fare l'abbinamento?" → soluzione a due livelli in §7.3: matching deterministico per funzione (richiede da Mariano/Lorenzo il mapping CVE UDR→funzione, che chiude anche CVE↔GHSA) + judge come fallback loggato per i casi ambigui; scoperto dal task6 sol che l'estratto mostra solo 3 delle 6 istanze UDR → il mapping serve anche a non contare come miss le 3 non visibili
+- libreria `cvss` inizialmente installata con pip crudo nel venv Poetry (non tracciata) → registrata con `poetry add cvss` in pyproject.toml
+- domanda utente "non possiamo risolvere il mapping da soli dalle pagine GitHub?" → sì: interrogata la GitHub Advisory API per i 6 GHSA UDR — ogni advisory dichiara cve_id + endpoint/handler. Mapping completo CVE↔GHSA↔handler_functions inserito nel normalizzato con `in_task_excerpt` (task6: solo 40246/47/48 visibili nell'estratto; 40245/40249/40343 fuori → non contarle come miss); verificato via script che ogni handler esiste nel source file. Unico punto bloccante rimasto: zero — la richiesta a Mariano/Lorenzo si riduce a conferma
+- due correzioni al normalizzato su obiezioni (giuste) dell'utente: (a) reintegrate SC/SI/SA — avevo tolto dati invece che dal solo confronto ("i valori se me li hanno dati li terrei"); (b) aggiunta `legenda_metriche` in `_meta` — l'utente ha notato che senza label "N" è ambiguo (Network vs None); la legenda dà anche lo spazio completo dei valori, riusabile nel prompt del classificatore senza rivelare la GT. §4/§5.4/§6.1 del doc proposta riallineati
+- riletta la versione della call 10 con speaker nominati: nessuna contraddizione con l'impianto; raffinati 3 punti del doc — (a) vector_match spezzato in exploitability 0–5 + impatto VC/VI/VA 0–3 (osservazione Mariano: metriche exploitability quasi costanti su free5GC, conteggio piatto regalerebbe ~5/8 punti), (b) chiuso il punto "chi stima il CVSS" ("servono tutti e due" di Andrea = GT precalcolata + stima classificatore), (c) CVE 47780 consegnata già col vettore CNA → proposta di tenerla marcata `cvss_source: "CNA"`
+**Lesson learned:** i dati di supporto arrivati da terzi vanno incrociati tra loro prima di costruirci sopra — qui il MD (fonte più vicina alla call) ha smascherato lo shift del JSON che uno script di confronto avrebbe propagato silenziosamente su 4 CVE su 10.
+
+---
+
 ## 2026-07-08 — Seconda correzione attempt #21: verifica diretta invece di deduzione  [sessione: a4261493]
 
 **Intent:** "si però perchè riferirsi al codice? e soprattutto a scrivere ogni singola sigla di questo corrretta... come hanno fatto ad azzeccare il codice perfettamente?"
