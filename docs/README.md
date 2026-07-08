@@ -15,8 +15,6 @@ Come è fatto e come gira il progetto di sperimentazione.
 | [findings.md](findings.md) | Registro empirico: osservazioni che hanno causato correzioni al codice/metodo |
 | [experiments_framing.md](experiments_framing.md) | Coda di esperimenti framing (expert vs beginner) |
 | [changelog.md](changelog.md) | Storico modifiche |
-| [calls/](calls/) | Verbali storici delle call (call_1, call_2, call_3) |
-| [calls/transcripts/](calls/transcripts/) | Trascrizioni audio grezze delle call (materiale-fonte dei verbali) |
 | [tasks/](tasks/) | I task di code review usati dagli agenti |
 
 ## 🔬 Esperimento CVE — "la singolarità"
@@ -41,11 +39,15 @@ Riproduzione della scoperta spontanea della regex `|.+` (GHSA-6gxq-gpr8-xgjp) in
 
 ## 📎 Supporto
 
+Materiale ausiliario: non necessario per capire lo stato attuale del sistema, ma utile come riferimento/archivio.
+
 | Cartella | Contenuto |
 |----------|-----------|
-| [presentations/](presentations/) | Speech outline della tesi (`presentation_new.md`) |
-| [reference/](reference/) | Materiale esterno (modelli Ollama, paper RUBRICEVAL) |
-| [archive/](archive/) | Materiale storico grezzo (vecchio stack trace di debug) |
+| [supporto/calls/](supporto/calls/) | Verbali storici delle call (call_1, call_2, call_3) |
+| [supporto/calls/transcripts/](supporto/calls/transcripts/) | Trascrizioni audio grezze delle call (materiale-fonte dei verbali) |
+| [supporto/presentations/](supporto/presentations/) | Speech outline della tesi (`presentation_new.md`) |
+| [supporto/reference/](supporto/reference/) | Materiale esterno (modelli Ollama, paper RUBRICEVAL) |
+| [supporto/archive/](supporto/archive/) | Materiale storico grezzo (vecchio stack trace di debug) |
 
 ---
 

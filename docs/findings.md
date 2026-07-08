@@ -2,7 +2,7 @@
 
 Questo documento raccoglie i finding emersi durante lo sviluppo e i test del sistema che hanno portato a **correzioni al codice**, **cambiamenti di design** o **revisioni metodologiche**. Non è un verbale di call — è un registro delle cose che non funzionavano come atteso e di come sono state risolte.
 
-Per il verbale delle call vedi `calls/call_1.md`, `calls/call_2.md`, `calls/call_3.md`.
+Per il verbale delle call vedi `supporto/calls/call_1.md`, `supporto/calls/call_2.md`, `supporto/calls/call_3.md`.
 
 ---
 

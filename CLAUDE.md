@@ -7,9 +7,9 @@ La documentazione è suddivisa in file tematici sotto `docs/`. **Indice di navig
 - `docs/README.md` — **mappa della documentazione**: sistema, esperimento CVE, supporto
 - `docs/status.md` — **stato attuale**: modelli, task, CLI, checklist funzionalità
 - `docs/architecture.md` — mappa codice, flusso LangGraph, valutazione, report (stabile)
-- `docs/calls/call_1.md` — call iniziali §8.1–8.10 (verbale storico)
-- `docs/calls/call_2.md` — call 2026-05-09: security review 5G, task5–9 (verbale + snapshot)
-- `docs/calls/call_3.md` — call 2026-05-13: presentazione risultati, dubbi metodologici, roadmap
+- `docs/supporto/calls/call_1.md` — call iniziali §8.1–8.10 (verbale storico)
+- `docs/supporto/calls/call_2.md` — call 2026-05-09: security review 5G, task5–9 (verbale + snapshot)
+- `docs/supporto/calls/call_3.md` — call 2026-05-13: presentazione risultati, dubbi metodologici, roadmap
 - `docs/cve_experiment/` — esperimento "singolarità" CVE: presentazione (`README.md`) + guida pratica (`hands_on.md`); log tecnico in `docs/cve_experiment/attempts/log.md`
 
 **Repo e documentazione devono essere sempre allineati.**
@@ -29,7 +29,7 @@ Non riscrivere le note di call — sono il verbale storico delle decisioni prese
 
 ```text
 call / chat
-   └─→ note in docs/calls/call_<N>.md (dubbio + situazione + proposta)
+   └─→ note in docs/supporto/calls/call_<N>.md (dubbio + situazione + proposta)
            └─→ implementazione nel codice
                    └─→ ✅ / ⚠️ nel documento di dettaglio + aggiornamento status.md
 ```
@@ -39,8 +39,8 @@ call / chat
 All'inizio di ogni sessione leggi nell'ordine:
 
 1. `docs/status.md` — stato attuale del sistema e checklist
-2. `docs/calls/call_2.md` — se la sessione riguarda security review
-3. `docs/calls/call_3.md` — se la sessione riguarda framing / roadmap recente
+2. `docs/supporto/calls/call_2.md` — se la sessione riguarda security review
+3. `docs/supporto/calls/call_3.md` — se la sessione riguarda framing / roadmap recente
 4. `docs/architecture.md` — se hai dubbi su flusso o valutazione
 
 Se la documentazione non rispecchia il codice, segnalalo prima di procedere.

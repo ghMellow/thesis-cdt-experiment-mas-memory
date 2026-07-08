@@ -7,9 +7,9 @@
 | Documento | Contenuto |
 | --- | --- |
 | [architecture.md](architecture.md) | §1–7 + §9: mappa codice, flusso, valutazione, report — **riferimento stabile** |
-| [calls/call_1.md](calls/call_1.md) | Call iniziali: judge, soglie, rubrica, retry, confidence, token, consistenza, modelli, lingua (§8.1–8.10) |
-| [calls/call_2.md](calls/call_2.md) | Call 2026-05-09: security review 5G, task5–9, snapshot sistema (§8.11 + §10) |
-| [calls/call_3.md](calls/call_3.md) | Call 2026-05-13: presentazione risultati, dubbi metodologici, roadmap 19 maggio |
+| [supporto/calls/call_1.md](supporto/calls/call_1.md) | Call iniziali: judge, soglie, rubrica, retry, confidence, token, consistenza, modelli, lingua (§8.1–8.10) |
+| [supporto/calls/call_2.md](supporto/calls/call_2.md) | Call 2026-05-09: security review 5G, task5–9, snapshot sistema (§8.11 + §10) |
+| [supporto/calls/call_3.md](supporto/calls/call_3.md) | Call 2026-05-13: presentazione risultati, dubbi metodologici, roadmap 19 maggio |
 | [findings.md](findings.md) | Registro empirico: osservazioni che hanno causato correzioni al codice o alla metodologia |
 | [cve_experiment/](cve_experiment/README.md) | Esperimento "singolarità": un LLM riscopre da solo la CVE `\|.+`? Presentazione, guida pratica, log #0–#18 |
 
@@ -104,8 +104,8 @@ Quando viene chiesto di aggiornare o rigenerare la presentazione, seguire questo
 
 1. `docs/status.md` — stato attuale: modelli, task, checklist
 2. `docs/architecture.md` — mappa codice e flusso (slide architettura)
-3. `docs/calls/call_1.md` — sfide e decisioni base (slide sfide aperte)
-4. `docs/calls/call_2.md` — risultati security review, decisioni recenti (slide risultati/prossimi passi)
+3. `docs/supporto/calls/call_1.md` — sfide e decisioni base (slide sfide aperte)
+4. `docs/supporto/calls/call_2.md` — risultati security review, decisioni recenti (slide risultati/prossimi passi)
 5. `results/evaluation/scores_1A.md` e `scores_1B.md` — se ci sono risultati da mostrare
 
 **2. Mapping slide → sorgente (struttura attuale come riferimento):**
@@ -123,7 +123,7 @@ Quando viene chiesto di aggiornare o rigenerare la presentazione, seguire questo
 | 09 Judge LLM | input/output, SVG | `architecture.md` §6.2 |
 | 10 Output | file risultati, report | `architecture.md` §7 |
 | 11 Metriche | accuracy / confidence / consistenza | `architecture.md` §6 |
-| 12 Sfide aperte | problemi da risolvere | `calls/call_1.md` §8.1–8.10 (proposte non ancora implementate) |
+| 12 Sfide aperte | problemi da risolvere | `supporto/calls/call_1.md` §8.1–8.10 (proposte non ancora implementate) |
 | 13 Chiusura | tagline | fisso |
 
 Aggiungere slide nuove (es. risultati security, confronto modelli) dopo la slide 11, prima della chiusura.
@@ -152,6 +152,6 @@ Aggiungere slide nuove (es. risultati security, confronto modelli) dopo la slide
 Dopo ogni modifica al codice:
 
 - Aggiorna il file `architecture.md` se cambia la mappa codice, il flusso o la valutazione.
-- Aggiungi una nuova sezione `§8.N` in `calls/call_1.md` o crea `docs/calls/call_<N>.md` per nuove call.
+- Aggiungi una nuova sezione `§8.N` in `supporto/calls/call_1.md` o crea `docs/supporto/calls/call_<N>.md` per nuove call.
 - Aggiorna questo index (tabelle modelli/task e checklist) se cambia la configurazione.
 - Usa `> ✅ **Implementato:**` / `> ⚠️ **Correzione:**` inline nel documento di dettaglio corrispondente.
