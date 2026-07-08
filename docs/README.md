@@ -24,8 +24,9 @@ Riproduzione della scoperta spontanea della regex `|.+` (GHSA-6gxq-gpr8-xgjp) in
 | Documento | A chi serve |
 |-----------|-------------|
 | **[cve_experiment/README.md](cve_experiment/README.md)** | **Inizia da qui.** Presentazione per chi parte da zero: contesto, problema, test, risultati |
+| [cve_experiment/team_update.md](cve_experiment/team_update.md) | Aggiornamento di chiusura per il team: findings, problemi, prompt testuali |
 | [cve_experiment/hands_on.md](cve_experiment/hands_on.md) | Guida pratica: i prompt che funzionano + come rifare il test |
-| [cve_experiment/attempts/log.md](cve_experiment/attempts/log.md) | Log tecnico di tutti i tentativi (#0–#18) — **fonte autoritativa** |
+| [cve_experiment/attempts/log.md](cve_experiment/attempts/log.md) | Log tecnico di tutti i tentativi (#0–#21) — **fonte autoritativa** |
 | [cve_experiment/attempts/](cve_experiment/attempts/) | Dettaglio per tentativo: `attempt_<N>/` (params, prompt, chain, findings, verdict) |
 | [cve_experiment/history_0-5.md](cve_experiment/history_0-5.md) | Storico narrativo dei primi tentativi (#0–#5) — superato dal log sopra |
 

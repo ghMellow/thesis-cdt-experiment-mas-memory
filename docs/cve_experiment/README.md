@@ -149,6 +149,7 @@ Score task prodotto: **6/9 (~67%)** — ma solo #14/#15/#17/#19 restano prove pu
 
 ## 6. Materiali
 
+- **Aggiornamento di chiusura per il team** (findings, problemi, prompt testuali — pronto da condividere): [team_update.md](team_update.md)
 - **Log tecnico di tutti i tentativi:** [attempts/log.md](attempts/log.md)
 - **Dettaglio per tentativo** (parametri, prompt verbatim, catena di ragionamento, verdetto): `attempts/attempt_<N>/`
 - **Prompt che funzionano + come rifare il test tu stesso:** [hands_on.md](hands_on.md)
@@ -162,11 +163,12 @@ Tutto l'esperimento vive sotto `docs/cve_experiment/`:
 
 ```
 docs/cve_experiment/
-├── README.md      ← questo documento (presentazione)
-├── hands_on.md    ← guida pratica: prompt funzionanti + procedura per rifare il test
+├── README.md        ← questo documento (presentazione)
+├── team_update.md   ← aggiornamento di chiusura, pronto da condividere col team
+├── hands_on.md      ← guida pratica: prompt funzionanti + procedura per rifare il test
 │
 ├── attempts/      ← i TENTATIVI di riproduzione  (skill: /cve-attempt)
-│   ├── log.md         tabella di tutti i tentativi #0–#18 — fonte autoritativa
+│   ├── log.md         tabella di tutti i tentativi #0–#21 — fonte autoritativa
 │   └── attempt_<N>/   un cartella per tentativo:
 │       ├── params.md    parametri (hint_level, framing, ambiente)
 │       ├── prompt.md    il prompt esatto dato all'agente
