@@ -2,6 +2,22 @@
 
 ---
 
+## 2026-07-08 — Seconda correzione attempt #21: verifica diretta invece di deduzione  [sessione: a4261493]
+
+**Intent:** "si però perchè riferirsi al codice? e soprattutto a scrivere ogni singola sigla di questo corrretta... come hanno fatto ad azzeccare il codice perfettamente?"
+**Decisioni:** l'utente ha giustamente messo in dubbio la mia correzione precedente ("confabulazione") — un ID a 5 segmenti alfanumerici quasi-casuali scritto esatto non è spiegabile da confabulazione, la probabilità di indovinarlo per caso è trascurabile. Ho verificato concretamente invece di dedurre:
+- `grep` su tutto `File_Free5gc_Vulnerabili/` in `base/pre-cartella` (working tree + git grep sul branch) per "6gxq" → assente
+- grep del transcript JSONL reale del subagent per invocazioni effettive (`tool_use`) di WebSearch/WebFetch → zero, tool solo elencato tra i "deferred" mai chiamato
+- grep del `prompt.md` salvato prima del lancio → pulito, nessuna contaminazione mia
+- WebSearch (mia, non del subagent) per la data reale di pubblicazione GHSA-6gxq-gpr8-xgjp → 11 giugno 2026, CVE-2026-47780 (fonti OSV.dev, GitLab Advisory Database)
+**Esito:**
+- Con i tre vettori ambientali esclusi da evidenza diretta, la spiegazione più coerente è: il training set di Sonnet 5 include probabilmente questo avviso, nonostante il cutoff dichiarato (gennaio 2026) preceda di ~5 mesi la pubblicazione — le dichiarazioni di cutoff sono spesso indicative, non un confine verificabile con certezza
+- Corretti (di nuovo): attempt_21/verdict.md, findings.md, attempts/log.md, README.md (§4.3, §5) — #21 non è più utilizzabile come prova pulita di scoperta autonoma per questa CVE specifica; restano solide #14/#15/#17/#19 (nessuna citazione di ID CVE nei loro chain.md)
+**Lesson learned:**
+- Due correzioni in sequenza sullo stesso attempt: la prima ("confabulazione") era anch'essa un ragionamento plausibile ma non verificato, esattamente come l'interpretazione originale che doveva correggere ("recognition"). Un self-report LLM che cita un dato verificabile (un ID, una data) va sempre controllato con strumenti esterni concreti — grep su file reali, transcript reali, ricerca pubblica — prima di essere accettato O respinto. Il ragionamento plausibile da solo non basta in nessuna delle due direzioni.
+
+---
+
 ## 2026-07-08 — Correzione attempt #21: confabulazione, non recognition da training data  [sessione: a4261493]
 
 **Intent:** domanda dell'utente — "come faceva a sapere di GHSA-6gxq-gpr8-xgjp se nel prompt gli diciamo di non guardare i branch su git o altro storico?" seguita da "no l'ho scoperta col mio team a maggio 2026"

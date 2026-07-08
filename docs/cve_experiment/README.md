@@ -113,24 +113,37 @@ Un dubbio rimasto aperto: in tutti i tentativi #14–18 la richiesta "un task pe
 
 **Conclusione:** la leva causale è la **struttura in sé** (nessun limite artificiale al numero di finding per file, poi sintesi cross-file) — non il motivo che diamo al modello per giustificarla.
 
-**Due repliche indipendenti (#20, #21)** dello stesso identico prompt hanno ridimensionato la fiducia in un successo garantito, ma non nel modo inizialmente pensato:
+**Due repliche indipendenti (#20, #21)** dello stesso identico prompt hanno aperto un fronte inaspettato, che ha richiesto due correzioni successive prima di arrivare a una spiegazione solida.
 
 - **#20 fallisce** per il terzo failure mode appena descritto (scope coverage): grep mirato su pattern diversi, la sezione regex non viene mai raggiunta.
-- **#21 riesce.** Il `chain.md` scritto dal modello citava "riconoscimento" della CVE GHSA-6gxq-gpr8-xgjp da training data dopo aver visto l'import `regexp` — a una prima lettura sembrava indicare recognition invece di scoperta bottom-up. **Verifica con l'autore dell'esperimento:** la CVE è stata scoperta dal team a maggio 2026, quindi non può materialmente trovarsi nel training set di nessun modello con cutoff antecedente (Sonnet 5: gennaio 2026). La frase nel chain.md è dunque **confabulazione nel self-report**, non recall reale — il modello ha trovato il bug per analisi diretta e genuina della regex, ma nel narrare il proprio processo ha aggiunto un riferimento CVE plausibile senza poterlo realmente conoscere.
+- **#21 riesce**, ma il `chain.md` scritto dal modello cita l'ID esatto `GHSA-6gxq-gpr8-xgjp` — carattere per carattere identico all'advisory reale.
 
-Questo è un finding a sé, distinto dal test di confound: **i chain.md auto-riportati dai modelli non sono una fonte affidabile al 100% su *come* è avvenuta una scoperta.** Un modello può descrivere una scoperta genuina come un "riconoscimento" perché è una narrazione più autorevole, anche quando non ha alcuna base reale — va sempre incrociato con evidenza esterna verificabile (qui: la data di scoperta della CVE).
+Questo ha aperto una domanda seria: **come può un ambiente isolato (nessun accesso ad altri branch, nessun hint nel prompt) produrre un ID esatto che il modello non dovrebbe conoscere?** La prima ipotesi (recognition da training) è stata scartata perché la CVE risultava scoperta dal team a maggio 2026, quindi apparentemente troppo recente per il training. Ma questa seconda ipotesi ("è confabulazione, il modello se l'è inventato") non regge a un controllo elementare: un ID a 5 segmenti alfanumerici quasi-casuali **non si indovina per caso**, con probabilità trascurabile.
 
-Score aggiornato: **6/9 (~67%)** su tutta la famiglia di tentativi con questa struttura (con e senza narrativa) — **tutti i successi confermati sono scoperte bottom-up genuine**, nessuna contaminazione né recall training-data possibile per questa CVE specifica.
+Verificato quindi con evidenza diretta, non deduzione:
+
+| Vettore controllato | Verifica | Esito |
+|----------------------|----------|-------|
+| File nel clone isolato | `grep` sulla stringa "6gxq" in tutto `File_Free5gc_Vulnerabili/`, working tree + `git grep` sul branch | Assente |
+| Accesso a internet del subagent | Grep del transcript JSONL reale per invocazioni effettive (`tool_use`) di WebSearch/WebFetch | Zero — tool solo elencato tra i "deferred" disponibili, mai chiamato |
+| Prompt scritto dall'orchestratore | Grep del `prompt.md` salvato prima del lancio | Assente |
+| Data reale di pubblicazione della CVE | WebSearch (fatta dall'orchestratore) | 11 giugno 2026 — fonti OSV.dev, GitLab Advisory Database |
+
+Con questi tre vettori esclusi concretamente, la spiegazione più coerente è: **il training set di Sonnet 5 include probabilmente questo avviso**, nonostante il cutoff dichiarato nel system prompt ("gennaio 2026") preceda di ~5 mesi la pubblicazione. Le dichiarazioni di cutoff sono spesso indicative e non un confine verificabile con certezza dall'esterno.
+
+**Finding metodologico a sé, distinto dal test di confound:** un self-report di un modello (`chain.md`) che cita un dato verificabile va controllato con evidenza diretta prima di essere accettato *o* respinto — un ragionamento plausibile in entrambe le direzioni non basta. In questo attempt l'interpretazione è cambiata due volte prima di arrivare a una versione sostenuta da controlli concreti (grep su file/transcript, verifica pubblica della data).
+
+Score task prodotto: **6/9 (~67%)** — ma solo #14/#15/#17/#19 restano prove pulite di scoperta autonoma non assistita da training per questa CVE specifica (nessuna citazione di ID CVE nei rispettivi chain.md). #21 va trattato come esito valido come task, ma con meccanismo verosimilmente diverso.
 
 ---
 
 ## 5. Conclusioni per i colleghi
 
-1. **Sì, è riproducibile.** La scoperta spontanea della sessione originale non era un artefatto isolato: si ottiene in ~67% dei casi in ambiente pulito, senza dare indizi sulla regex. Tutti i successi verificati sono scoperte bottom-up genuine — nessuna contaminazione, nessun recall da training possibile per questa CVE (scoperta dal team a maggio 2026, quindi non presente in alcun training set usato).
+1. **Sì, è riproducibile.** La scoperta spontanea della sessione originale non era un artefatto isolato: si ottiene in ~67% dei casi in ambiente pulito, senza dare indizi sulla regex. I successi con evidenza più solida (#14, #15, #17, #19) non contengono alcuna citazione di ID CVE nei rispettivi chain.md — pura analisi del codice.
 2. **La leva è strutturale, non narrativa.** Non serve dire al modello *cosa* cercare, né *perché* deve essere esaustivo; basta chiedergli di esserlo (un task per file, nessun cap sul numero di finding + sintesi cross-file). Verificato per esclusione: rimuovendo la giustificazione "modelli locali" il risultato medio non cambia (§4.3), ma resta stocastico (§4.2) — il fallimento residuo dipende da *come* il modello sceglie di esplorare un file grande, non da cosa gli viene detto.
 3. **C'è una soglia di garanzia.** Se si vuole il finding al 100%, basta passare a hint_level=3 (suggerire di guardare le regex) — ma quello non è più "scoperta autonoma".
-4. **La maggior parte della fatica è stata l'igiene sperimentale.** Dimostrare che il modello non stesse "barando" è stato più difficile che ottenere il risultato.
-5. **I self-report dei modelli (chain.md) vanno verificati, non presi per buoni.** In un caso (#21) il modello ha descritto la propria scoperta come "riconoscimento da training data" — un'affermazione risultata falsa una volta verificata la data reale di pubblicazione della CVE. La scoperta sottostante era comunque genuina; solo la narrazione del processo era fuorviante. Lezione generale: quando si usa il ragionamento auto-riportato di un LLM come dato sperimentale, va sempre incrociato con fatti esterni verificabili.
+4. **La maggior parte della fatica è stata l'igiene sperimentale.** Dimostrare che il modello non stesse "barando" è stato più difficile che ottenere il risultato — e l'igiene non riguarda solo l'ambiente (file/branch/internet), ma anche l'interpretazione dei risultati: due volte, in questo blocco di tentativi, un'ipotesi plausibile ma non verificata si è rivelata sbagliata (§4.3).
+5. **I self-report dei modelli (chain.md) vanno verificati con evidenza diretta, non con un secondo ragionamento plausibile.** In #21 il modello ha citato un ID CVE esatto che non dovrebbe conoscere secondo il cutoff dichiarato. La prima spiegazione plausibile ("l'ha inventato per sembrare autorevole") si è rivelata insostenibile quanto la prima interpretazione che doveva correggere ("l'ha riconosciuto da training"): solo controllando concretamente file, transcript e dati pubblici è emersa la spiegazione più solida. Lezione generale: un claim verificabile in un self-report LLM va sempre controllato con strumenti esterni, in entrambe le direzioni.
 
 ---
 
