@@ -20,7 +20,7 @@ All tasks passed with full consistency — no anomalies detected.
 | role | accuracy | avg_confidence | brier_score | avg_attempts | avg_textual_norm |
 | --- | --- | --- | --- | --- | --- |
 | beginner | 100.0% | 0.900 | 0.0100 | 1.00 | 1.000 |
-| expert | 100.0% | 1.000 | 0.0000 | 1.00 | 1.000 |
+| expert | 100.0% | 0.950 | 0.0025 | 1.00 | 1.000 |
 
 **Legend**
 

@@ -2,6 +2,19 @@
 
 ---
 
+## 2026-07-09 — Run 2: hint di contesto NF, feedback team su run 1  [sessione: 3ee4778c]
+
+**Intent:** condivisione di run1 + proposta col team → discussione in chat (`docs/03_discussione_post_01_02.md`); poi: "crea un file 04_risultati_cvss_run2 dove abbiamo il prompt aggiuntivo" e "improve i dati presentati (commento sui due agenti/metriche aggregate)"
+**Divergenze:** oltre a scrivere il documento, ho archiviato i risultati grezzi della run 1 (task5–9, 1A/1B) in `results/_baseline_run1_no_context_hint_20260709/` prima di rilanciare — necessario perché il salvataggio fa append per numero di ripetizione e salta quelle già presenti (`_result_exists`), altrimenti la run 2 sarebbe stata silenziosamente skippata
+**Decisioni:** implementato l'hint minimo di Lorenzo (paragrafo di contesto free5GC/OAuth2/TLS) dietro flag `config.CVSS_CONTEXT_HINT_ENABLED`, non la variante costosa di Andrea/Mariano (tutto free5GC) — quella resta un passo successivo, non ancora deciso col team
+**Esito:**
+- rubrica invariata rispetto a run1 (19/20, stesso unico wrong) — conferma indipendenza Blocco A/B
+- **CVSS impatto NON migliorato dall'hint**: 0.93/3 vs 1.00/3 di run1 — leggero peggioramento, non miglioramento. task5 resta su `VC:L` invece del DoS puro della GT nonostante l'hint lo scoraggi esplicitamente
+- task8 peggiora (banda 2.0→1.5), task7 converge di più tra le combinazioni (positivo ma n=1, non conclusivo), task6/F3 (aggregazione finding) invariato — dettaglio in `docs/04_risultati_cvss_run2.md` (F7–F11)
+**Lesson learned:** un hint testuale minimo non basta a correggere quello che sembra un prior strutturale del modello (vulnerabilità→confidenzialità), non solo un'informazione mancante — rinforza l'ipotesi che serva la variante costosa (contesto completo) o un test con più ripetizioni prima di scartare l'ipotesi hint
+
+---
+
 ## 2026-07-09 — Prima run completa esperimento 2b + documento risultati  [sessione: 3ee4778c]
 
 **Intent:** "lancia tutti i task, dopodichè raccogli tutti i risultati e crea un documento da condividere con fase test, risultati, findigs ecc"

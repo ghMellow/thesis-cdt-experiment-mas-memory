@@ -95,3 +95,8 @@ CVSS_DATASET_PATH = "File_Free5gc_Vulnerabili/cve_metrics_normalized.json"
 # Score proximity bands: (max |estimated - reference|, points). First match wins.
 # Initial values from call 10 discussion — to be calibrated (doc §5.1).
 CVSS_SCORE_BANDS = [(0.5, 3), (1.5, 2), (3.0, 1)]
+# NF-context hint (team discussion 2026-07-09): adds one paragraph telling the
+# agent it's reviewing a 5G core NF (free5GC) with OAuth2/TLS on SBI by
+# default, to test whether missing system context explains the systematic
+# impact-scoring failure (F2). Set False to reproduce run 1 (no hint).
+CVSS_CONTEXT_HINT_ENABLED = True

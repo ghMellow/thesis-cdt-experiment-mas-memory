@@ -15,6 +15,24 @@ import json
 import re
 from typing import Any, Dict, List, Optional
 
+import config
+
+# NF context hint (team discussion 2026-07-09, proposal by Lorenzo Cannella):
+# a human reviewer scores impact knowing the role of the NF inside the wider
+# system; the excerpt alone doesn't say it's free5GC or that SBI traffic runs
+# behind OAuth2/TLS by default. This is the minimal-cost variant, tested
+# before the more expensive option (passing the whole free5GC repo as context).
+NF_CONTEXT_HINT = """
+
+**System context:** the code under review is a Network Function (NF) inside \
+a 5G core network (free5GC architecture). In a standard 5G core deployment, \
+the Service-Based Interface (SBI) between NFs runs behind mutual TLS and \
+OAuth2 authorization by default. Use this when judging the *impact* \
+(confidentiality/integrity/availability) of a vulnerability: do not assume a \
+bug automatically exposes data — consider what is actually reachable or \
+corrupted given this baseline.
+"""
+
 # Legend gives the full value space per metric (never the ground-truth values).
 # Kept in sync with `_meta.legenda_metriche` in the normalized CVE dataset.
 CVSS_PROMPT_BLOCK = """
@@ -50,7 +68,8 @@ def is_cvss_task(task_id: str, task_type: str) -> bool:
 
 
 def inject_cvss_instructions(task_content: str) -> str:
-    return task_content + CVSS_PROMPT_BLOCK
+    hint = NF_CONTEXT_HINT if getattr(config, "CVSS_CONTEXT_HINT_ENABLED", False) else ""
+    return task_content + hint + CVSS_PROMPT_BLOCK
 
 
 _KV_LINE_RE = re.compile(r"^[-*\s]*(function|vector|score)\s*:\s*(.+)$", re.IGNORECASE)

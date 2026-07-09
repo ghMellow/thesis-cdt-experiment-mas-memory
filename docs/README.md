@@ -14,8 +14,10 @@ Come è fatto e come gira il progetto di sperimentazione.
 | [architecture.md](architecture.md) | Mappa codice, flusso LangGraph, valutazione, report — riferimento stabile |
 | [findings.md](findings.md) | Registro empirico: osservazioni che hanno causato correzioni al codice/metodo |
 | [experiments_framing.md](experiments_framing.md) | Coda di esperimenti framing (expert vs beginner) |
-| [proposta_rubrica_cvss.md](proposta_rubrica_cvss.md) | Proposta rubrica v2 con CVSS (post decima call) — documento di allineamento team |
-| [risultati_cvss_run1.md](risultati_cvss_run1.md) | Prima run esperimento 2b (rubrica + CVSS) su task5–9 — setup, risultati, findings — documento di condivisione |
+| [01_proposta_rubrica_cvss.md](01_proposta_rubrica_cvss.md) | Proposta rubrica v2 con CVSS (post decima call) — documento di allineamento team |
+| [02_risultati_cvss_run1.md](02_risultati_cvss_run1.md) | Prima run esperimento 2b (rubrica + CVSS) su task5–9, senza hint di contesto — setup, risultati, findings |
+| [03_discussione_post_01_02.md](03_discussione_post_01_02.md) | Verbale della discussione del team dopo la condivisione dei due documenti sopra |
+| [04_risultati_cvss_run2.md](04_risultati_cvss_run2.md) | Run 2: stesso setup + hint di contesto NF (proposta Lorenzo) — confronto diretto con run 1, findings F7–F11 |
 | [changelog.md](changelog.md) | Storico modifiche |
 | [tasks/](tasks/) | I task di code review usati dagli agenti |
 

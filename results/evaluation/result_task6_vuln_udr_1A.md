@@ -37,8 +37,8 @@ All tasks passed with full consistency — no anomalies detected.
 
 | role | estimates | matched | missed CVEs | unmatched findings | avg band vs published (0-3) | avg band vs B (0-3) | avg exploitability (0-5) | avg impact (0-3) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| beginner | 1/1 | 1 | 2 | 2 | 2.00 | 2.00 | 5.00 | 1.00 |
-| expert | 1/1 | 1 | 2 | 2 | 2.00 | 2.00 | 5.00 | 1.00 |
+| beginner | 1/1 | 1 | 2 | 1 | 2.00 | 2.00 | 4.00 | 1.00 |
+| expert | 1/1 | 0 | 3 | 3 | n/a | n/a | n/a | n/a |
 
 _`estimates` = repetitions where the agent produced a CVSS block. `matched` = findings paired to a ground-truth CVE via handler function. `band vs published` compares against the published score (BT where the vector includes Threat E); `band vs B` against the pure base score. Exploitability counts AV/AC/AT/PR/UI matches; impact counts VC/VI/VA — the impact triad is the discriminating signal on this dataset._
 

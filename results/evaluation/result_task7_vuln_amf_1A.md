@@ -7,20 +7,18 @@
 | total results | 2 |
 | correct | 2 (100.0%) |
 | wrong | 0 |
-| retried (attempts > 1) | 0 |
+| retried (attempts > 1) | 2 |
 | truly inconsistent tasks | 0 |
 | surface-only differences (semantically equiv.) | 0 |
 
 _truly inconsistent_: LLM confirmed different conclusions across repetitions. _surface-only_: string-different but semantically equivalent (paraphrases, same logic).
 
-All tasks passed with full consistency — no anomalies detected.
-
 ## Scores by role
 
 | role | accuracy | avg_confidence | brier_score | avg_attempts | avg_textual_norm |
 | --- | --- | --- | --- | --- | --- |
-| beginner | 100.0% | 0.800 | 0.0400 | 1.00 | 1.000 |
-| expert | 100.0% | 0.950 | 0.0025 | 1.00 | 0.889 |
+| beginner | 100.0% | 0.900 | 0.0100 | 2.00 | 1.000 |
+| expert | 100.0% | 0.950 | 0.0025 | 2.00 | 1.000 |
 
 **Legend**
 
@@ -37,8 +35,19 @@ All tasks passed with full consistency — no anomalies detected.
 
 | role | estimates | matched | missed CVEs | unmatched findings | avg band vs published (0-3) | avg band vs B (0-3) | avg exploitability (0-5) | avg impact (0-3) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| beginner | 1/1 | 1 | 0 | 1 | 3.00 | 1.00 | 5.00 | 1.00 |
-| expert | 1/1 | 1 | 0 | 2 | 3.00 | 1.00 | 5.00 | 1.00 |
+| beginner | 1/1 | 1 | 0 | 2 | 3.00 | 1.00 | 4.00 | 1.00 |
+| expert | 1/1 | 1 | 0 | 2 | 3.00 | 1.00 | 4.00 | 1.00 |
 
 _`estimates` = repetitions where the agent produced a CVSS block. `matched` = findings paired to a ground-truth CVE via handler function. `band vs published` compares against the published score (BT where the vector includes Threat E); `band vs B` against the pure base score. Exploitability counts AV/AC/AT/PR/UI matches; impact counts VC/VI/VA — the impact triad is the discriminating signal on this dataset._
+
+## Anomalies
+
+### Retries triggered (2)
+
+| role | task_id | rep | attempts | final_verdict |
+| --- | --- | --- | --- | --- |
+| beginner | task7_vuln_amf | 1 | 2 | correct |
+| expert | task7_vuln_amf | 1 | 2 | correct |
+
+_Each row is one repetition. `rep` = repetition index (1-based). `attempts` = LLM calls within that repetition (2 means wrong on attempt 1, correct on attempt 2). `final_verdict` = outcome after all attempts._
 
