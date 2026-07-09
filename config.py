@@ -29,8 +29,8 @@ MODELS = {
     },
     "beginner_1A": {
         "local": "gemma4:e4b",
-        "hosted": "gemma3:12b-cloud",
-        "use_hosted": False
+        "hosted": "gemma4:31b-cloud",
+        "use_hosted": True
     },
     "expert_1B": {
         "local": "gemma4:e4b",
@@ -39,18 +39,18 @@ MODELS = {
     },
     "beginner_1B": {
         "local": "gemma4:e4b",
-        "hosted": "gemma3:12b-cloud",
-        "use_hosted": False  # gemma3:12b-cloud → 500 su ollama.com con payload tecnici
+        "hosted": "gemma4:31b-cloud",
+        "use_hosted": True  # gemma3:12b-cloud → 500 su ollama.com con payload tecnici
     },
     "judge": {
         "local": "gemma4:e4b",
-        "hosted": "nemotron-3-super:cloud",
+        "hosted": "gemma4:31b-cloud",
         "use_hosted": True
     },
     "semantic_check": {
         "local": "gemma4:e2b",
-        "hosted": "gemma3:4b-cloud",
-        "use_hosted": False  # framing_A1: use local to avoid hosted 500 errors
+        "hosted": "gemma4:31b-cloud",
+        "use_hosted": True  # framing_A1: use local to avoid hosted 500 errors
     },
 }
 
@@ -85,3 +85,13 @@ OLLAMA_TIMEOUT_SECONDS = TASK_TIMEOUT_SECONDS * 1.1
 # Input tasks and output results directories.
 TASKS_PATH = "docs/tasks/"
 RESULTS_PATH = "results/"
+
+# ── CVSS estimate (experiment 2b, Blocco B) ──────────────────────────────────
+# On security-review tasks the agent also emits a structured CVSS 4.0 estimate,
+# evaluated deterministically against the normalized CVE dataset (no LLM judge).
+# Reported separately; never influences the correct/wrong verdict.
+CVSS_ESTIMATE_ENABLED = True
+CVSS_DATASET_PATH = "File_Free5gc_Vulnerabili/cve_metrics_normalized.json"
+# Score proximity bands: (max |estimated - reference|, points). First match wins.
+# Initial values from call 10 discussion — to be calibrated (doc §5.1).
+CVSS_SCORE_BANDS = [(0.5, 3), (1.5, 2), (3.0, 1)]

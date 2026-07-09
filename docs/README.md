@@ -15,6 +15,7 @@ Come è fatto e come gira il progetto di sperimentazione.
 | [findings.md](findings.md) | Registro empirico: osservazioni che hanno causato correzioni al codice/metodo |
 | [experiments_framing.md](experiments_framing.md) | Coda di esperimenti framing (expert vs beginner) |
 | [proposta_rubrica_cvss.md](proposta_rubrica_cvss.md) | Proposta rubrica v2 con CVSS (post decima call) — documento di allineamento team |
+| [risultati_cvss_run1.md](risultati_cvss_run1.md) | Prima run esperimento 2b (rubrica + CVSS) su task5–9 — setup, risultati, findings — documento di condivisione |
 | [changelog.md](changelog.md) | Storico modifiche |
 | [tasks/](tasks/) | I task di code review usati dagli agenti |
 

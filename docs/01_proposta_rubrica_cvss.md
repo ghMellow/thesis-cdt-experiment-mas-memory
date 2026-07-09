@@ -1,8 +1,10 @@
 # Proposta: evoluzione della rubrica con CVSS — stato della discussione
 
-> **Scopo del documento:** allineare il team sulla direzione emersa dalla call del 2026-07-08 (decima call) prima di iniziare l'implementazione. Contiene l'impianto proposto, i punti ancora aperti e alcune segnalazioni sui dati ricevuti (`cve_metrics (1).json`). Commenti e correzioni benvenuti — da qui si parte.
+> **Scopo del documento:** allineare il team sulla direzione emersa dalla call del 2026-07-08 (decima call). Contiene l'impianto proposto, i punti ancora aperti e alcune segnalazioni sui dati ricevuti (`cve_metrics (1).json`). Commenti e correzioni benvenuti — da qui si parte.
 
-**Data:** 2026-07-08 · **Autore:** Nicolò (con supporto AI) · **Riferimenti:** call 9 (2026-07-07), call 10 (2026-07-08)
+**Data:** 2026-07-08 (stato aggiornato 2026-07-09) · **Autore:** Nicolò (con supporto AI) · **Riferimenti:** call 9 (2026-07-07), call 10 (2026-07-08)
+
+🟢 **Stato al 2026-07-09:** la normalizzazione del JSON (§6) e il Blocco B (§2) sono **già implementati, testati e usati** in una prima run — vedi [risultati_cvss_run1.md](risultati_cvss_run1.md). Questo documento resta il verbale della *direzione*: al team serve confermare le **decisioni ancora aperte** (§5) e le **4 etichette corrette** del JSON (§6.1, conferma retroattiva — il file è già in uso, non è un lavoro da fare). I marcatori ✅ nel testo indicano cosa è stato completato dopo la stesura iniziale.
 
 ---
 
@@ -42,6 +44,8 @@ Stesso oggetto, due mestieri:
 - **Fase 2 (CDT):** Sonar passa a valle come **verificatore indipendente** — finding del modello corroborato da un warning di Sonar sulla stessa porzione di codice vale più di un finding solo. L'integrazione tecnica (parsing output, mapping sui file) costruita in fase 1 si riusa qui.
 
 ## 4. Contratto dati: uno schema unico
+
+> ✅ **Implementato:** questo schema è quello effettivamente usato in `cve_metrics_normalized.json` e dal Blocco B. Sotto lo schema come concordato.
 
 GT, output del classificatore e rubrica devono parlare la stessa lingua. Schema per CVE (il JSON ricevuto è già molto vicino):
 
@@ -87,9 +91,9 @@ I campi `network_function` e `root_cause` del JSON sono **disallineati di una po
 | 41136 | 5.5 | UDM, IsValidSupi ✗ | **AMF, missing default case** |
 | 42459 | 7.7 | null, "Non specificata" ✗ | **UDM, missing validator.IsValidSupi()** |
 
-La entry 47780 si contraddice da sola: `root_cause: "CORS"` ma `url: GHSA-6gxq-gpr8-xgjp` (la regex ReDoS). Chiediamo conferma dell'allineamento corretto — in particolare per 42459.
+La entry 47780 si contraddice da sola: `root_cause: "CORS"` ma `url: GHSA-6gxq-gpr8-xgjp` (la regex ReDoS). **Serve solo la conferma retroattiva** dell'allineamento — in particolare per 42459.
 
-**Bozza di file normalizzato già pronta** (da validare): `File_Free5gc_Vulnerabili/cve_metrics_normalized.json` — etichette corrette; vettori, score e tutte le 11 metriche invariati (verificato via script); più i campi aggiunti: `task_id`, `source_file`, `ghsa`, `cvss_source` (NVD/CNA), `score_type` (B/BT), `threat_metrics`, e una legenda unica delle metriche in `_meta` (al posto dei `name`/`value_label` ripetuti per entry). L'header `_meta` elenca le 4 correzioni applicate, così la verifica è immediata.
+> ✅ **Fatto e già in uso:** `File_Free5gc_Vulnerabili/cve_metrics_normalized.json` — etichette corrette; vettori, score e tutte le 11 metriche invariati (verificato via script); più i campi aggiunti: `task_id`, `source_file`, `ghsa`, `cvss_source` (NVD/CNA), `score_type` (B/BT), `threat_metrics`, `handler_functions`, `in_task_excerpt`, e una legenda unica delle metriche in `_meta`. L'header `_meta` elenca le 4 correzioni applicate, così la verifica è immediata. Questo file è già la GT usata nella run (§ [risultati_cvss_run1.md](risultati_cvss_run1.md)); la conferma del team è una validazione, non un lavoro da svolgere.
 
 ### 6.2 Tre vettori includono la metrica Threat (E)
 
@@ -117,9 +121,18 @@ Oltre a riportare la direzione della call, tre osservazioni mie su cosa rischiam
 
    Nota collegata, ora quantificata: nel task6 sono **visibili solo 3 delle 6 CVE UDR** (40246/40247/40248); 40245, 40249 e 40343 stanno in handler fuori dall'estratto e **non vanno contate come miss**. Corollario: i finding che non si abbinano a nessuna CVE della GT non si mescolano agli score — si contano a parte (in fase 1 basta il conteggio, senza valutarli).
 
-## Prossimi passi proposti
+## Prossimi passi
 
-1. Conferma del team su: impianto a due blocchi (§2), punti aperti (§5), allineamento etichette (§6.1), scelta B vs BT (§6.2), mapping CVE↔GHSA↔handler ricostruito dalla GitHub Advisory API (§7.3)
-2. Nicolò produce `cve_metrics_normalized.json` (etichette corrette + mapping task/file + eventuale ricalcolo score B)
-3. Implementazione esperimento 2b: schema output classificatore + script di confronto CVSS + report a sub-score separati
-4. In parallelo: valutazione manuale SonarQube sulle 10 CVE (prerequisito esperimento 3)
+**Già fatti** (2026-07-08/09):
+
+- ✅ `cve_metrics_normalized.json` prodotto (etichette corrette + mapping task/file + `handler_functions` + score B ricalcolati)
+- ✅ Esperimento 2b implementato: `utils/cvss_utils.py` (prompt + parsing stima MD), `utils/cvss_eval.py` (Blocco B deterministico), integrazione nel flusso LangGraph, report a sub-score separati — dettagli in `architecture.md` §6.3
+- ✅ Prima run su task5–9 + documento risultati → [risultati_cvss_run1.md](risultati_cvss_run1.md)
+
+**Da chiudere col team** (bloccano il consolidamento per l'articolo):
+
+1. Conferma su: impianto a due blocchi (§2), allineamento etichette JSON (§6.1), mapping CVE↔GHSA↔handler (§7.3) — tutti già implementati, serve la validazione
+2. Decisioni aperte §5: come confrontare la stima CVSS, scelta B vs BT (§6.2), taratura fasce, matching aggregato (F3 dei risultati), soglia
+3. Run definitiva con **judge ≠ agente** e **REPETITIONS=3**
+
+**In parallelo:** valutazione manuale SonarQube sulle 10 CVE (prerequisito esperimento 3).

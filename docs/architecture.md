@@ -72,6 +72,8 @@ I task security review (`task5`–`task9`) forniscono codice Go di network funct
 - `agents/judge_agent.py`: chiamata LLM judge + parsing Markdown + logging token in/out; include `run_semantic_equivalence_check` (verifica equivalenza semantica tra reasoning string)
 - `agents/_llm_utils.py`: helper condivisi tra agent e judge (spinner, Markdown parsing, fallback JSON, error handling Ollama)
 - `agents/prompts.py`: system prompt per ogni ruolo (`SYSTEM_PROMPTS` dict, chiavi `expert` e `beginner`)
+- `utils/cvss_utils.py`: blocco prompt `CVSS Estimate` iniettato nei task vuln + estrazione della stima dall'output agente
+- `utils/cvss_eval.py`: valutazione deterministica della stima CVSS (Blocco B): matching finding↔CVE per handler function, prossimità score a fasce (vs score pubblicato e vs base B), vector match exploitability/impatto; dataset GT in `File_Free5gc_Vulnerabili/cve_metrics_normalized.json`
 
 ---
 
@@ -214,6 +216,18 @@ Total max score: 9
 - *Judge come fonte di verita'*: sui task textual, la rubrica e' di fatto la definizione operativa di "corretto".
   Se la rubrica e' ambigua o poco osservabile, il judge tende a premiare risposte plausibili.
 - *Bias modello*: se il judge usa lo stesso modello dell'expert, tende a favorire risposte nel suo stesso stile.
+
+### 6.3 Stima CVSS sui task security review (Blocco B, deterministico)
+
+Sui task `vuln` (textual con `vuln` nel task_id, flag `CVSS_ESTIMATE_ENABLED` in `config.py`):
+
+- `_load_task` appende al task il blocco `## CVSS Estimate` (`utils/cvss_utils.py`): l'agente deve emettere una sezione `### CVSS Estimate` in **Markdown** (convenzione di progetto: MD verso il modello, JSON lato codice) con righe `function:` / `vector:` / `score:` ripetute per ogni finding; il blocco include la legenda completa dei valori CVSS 4.0 (mai i valori corretti)
+- il parser Markdown (`_extract_agent_response_markdown`) riconosce la sezione opzionale e la converte nella struttura interna `{"findings": [{"function", "vector", "score"}]}` salvata come `cvss_estimate` nel `final_answer` (accettato anche JSON come fallback per modelli che rispondono comunque in JSON)
+- in `_save_result`, `evaluate_cvss_estimate` (`utils/cvss_eval.py`) confronta la stima con la GT (`File_Free5gc_Vulnerabili/cve_metrics_normalized.json`):
+  - **matching finding↔CVE** per nome della handler function (le varianti `_full` includono anche le CVE con `in_task_excerpt: false`); finding non abbinati contati a parte, CVE non trovate in `missed_cves`
+  - **prossimità score** a fasce (`CVSS_SCORE_BANDS` in config), calcolata sia vs lo score pubblicato (BT dove il vettore include la Threat E) sia vs il base puro `base_score_B`
+  - **vector match** campo per campo, separato in exploitability (AV/AC/AT/PR/UI, 0–5) e impatto (VC/VI/VA, 0–3)
+- il risultato va nel campo `cvss_eval` della ripetizione; **non influenza mai il verdetto** correct/wrong (che resta del solo judge di rubrica) e nei report compare come sezione separata "CVSS estimate" (`_build_cvss_section`)
 
 ---
 

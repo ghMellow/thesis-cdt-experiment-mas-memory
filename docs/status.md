@@ -66,6 +66,7 @@ Vedi header di `config.py` per la quick-reference dei setup framing (A1/A2/B1/B2
 - [x] Framing experiments A1–A3: effetto framing beginner isolato e spiegato (F16–F18)
 - [x] Framing experiments B1–B3: paradosso confermato come framing × capacità — scala e2b→e4b→31b (F19–F22)
 - [x] Accesso modelli cloud (gemma4:31b, gemma3:12b via Ollama Cloud — usati in B1_cloud/B2)
+- [x] **Esperimento 2b — stima CVSS (Blocco B)**: sui task vuln l'agente emette anche una stima CVSS 4.0 strutturata, valutata deterministicamente (`utils/cvss_eval.py`) contro `File_Free5gc_Vulnerabili/cve_metrics_normalized.json`; sub-score separati nel report, verdetto non influenzato (vedi `docs/proposta_rubrica_cvss.md`)
 - [ ] **C1 — Temperature sweep** T∈{0.1, 0.7} su task7/8 expert e4b (prossimo esperimento)
 - [ ] Retry con feedback del judge reiniettato
 - [ ] Rieseguire task6 blind (senza special attention) — baseline pulita
@@ -80,10 +81,11 @@ Vedi header di `config.py` per la quick-reference dei setup framing (A1/A2/B1/B2
 
 ```bash
 # Run tutti i task security review, 1B, tutti i ruoli
-python main.py --experiment 1B --task task5_vuln_pcf task6_vuln_udr task7_vuln_amf task8_vuln_udm task9_vuln_cross
+# ⚠️ Correzione: --task è action="append", va ripetuto per ogni task (non accetta valori multipli)
+python main.py --experiment 1B --task task5_vuln_pcf --task task6_vuln_udr --task task7_vuln_amf --task task8_vuln_udm --task task9_vuln_cross
 
 # Includi anche le varianti full-file
-python main.py --experiment 1B --task task6_vuln_udr_full task7_vuln_amf_full task8_vuln_udm_full
+python main.py --experiment 1B --task task6_vuln_udr_full --task task7_vuln_amf_full --task task8_vuln_udm_full
 
 # Test rapido singolo task
 python main.py --task task5_vuln_pcf --repetitions 1 --task-timeout 120

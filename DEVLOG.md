@@ -2,6 +2,40 @@
 
 ---
 
+## 2026-07-09 — Prima run completa esperimento 2b + documento risultati  [sessione: 3ee4778c]
+
+**Intent:** "lancia tutti i task, dopodichè raccogli tutti i risultati e crea un documento da condividere con fase test, risultati, findigs ecc"
+**Esito:**
+- corretto uso CLI: `--task` è `action="append"`, va ripetuto (non accetta lista) — aggiornato esempio in status.md
+- run task5–9, setup 1A/1B, expert/beginner, 1 rep, tutto `gemma4:31b-cloud` (agente+judge): 20 run, 19/20 rubrica correct
+- creato `docs/risultati_cvss_run1.md` (setup, risultati, 6 findings, questioni aperte) + indice
+**Findings principali dalla run:**
+- **F2 (il dato forte):** impatto CVSS 1.0/3 — i modelli sbagliano sistematicamente la triade, default alla confidenzialità anche dove la GT è disponibilità (DoS task5) o integrità; la rubrica intanto dà 7–9/9. Esattamente il valore aggiunto del Blocco B previsto in fase di design
+- **F1:** exploitability 4.75/5 = non informativa (prior free5GC), conferma la scelta di riportarla separata dall'impatto
+- **F3:** matching per handler sottoconta su task6 (modelli descrivono il pattern return collettivamente → 2/3 CVE in missed, non per mancata detection ma per mancata localizzazione singola)
+- **F4 (limite):** task9 non mappato nel dataset → `cvss_eval: null`; fix facile = aggiungere lista CVE attese a task9
+- **F5:** B vs BT quasi pari in aggregato (1.62 vs 1.56) ma diverge per task (task7 premia BT, task8 premia B) → riportare entrambe finché il team non decide
+**Nota:** bias judge=agente (stesso modello) in questa run — segnalato nel doc come da correggere per la run definitiva
+
+---
+
+## 2026-07-08 — Implementazione esperimento 2b: Blocco B CVSS nel flusso  [sessione: 3ee4778c]
+
+**Intent:** "vabbe direi di lavorare su main per non crare altri branch e per gli altri punti implementali" (dopo proposta branch dedicato)
+**Decisioni:** l'utente ha rifiutato il branch `exp2b-rubrica-cvss` proposto → lavoro direttamente su main; accettati i 4 punti di implementazione proposti (schema output, script Blocco B, report separato, test)
+**Esito:**
+- nuovi moduli: `utils/cvss_utils.py` (blocco prompt `### CVSS Estimate` con legenda, iniettato da `_load_task` sui task vuln se `CVSS_ESTIMATE_ENABLED`; estrazione JSON dalla sezione) e `utils/cvss_eval.py` (matching finding↔CVE per handler function, fasce `CVSS_SCORE_BANDS` vs score pubblicato E vs base_score_B, vector match spezzato exploitability 0–5 / impatto 0–3, `_full` variants includono le CVE fuori estratto)
+- modifiche: `config.py` (3 nuove costanti), `agents/_llm_utils.py` (sezione opzionale `cvss` nel parser — evita anche che il JSON finisca dentro confidence), `utils/task_utils.py` (iniezione), `utils/experiment_utils.py` (`cvss_eval` nel payload, try/except per non rompere mai la run), `utils/evaluation_utils.py` (`_build_cvss_section`, tabella separata)
+- test sintetici end-to-end passati (9 casi: parsing, match diretto, match/unmatched/missed su task6, full variant, robustezza a stime malformate, doppio riferimento B/BT sul caso gemello 42459, iniezione, sezione report, import pipeline)
+- docs aggiornati: architecture.md (§6.3 + mappa codice), status.md (checklist), proposta_rubrica_cvss.md (✅ implementato su prossimi passi #3)
+**Lesson learned:** il primo test rosso era un errore nell'asserzione del test, non nel codice (impact_match atteso 1 ma la stima sintetica coincideva con la GT) — con dataset piccoli conviene ricontrollare a mano il valore atteso prima di toccare il codice
+
+**Correzione formato (feedback utente):** il blocco CVSS chiedeva output JSON al modello, violando la convenzione di progetto "MD verso l'LLM, JSON lato codice" — riscritto come righe Markdown `function:`/`vector:`/`score:` ripetute per finding; il parser le converte nella stessa struttura interna (valutazione invariata), JSON accettato come fallback. Testato: bullet misti, backtick, score "5.3/10", retrocompatibilità coi risultati hosted già salvati.
+
+**Smoke test reale (sera, hosted):** prima run task5 con modelli cloud fallita per stato transitorio dei file durante l'edit del config (4 rep senza blocco CVSS, quarantenate in `results/_invalid_no_cvss_20260708/`); seconda run OK — 3/4 rep con stima valida parsata e abbinata a CVE-2026-41135. **Primo dato sostanziale:** tutti i modelli stimano 5.3–6.2 vs 8.7 pubblicato (banda 0–1) e sbagliano la triade d'impatto (1/3: mettono VC confidenzialità dove la GT dice VA:H disponibilità/DoS) pur azzeccando l'exploitability (4–5/5) — leggono la CORS come data-exposure, non come DoS. Esattamente il segnale discriminante previsto dal design impatto-vs-exploitability. Il beginner 1B (verdict wrong dopo 3 tentativi) non produce stima al tentativo finale → `provided=0/1` corretto nel report.
+
+---
+
 ## 2026-07-08 — Rubrica v2 con CVSS: impianto proposto + audit dati CVE  [sessione: 3ee4778c]
 
 **Intent:** "aiutami a capire come impostare la rubrica per il mio obiettivo. discutiamone perchè da qui il progetto attuale prende una piega diversa-evolve" (post decima call); poi "genera un documento che rappresenta lo stato attuale [...] così poi lo condivido vedo cosa mi dicono e partiamo"

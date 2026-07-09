@@ -151,7 +151,9 @@ def _parse_kv_answer_block(lines: List[str]) -> Dict[str, Any]:
 
 
 def _extract_agent_response_markdown(text: str) -> Dict[str, Any]:
-    sections = _extract_markdown_sections(text, ["answer", "reasoning", "confidence"])
+    # "cvss" matches the optional "### CVSS Estimate" section on vuln tasks;
+    # listing it here also keeps its content out of the confidence section.
+    sections = _extract_markdown_sections(text, ["answer", "reasoning", "confidence", "cvss"])
     if not sections:
         raise ValueError("Missing markdown sections")
 
@@ -186,11 +188,18 @@ def _extract_agent_response_markdown(text: str) -> Dict[str, Any]:
     # Clamp to [0, 1]
     confidence_val = max(0.0, min(1.0, confidence_val))
 
-    return {
+    result = {
         "answer": answer,
         "reasoning": _strip_fenced_block(reasoning_raw),
         "confidence": confidence_val,
     }
+    cvss_raw = sections.get("cvss")
+    if cvss_raw:
+        from utils.cvss_utils import extract_cvss_estimate
+        estimate = extract_cvss_estimate(cvss_raw)
+        if estimate is not None:
+            result["cvss_estimate"] = estimate
+    return result
 
 
 def _extract_judge_scores_markdown(text: str, expected_fields: List[str]) -> Dict[str, Any]:

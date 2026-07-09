@@ -38,6 +38,9 @@ def _extract_json_blocks(text: str) -> List[Dict[str, Any]]:
 
 
 def _load_task(state: "ExperimentState") -> "ExperimentState":
+    import config
+    from utils.cvss_utils import inject_cvss_instructions, is_cvss_task
+
     task_path = Path(state["task_path"])
     sol_path = Path(state["sol_path"])
 
@@ -48,6 +51,9 @@ def _load_task(state: "ExperimentState") -> "ExperimentState":
 
     ground_truth = json_blocks[0] if json_blocks else {}
     rubric = json_blocks[1] if len(json_blocks) > 1 else {}
+
+    if config.CVSS_ESTIMATE_ENABLED and is_cvss_task(metadata["task_id"], metadata["task_type"]):
+        task_content = inject_cvss_instructions(task_content)
 
     state.update(
         {

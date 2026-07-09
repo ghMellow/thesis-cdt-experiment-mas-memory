@@ -270,6 +270,58 @@ def _build_scores_table(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
     return lines
 
 
+def _build_cvss_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
+    """CVSS sub-scores (Blocco B, deterministic) — reported separately from the
+    rubric judge scores, never merged into accuracy."""
+    has_cvss = any(
+        isinstance(p.get("cvss_eval"), dict) for payloads in roles.values() for p in payloads
+    )
+    if not has_cvss:
+        return []
+
+    lines = [
+        "## CVSS estimate (Blocco B, deterministic)",
+        "",
+        "| role | estimates | matched | missed CVEs | unmatched findings | avg band vs published (0-3) | avg band vs B (0-3) | avg exploitability (0-5) | avg impact (0-3) |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for role, payloads in sorted(roles.items()):
+        evals = [p["cvss_eval"] for p in payloads if isinstance(p.get("cvss_eval"), dict)]
+        if not evals:
+            continue
+        n_provided = sum(1 for e in evals if e.get("estimate_provided"))
+        n_matched = sum(len(e.get("matched", [])) for e in evals)
+        n_missed = sum(len(e.get("missed_cves", [])) for e in evals)
+        n_unmatched = sum(e.get("unmatched_findings", 0) for e in evals)
+
+        def _agg_mean(key: str) -> Optional[float]:
+            vals = [
+                e["aggregates"][key]
+                for e in evals
+                if isinstance(e.get("aggregates", {}).get(key), (int, float))
+            ]
+            return _avg(vals)
+
+        lines.append(
+            f"| {role} | {n_provided}/{len(evals)} | {n_matched} | {n_missed} | {n_unmatched} | "
+            f"{_fmt(_agg_mean('avg_score_band_vs_published'), 2)} | "
+            f"{_fmt(_agg_mean('avg_score_band_vs_B'), 2)} | "
+            f"{_fmt(_agg_mean('avg_exploitability_match'), 2)} | "
+            f"{_fmt(_agg_mean('avg_impact_match'), 2)} |"
+        )
+    lines += [
+        "",
+        "_`estimates` = repetitions where the agent produced a CVSS block. "
+        "`matched` = findings paired to a ground-truth CVE via handler function. "
+        "`band vs published` compares against the published score (BT where the vector "
+        "includes Threat E); `band vs B` against the pure base score. "
+        "Exploitability counts AV/AC/AT/PR/UI matches; impact counts VC/VI/VA — the "
+        "impact triad is the discriminating signal on this dataset._",
+        "",
+    ]
+    return lines
+
+
 def _build_experiment_report(
     experiment_id: str,
     roles: Dict[str, List[Dict[str, Any]]],
@@ -393,6 +445,7 @@ def _build_experiment_report(
     
     lines += _build_scores_table(filtered_roles)
     lines.append("")
+    lines += _build_cvss_section(filtered_roles)
     lines += anomalies_section
     return "\n".join(lines) + "\n"
 

@@ -28,6 +28,8 @@ from config import (
     TEXTUAL_PASS_RATIO,
 )
 from utils.task_utils import _load_task
+from utils.cvss_eval import evaluate_cvss_estimate
+from utils.cvss_utils import is_cvss_task
 
 
 def _fetch_model_context_window(model: str, base_url: str) -> Optional[int]:
@@ -315,6 +317,16 @@ def _save_result(state: ExperimentState) -> ExperimentState:
     start_perf = state.get("start_perf")
     elapsed_seconds = time.perf_counter() - start_perf if start_perf is not None else None
 
+    # Blocco B: deterministic CVSS evaluation on vuln tasks (never affects verdict).
+    cvss_eval = None
+    if config.CVSS_ESTIMATE_ENABLED and is_cvss_task(state["task_id"], state["task_type"]):
+        try:
+            cvss_eval = evaluate_cvss_estimate(
+                state["task_id"], state["final_answer"].get("cvss_estimate")
+            )
+        except Exception:
+            logger.exception("CVSS evaluation failed for %s — recorded as null", state["task_id"])
+
     rep_payload = {
         # --- repetition index ---
         "repetition": state["repetition"],
@@ -325,11 +337,13 @@ def _save_result(state: ExperimentState) -> ExperimentState:
         # --- agent ---
         "attempts": state["attempts"],
         "history": state["history"],
-        # final_answer: clean 3-field view of history[-1] for quick access without full history traversal
-        "final_answer": {k: state["final_answer"][k] for k in ("answer", "reasoning", "confidence") if k in state["final_answer"]},
+        # final_answer: clean field view of history[-1] for quick access without full history traversal
+        "final_answer": {k: state["final_answer"][k] for k in ("answer", "reasoning", "confidence", "cvss_estimate") if k in state["final_answer"]},
         # --- judge ---
         "verdict": state["verdict"],
         "judge_score": state.get("judge_score", {}),
+        # --- CVSS (Blocco B, deterministic — separate from judge_score) ---
+        "cvss_eval": cvss_eval,
         # --- resources ---
         "tokens": {
             "agent_in": state.get("agent_tokens_in") or None,
