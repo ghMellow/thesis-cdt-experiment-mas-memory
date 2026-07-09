@@ -121,6 +121,26 @@ Oltre a riportare la direzione della call, tre osservazioni mie su cosa rischiam
 
    Nota collegata, ora quantificata: nel task6 sono **visibili solo 3 delle 6 CVE UDR** (40246/40247/40248); 40245, 40249 e 40343 stanno in handler fuori dall'estratto e **non vanno contate come miss**. Corollario: i finding che non si abbinano a nessuna CVE della GT non si mescolano agli score — si contano a parte (in fase 1 basta il conteggio, senza valutarli).
 
+## 8. Discussione post-condivisione (2026-07-09) — esiti col team
+
+Dopo aver condiviso questo documento e [risultati_cvss_run1.md](risultati_cvss_run1.md), il team ha commentato in chat (verbale completo in [03_discussione_post_01_02.md](03_discussione_post_01_02.md)). Esiti:
+
+- **19/20 = unione beginner+expert, poca differenza (Andrea).** Confermato dai dati per-ruolo: expert 10/10, beginner 9/10 (unico wrong: task7/1B), CVSS impatto identico 1.0/3 per entrambi. Non è assenza di differenza, è che con 1 ripetizione e rubrica quasi a soffitto **questa run non ha potere di separare i ruoli** — rinforza il punto 3 sotto.
+- **REPETITIONS=3 "dipende dalla temperatura" (Andrea).** Confermato TEMPERATURE=0.3 (non zero): le ripetizioni misurano varianza reale, non solo instabilità di parsing.
+- **Judge ≠ agente, "dipende" (Andrea).** Posizione del team più permissiva di quanto pensassi: se istanziati separatamente, va bene anche lo stesso modello (nel codice il judge è già una chiamata LLM distinta, senza GT né stima CVSS). Resta aperto: **giustificare la scelta del modello** oltre al motivo computazionale.
+- **Contaminazione / data cutoff (Andrea + Raffaele).** Rischio diretto escluso: gemma4:31b-cloud cutoff gennaio 2025, le CVE del dataset sono 2026 → non memorizzabili. Argomento aggiuntivo a favore: l'impatto è sbagliato *sistematicamente* (1.0/3, default a VC) — se ci fosse stato recall del vettore ufficiale, l'impatto sarebbe corretto. Punti di verifica ancora aperti (Andrea): (1) data del codice delle NF — free5GC è pubblico e precede il cutoff, innocuo; (2) se la versione cloud abbia accesso a ricerca esterna — non verificabile dal nostro lato (l'endpoint usato non definisce tool, ma il comportamento server-side non è ispezionabile).
+- **F6 (finding extra) analizzati a mano?** Domanda diretta a Mariano/Lorenzo, risposta ancora da loro.
+
+**Nuovo tema aperto — contesto insufficiente per l'impatto (Andrea, Mariano, Lorenzo):**
+
+Un valutatore umano stima l'impatto conoscendo il ruolo della NF nel sistema più ampio; noi passiamo solo il file/estratto isolato, senza dire che è free5GC né il ruolo della NF nel core 5G. Possibile causa di F2 (impatto sbagliato sistematicamente, default a VC).
+
+- Andrea propone di ritestare passando **tutto free5GC** come contesto.
+- Mariano concorda ("bisognerebbe fargli capire la rilevanza e l'importanza di tutte le NF") e segnala un paper di riferimento per i related work (arxiv 2504.10713), evidenziando due differenziatori del nostro esperimento: (1) noi stimiamo il CVSS **da codice grezzo alla cieca** (scopertura+assessment uniti, non da descrizione testuale di CVE già catalogata); (2) per noi il CVSS non è il task finale ma **lo strumento di misura** della comprensione della gravità.
+- Lorenzo propone un'alternativa più economica: aggiungere nel prompt che il sistema è "una rete core 5G con OAuth e TLS sempre attivi" — hint minimo di contesto, senza passare tutto il codebase.
+
+**Proposta (da validare col team):** testare prima la variante economica di Lorenzo (hint di contesto nel prompt, es. su task5 dove l'errore di impatto è più netto) prima di investire nel refactor per passare l'intero repository — isola se il problema è "manca contesto di sistema" o "default strutturale del modello verso la confidenzialità".
+
 ## Prossimi passi
 
 **Già fatti** (2026-07-08/09):
@@ -128,11 +148,14 @@ Oltre a riportare la direzione della call, tre osservazioni mie su cosa rischiam
 - ✅ `cve_metrics_normalized.json` prodotto (etichette corrette + mapping task/file + `handler_functions` + score B ricalcolati)
 - ✅ Esperimento 2b implementato: `utils/cvss_utils.py` (prompt + parsing stima MD), `utils/cvss_eval.py` (Blocco B deterministico), integrazione nel flusso LangGraph, report a sub-score separati — dettagli in `architecture.md` §6.3
 - ✅ Prima run su task5–9 + documento risultati → [risultati_cvss_run1.md](risultati_cvss_run1.md)
+- ✅ Condivisione col team e raccolta feedback → §8 sopra
 
 **Da chiudere col team** (bloccano il consolidamento per l'articolo):
 
 1. Conferma su: impianto a due blocchi (§2), allineamento etichette JSON (§6.1), mapping CVE↔GHSA↔handler (§7.3) — tutti già implementati, serve la validazione
 2. Decisioni aperte §5: come confrontare la stima CVSS, scelta B vs BT (§6.2), taratura fasce, matching aggregato (F3 dei risultati), soglia
-3. Run definitiva con **judge ≠ agente** e **REPETITIONS=3**
+3. Run definitiva con **judge ≠ agente** (giustificando la scelta modello) e **REPETITIONS=3**
+4. **Contesto NF per l'impatto (§8):** decidere se testare prima l'hint minimo (Lorenzo) o passare direttamente tutto free5GC (Andrea/Mariano)
+5. Risposta di Mariano/Lorenzo su F6 (finding extra analizzati a mano?)
 
-**In parallelo:** valutazione manuale SonarQube sulle 10 CVE (prerequisito esperimento 3).
+**In parallelo:** valutazione manuale SonarQube sulle 10 CVE (prerequisito esperimento 3); raccolta materiale di Mariano su valutazione dell'impatto (paper arxiv 2504.10713) per i related work.
