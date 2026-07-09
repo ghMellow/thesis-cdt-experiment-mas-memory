@@ -2,6 +2,19 @@
 
 ---
 
+## 2026-07-09 — Run 3: REPETITIONS=3 chiude il dubbio "era rumore?"  [sessione: 3ee4778c]
+
+**Intent:** "crea come per @docs/04_risultati_cvss_run2.md ma 05 per questa run specificando cosa cambia" — dopo aver rilanciato la run 2 con `--repetitions 3` invece di 1 (stesso hint di contesto NF)
+**Esito:**
+- rubrica 59/60 (98.3%): l'unico wrong stavolta è **task7_vuln_amf/1B/expert/rep3** — in run1/run2 (1 rep) era sempre il *beginner* a fallire sullo stesso task/esperimento. **Il presunto effetto di ruolo era rumore di campionamento** (T=0.3), non un effetto sistematico — risposta diretta e definitiva al dubbio di Andrea Bernardini sulla run 1
+- CVSS impatto scende ulteriormente a 0.77/3 (48 osservazioni, era 0.93/3 su 15) — F8 di run2 confermato, non era un caso sfortunato
+- task6 (F3/F11, matching aggregato): **zero varianza su 12 run** — mai più di 1 CVE su 3 abbinata, in nessuna combinazione. Comportamento strutturale, non rumore
+- task7 migliora nettamente (banda 2.33/3) e task8 peggiora nettamente (banda 0.17/3) con lo stesso hint — effetti opposti confermati reali su CVE diverse, non generico "l'hint aiuta/confonde sempre"
+- creato `docs/05_risultati_cvss_run3.md` (F12–F16) + indice/status/DEVLOG aggiornati
+**Lesson learned:** con 1 sola ripetizione a T>0 non si può distinguere un effetto sistematico da rumore di campionamento — qui il costo di passare da 1 a 3 rep ha capovolto una conclusione (l'effetto di ruolo su task7) che sarebbe stata riportata come reale al team
+
+---
+
 ## 2026-07-09 — Run 2: hint di contesto NF, feedback team su run 1  [sessione: 3ee4778c]
 
 **Intent:** condivisione di run1 + proposta col team → discussione in chat (`docs/03_discussione_post_01_02.md`); poi: "crea un file 04_risultati_cvss_run2 dove abbiamo il prompt aggiuntivo" e "improve i dati presentati (commento sui due agenti/metriche aggregate)"

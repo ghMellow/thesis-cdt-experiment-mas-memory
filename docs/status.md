@@ -68,6 +68,7 @@ Vedi header di `config.py` per la quick-reference dei setup framing (A1/A2/B1/B2
 - [x] Accesso modelli cloud (gemma4:31b, gemma3:12b via Ollama Cloud — usati in B1_cloud/B2)
 - [x] **Esperimento 2b — stima CVSS (Blocco B)**: sui task vuln l'agente emette anche una stima CVSS 4.0 strutturata, valutata deterministicamente (`utils/cvss_eval.py`) contro `File_Free5gc_Vulnerabili/cve_metrics_normalized.json`; sub-score separati nel report, verdetto non influenzato (vedi `docs/01_proposta_rubrica_cvss.md`)
 - [x] **Esperimento 2b — hint di contesto NF** (`config.CVSS_CONTEXT_HINT_ENABLED`): paragrafo di contesto free5GC/OAuth2/TLS iniettato prima del blocco CVSS, per testare se F2 (impatto sbagliato) dipende da mancanza di contesto di sistema — run 2 non ha risolto F2 (vedi `docs/04_risultati_cvss_run2.md`)
+- [x] **Esperimento 2b — run 3 (REPETITIONS=3)**: stesso hint, 3 ripetizioni per combinazione (60 run). Chiude il dubbio "erano rumore?": il presunto effetto di ruolo su task7 sparisce (era rumore a 1 rep), mentre F8/F9/F3 si confermano reali con più campioni — vedi `docs/05_risultati_cvss_run3.md` (F12–F16)
 - [ ] **C1 — Temperature sweep** T∈{0.1, 0.7} su task7/8 expert e4b (prossimo esperimento)
 - [ ] Retry con feedback del judge reiniettato
 - [ ] Rieseguire task6 blind (senza special attention) — baseline pulita

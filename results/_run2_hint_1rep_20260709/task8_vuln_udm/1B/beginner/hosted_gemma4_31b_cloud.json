@@ -1,0 +1,110 @@
+{
+  "task_id": "task8_vuln_udm",
+  "task_type": "textual",
+  "experiment_id": "1B",
+  "agent_role": "beginner",
+  "model": "gemma4:31b-cloud",
+  "judge_model": "gemma4:31b-cloud",
+  "temperature": 0.3,
+  "is_hosted": true,
+  "task_path": "docs/tasks/task8_vuln_udm.md",
+  "sol_path": "docs/tasks/task8_vuln_udm_sol.md",
+  "repetitions": [
+    {
+      "repetition": 1,
+      "started_at": "2026-07-09T15:35:52.477417+00:00",
+      "finished_at": "2026-07-09T15:36:46.417497+00:00",
+      "elapsed_seconds": 53.93981941699167,
+      "attempts": 1,
+      "history": [
+        {
+          "answer": "The code suffers from inconsistent input validation where most handlers fail to validate the `supi` parameter before passing it to the processor. This creates a risk of injection attacks or system instability if a compromised NF sends malformed identifiers to the UDM.",
+          "reasoning": "The code exhibits a critical **Inconsistent Input Validation** vulnerability. In a UDM, the SUPI (Subscription Permanent Identifier) is the primary key for sensitive subscriber data. While some handlers strictly validate the `supi` parameter using `validator.IsValidSupi()`, others completely omit this check.\n\n**Affected Handlers:**\n- **Validated:** `HandleGetAmData` and `HandleUnsubscribe` (which checks both GPSI and SUPI).\n- **Unvalidated:** `HandleGetSmfSelectData`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, and `HandleGetSupi`.\n\n**Security Impact:**\nThe lack of validation allows malformed or specially crafted strings to be passed directly from the HTTP request into the `Processor` layer and subsequently to the underlying database queries. Depending on the implementation of the `Processor` and the database driver, this could lead to:\n1. **Injection Attacks:** If the SUPI is used in a raw query, it could lead to NoSQL or SQL injection.\n2. **Unexpected Application Behavior:** Passing unexpected characters might cause the UDM to crash or return incorrect data.\n3. **Bypassing Logic:** If the validator is intended to enforce specific formats (e.g., length or character sets) to prevent unauthorized data access, omitting it creates a security gap.\n\nGiven the 5G SBI context (mTLS/OAuth2), the attacker must be a compromised or malicious Network Function (NF). However, the principle of \"Defense in Depth\" requires that the UDM validates all inputs regardless of the transport security.\n\n**Proposed Fix:**\nImplement a consistent validation check for the `supi` parameter at the start of every handler that retrieves data by SUPI. A helper function should be used to avoid code duplication.",
+          "confidence": 0.9,
+          "cvss_estimate": {
+            "findings": [
+              {
+                "function": "HandleGetSmfSelectData, HandleGetNssai, HandleGetSmData, HandleGetTraceData, HandleGetUeContextInSmfData, HandleGetSupi",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:L/VA:L",
+                "score": 6.2
+              }
+            ]
+          },
+          "elapsed_seconds": 44.38,
+          "tokens_in": null,
+          "tokens_out": null,
+          "prompt_system": "\nYou are a junior 5G network technician with about 1 year of experience.\nYou understand the theoretical fundamentals but have limited practical exposure.\nReply ONLY in Markdown using the response format in the task. No extra text before or after.\n",
+          "prompt_user": "# Task 8 \u2014 Security Code Review: UDM Subscriber Data Management Handler (Go)\n\n**ID:** task8_vuln_udm  \n**Tipo:** textual  \n**Difficolt\u00e0:** media-alta\n\n---\n\n## Scenario\n\nThe following Go source file is the Subscriber Data Management SBI handler of the **Unified Data Management (UDM)** function in a free5GC 5G core implementation. The UDM stores and provides access to UE subscription data (mobility, session management, authentication) to other NFs. Each endpoint is keyed by a SUPI (Subscription Permanent Identifier) or GPSI.\n\nPerform a **security code review** of the representative handler selection below. Focus on input validation consistency \u2014 pay attention to which handlers validate identifiers before use and which do not.\n\n```go\npackage sbi\n\nimport (\n\t\"net/http\"\n\t\"strings\"\n\t\"net/url\"\n\t\"encoding/json\"\n\n\t\"github.com/gin-gonic/gin\"\n\n\t\"github.com/free5gc/openapi\"\n\t\"github.com/free5gc/openapi/models\"\n\t\"github.com/free5gc/udm/internal/logger\"\n\t\"github.com/free5gc/util/metrics/sbi\"\n\t\"github.com/free5gc/util/validator\"\n)\n\n// GetAmData - retrieve a UE's Access and Mobility Subscription Data\nfunc (s *Server) HandleGetAmData(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tif !validator.IsValidSupi(supi) {\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: \"Supi is invalid\",\n\t\t\tCause:  \"MANDATORY_IE_INCORRECT\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(int(problemDetail.Status)))\n\t\tc.JSON(int(problemDetail.Status), problemDetail)\n\t\treturn\n\t}\n\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetAmDataProcedure(c, supi, plmnID, supportedFeatures)\n}\n\n// GetSmfSelectData - retrieve a UE's SMF Selection Subscription Data\nfunc (s *Server) HandleGetSmfSelectData(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetSmfSelectDataProcedure(c, supi, plmnID, supportedFeatures)\n}\n\n// GetNssai - retrieve a UE's subscribed NSSAI\nfunc (s *Server) HandleGetNssai(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetNssaiProcedure(c, supi, plmnID, supportedFeatures)\n}\n\n// GetSmData - retrieve a UE's Session Management Subscription Data\nfunc (s *Server) HandleGetSmData(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"dnn\", c.Query(\"dnn\"))\n\tquery.Set(\"single-nssai\", c.Query(\"single-nssai\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tDnn := query.Get(\"dnn\")\n\tSnssai := query.Get(\"single-nssai\")\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetSmDataProcedure(c, supi, plmnID, Dnn, Snssai, supportedFeatures)\n}\n\n// GetTraceData - retrieve a UE's Trace Configuration Data\nfunc (s *Server) HandleGetTraceData(c *gin.Context) {\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnID := c.Query(\"plmn-id\")\n\ts.Processor().GetTraceDataProcedure(c, supi, plmnID)\n}\n\n// GetUeContextInSmfData - retrieve a UE's UE Context In SMF Data\nfunc (s *Server) HandleGetUeContextInSmfData(c *gin.Context) {\n\tsupi := c.Params.ByName(\"supi\")\n\tsupportedFeatures := c.Query(\"supported-features\")\n\ts.Processor().GetUeContextInSmfDataProcedure(c, supi, supportedFeatures)\n}\n\n// GetSupi - retrieve multiple data sets\nfunc (s *Server) HandleGetSupi(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"dataset-names\", c.Query(\"dataset-names\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tdataSetNames := strings.Split(query.Get(\"dataset-names\"), \",\")\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetSupiProcedure(c, supi, plmnID, dataSetNames, supportedFeatures)\n}\n\n// Unsubscribe - unsubscribe from notifications\nfunc (s *Server) HandleUnsubscribe(c *gin.Context) {\n\tueId := c.Params.ByName(\"ueId\")\n\tvalid := validator.IsValidGpsi(ueId) || validator.IsValidSupi(ueId)\n\tif !valid {\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: \"UE ID is invalid\",\n\t\t\tCause:  \"MANDATORY_IE_INCORRECT\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(int(problemDetail.Status)))\n\t\tc.JSON(int(problemDetail.Status), problemDetail)\n\t\treturn\n\t}\n\tsubscriptionID := c.Params.ByName(\"subscriptionId\")\n\ts.Processor().UnsubscribeProcedure(c, ueId, subscriptionID)\n}\n```\n\n---\n\n## Question\n\nIdentify all security vulnerabilities or inconsistencies in this file. For each finding:\n\n1. Name the vulnerability class or error type\n2. Identify which specific handlers are affected and which are not \u2014 this is essential\n3. Explain the security impact in the context of a UDM managing SUPI-indexed subscription data\n4. Propose a correct fix\n\n\n---\n\n## Agent Instructions\n\nReply ONLY in Markdown using this template:\n\n```md\n### Reasoning\nDetailed analysis: vulnerability class, location, impact, fix\n\n### Answer\nBrief summary of main findings (1-3 sentences)\n\n### Confidence\n0.0\n```\n\n\n**System context:** the code under review is a Network Function (NF) inside a 5G core network (free5GC architecture). In a standard 5G core deployment, the Service-Based Interface (SBI) between NFs runs behind mutual TLS and OAuth2 authorization by default. Use this when judging the *impact* (confidentiality/integrity/availability) of a vulnerability: do not assume a bug automatically exposes data \u2014 consider what is actually reachable or corrupted given this baseline.\n\n\n---\n\n## CVSS Estimate (required)\n\nFor each vulnerability reported in your Answer, also estimate its CVSS 4.0 base\nmetrics. Add this exact section to your response, between Reasoning and Confidence,\nrepeating the three lines below for each finding:\n\n### CVSS Estimate\n- function: <name of the Go function containing the issue>\n- vector: CVSS:4.0/AV:_/AC:_/AT:_/PR:_/UI:_/VC:_/VI:_/VA:_\n- score: <your estimated CVSS 4.0 base score, 0.0-10.0>\n\nReplace each `_` in the vector with one of the allowed values:\n\n- AV Attack Vector: N (Network), A (Adjacent), L (Local), P (Physical)\n- AC Attack Complexity: L (Low), H (High)\n- AT Attack Requirements: N (None), P (Present)\n- PR Privileges Required: N (None), L (Low), H (High)\n- UI User Interaction: N (None), P (Passive), A (Active)\n- VC / VI / VA Confidentiality / Integrity / Availability impact on the\n  vulnerable system: H (High), L (Low), N (None)\n",
+          "judge_score": {
+            "validation_gap_identified_score": 4.0,
+            "spec_reference_score": 0.0,
+            "impact_assessment_score": 2.0,
+            "fix_quality_score": 1.0,
+            "total_score": 7.0,
+            "feedback": "The agent correctly identified the validation gap, specifically listing all 6 vulnerable handlers and contrasting them with the correctly implemented ones. The impact assessment was well-contextualized to the UDM and the persistence layer. The proposed fix was correct. However, the agent failed to reference the 3GPP TS 29.503 specification or describe the expected SUPI format (e.g., imsi-...), resulting in a score of 0 for the spec_reference_score.",
+            "judge_elapsed_seconds": 9.56,
+            "normalized_score": 0.778
+          },
+          "verdict": "correct"
+        }
+      ],
+      "final_answer": {
+        "answer": "The code suffers from inconsistent input validation where most handlers fail to validate the `supi` parameter before passing it to the processor. This creates a risk of injection attacks or system instability if a compromised NF sends malformed identifiers to the UDM.",
+        "reasoning": "The code exhibits a critical **Inconsistent Input Validation** vulnerability. In a UDM, the SUPI (Subscription Permanent Identifier) is the primary key for sensitive subscriber data. While some handlers strictly validate the `supi` parameter using `validator.IsValidSupi()`, others completely omit this check.\n\n**Affected Handlers:**\n- **Validated:** `HandleGetAmData` and `HandleUnsubscribe` (which checks both GPSI and SUPI).\n- **Unvalidated:** `HandleGetSmfSelectData`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, and `HandleGetSupi`.\n\n**Security Impact:**\nThe lack of validation allows malformed or specially crafted strings to be passed directly from the HTTP request into the `Processor` layer and subsequently to the underlying database queries. Depending on the implementation of the `Processor` and the database driver, this could lead to:\n1. **Injection Attacks:** If the SUPI is used in a raw query, it could lead to NoSQL or SQL injection.\n2. **Unexpected Application Behavior:** Passing unexpected characters might cause the UDM to crash or return incorrect data.\n3. **Bypassing Logic:** If the validator is intended to enforce specific formats (e.g., length or character sets) to prevent unauthorized data access, omitting it creates a security gap.\n\nGiven the 5G SBI context (mTLS/OAuth2), the attacker must be a compromised or malicious Network Function (NF). However, the principle of \"Defense in Depth\" requires that the UDM validates all inputs regardless of the transport security.\n\n**Proposed Fix:**\nImplement a consistent validation check for the `supi` parameter at the start of every handler that retrieves data by SUPI. A helper function should be used to avoid code duplication.",
+        "confidence": 0.9,
+        "cvss_estimate": {
+          "findings": [
+            {
+              "function": "HandleGetSmfSelectData, HandleGetNssai, HandleGetSmData, HandleGetTraceData, HandleGetUeContextInSmfData, HandleGetSupi",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:L/VA:L",
+              "score": 6.2
+            }
+          ]
+        }
+      },
+      "verdict": "correct",
+      "judge_score": {
+        "validation_gap_identified_score": 4.0,
+        "spec_reference_score": 0.0,
+        "impact_assessment_score": 2.0,
+        "fix_quality_score": 1.0,
+        "total_score": 7.0,
+        "feedback": "The agent correctly identified the validation gap, specifically listing all 6 vulnerable handlers and contrasting them with the correctly implemented ones. The impact assessment was well-contextualized to the UDM and the persistence layer. The proposed fix was correct. However, the agent failed to reference the 3GPP TS 29.503 specification or describe the expected SUPI format (e.g., imsi-...), resulting in a score of 0 for the spec_reference_score.",
+        "judge_elapsed_seconds": 9.56,
+        "normalized_score": 0.778
+      },
+      "cvss_eval": {
+        "estimate_provided": true,
+        "n_findings": 1,
+        "n_target_cves": 1,
+        "matched": [
+          {
+            "cve_id": "CVE-2026-42459",
+            "estimated_score": 6.2,
+            "published_score": 7.7,
+            "published_score_type": "BT",
+            "score_band_vs_published": 2,
+            "score_band_vs_B": 1,
+            "exploitability_match": 4,
+            "impact_match": 1,
+            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:L/VA:L"
+          }
+        ],
+        "missed_cves": [],
+        "unmatched_findings": 0,
+        "aggregates": {
+          "avg_score_band_vs_published": 2.0,
+          "avg_score_band_vs_B": 1.0,
+          "avg_exploitability_match": 4.0,
+          "avg_impact_match": 1.0
+        }
+      },
+      "tokens": {
+        "agent_in": null,
+        "agent_out": null,
+        "judge_in": null,
+        "judge_out": null
+      }
+    }
+  ]
+}

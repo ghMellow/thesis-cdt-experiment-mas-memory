@@ -170,5 +170,85 @@
   "beginner/task5_vuln_pcf/78ee4f5f8519f130": {
     "equivalent": false,
     "explanation": "The two reasonings identify different sets of vulnerabilities: the first highlights hardcoded error messages and lack of configurable settings, while the second identifies a critical memory leak/DoS issue due to improper middleware placement in the Gin router."
+  },
+  "beginner/task5_vuln_pcf/7ca0443bb49ba36e": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same three vulnerabilities: overly permissive CORS headers with credentials, the memory leak/DoS caused by calling .Use() inside a request handler, and the lack of SUPI input validation in the OAM policy handler."
+  },
+  "beginner/task6_vuln_udr/61a536733af4ef3f": {
+    "equivalent": false,
+    "explanation": "The second reasoning identifies three distinct vulnerabilities (including improper error handling in HandlePolicyDataUesUeIdSmDataGet), whereas the first and third reasonings only identify two."
+  },
+  "beginner/task7_vuln_amf/2b4b44a6e2a61589": {
+    "equivalent": false,
+    "explanation": "The third reasoning identifies an additional vulnerability regarding 'Missing Deserialization Logic' in HTTPRegistrationStatusUpdate and HTTPReleaseUEContext, which is not mentioned in the first two reasonings."
+  },
+  "beginner/task8_vuln_udm/157ab1b07331ba00": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same vulnerability (Inconsistent Input Validation of the supi parameter), list the same affected and unaffected handlers, discuss the same security impacts (Injection, DoS, Data Leakage), and propose the same fundamental fix."
+  },
+  "beginner/task9_vuln_cross/6b0c052ce927f108": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same cross-file inconsistencies in UE identifier validation and the same set of per-file vulnerabilities in PCF (CORS), AMF (missing switch default and type mismatch), and UDR (missing return and regex bypass), with consistent conclusions on impact and fixes."
+  },
+  "expert/task5_vuln_pcf/0b835ef6f2300897": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same three vulnerabilities: a permissive CORS policy combining wildcards with credentials, a middleware memory leak caused by calling router.Use inside a request handler, and a lack of input validation for the SUPI parameter."
+  },
+  "expert/task6_vuln_udr/3148eb9a45b26bb7": {
+    "equivalent": false,
+    "explanation": "The three reasonings identify different sets of third vulnerabilities: the first identifies an uninitialized variable, the second an unhandled JSON unmarshal error, and the third potential NoSQL injection/DoS via unsanitized input."
+  },
+  "expert/task7_vuln_amf/3fc73bfe0d48f22c": {
+    "equivalent": false,
+    "explanation": "The third reasoning identifies a completely different vulnerability regarding missing deserialization steps in HTTPRegistrationStatusUpdate, HTTPReleaseUEContext, and HTTPAMFStatusChangeSubscribeModify, which is not mentioned in the first two."
+  },
+  "expert/task8_vuln_udm/f609a0a66ab4279d": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same core vulnerability (inconsistent input validation of the supi parameter), list the exact same handlers as missing validation, and describe identical security impacts and proposed fixes."
+  },
+  "expert/task9_vuln_cross/113e4b3fe9d88195": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same set of vulnerabilities: cross-NF inconsistencies in SUPI/UEID validation (UDM, PCF, UDR), CORS misconfiguration in PCF, logic errors and type mismatches in AMF, and execution flow bypasses and ineffective regex in UDR."
+  },
+  "beginner/task5_vuln_pcf/32f3fad36511db6f": {
+    "equivalent": false,
+    "explanation": "The third reasoning identifies additional vulnerabilities—inefficient middleware implementation leading to potential DoS and lack of SUPI input validation—which are not treated as primary vulnerabilities in the first two reasonings."
+  },
+  "beginner/task6_vuln_udr/9d87c025fdd42d88": {
+    "equivalent": false,
+    "explanation": "The first reasoning includes a third finding regarding NoSQL Injection/Filter Manipulation in 'HandleApplicationDataInfluenceDataGet', which is completely absent from the other two reasonings."
+  },
+  "beginner/task7_vuln_amf/359a21964e2db9c0": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same four core vulnerabilities: information exposure via the undefined/misused 'reqbody' variable, improper Content-Type handling leading to uninitialized request processing, missing deserialization steps in specific HTTP handlers, and inconsistent Gin context storage for error details."
+  },
+  "beginner/task8_vuln_udm/8189c42b50497364": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same vulnerability (Inconsistent Input Validation of the supi parameter), list the same set of unvalidated handlers, discuss the same security impacts (Injection, DoS, and Information Leakage), and propose the same fix using validator.IsValidSupi(supi)."
+  },
+  "beginner/task9_vuln_cross/f3dc8289482595bb": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same set of vulnerabilities: inconsistent SUPI/UEID validation across UDM, PCF, and UDR; permissive CORS in PCF; the missing default case and context type mismatch in AMF; and the missing return statements and ineffective regex in UDR."
+  },
+  "expert/task5_vuln_pcf/5b3cdb3262559300": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same three vulnerabilities (permissive CORS policy, middleware misuse causing a memory leak/DoS, and lack of SUPI input validation), pinpoint the same code locations, and propose the same fixes."
+  },
+  "expert/task6_vuln_udr/a37e00fce0eb040e": {
+    "equivalent": false,
+    "explanation": "The passages differ in their third identified vulnerability: the first and third focus on unhandled JSON unmarshal errors in `HandlePolicyDataUesUeIdSmDataGet`, while the second identifies a filter construction/NoSQL injection issue in `HandleApplicationDataInfluenceDataGet`."
+  },
+  "expert/task7_vuln_amf/bffce75960f91009": {
+    "equivalent": false,
+    "explanation": "The third reasoning passage identifies a critical 'Missing Deserialization' error in specific handlers and a 'Compilation Error' regarding the variable 'reqbody', neither of which are mentioned as key claims in the first two passages."
+  },
+  "expert/task8_vuln_udm/52943a1cb71db771": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same vulnerability (Inconsistent Input Validation of the SUPI), list the exact same validated and unvalidated handlers, discuss the same potential impacts (DoS, injection, unauthorized data access), and propose the same fix (centralized validation/middleware using IsValidSupi)."
+  },
+  "expert/task9_vuln_cross/9803dbe31f275a83": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same set of vulnerabilities: cross-NF SUPI validation inconsistencies, PCF CORS misconfiguration, AMF logic errors (missing default switch case and context type mismatch), and UDR flaws (missing return after 404 and ineffective regex bypass)."
   }
 }
