@@ -337,28 +337,27 @@ score:    6.9                     &rarr; <span class="fn">abbinato a quella CVE<
 <!-- 09c · RAMO B — COME VALUTIAMO (PER ORA) -->
 <section id="s09c" class="left">
     <div class="eyebrow">Ramo B &middot; Dettaglio 3/4</div>
-    <h2>Passi 2&ndash;4 &mdash; Come valutiamo (aggiornato post call 11)</h2>
+    <h2>Passi 2&ndash;3 &mdash; Come valutiamo: la matematica ufficiale 4.0</h2>
     <div class="two-col">
         <div class="col">
-            <div class="card ok" style="margin-bottom:12px;">
-                <div class="card-tag"><span class="stepnum" style="background:var(--blue);">2</span>Passo 2 &middot; Score a fasce (banda)</div>
-                <div class="card-title">Quanto ci azzecca il <em>numero</em></div>
-                <div class="card-row">&Delta; = |score stimato &minus; score di riferimento|, poi punti a fasce:</div>
-                <div class="card-row" style="font-family:var(--mono);font-size:12px;">&Delta; &le; 0.5 &rarr; 3 pt &nbsp;&middot;&nbsp; &Delta; &le; 1.5 &rarr; 2 pt &nbsp;&middot;&nbsp; &Delta; &le; 3.0 &rarr; 1 pt &nbsp;&middot;&nbsp; oltre &rarr; 0 pt</div>
-                <div class="card-row">Calcolato <strong>due volte</strong>: vs score pubblicato ("banda vs pubblicato") e vs base B puro ("banda vs base B")</div>
-                <div class="card-row">Esempio: stimato 6.9 vs pubblicato 8.7 &rarr; &Delta; = 1.8 &rarr; <strong>1 pt</strong></div>
+            <div class="card featured" style="margin-bottom:12px;">
+                <div class="card-tag"><span class="stepnum">2</span>Passo 2 &middot; Score con l'algoritmo FIRST &mdash; il criterio principale</div>
+                <div class="card-title" style="font-size:17px;">Il vettore stimato viene <em>ripassato</em> nella matematica ufficiale</div>
+                <div class="card-row">L'algoritmo FIRST 4.0 (macrovettori + lookup table, libreria <code>cvss</code>) calcola lo score che il vettore stimato <strong>vale davvero</strong> &mdash; validato: i 10 vettori GT ricalcolati coincidono tutti con gli score NVD/CNA</div>
+                <div class="card-row"><strong>Coerenza interna</strong>: lo score dichiarato dall'agente combacia con il suo stesso vettore? (sono due output indipendenti, niente li obbliga)</div>
+                <div class="card-row"><strong>Distanza in spazio score</strong>: score ricalcolato vs base B ufficiale &mdash; &egrave; la distanza tra i due vettori espressa in punti CVSS</div>
+                <div class="card-row">Caso reale: agente dichiara <strong>5.1</strong>, il suo vettore vale <strong>7.1</strong> &mdash; molto pi&ugrave; vicino all'8.7 pubblicato di quanto sembrasse</div>
             </div>
             <div class="callout amber" style="margin:0;max-width:100%;">
-                Le soglie (0.5 / 1.5 / 3.0) sono <strong>provvisorie</strong>, decise in call 10 e centralizzate in <code>config.CVSS_SCORE_BANDS</code>: ricalibrarle &egrave; un cambio di una riga, i dati grezzi restano invariati.
+                Sulle &Delta; si applicano fasce di punti (&Delta; &le; 0.5 &rarr; 3 &middot; &le; 1.5 &rarr; 2 &middot; &le; 3.0 &rarr; 1 &middot; oltre &rarr; 0). Soglie <strong>provvisorie</strong> da call 10, centralizzate in <code>config.CVSS_SCORE_BANDS</code>: ricalibrarle &egrave; un cambio di una riga.
             </div>
         </div>
         <div class="col">
-            <div class="card warn" style="margin-bottom:12px;">
-                <div class="card-tag"><span class="stepnum" style="background:var(--amber);">3</span>Passo 3 &middot; Vettore campo per campo</div>
+            <div class="card ok" style="margin-bottom:12px;">
+                <div class="card-tag"><span class="stepnum" style="background:var(--blue);">3</span>Passo 3 &middot; Distanza sul vettore, campo per campo</div>
                 <div class="card-title">Quanto ci azzecca con le <em>lettere</em></div>
-                <div class="card-row"><strong>Exploitability</strong> (AV/AC/AT/PR/UI): conta i campi uguali, 0&ndash;5 &middot; <strong>Impatto</strong> (VC/VI/VA): 0&ndash;3 &mdash; &egrave; <em>l'impatto</em> che discrimina su questo dataset</div>
-                <div class="card-row">Oltre al match binario, <strong>distanza di severit&agrave; ordinale</strong> [0&ndash;1] per gruppo: sbagliare di un livello (H vs L) non pesa pi&ugrave; come sbagliare all'estremo opposto (H vs N)</div>
-                <div class="card-row"><strong>SC/SI/SA</strong> (sistemi a valle): valutate a parte, solo sulle run in cui l'agente le emette</div>
+                <div class="card-row"><strong>Distanza di severit&agrave; ordinale</strong> [0&ndash;1] per gruppo (exploitability AV/AC/AT/PR/UI e impatto VC/VI/VA): sbagliare di un livello (H vs L) non pesa come sbagliare all'estremo opposto (H vs N)</div>
+                <div class="card-row"><strong>SC/SI/SA</strong> (sistemi a valle): valutate a parte, sulle run in cui l'agente le emette &mdash; su questo dataset &egrave; <em>l'impatto</em> che discrimina tra CVE</div>
             </div>
             <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:#78706e;margin-bottom:6px;">Come appare nei report (campi divergenti in evidenza)</div>
             <div class="cb">| CVE-2026-…  — rep 3      | stimato | pubblicato |
@@ -366,11 +365,12 @@ score:    6.9                     &rarr; <span class="fn">abbinato a quella CVE<
 | AV — Attack Vector       |   N     |    N       |
 | PR — Privileges Required |   L     |    L       |
 | VC — Confidentiality     |  <span class="str">*L*</span>    |   <span class="str">*H*</span>       |
-| VI — Integrity           |   N     |    N       |</div>
+| VI — Integrity           |   N     |    N       |
+| base score — dich. / dal vettore |  5.1 / <span class="str">*7.1*</span>  |  8.7  |</div>
         </div>
     </div>
-    <div class="callout teal">
-        <strong>Passo 4 &middot; Matematica ufficiale (novit&agrave; post call 11):</strong> il vettore stimato viene <strong>ripassato nell'algoritmo FIRST 4.0</strong> &rarr; ne esce lo score che quel vettore <em>vale davvero</em>. Da qui: <strong>coerenza interna</strong> (lo score dichiarato dall'agente combacia con il suo stesso vettore?) e <strong>distanza in spazio score</strong> (score ricalcolato vs base B ufficiale). Caso reale: agente dichiara 5.1, il suo vettore vale 7.1 &mdash; molto pi&ugrave; vicino all'8.7 pubblicato di quanto sembrasse.
+    <div class="callout gray">
+        <strong>Criteri storici</strong> (fasce sullo score <em>dichiarato</em>, match binario campo-per-campo): restano calcolati nei JSON e nei report solo per <strong>confrontabilit&agrave; con le run 1&ndash;3</strong> &mdash; non sono pi&ugrave; il criterio principale.
     </div>
 </section>
 

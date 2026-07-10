@@ -19,6 +19,7 @@ Come è fatto e come gira il progetto di sperimentazione.
 | [03_discussione_post_01_02.md](03_discussione_post_01_02.md) | Verbale della discussione del team dopo la condivisione dei due documenti sopra |
 | [04_risultati_cvss_run2.md](04_risultati_cvss_run2.md) | Run 2: stesso setup + hint di contesto NF (proposta Lorenzo) — confronto diretto con run 1, findings F7–F11 |
 | [05_risultati_cvss_run3.md](05_risultati_cvss_run3.md) | Run 3: stesso hint, REPETITIONS=3 — chiude se gli effetti di run 2 erano rumore o reali, findings F12–F16 |
+| [06_risultati_cvss_run4.md](06_risultati_cvss_run4.md) | Run 4: agente unico + matematica ufficiale FIRST 4.0 + prompt a 11 metriche — lo score ricalcolato dal vettore batte quello dichiarato, findings F17–F20 |
 | [changelog.md](changelog.md) | Storico modifiche |
 | [tasks/](tasks/) | I task di code review usati dagli agenti |
 

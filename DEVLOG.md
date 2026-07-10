@@ -2,6 +2,14 @@
 
 ---
 
+## 2026-07-10 — Run 4 (agente unico, 11 metriche) e doc 06  [sessione: 3ee4778c]
+
+**Intent:** "se tutto corretto crea il doc 06 (come fatto per docs/05) dove riporti i risultati ora che lo score ha senso. infine pusha tutto su git" — run lanciata dall'utente dopo lo spostamento dei risultati 8-metriche in `agent_8m/`
+**Divergenze:**
+- analisi aggiuntiva non richiesta: calcolato lo scarto *con segno* dichiarato−ricalcolato → trovato il finding principale F17 (bias sistematico −1.35, 21/24: il modello dichiara meno di quanto vale il suo vettore; ranking triage da fare su `computed_score_B`)
+- nel doc 06 segnalato il caveat che 1A e 1B in questa run erano lo stesso setup (agente=giudice=gemma4:31b-cloud), aggiunto ai punti aperti
+**Esito:** `docs/06_risultati_cvss_run4.md` (F17–F20: score ricalcolato > dichiarato; F9 localizzato nel vettore non nella conversione; prompt 11 metriche neutro — SC/SI/SA già emesse spontaneamente 24/24 anche con prompt a 8; agente unico senza perdita di qualità); indice README e status aggiornati
+
 ## 2026-07-10 — Valutazione CVSS con matematica ufficiale 4.0  [sessione: 3ee4778c]
 
 **Intent:** "passiamo alla fase di miglioramento del come valutiamo i cvss vettori. Ora abbiamo il modello che sputa il vettore e score (separati no sicurezza, potrebbero essere scollegati) e anche lo script fa una valutazione che non è corretta [...] se sai già come fare implementa il codice, se hai dubbi discutiamone" — riferimento alla parte di call 11 dove Mariano descrive macrovettori + lookup table + distanza
@@ -12,7 +20,7 @@
 - campi legacy (band su score dichiarato, match binario) mantenuti per continuità con i report run 1–3
 - aggiunto `python -m utils.cvss_eval` = recompute retroattivo su tutti i JSON salvati + rigenerazione report (mantiene la promessa "tutto già nei JSON, non serve rilanciare le run"); eseguito: anche i vecchi run expert/beginner/framing ora hanno i nuovi campi
 **Decisioni:** l'utente ha ribaltato la scelta di non toccare il prompt ("possiamo modificare il prompt per chiedere anche le sigle mancanti no? poi si aggiorna i doc e presentazione 2") → prompt esteso a tutte le 11 metriche base (SC/SI/SA incluse); per non regalare match automatici ai run vecchi (GT sempre N), `subsequent_match`/`subsequent_distance` calcolati solo quando l'agente emette la triade; Hamming resta 0–8 per confrontabilità con run 1–3
-**Esito:** `utils/cvss_eval.py` riscritto (compute_base_score, _severity_distance, recompute_saved_results), report con sotto-tabella "Official CVSS 4.0 math" + riga score ricalcolato nel vector detail; caso reale trovato subito: agente dichiara 5.1 ma il suo vettore vale 7.1 (coerenza Δ2.0) vs 8.7 pubblicato — il vettore era migliore dello score dichiarato; presentazione v2 aggiornata (nota metodologica, passo 4 matematica ufficiale, punti 1–2 spostati in "già implementato", esempio vettore a 11 metriche)
+**Esito:** `utils/cvss_eval.py` riscritto (compute_base_score, _severity_distance, recompute_saved_results), report con sotto-tabella "Official CVSS 4.0 math" + riga score ricalcolato nel vector detail; caso reale trovato subito: agente dichiara 5.1 ma il suo vettore vale 7.1 (coerenza Δ2.0) vs 8.7 pubblicato — il vettore era migliore dello score dichiarato; presentazione v2 aggiornata (nota metodologica, punti 1–2 spostati in "già implementato", esempio vettore a 11 metriche); su feedback utente ("le cose vecchie non le calcoliamo più giusto? devono avere meno importanza") la slide dei criteri è stata rigerarchizzata: matematica ufficiale = card featured (criterio principale), criteri storici declassati a callout grigio "solo per confrontabilità con run 1–3"
 
 ## 2026-07-10 — Snellimento post call 11: agente unico, ruoli rimossi  [sessione: 3ee4778c]
 

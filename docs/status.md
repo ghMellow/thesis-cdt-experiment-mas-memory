@@ -23,6 +23,8 @@ Sistema operativo. 12 task disponibili, framework LangGraph con retry/judge/toke
 
 **Serie framing completata (A1–A3, B1–B3):** il paradosso beginner>expert su task7 è completamente spiegato — effetto framing × capacità confinato alla finestra e4b. Vedi `docs/findings.md` F16–F22 e `docs/experiments_framing.md`. **Prossimo:** C1 — temperature sweep T∈{0.1, 0.7} su task7/8.
 
+**Run 4 completata (2026-07-10):** prima run agente unico + matematica ufficiale + prompt a 11 metriche — vedi `docs/06_risultati_cvss_run4.md` (F17–F20: lo score ricalcolato dal vettore è più affidabile di quello dichiarato; il ranking per il triage va fatto su `computed_score_B`).
+
 **Semplificazione post call 11 (2026-07-10):** rimosso il framing expert/beginner (19/20 verdetti identici tra i ruoli — richiesta di Andrea). Ora c'è un **agente unico** con prompt neutro (`SYSTEM_PROMPTS["agent"]`); i risultati nuovi finiscono in `results/<task>/<exp>/agent/`. Il flag CLI `--role` è stato rimosso. La scelta dei modelli resta libera in `config.MODELS`: 1A = stesso modello per agente e giudice, 1B = modelli diversi.
 
 ### Modelli (`config.py`)
