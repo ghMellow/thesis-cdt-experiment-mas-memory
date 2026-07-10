@@ -2,6 +2,7 @@
 
 | role | accuracy_1A | accuracy_1B | delta |
 | --- | --- | --- | --- |
-| expert | 100.0% | 93.3% | -6.7% |
-| beginner | 100.0% | 100.0% | 0.0% |
+| expert | n/a | n/a | n/a |
+| beginner | n/a | n/a | n/a |
 
+No accuracy difference between 1A and 1B.

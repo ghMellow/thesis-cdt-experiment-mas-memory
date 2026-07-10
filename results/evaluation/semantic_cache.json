@@ -290,5 +290,45 @@
   "agent/task9_vuln_cross/f7963d248cf79a9e": {
     "equivalent": true,
     "explanation": "All three reasonings identify the same set of vulnerabilities: inconsistent SUPI/UEID validation across UDM/PCF/UDR, permissive CORS in PCF, missing default case and type mismatch in AMF, and missing return statements and ineffective regex in UDR."
+  },
+  "agent/task5_vuln_pcf/0f1ddcc07eeeb02a": {
+    "equivalent": false,
+    "explanation": "The first reasoning passage identifies only two vulnerabilities, while the second and third identify three, including a 'Lack of Input Validation' for the SUPI parameter."
+  },
+  "agent/task6_vuln_udr/37cb6c6a56a7d041": {
+    "equivalent": false,
+    "explanation": "The third reasoning passage misses the third finding regarding improper error handling in 'HandlePolicyDataUesUeIdSmDataGet', which is present in the first two passages."
+  },
+  "agent/task7_vuln_amf/9d7c2884de8bfb9b": {
+    "equivalent": false,
+    "explanation": "The three reasonings identify different sets of vulnerabilities; for example, the second reasoning identifies a missing deserialization error in HTTPRegistrationStatusUpdate and HTTPReleaseUEContext that the others do not, and the third reasoning identifies a resource exhaustion (DoS) risk regarding request size limiting."
+  },
+  "agent/task8_vuln_udm/2a96f3506c709649": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same vulnerability (inconsistent input validation of the supi parameter), list the exact same set of vulnerable and secure handlers, describe the same potential security impacts (injection and DoS), and propose the same fix."
+  },
+  "agent/task9_vuln_cross/5f4ebfbbf6a34acd": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same set of vulnerabilities across the same files: UE identifier validation inconsistencies in UDM/UDR/PCF, CORS misconfiguration in PCF api_oam.go, logic errors (missing default case and type mismatch) in AMF api_communication.go, and improper control flow (missing return) and regex bypass in UDR api_datarepository.go."
+  },
+  "agent/task5_vuln_pcf/f7d1b5f87551ecea": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same three key vulnerabilities: the permissive CORS policy with AllowCredentials, the memory leak/DoS caused by calling router.Use inside a handler, and the lack of SUPI input validation."
+  },
+  "agent/task6_vuln_udr/18b556c14f36973a": {
+    "equivalent": false,
+    "explanation": "The three reasonings disagree on the third vulnerability: the first identifies a logic error in filter construction in HandleApplicationDataInfluenceDataGet, while the second and third identify an uninitialized variable/compilation error in HandleAmfContext3gpp."
+  },
+  "agent/task7_vuln_amf/b0f69aed990b9ba2": {
+    "equivalent": false,
+    "explanation": "The third reasoning identifies a distinct vulnerability regarding uninitialized data in `HTTPRegistrationStatusUpdate` and `HTTPReleaseUEContext` that is not mentioned in the first two reasonings."
+  },
+  "agent/task8_vuln_udm/1e567bac1b6a6821": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same security vulnerability (Inconsistent Input Validation), list the same affected and unaffected handlers, discuss the same potential impacts (injection and system instability), and propose the same solution (consistent validation via helper function or middleware)."
+  },
+  "agent/task9_vuln_cross/43c417870d95f499": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same cross-file UE identifier validation inconsistencies (UDM, PCF, UDR) and the same set of per-file vulnerabilities in PCF (CORS), AMF (Content-Type switch logic and context type mismatch), and UDR (missing return after 404 and trivial regex bypass)."
   }
 }
