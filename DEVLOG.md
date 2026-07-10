@@ -2,6 +2,17 @@
 
 ---
 
+## 2026-07-10 — Valutazione CVSS con matematica ufficiale 4.0  [sessione: 3ee4778c]
+
+**Intent:** "passiamo alla fase di miglioramento del come valutiamo i cvss vettori. Ora abbiamo il modello che sputa il vettore e score (separati no sicurezza, potrebbero essere scollegati) e anche lo script fa una valutazione che non è corretta [...] se sai già come fare implementa il codice, se hai dubbi discutiamone" — riferimento alla parte di call 11 dove Mariano descrive macrovettori + lookup table + distanza
+**Divergenze:**
+- usata la libreria `cvss` (RedHat, già in pyproject per il backfill di base_score_B) invece di reimplementare la matematica FIRST — validata ricalcolando i 10 vettori GT: tutti coincidono con gli score NVD/CNA
+- SC/SI/SA paddati a N quando assenti (il prompt chiede solo gli 8 campi vulnerable-system; nella GT valgono sempre N) invece di estendere il prompt — mantiene i run esistenti confrontabili
+- distanza vettoriale implementata su tre assi senza aspettare il materiale di Mariano: spazio score ufficiale (|score ricalcolati|), ordinale di severità normalizzata per gruppo, Hamming; l'interpolazione FIRST *tra* vettori resta punto aperto in status.md
+- campi legacy (band su score dichiarato, match binario) mantenuti per continuità con i report run 1–3
+- aggiunto `python -m utils.cvss_eval` = recompute retroattivo su tutti i JSON salvati + rigenerazione report (mantiene la promessa "tutto già nei JSON, non serve rilanciare le run"); eseguito: anche i vecchi run expert/beginner/framing ora hanno i nuovi campi
+**Esito:** `utils/cvss_eval.py` riscritto (compute_base_score, _severity_distance, recompute_saved_results), report con sotto-tabella "Official CVSS 4.0 math" + riga score ricalcolato nel vector detail; caso reale trovato subito: agente dichiara 5.1 ma il suo vettore vale 7.1 (coerenza Δ2.0) vs 8.7 pubblicato — il vettore era migliore dello score dichiarato
+
 ## 2026-07-10 — Snellimento post call 11: agente unico, ruoli rimossi  [sessione: 3ee4778c]
 
 **Intent:** "prima di procedere con le modifiche funzionali [...] bisogna prima snellire il progetto come ha detto andrea: quindi unificare i framing di beginner e expert e poi rendere libera la scelta dei modelli usabili [...] Teoricamente c'è solo da commentare del codice per il flusso di esecuzione no?" — decisione di Andrea in call 11 ("usiamone uno solo", "a livello di semplificazioni togli subito il beginner e l'expert")

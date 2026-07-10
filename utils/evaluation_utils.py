@@ -279,35 +279,37 @@ def _build_cvss_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
     if not has_cvss:
         return []
 
+    def _role_rows():
+        for role, payloads in sorted(roles.items()):
+            evals = [p["cvss_eval"] for p in payloads if isinstance(p.get("cvss_eval"), dict)]
+            if evals:
+                yield role, evals
+
+    def _agg_mean(evals, key: str) -> Optional[float]:
+        vals = [
+            e["aggregates"][key]
+            for e in evals
+            if isinstance(e.get("aggregates", {}).get(key), (int, float))
+        ]
+        return _avg(vals)
+
     lines = [
         "## CVSS estimate (Blocco B, deterministic)",
         "",
         "| role | estimates | matched | missed CVEs | unmatched findings | avg band vs published (0-3) | avg band vs B (0-3) | avg exploitability (0-5) | avg impact (0-3) |",
         "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
-    for role, payloads in sorted(roles.items()):
-        evals = [p["cvss_eval"] for p in payloads if isinstance(p.get("cvss_eval"), dict)]
-        if not evals:
-            continue
+    for role, evals in _role_rows():
         n_provided = sum(1 for e in evals if e.get("estimate_provided"))
         n_matched = sum(len(e.get("matched", [])) for e in evals)
         n_missed = sum(len(e.get("missed_cves", [])) for e in evals)
         n_unmatched = sum(e.get("unmatched_findings", 0) for e in evals)
-
-        def _agg_mean(key: str) -> Optional[float]:
-            vals = [
-                e["aggregates"][key]
-                for e in evals
-                if isinstance(e.get("aggregates", {}).get(key), (int, float))
-            ]
-            return _avg(vals)
-
         lines.append(
             f"| {role} | {n_provided}/{len(evals)} | {n_matched} | {n_missed} | {n_unmatched} | "
-            f"{_fmt(_agg_mean('avg_score_band_vs_published'), 2)} | "
-            f"{_fmt(_agg_mean('avg_score_band_vs_B'), 2)} | "
-            f"{_fmt(_agg_mean('avg_exploitability_match'), 2)} | "
-            f"{_fmt(_agg_mean('avg_impact_match'), 2)} |"
+            f"{_fmt(_agg_mean(evals, 'avg_score_band_vs_published'), 2)} | "
+            f"{_fmt(_agg_mean(evals, 'avg_score_band_vs_B'), 2)} | "
+            f"{_fmt(_agg_mean(evals, 'avg_exploitability_match'), 2)} | "
+            f"{_fmt(_agg_mean(evals, 'avg_impact_match'), 2)} |"
         )
     lines += [
         "",
@@ -317,6 +319,35 @@ def _build_cvss_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
         "includes Threat E); `band vs B` against the pure base score. "
         "Exploitability counts AV/AC/AT/PR/UI matches; impact counts VC/VI/VA — the "
         "impact triad is the discriminating signal on this dataset._",
+        "",
+        "### Official CVSS 4.0 math (score recomputed from the estimated vector)",
+        "",
+        "| role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg subseq. distance (0-1) | avg Hamming (0-8) |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for role, evals in _role_rows():
+        lines.append(
+            f"| {role} | {_fmt(_agg_mean(evals, 'avg_score_coherence_delta'), 2)} | "
+            f"{_fmt(_agg_mean(evals, 'avg_computed_delta_vs_B'), 2)} | "
+            f"{_fmt(_agg_mean(evals, 'avg_score_band_computed_vs_B'), 2)} | "
+            f"{_fmt(_agg_mean(evals, 'avg_exploitability_distance'), 2)} | "
+            f"{_fmt(_agg_mean(evals, 'avg_impact_distance'), 2)} | "
+            f"{_fmt(_agg_mean(evals, 'avg_subsequent_distance'), 2)} | "
+            f"{_fmt(_agg_mean(evals, 'avg_hamming_distance'), 2)} |"
+        )
+    lines += [
+        "",
+        "_The estimated vector is rescored with the official FIRST CVSS 4.0 algorithm "
+        "(macrovector + lookup table, `cvss` library). `coherence Δ` = |score declared "
+        "by the agent − score its own vector actually produces| (the two outputs are "
+        "independent, nothing forces them to agree). `computed Δ vs B` compares the "
+        "recomputed score against the ground-truth pure base score — a vector distance "
+        "in official score space. Severity distances are ordinal and normalized per "
+        "metric group (0 = identical vector, 1 = every field at the opposite end of "
+        "its scale); the subsequent-system triad SC/SI/SA is scored only on runs where "
+        "the agent emitted it (requested since 2026-07-10); Hamming counts plainly "
+        "differing fields among the 8 vulnerable-system metrics (n/a = older runs, "
+        "recompute with `python -m utils.cvss_eval`)._",
         "",
     ]
 
@@ -360,6 +391,12 @@ def _build_cvss_vector_detail(roles: Dict[str, List[Dict[str, Any]]]) -> List[st
             if e_val != p_val:
                 e_val, p_val = f"**{e_val}**", f"**{p_val}**"
             lines.append(f"| {label} | {e_val} | {p_val} |")
+        if isinstance(m.get("computed_score_B"), (int, float)):
+            declared = m.get("estimated_score", "-")
+            lines.append(
+                f"| base score — declared / from vector (official math) | "
+                f"{declared} / **{m['computed_score_B']}** | {m.get('published_score', '-')} |"
+            )
         lines.append("")
     return lines
 

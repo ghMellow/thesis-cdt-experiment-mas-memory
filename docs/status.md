@@ -68,6 +68,8 @@ Sistema operativo. 12 task disponibili, framework LangGraph con retry/judge/toke
 - [x] **Esperimento 2b — hint di contesto NF** (`config.CVSS_CONTEXT_HINT_ENABLED`): paragrafo di contesto free5GC/OAuth2/TLS iniettato prima del blocco CVSS, per testare se F2 (impatto sbagliato) dipende da mancanza di contesto di sistema — run 2 non ha risolto F2 (vedi `docs/04_risultati_cvss_run2.md`)
 - [x] **Semplificazione call 11**: framing expert/beginner rimosso — agente unico con prompt neutro, chiavi `agent_1A`/`agent_1B` in `config.MODELS`, flag `--role` eliminato; i vecchi risultati per-ruolo restano leggibili dai report (aggregazione per cartella)
 - [x] **Esperimento 2b — run 3 (REPETITIONS=3)**: stesso hint, 3 ripetizioni per combinazione (60 run). Chiude il dubbio "erano rumore?": il presunto effetto di ruolo su task7 sparisce (era rumore a 1 rep), mentre F8/F9/F3 si confermano reali con più campioni — vedi `docs/05_risultati_cvss_run3.md` (F12–F16)
+- [x] **Valutazione CVSS con matematica ufficiale 4.0** (post call 11): score ricalcolato dal vettore stimato via libreria `cvss` (algoritmo FIRST macrovettori+lookup, validato 10/10 sui vettori GT); coerenza interna score↔vettore, distanza in spazio score, distanza ordinale di severità per campo, Hamming; recompute retroattivo con `python -m utils.cvss_eval` senza rilanciare run
+- [ ] Distanza vettoriale con interpolazione ufficiale FIRST tra vettori (materiale Mariano) — per ora la distanza in spazio score usa i due score ricalcolati
 - [ ] **C1 — Temperature sweep** T∈{0.1, 0.7} su task7/8 expert e4b (prossimo esperimento)
 - [ ] Retry con feedback del judge reiniettato
 - [ ] Rieseguire task6 blind (senza special attention) — baseline pulita

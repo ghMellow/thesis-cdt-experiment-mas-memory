@@ -74,7 +74,13 @@
           "avg_score_band_vs_published": null,
           "avg_score_band_vs_B": null,
           "avg_exploitability_match": null,
-          "avg_impact_match": null
+          "avg_impact_match": null,
+          "avg_score_coherence_delta": null,
+          "avg_computed_delta_vs_B": null,
+          "avg_score_band_computed_vs_B": null,
+          "avg_exploitability_distance": null,
+          "avg_impact_distance": null,
+          "avg_hamming_distance": null
         }
       }
     },
@@ -142,7 +148,13 @@
           "avg_score_band_vs_published": null,
           "avg_score_band_vs_B": null,
           "avg_exploitability_match": null,
-          "avg_impact_match": null
+          "avg_impact_match": null,
+          "avg_score_coherence_delta": null,
+          "avg_computed_delta_vs_B": null,
+          "avg_score_band_computed_vs_B": null,
+          "avg_exploitability_distance": null,
+          "avg_impact_distance": null,
+          "avg_hamming_distance": null
         }
       }
     },
@@ -210,7 +222,13 @@
           "avg_score_band_vs_published": null,
           "avg_score_band_vs_B": null,
           "avg_exploitability_match": null,
-          "avg_impact_match": null
+          "avg_impact_match": null,
+          "avg_score_coherence_delta": null,
+          "avg_computed_delta_vs_B": null,
+          "avg_score_band_computed_vs_B": null,
+          "avg_exploitability_distance": null,
+          "avg_impact_distance": null,
+          "avg_hamming_distance": null
         }
       }
     }

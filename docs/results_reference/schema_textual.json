@@ -173,7 +173,7 @@
             },
             "matched": {
               "type": "array",
-              "description": "Findings successfully paired to a ground-truth CVE by handler function name (utils.cvss_eval._match_finding). Each entry: cve_id, estimated_score, published_score, published_score_type (B|BT), score_band_vs_published, score_band_vs_B (points per config.CVSS_SCORE_BANDS), exploitability_match (0-5, on AV/AC/AT/PR/UI), impact_match (0-3, on VC/VI/VA — the discriminating signal on this dataset), estimated_vector, published_vector (full GT vector string, including Subsequent/Threat metrics excluded from scoring)."
+              "description": "Findings successfully paired to a ground-truth CVE by handler function name (utils.cvss_eval._match_finding). Each entry: cve_id, estimated_score, published_score, published_score_type (B|BT), score_band_vs_published, score_band_vs_B (points per config.CVSS_SCORE_BANDS), exploitability_match (0-5, on AV/AC/AT/PR/UI), impact_match (0-3, on VC/VI/VA — the discriminating signal on this dataset), estimated_vector, published_vector (full GT vector string, including Subsequent/Threat metrics excluded from scoring). Official-math fields (post call 11, FIRST CVSS 4.0 algorithm via the 'cvss' library): computed_score_B (base score recomputed from the estimated vector; padded_metrics lists SC/SI/SA padded to N when the agent omitted them), score_coherence_delta (|declared score − computed_score_B| — internal consistency, the two agent outputs are independent), computed_delta_vs_B + score_band_computed_vs_B (recomputed score vs GT pure base score — vector distance in official score space), exploitability_distance / impact_distance (ordinal severity distance per group, normalized [0,1], missing/invalid field counts as 1.0), hamming_distance (0-8, differing fields among the requested metrics). Absent on results saved before the official-math upgrade — rerun 'python -m utils.cvss_eval' to backfill."
             },
             "missed_cves": {
               "type": "array",
@@ -185,7 +185,7 @@
             },
             "aggregates": {
               "type": "object",
-              "description": "Per-repetition means over 'matched' only: avg_score_band_vs_published, avg_score_band_vs_B, avg_exploitability_match (0-5), avg_impact_match (0-3). Null fields if 'matched' is empty."
+              "description": "Per-repetition means over 'matched' only: avg_score_band_vs_published, avg_score_band_vs_B, avg_exploitability_match (0-5), avg_impact_match (0-3), plus official-math means avg_score_coherence_delta, avg_computed_delta_vs_B, avg_score_band_computed_vs_B, avg_exploitability_distance (0-1), avg_impact_distance (0-1), avg_hamming_distance (0-8). Null fields if 'matched' is empty."
             }
           }
         },

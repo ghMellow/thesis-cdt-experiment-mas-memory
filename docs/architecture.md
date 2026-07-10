@@ -113,8 +113,8 @@ Per ogni combinazione (setup, task, ripetizione) il runtime esegue:
    - carica `ground_truth` (e la rubrica se `textual`)
 
 1. `run_agent`
-  - chiama l'LLM (Ollama) con il system prompt dell'agente + testo del task
-  - salva l'output dell'agente (Markdown parsato) in `history` e in `final_answer`
+   - chiama l'LLM (Ollama) con il system prompt dell'agente + testo del task
+   - salva l'output dell'agente (Markdown parsato) in `history` e in `final_answer`
 
 1. `check_answer`
    - `math`: confronto deterministico in `utils/experiment_utils.py`
@@ -231,7 +231,9 @@ Sui task `vuln` (textual con `vuln` nel task_id, flag `CVSS_ESTIMATE_ENABLED` in
   - **matching finding↔CVE** per nome della handler function (le varianti `_full` includono anche le CVE con `in_task_excerpt: false`); finding non abbinati contati a parte, CVE non trovate in `missed_cves`
   - **prossimità score** a fasce (`CVSS_SCORE_BANDS` in config), calcolata sia vs lo score pubblicato (BT dove il vettore include la Threat E) sia vs il base puro `base_score_B`
   - **vector match** campo per campo, separato in exploitability (AV/AC/AT/PR/UI, 0–5) e impatto (VC/VI/VA, 0–3)
-- il risultato va nel campo `cvss_eval` della ripetizione; **non influenza mai il verdetto** correct/wrong (che resta del solo judge di rubrica) e nei report compare come sezione separata "CVSS estimate" (`_build_cvss_section`)
+  - **matematica ufficiale CVSS 4.0** (post call 11, libreria `cvss` = algoritmo FIRST a macrovettori + lookup table): dal vettore stimato viene **ricalcolato lo score base** (`computed_score_B`; SC/SI/SA paddati a N se assenti — nella GT valgono sempre N). Da qui: `score_coherence_delta` = |score dichiarato − score che il suo stesso vettore produce| (coerenza interna: i due output dell'agente sono indipendenti), `computed_delta_vs_B` + banda = distanza del vettore in spazio score ufficiale, `exploitability_distance`/`impact_distance` = distanza ordinale di severità normalizzata [0,1] per gruppo, `hamming_distance` (0–8). Validazione: i 10 vettori GT ricalcolati coincidono tutti con gli score NVD/CNA
+- il risultato va nel campo `cvss_eval` della ripetizione; **non influenza mai il verdetto** correct/wrong (che resta del solo judge di rubrica) e nei report compare come sezione separata "CVSS estimate" (`_build_cvss_section`) con sotto-tabella "Official CVSS 4.0 math"
+- **recompute retroattivo**: `poetry run python -m utils.cvss_eval` riapplica la valutazione a tutti i JSON salvati (la stima vive in `final_answer.cvss_estimate`) e rigenera i report — nessuna run da rilanciare quando cambia la logica di valutazione
 
 ---
 

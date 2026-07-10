@@ -42,6 +42,16 @@ _truly inconsistent_: LLM confirmed different conclusions across repetitions. _s
 
 _`estimates` = repetitions where the agent produced a CVSS block. `matched` = findings paired to a ground-truth CVE via handler function. `band vs published` compares against the published score (BT where the vector includes Threat E); `band vs B` against the pure base score. Exploitability counts AV/AC/AT/PR/UI matches; impact counts VC/VI/VA — the impact triad is the discriminating signal on this dataset._
 
+### Official CVSS 4.0 math (score recomputed from the estimated vector)
+
+| role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg Hamming (0-8) |
+| --- | --- | --- | --- | --- | --- | --- |
+| agent | 0.53 | 2.80 | 0.33 | 0.10 | 0.67 | 3.67 |
+| beginner | 0.20 | 3.40 | 0.00 | 0.10 | 0.50 | 3.00 |
+| expert | 0.87 | 3.40 | 0.00 | 0.10 | 0.50 | 3.00 |
+
+_The estimated vector is rescored with the official FIRST CVSS 4.0 algorithm (macrovector + lookup table, `cvss` library). `coherence Δ` = |score declared by the agent − score its own vector actually produces| (the two outputs are independent, nothing forces them to agree). `computed Δ vs B` compares the recomputed score against the ground-truth pure base score — a vector distance in official score space. Severity distances are ordinal and normalized per metric group (0 = identical vector, 1 = every field at the opposite end of its scale); Hamming counts plainly differing fields (n/a = older runs, recompute with `python -m utils.cvss_eval`)._
+
 ### Vector detail (estimated vs. published)
 
 | **CVE-2026-41135** — agent, rep 1 | estimated | published |
@@ -54,6 +64,7 @@ _`estimates` = repetitions where the agent produced a CVSS block. `matched` = fi
 | VC — Confidentiality Impact to the Vulnerable System | **H** | **N** |
 | VI — Integrity Impact to the Vulnerable System | N | N |
 | VA — Availability Impact to the Vulnerable System | **N** | **H** |
+| base score — declared / from vector (official math) | 6.5 / **7.1** | 8.7 |
 
 | **CVE-2026-41135** — agent, rep 2 | estimated | published |
 |---|---|---|
@@ -65,6 +76,7 @@ _`estimates` = repetitions where the agent produced a CVSS block. `matched` = fi
 | VC — Confidentiality Impact to the Vulnerable System | **L** | **N** |
 | VI — Integrity Impact to the Vulnerable System | **L** | **N** |
 | VA — Availability Impact to the Vulnerable System | **N** | **H** |
+| base score — declared / from vector (official math) | 4.8 / **5.3** | 8.7 |
 
 | **CVE-2026-41135** — agent, rep 3 | estimated | published |
 |---|---|---|
@@ -76,6 +88,7 @@ _`estimates` = repetitions where the agent produced a CVSS block. `matched` = fi
 | VC — Confidentiality Impact to the Vulnerable System | **L** | **N** |
 | VI — Integrity Impact to the Vulnerable System | **L** | **N** |
 | VA — Availability Impact to the Vulnerable System | **N** | **H** |
+| base score — declared / from vector (official math) | 4.8 / **5.3** | 8.7 |
 
 | **CVE-2026-41135** — beginner, rep 1 | estimated | published |
 |---|---|---|
@@ -87,6 +100,7 @@ _`estimates` = repetitions where the agent produced a CVSS block. `matched` = fi
 | VC — Confidentiality Impact to the Vulnerable System | **L** | **N** |
 | VI — Integrity Impact to the Vulnerable System | N | N |
 | VA — Availability Impact to the Vulnerable System | **N** | **H** |
+| base score — declared / from vector (official math) | 5.1 / **5.3** | 8.7 |
 
 | **CVE-2026-41135** — beginner, rep 2 | estimated | published |
 |---|---|---|
@@ -98,6 +112,7 @@ _`estimates` = repetitions where the agent produced a CVSS block. `matched` = fi
 | VC — Confidentiality Impact to the Vulnerable System | **L** | **N** |
 | VI — Integrity Impact to the Vulnerable System | N | N |
 | VA — Availability Impact to the Vulnerable System | **N** | **H** |
+| base score — declared / from vector (official math) | 5.1 / **5.3** | 8.7 |
 
 | **CVE-2026-41135** — beginner, rep 3 | estimated | published |
 |---|---|---|
@@ -109,6 +124,7 @@ _`estimates` = repetitions where the agent produced a CVSS block. `matched` = fi
 | VC — Confidentiality Impact to the Vulnerable System | **L** | **N** |
 | VI — Integrity Impact to the Vulnerable System | N | N |
 | VA — Availability Impact to the Vulnerable System | **N** | **H** |
+| base score — declared / from vector (official math) | 5.1 / **5.3** | 8.7 |
 
 | **CVE-2026-41135** — expert, rep 1 | estimated | published |
 |---|---|---|
@@ -120,6 +136,7 @@ _`estimates` = repetitions where the agent produced a CVSS block. `matched` = fi
 | VC — Confidentiality Impact to the Vulnerable System | **L** | **N** |
 | VI — Integrity Impact to the Vulnerable System | N | N |
 | VA — Availability Impact to the Vulnerable System | **N** | **H** |
+| base score — declared / from vector (official math) | 3.1 / **5.3** | 8.7 |
 
 | **CVE-2026-41135** — expert, rep 2 | estimated | published |
 |---|---|---|
@@ -131,6 +148,7 @@ _`estimates` = repetitions where the agent produced a CVSS block. `matched` = fi
 | VC — Confidentiality Impact to the Vulnerable System | **L** | **N** |
 | VI — Integrity Impact to the Vulnerable System | N | N |
 | VA — Availability Impact to the Vulnerable System | **N** | **H** |
+| base score — declared / from vector (official math) | 5.1 / **5.3** | 8.7 |
 
 | **CVE-2026-41135** — expert, rep 3 | estimated | published |
 |---|---|---|
@@ -142,6 +160,7 @@ _`estimates` = repetitions where the agent produced a CVSS block. `matched` = fi
 | VC — Confidentiality Impact to the Vulnerable System | **L** | **N** |
 | VI — Integrity Impact to the Vulnerable System | N | N |
 | VA — Availability Impact to the Vulnerable System | **N** | **H** |
+| base score — declared / from vector (official math) | 5.1 / **5.3** | 8.7 |
 
 ## Anomalies
 

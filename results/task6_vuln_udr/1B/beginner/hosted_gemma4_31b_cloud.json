@@ -96,7 +96,19 @@
             "exploitability_match": 4,
             "impact_match": 1,
             "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H",
-            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N"
+            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "exploitability_distance": 0.1,
+            "impact_distance": 0.667,
+            "hamming_distance": 3,
+            "computed_score_B": 8.7,
+            "padded_metrics": [
+              "SC",
+              "SI",
+              "SA"
+            ],
+            "computed_delta_vs_B": 0.0,
+            "score_band_computed_vs_B": 3,
+            "score_coherence_delta": 0.0
           }
         ],
         "missed_cves": [
@@ -108,7 +120,13 @@
           "avg_score_band_vs_published": 3.0,
           "avg_score_band_vs_B": 3.0,
           "avg_exploitability_match": 4.0,
-          "avg_impact_match": 1.0
+          "avg_impact_match": 1.0,
+          "avg_score_coherence_delta": 0.0,
+          "avg_computed_delta_vs_B": 0.0,
+          "avg_score_band_computed_vs_B": 3.0,
+          "avg_exploitability_distance": 0.1,
+          "avg_impact_distance": 0.667,
+          "avg_hamming_distance": 3.0
         }
       },
       "tokens": {
@@ -204,7 +222,19 @@
             "exploitability_match": 4,
             "impact_match": 0,
             "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:H/VA:H",
-            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N"
+            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "exploitability_distance": 0.1,
+            "impact_distance": 1.0,
+            "hamming_distance": 4,
+            "computed_score_B": 7.2,
+            "padded_metrics": [
+              "SC",
+              "SI",
+              "SA"
+            ],
+            "computed_delta_vs_B": 1.5,
+            "score_band_computed_vs_B": 2,
+            "score_coherence_delta": 0.7
           }
         ],
         "missed_cves": [
@@ -216,7 +246,13 @@
           "avg_score_band_vs_published": 1.0,
           "avg_score_band_vs_B": 1.0,
           "avg_exploitability_match": 4.0,
-          "avg_impact_match": 0.0
+          "avg_impact_match": 0.0,
+          "avg_score_coherence_delta": 0.7,
+          "avg_computed_delta_vs_B": 1.5,
+          "avg_score_band_computed_vs_B": 2.0,
+          "avg_exploitability_distance": 0.1,
+          "avg_impact_distance": 1.0,
+          "avg_hamming_distance": 4.0
         }
       },
       "tokens": {
@@ -312,7 +348,19 @@
             "exploitability_match": 4,
             "impact_match": 1,
             "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H",
-            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N"
+            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "exploitability_distance": 0.1,
+            "impact_distance": 0.667,
+            "hamming_distance": 3,
+            "computed_score_B": 8.7,
+            "padded_metrics": [
+              "SC",
+              "SI",
+              "SA"
+            ],
+            "computed_delta_vs_B": 0.0,
+            "score_band_computed_vs_B": 3,
+            "score_coherence_delta": 1.6
           }
         ],
         "missed_cves": [
@@ -324,7 +372,13 @@
           "avg_score_band_vs_published": 1.0,
           "avg_score_band_vs_B": 1.0,
           "avg_exploitability_match": 4.0,
-          "avg_impact_match": 1.0
+          "avg_impact_match": 1.0,
+          "avg_score_coherence_delta": 1.6,
+          "avg_computed_delta_vs_B": 0.0,
+          "avg_score_band_computed_vs_B": 3.0,
+          "avg_exploitability_distance": 0.1,
+          "avg_impact_distance": 0.667,
+          "avg_hamming_distance": 3.0
         }
       },
       "tokens": {

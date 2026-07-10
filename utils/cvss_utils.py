@@ -47,7 +47,7 @@ repeating the three lines below for each finding:
 
 ### CVSS Estimate
 - function: <name of the Go function containing the issue>
-- vector: CVSS:4.0/AV:_/AC:_/AT:_/PR:_/UI:_/VC:_/VI:_/VA:_
+- vector: CVSS:4.0/AV:_/AC:_/AT:_/PR:_/UI:_/VC:_/VI:_/VA:_/SC:_/SI:_/SA:_
 - score: <your estimated CVSS 4.0 base score, 0.0-10.0>
 
 Replace each `_` in the vector with one of the allowed values:
@@ -59,6 +59,9 @@ Replace each `_` in the vector with one of the allowed values:
 - UI User Interaction: N (None), P (Passive), A (Active)
 - VC / VI / VA Confidentiality / Integrity / Availability impact on the
   vulnerable system: H (High), L (Low), N (None)
+- SC / SI / SA Confidentiality / Integrity / Availability impact on
+  subsequent systems (other components reachable from the vulnerable one):
+  H (High), L (Low), N (None)
 """
 
 
