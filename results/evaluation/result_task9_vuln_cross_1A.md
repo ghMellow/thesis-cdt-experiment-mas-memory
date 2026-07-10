@@ -9,7 +9,7 @@
 | wrong | 0 |
 | retried (attempts > 1) | 0 |
 | truly inconsistent tasks | 4 |
-| surface-only differences (semantically equiv.) | 6 |
+| surface-only differences (semantically equiv.) | 8 |
 
 _truly inconsistent_: LLM confirmed different conclusions across repetitions. _surface-only_: string-different but semantically equivalent (paraphrases, same logic).
 

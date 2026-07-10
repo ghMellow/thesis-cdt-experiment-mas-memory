@@ -58,6 +58,22 @@
         "agent_out": null,
         "judge_in": null,
         "judge_out": null
+      },
+      "cvss_eval": {
+        "estimate_provided": false,
+        "n_findings": 0,
+        "n_target_cves": 1,
+        "matched": [],
+        "missed_cves": [
+          "CVE-2026-41136"
+        ],
+        "unmatched_findings": 0,
+        "aggregates": {
+          "avg_score_band_vs_published": null,
+          "avg_score_band_vs_B": null,
+          "avg_exploitability_match": null,
+          "avg_impact_match": null
+        }
       }
     },
     {
@@ -108,6 +124,22 @@
         "agent_out": null,
         "judge_in": null,
         "judge_out": null
+      },
+      "cvss_eval": {
+        "estimate_provided": false,
+        "n_findings": 0,
+        "n_target_cves": 1,
+        "matched": [],
+        "missed_cves": [
+          "CVE-2026-41136"
+        ],
+        "unmatched_findings": 0,
+        "aggregates": {
+          "avg_score_band_vs_published": null,
+          "avg_score_band_vs_B": null,
+          "avg_exploitability_match": null,
+          "avg_impact_match": null
+        }
       }
     },
     {
@@ -158,6 +190,22 @@
         "agent_out": null,
         "judge_in": null,
         "judge_out": null
+      },
+      "cvss_eval": {
+        "estimate_provided": false,
+        "n_findings": 0,
+        "n_target_cves": 1,
+        "matched": [],
+        "missed_cves": [
+          "CVE-2026-41136"
+        ],
+        "unmatched_findings": 0,
+        "aggregates": {
+          "avg_score_band_vs_published": null,
+          "avg_score_band_vs_B": null,
+          "avg_exploitability_match": null,
+          "avg_impact_match": null
+        }
       }
     }
   ]

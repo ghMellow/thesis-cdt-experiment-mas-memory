@@ -97,7 +97,8 @@
             "score_band_vs_B": 0,
             "exploitability_match": 4,
             "impact_match": 0,
-            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:L/VI:L/VA:N"
+            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:L/VI:L/VA:N",
+            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N"
           }
         ],
         "missed_cves": [],
@@ -203,7 +204,8 @@
             "score_band_vs_B": 0,
             "exploitability_match": 4,
             "impact_match": 1,
-            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:L/VI:N/VA:N"
+            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:L/VI:N/VA:N",
+            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N"
           }
         ],
         "missed_cves": [],
@@ -299,7 +301,8 @@
             "score_band_vs_B": 1,
             "exploitability_match": 5,
             "impact_match": 3,
-            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H"
+            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H",
+            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N"
           }
         ],
         "missed_cves": [],

@@ -106,6 +106,7 @@ def _evaluate_matched_pair(finding: Dict[str, Any], cve: Dict[str, Any]) -> Dict
             1 for m in IMPACT_METRICS if est_metrics.get(m) == gt_metrics.get(m)
         )
         result["estimated_vector"] = est_vector.strip()
+        result["published_vector"] = gt_cvss.get("vector")
 
     return result
 

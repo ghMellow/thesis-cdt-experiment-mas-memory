@@ -319,6 +319,48 @@ def _build_cvss_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
         "impact triad is the discriminating signal on this dataset._",
         "",
     ]
+
+    lines += _build_cvss_vector_detail(roles)
+    return lines
+
+
+def _build_cvss_vector_detail(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
+    """Per-finding estimated vs. published CVSS vector, one compact table per
+    CVE: rows are the compared metrics (labelled with the full name from the
+    dataset legend), columns are estimated/published — a diverging field is
+    then visible at a glance without recomputing it from the aggregate
+    bands/matches above."""
+    from utils.cvss_eval import _parse_vector, EXPLOITABILITY_METRICS, IMPACT_METRICS, load_cvss_dataset
+
+    entries = []
+    for role, payloads in sorted(roles.items()):
+        for p in payloads:
+            ce = p.get("cvss_eval")
+            if not isinstance(ce, dict):
+                continue
+            for m in ce.get("matched", []):
+                if "estimated_vector" not in m:
+                    continue
+                entries.append((role, p.get("repetition"), m))
+    if not entries:
+        return []
+
+    legend = load_cvss_dataset().get("_meta", {}).get("legenda_metriche", {})
+    metrics = EXPLOITABILITY_METRICS + IMPACT_METRICS
+
+    lines = ["### Vector detail (estimated vs. published)", ""]
+    for role, rep, m in entries:
+        est = _parse_vector(m["estimated_vector"])
+        pub = _parse_vector(m.get("published_vector") or "")
+        lines.append(f"| **{m['cve_id']}** — {role}, rep {rep} | estimated | published |")
+        lines.append("|---|---|---|")
+        for code in metrics:
+            label = f"{code} — {legend.get(code, {}).get('name', code)}"
+            e_val, p_val = est.get(code, "-"), pub.get(code, "-")
+            if e_val != p_val:
+                e_val, p_val = f"**{e_val}**", f"**{p_val}**"
+            lines.append(f"| {label} | {e_val} | {p_val} |")
+        lines.append("")
     return lines
 
 

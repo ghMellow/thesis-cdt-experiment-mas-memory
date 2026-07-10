@@ -1,4 +1,4 @@
-# 1A — task7_vuln_amf
+# 1A — task1_math_int
 
 ## Summary
 
@@ -15,10 +15,10 @@ _truly inconsistent_: LLM confirmed different conclusions across repetitions. _s
 
 ## Scores by role
 
-| role | accuracy | avg_confidence | brier_score | avg_attempts | avg_textual_norm |
+| role | accuracy | avg_confidence | brier_score | avg_attempts | avg_math_delta |
 | --- | --- | --- | --- | --- | --- |
-| beginner | 100.0% | 0.833 | 0.0300 | 1.00 | 0.889 |
-| expert | 100.0% | 0.967 | 0.0017 | 1.00 | 1.000 |
+| beginner | 100.0% | 1.000 | 0.0000 | 1.00 | 0.000 |
+| expert | 100.0% | 1.000 | 0.0000 | 1.00 | 0.000 |
 
 **Legend**
 
@@ -30,83 +30,6 @@ _truly inconsistent_: LLM confirmed different conclusions across repetitions. _s
 | `avg_attempts` | all | mean LLM call attempts per repetition (>1 means retry was triggered) |
 | `avg_math_delta` | math | mean \|answer − ground\_truth\| on math tasks — lower = more precise |
 | `avg_textual_norm` | textual | mean normalized judge score (0–1) — higher = better rubric coverage |
-
-## CVSS estimate (Blocco B, deterministic)
-
-| role | estimates | matched | missed CVEs | unmatched findings | avg band vs published (0-3) | avg band vs B (0-3) | avg exploitability (0-5) | avg impact (0-3) |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| beginner | 3/3 | 3 | 0 | 2 | 2.67 | 1.67 | 4.00 | 1.00 |
-| expert | 3/3 | 3 | 0 | 6 | 2.00 | 0.67 | 4.00 | 1.00 |
-
-_`estimates` = repetitions where the agent produced a CVSS block. `matched` = findings paired to a ground-truth CVE via handler function. `band vs published` compares against the published score (BT where the vector includes Threat E); `band vs B` against the pure base score. Exploitability counts AV/AC/AT/PR/UI matches; impact counts VC/VI/VA — the impact triad is the discriminating signal on this dataset._
-
-### Vector detail (estimated vs. published)
-
-| **CVE-2026-41136** — beginner, rep 1 | estimated | published |
-|---|---|---|
-| AV — Attack Vector | N | N |
-| AC — Attack Complexity | L | L |
-| AT — Attack Requirements | N | N |
-| PR — Privileges Required | **L** | **N** |
-| UI — User Interaction | N | N |
-| VC — Confidentiality Impact to the Vulnerable System | N | N |
-| VI — Integrity Impact to the Vulnerable System | **N** | **L** |
-| VA — Availability Impact to the Vulnerable System | **H** | **N** |
-
-| **CVE-2026-41136** — beginner, rep 2 | estimated | published |
-|---|---|---|
-| AV — Attack Vector | N | N |
-| AC — Attack Complexity | L | L |
-| AT — Attack Requirements | N | N |
-| PR — Privileges Required | **L** | **N** |
-| UI — User Interaction | N | N |
-| VC — Confidentiality Impact to the Vulnerable System | N | N |
-| VI — Integrity Impact to the Vulnerable System | **N** | **L** |
-| VA — Availability Impact to the Vulnerable System | **H** | **N** |
-
-| **CVE-2026-41136** — beginner, rep 3 | estimated | published |
-|---|---|---|
-| AV — Attack Vector | N | N |
-| AC — Attack Complexity | L | L |
-| AT — Attack Requirements | N | N |
-| PR — Privileges Required | **L** | **N** |
-| UI — User Interaction | N | N |
-| VC — Confidentiality Impact to the Vulnerable System | N | N |
-| VI — Integrity Impact to the Vulnerable System | **N** | **L** |
-| VA — Availability Impact to the Vulnerable System | **H** | **N** |
-
-| **CVE-2026-41136** — expert, rep 1 | estimated | published |
-|---|---|---|
-| AV — Attack Vector | N | N |
-| AC — Attack Complexity | L | L |
-| AT — Attack Requirements | N | N |
-| PR — Privileges Required | **L** | **N** |
-| UI — User Interaction | N | N |
-| VC — Confidentiality Impact to the Vulnerable System | N | N |
-| VI — Integrity Impact to the Vulnerable System | **N** | **L** |
-| VA — Availability Impact to the Vulnerable System | **H** | **N** |
-
-| **CVE-2026-41136** — expert, rep 2 | estimated | published |
-|---|---|---|
-| AV — Attack Vector | N | N |
-| AC — Attack Complexity | L | L |
-| AT — Attack Requirements | N | N |
-| PR — Privileges Required | **L** | **N** |
-| UI — User Interaction | N | N |
-| VC — Confidentiality Impact to the Vulnerable System | N | N |
-| VI — Integrity Impact to the Vulnerable System | **N** | **L** |
-| VA — Availability Impact to the Vulnerable System | **H** | **N** |
-
-| **CVE-2026-41136** — expert, rep 3 | estimated | published |
-|---|---|---|
-| AV — Attack Vector | N | N |
-| AC — Attack Complexity | L | L |
-| AT — Attack Requirements | N | N |
-| PR — Privileges Required | **H** | **N** |
-| UI — User Interaction | N | N |
-| VC — Confidentiality Impact to the Vulnerable System | **L** | **N** |
-| VI — Integrity Impact to the Vulnerable System | **N** | **L** |
-| VA — Availability Impact to the Vulnerable System | N | N |
 
 ## Anomalies
 
