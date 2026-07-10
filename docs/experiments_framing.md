@@ -1,5 +1,7 @@
 # Framing Experiment Plan — Expert vs Beginner Anomaly
 
+> ⚠️ **Serie chiusa (2026-07-10, call 11):** il framing expert/beginner è stato **rimosso dal codice** (agente unico, prompt neutro). Questo file resta come archivio degli esperimenti A/B; gli esperimenti pending (C1, …) non sono più eseguibili così come scritti — richiederebbero di ripristinare i due prompt.
+
 ---
 
 ## Protocollo di esecuzione (leggi prima di tutto)

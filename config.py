@@ -1,46 +1,26 @@
 import os
 
-# Model mapping for each experiment role, judge, and semantic consistency checks.
-# Each entry: local = model name for local Ollama, hosted = model name on ollama.com,
-# use_hosted = True to route through the hosted API instead of localhost.
+# Model mapping for the agent (per experiment group), judge, and semantic
+# consistency checks. Each entry: local = model name for local Ollama,
+# hosted = model name on ollama.com, use_hosted = True to route through the
+# hosted API instead of localhost.
 #
 # Local models available: gemma4:e4b (9.6 GB), gemma4:e2b (7.2 GB),
 #                         deepseek-r1:7b (4.7 GB), deepseek-r1:latest (5.2 GB)
 #
-# ── Framing experiment quick-reference (docs/experiments_framing.md) ──────────
-# Change MODELS to match the desired setup before each run.
-#
-# Experiment  | expert_1A          | beginner_1A        | expert_1B           | beginner_1B        | use_hosted
-# ----------- | ------------------ | ------------------ | ------------------- | ------------------ | ----------
-# 1A baseline | gemma4:e4b (local) | gemma4:e4b (local) | —                   | —                  | False
-# 1A hosted   | gemma3:12b-cloud   | gemma3:12b-cloud   | —                   | —                  | True
-# B1 scaling  | gemma4:e2b (local) | —                  | —                   | —                  | False  (then repeat with e4b)
-# B2 asym.    | —                  | —                  | gemma4:31b-cloud    | gemma4:e4b (local) | mixed (gemma3:4b/12b-cloud → 500 su ollama.com con payload tecnici)
-# B3 inv.asym | gemma4:e4b (local) | gemma4:e2b (local) | —                   | —                  | False
-#
-# judge:          local=gemma4:e4b  hosted=nemotron-3-super:cloud  (medium usage)
-# semantic_check: local=gemma4:e2b  hosted=gemma3:4b-cloud          (low usage)
-# ─────────────────────────────────────────────────────────────────────────────
+# Model choice is free: 1A = same model for agent and judge, 1B = different
+# models — it's only a matter of what you write here before each run.
+# (Expert/beginner framing removed after call 11 — 19/20 identical verdicts.)
 MODELS = {
-    "expert_1A": {
-        "local": "gemma4:e4b",
-        "hosted": "gemma4:31b-cloud",
-        "use_hosted": True  # framing_B1_cloud: hosted gemma4:31b-cloud (scaling up expert)
-    },
-    "beginner_1A": {
+    "agent_1A": {
         "local": "gemma4:e4b",
         "hosted": "gemma4:31b-cloud",
         "use_hosted": True
     },
-    "expert_1B": {
+    "agent_1B": {
         "local": "gemma4:e4b",
         "hosted": "gemma4:31b-cloud",
         "use_hosted": True
-    },
-    "beginner_1B": {
-        "local": "gemma4:e4b",
-        "hosted": "gemma4:31b-cloud",
-        "use_hosted": True  # gemma3:12b-cloud → 500 su ollama.com con payload tecnici
     },
     "judge": {
         "local": "gemma4:e4b",

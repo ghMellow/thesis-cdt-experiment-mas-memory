@@ -9,11 +9,13 @@ Per lo stato corrente e i puntatori alle call vedi [status.md](status.md).
 
 Un esperimento controllato multi-agente su scenari 5G, orchestrato con LangGraph:
 
-- due ruoli LLM (`expert` e `beginner`) rispondono agli stessi task
-- due setup sperimentali (`1A` e `1B`) permettono di confrontare "stesso modello" vs "modelli diversi per ruolo"
+- un agente LLM unico risponde ai task
+- due setup sperimentali (`1A` e `1B`) permettono di confrontare "stesso modello per agente e giudice" vs "modelli diversi"
 - ogni task viene ripetuto piu' volte per misurare **consistenza**
 - ogni run produce JSON di output + report aggregati in Markdown
 
+> ⚠️ **Correzione (2026-07-10, call 11):** i due ruoli `expert`/`beginner` sono stati unificati in un **agente unico** con prompt neutro — 19/20 verdetti identici tra i ruoli, il framing non aggiungeva segnale. I riferimenti ai ruoli restano validi solo per i risultati storici (`results/*/*/{expert,beginner}/`); le run nuove salvano in `.../agent/`.
+>
 > ⚠️ **Correzione:** la documentazione originale diceva "temperatura 0". Il valore attuale in `config.py` e' `TEMPERATURE = 0.3`. Con temperatura > 0 le ripetizioni misurano varianza LLM reale, non solo stabilita' del parsing.
 
 ---
@@ -22,20 +24,22 @@ Un esperimento controllato multi-agente su scenari 5G, orchestrato con LangGraph
 
 ### Setup 1A vs 1B
 
-- **1A**: `expert` e `beginner` usano lo **stesso modello** (controllo).
-- **1B**: `expert` e `beginner` usano **modelli diversi** (confronto).
+- **1A**: agente e giudice usano lo **stesso modello** (controllo).
+- **1B**: agente e giudice usano **modelli diversi** (confronto).
 
-I modelli effettivi sono definiti in `config.py` (mapping `MODELS`). `TASK_MODEL_OVERRIDES` permette override per-task: se il `task_id` contiene una stringa-chiave, viene usato il modello alternativo invece del default del ruolo. Es: chiave `"vuln"` → `qwen2.5-coder:1.5b-base` per `beginner_1B` su tutti i task security review; task3/task4 usano il default `deepseek-r1:latest`.
+I modelli effettivi sono definiti in `config.py` (mapping `MODELS`, chiavi `agent_1A`, `agent_1B`, `judge`, `semantic_check`): la scelta del modello è libera, basta modificare il mapping prima della run.
+
+> ⚠️ **Correzione:** `TASK_MODEL_OVERRIDES` non esiste più nel codice — era un meccanismo della serie framing, rimosso.
+
 Nota: se trovi riferimenti storici a modelli diversi nei documenti, fa fede `config.py`.
 
-### Ruoli
+### Agente
 
-I ruoli sono definiti dai system prompt in `agents/prompts.py`:
+Il system prompt è in `agents/prompts.py` (`SYSTEM_PROMPTS["agent"]`): profilo neutro di ingegnere 5G con esperienza di analisi e code review.
 
-- `expert`: profilo ingegnere 5G senior
-- `beginner`: profilo tecnico 5G junior
+> ⚠️ **Correzione (call 11):** prima esistevano due prompt (`expert` senior / `beginner` junior); unificati in uno.
 
-Formato di output richiesto ad entrambi (Markdown):
+Formato di output richiesto (Markdown):
 
 ```md
 ### Answer
@@ -63,7 +67,7 @@ I task security review (`task5`–`task9`) forniscono codice Go di network funct
 
 ## 3) Mappa del codice (dove sta cosa)
 
-- `main.py`: entrypoint CLI; itera esperimenti/ruoli/task/ripetizioni; genera report di evaluation
+- `main.py`: entrypoint CLI; itera esperimenti/task/ripetizioni; genera report di evaluation
 - `config.py`: mapping modelli + parametri globali (temperature, retry, ripetizioni, soglie)
 - `utils/experiment_utils.py`: stato e grafo LangGraph; nodi `load_task`, `run_agent`, `check_answer`, `save_result`; include valutazione deterministica math, logica di retry e scrittura risultati; contiene `_fetch_model_context_window` e `_build_judge_prompt`
 - `utils/task_utils.py`: parsing dei metadata (`**ID:**`, `**Tipo:**`) e lettura dei JSON dai file `_sol.md`; include `_result_exists` (skip run gia' completate) e `_answers_equal`
@@ -71,7 +75,7 @@ I task security review (`task5`–`task9`) forniscono codice Go di network funct
 - `agents/agent_runner.py`: chiamata LLM via Ollama + parsing Markdown in output (fallback JSON); logga token in/out quando disponibili
 - `agents/judge_agent.py`: chiamata LLM judge + parsing Markdown + logging token in/out; include `run_semantic_equivalence_check` (verifica equivalenza semantica tra reasoning string)
 - `agents/_llm_utils.py`: helper condivisi tra agent e judge (spinner, Markdown parsing, fallback JSON, error handling Ollama)
-- `agents/prompts.py`: system prompt per ogni ruolo (`SYSTEM_PROMPTS` dict, chiavi `expert` e `beginner`)
+- `agents/prompts.py`: system prompt dell'agente (`SYSTEM_PROMPTS` dict, chiave unica `agent`)
 - `utils/cvss_utils.py`: blocco prompt `CVSS Estimate` iniettato nei task vuln + estrazione della stima dall'output agente
 - `utils/cvss_eval.py`: valutazione deterministica della stima CVSS (Blocco B): matching finding↔CVE per handler function, prossimità score a fasce (vs score pubblicato e vs base B), vector match exploitability/impatto; dataset GT in `File_Free5gc_Vulnerabili/cve_metrics_normalized.json`
 
@@ -101,7 +105,7 @@ Il sistema carica questi JSON nello stato interno per la valutazione.
 
 ## 5) Flusso di esecuzione (LangGraph)
 
-Per ogni combinazione (setup, ruolo, task, ripetizione) il runtime esegue:
+Per ogni combinazione (setup, task, ripetizione) il runtime esegue:
 
 1. `load_task`
    - legge scenario + `_sol.md`
@@ -109,7 +113,7 @@ Per ogni combinazione (setup, ruolo, task, ripetizione) il runtime esegue:
    - carica `ground_truth` (e la rubrica se `textual`)
 
 1. `run_agent`
-  - chiama l'LLM (Ollama) con system prompt del ruolo + testo del task
+  - chiama l'LLM (Ollama) con il system prompt dell'agente + testo del task
   - salva l'output dell'agente (Markdown parsato) in `history` e in `final_answer`
 
 1. `check_answer`
@@ -130,7 +134,7 @@ Per ogni combinazione (setup, ruolo, task, ripetizione) il runtime esegue:
 ### CLI flags disponibili
 
 ```bash
-python main.py [--experiment 1A|1B|all] [--role expert|beginner|all]
+python main.py [--experiment 1A|1B|all]
                [--task <task_id> ...]   # filtra su uno o piu' task specifici
                [--repetitions N]        # sovrascrive REPETITIONS da config
                [--task-timeout N]       # secondi max per ripetizione (0 = nessuno)

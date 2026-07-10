@@ -2,6 +2,16 @@
 
 ---
 
+## 2026-07-10 — Snellimento post call 11: agente unico, ruoli rimossi  [sessione: 3ee4778c]
+
+**Intent:** "prima di procedere con le modifiche funzionali [...] bisogna prima snellire il progetto come ha detto andrea: quindi unificare i framing di beginner e expert e poi rendere libera la scelta dei modelli usabili [...] Teoricamente c'è solo da commentare del codice per il flusso di esecuzione no?" — decisione di Andrea in call 11 ("usiamone uno solo", "a livello di semplificazioni togli subito il beginner e l'expert")
+**Divergenze:**
+- non era puro commento: chiavi `MODELS` rinominate (`expert_1A`… → `agent_1A`/`agent_1B`), prompt collassato in `SYSTEM_PROMPTS["agent"]` neutro, flag CLI `--role` eliminato
+- scelta minimale accettata dall'utente ("top esegui"): campo `agent_role` mantenuto nello stato/JSON con valore fisso `"agent"` → schema risultati, report e aggregazione intatti; vecchi risultati per-ruolo restano leggibili
+- scoperto e corretto in `architecture.md` un riferimento stale a `TASK_MODEL_OVERRIDES` (non esiste più nel codice)
+**Decisioni:** scelta modelli libera confermata già esistente via `config.MODELS` (1A = stesso modello agente/giudice, 1B = diversi) — nessuna modifica necessaria; `experiments_framing.md` marcato come serie chiusa (C1 pending non più eseguibile senza ripristinare i prompt)
+**Esito:** toccati `agents/prompts.py`, `config.py`, `main.py`, `readme.md`; docs allineati (`status.md`, `architecture.md`, `experiments_framing.md`); sanity check ok (import, resolve_model_config, build del grafo, `--help`)
+
 ## 2026-07-10 — Presentazioni HTML architettura-flusso v1/v2 (post call 11)  [sessione: 3ee4778c]
 
 **Intent:** "crea una presentazione dell'architettura, ergo il flusso di esecuzione. Io pensavo di farla orizzontale e soprattutto a livelli [...] devi fare due versioni [...] deve essere chiaro che i vettori cvss sputati fuori si possono prendere es come lista json e usabili come si vuole" — risposta all'esigenza emersa in call 11 (esperti sicurezza senza visione chiara del funzionamento)

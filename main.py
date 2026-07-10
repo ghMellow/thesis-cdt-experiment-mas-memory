@@ -39,12 +39,6 @@ def main() -> None:
         help="Select experiment group",
     )
     parser.add_argument(
-        "--role",
-        choices=["expert", "beginner", "all"],
-        default="all",
-        help="Select agent role",
-    )
-    parser.add_argument(
         "--task",
         action="append",
         dest="tasks",
@@ -104,13 +98,11 @@ def main() -> None:
         tasks = [task for task in tasks if task.stem in requested]
 
     experiments = []
-    for exp_id, role in [("1A", "expert"), ("1A", "beginner"), ("1B", "expert"), ("1B", "beginner")]:
-        model, is_hosted = resolve_model_config(f"{role}_{exp_id}")
-        experiments.append({"id": exp_id, "role": role, "model": model, "is_hosted": is_hosted})
+    for exp_id in ["1A", "1B"]:
+        model, is_hosted = resolve_model_config(f"agent_{exp_id}")
+        experiments.append({"id": exp_id, "role": "agent", "model": model, "is_hosted": is_hosted})
     if args.experiment != "all":
         experiments = [exp for exp in experiments if exp["id"] == args.experiment]
-    if args.role != "all":
-        experiments = [exp for exp in experiments if exp["role"] == args.role]
     if not experiments:
         raise ValueError("No experiments matched the provided filters")
     if args.experiment_id:

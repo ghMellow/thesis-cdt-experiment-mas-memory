@@ -15,7 +15,7 @@
 
 ---
 
-## Stato attuale (snapshot 2026-06-09)
+## Stato attuale (snapshot 2026-07-10)
 
 > Questo snapshot copre il **workstream framing** (esperimenti A/B/C). Il workstream **esperimento CVE** (riproduzione scoperta `|.+`) procede in parallelo ed è tracciato separatamente in [cve_experiment/](cve_experiment/README.md) — ultimo aggiornamento #18 (2026-06-30).
 
@@ -23,33 +23,31 @@ Sistema operativo. 12 task disponibili, framework LangGraph con retry/judge/toke
 
 **Serie framing completata (A1–A3, B1–B3):** il paradosso beginner>expert su task7 è completamente spiegato — effetto framing × capacità confinato alla finestra e4b. Vedi `docs/findings.md` F16–F22 e `docs/experiments_framing.md`. **Prossimo:** C1 — temperature sweep T∈{0.1, 0.7} su task7/8.
 
+**Semplificazione post call 11 (2026-07-10):** rimosso il framing expert/beginner (19/20 verdetti identici tra i ruoli — richiesta di Andrea). Ora c'è un **agente unico** con prompt neutro (`SYSTEM_PROMPTS["agent"]`); i risultati nuovi finiscono in `results/<task>/<exp>/agent/`. Il flag CLI `--role` è stato rimosso. La scelta dei modelli resta libera in `config.MODELS`: 1A = stesso modello per agente e giudice, 1B = modelli diversi.
+
 ### Modelli (`config.py`)
 
 | Chiave | Local | Hosted | use_hosted |
 | --- | --- | --- | --- |
-| `expert_1A` | gemma4:e4b | gemma3:12b-cloud | True |
-| `beginner_1A` | gemma4:e4b | gemma3:12b-cloud | True |
-| `expert_1B` | gemma4:e4b | gemma4:31b-cloud | True |
-| `beginner_1B` | gemma4:e4b | gemma3:4b-cloud | True |
-| `judge` | gemma4:e4b | nemotron-3-super:cloud | True |
-| `semantic_check` | gemma4:e2b | gemma3:4b-cloud | True |
-
-Vedi header di `config.py` per la quick-reference dei setup framing (A1/A2/B1/B2/B3).
+| `agent_1A` | gemma4:e4b | gemma4:31b-cloud | True |
+| `agent_1B` | gemma4:e4b | gemma4:31b-cloud | True |
+| `judge` | gemma4:e4b | gemma4:31b-cloud | True |
+| `semantic_check` | gemma4:e2b | gemma4:31b-cloud | True |
 
 ### Task disponibili
 
-| ID | Tipo | beginner_1B model |
-| --- | --- | --- |
-| `task1_math_int`, `task2_math_real` | math | deepseek-r1:latest |
-| `task3_anomaly`, `task4_rootcause` | textual 5G | deepseek-r1:latest |
-| `task5_vuln_pcf` | security review PCF | qwen2.5-coder:1.5b-base |
-| `task6_vuln_udr` | security review UDR excerpt | qwen2.5-coder:1.5b-base |
-| `task6_vuln_udr_full` | security review UDR file completo (2891 righe) | qwen2.5-coder:1.5b-base |
-| `task7_vuln_amf` | security review AMF excerpt | qwen2.5-coder:1.5b-base |
-| `task7_vuln_amf_full` | security review AMF file completo (501 righe) | qwen2.5-coder:1.5b-base |
-| `task8_vuln_udm` | security review UDM excerpt | qwen2.5-coder:1.5b-base |
-| `task8_vuln_udm_full` | security review UDM file completo (858 righe) | qwen2.5-coder:1.5b-base |
-| `task9_vuln_cross` | security review cross-NF | qwen2.5-coder:1.5b-base |
+| ID | Tipo |
+| --- | --- |
+| `task1_math_int`, `task2_math_real` | math |
+| `task3_anomaly`, `task4_rootcause` | textual 5G |
+| `task5_vuln_pcf` | security review PCF |
+| `task6_vuln_udr` | security review UDR excerpt |
+| `task6_vuln_udr_full` | security review UDR file completo (2891 righe) |
+| `task7_vuln_amf` | security review AMF excerpt |
+| `task7_vuln_amf_full` | security review AMF file completo (501 righe) |
+| `task8_vuln_udm` | security review UDM excerpt |
+| `task8_vuln_udm_full` | security review UDM file completo (858 righe) |
+| `task9_vuln_cross` | security review cross-NF |
 
 ### Funzionalità implementate / aperte
 
@@ -68,6 +66,7 @@ Vedi header di `config.py` per la quick-reference dei setup framing (A1/A2/B1/B2
 - [x] Accesso modelli cloud (gemma4:31b, gemma3:12b via Ollama Cloud — usati in B1_cloud/B2)
 - [x] **Esperimento 2b — stima CVSS (Blocco B)**: sui task vuln l'agente emette anche una stima CVSS 4.0 strutturata, valutata deterministicamente (`utils/cvss_eval.py`) contro `File_Free5gc_Vulnerabili/cve_metrics_normalized.json`; sub-score separati nel report, verdetto non influenzato (vedi `docs/01_proposta_rubrica_cvss.md`)
 - [x] **Esperimento 2b — hint di contesto NF** (`config.CVSS_CONTEXT_HINT_ENABLED`): paragrafo di contesto free5GC/OAuth2/TLS iniettato prima del blocco CVSS, per testare se F2 (impatto sbagliato) dipende da mancanza di contesto di sistema — run 2 non ha risolto F2 (vedi `docs/04_risultati_cvss_run2.md`)
+- [x] **Semplificazione call 11**: framing expert/beginner rimosso — agente unico con prompt neutro, chiavi `agent_1A`/`agent_1B` in `config.MODELS`, flag `--role` eliminato; i vecchi risultati per-ruolo restano leggibili dai report (aggregazione per cartella)
 - [x] **Esperimento 2b — run 3 (REPETITIONS=3)**: stesso hint, 3 ripetizioni per combinazione (60 run). Chiude il dubbio "erano rumore?": il presunto effetto di ruolo su task7 sparisce (era rumore a 1 rep), mentre F8/F9/F3 si confermano reali con più campioni — vedi `docs/05_risultati_cvss_run3.md` (F12–F16)
 - [ ] **C1 — Temperature sweep** T∈{0.1, 0.7} su task7/8 expert e4b (prossimo esperimento)
 - [ ] Retry con feedback del judge reiniettato
@@ -82,7 +81,7 @@ Vedi header di `config.py` per la quick-reference dei setup framing (A1/A2/B1/B2
 ## CLI comandi rapidi
 
 ```bash
-# Run tutti i task security review, 1B, tutti i ruoli
+# Run tutti i task security review, 1B (agente unico — --role rimosso post call 11)
 # ⚠️ Correzione: --task è action="append", va ripetuto per ogni task (non accetta valori multipli)
 python main.py --experiment 1B --task task5_vuln_pcf --task task6_vuln_udr --task task7_vuln_amf --task task8_vuln_udm --task task9_vuln_cross
 
