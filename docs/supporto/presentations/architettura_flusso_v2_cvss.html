@@ -197,7 +197,7 @@
             <ul class="dl" style="max-width:100%;">
                 <li><strong>1 &middot; Il task</strong>: scenario + codice Go di una NF free5GC, richiesta di security review cieca (<code>docs/tasks/&lt;task&gt;.md</code>)</li>
                 <li><strong>2 &middot; Hint di contesto NF</strong> (attivabile, <code>CVSS_CONTEXT_HINT_ENABLED</code>): un paragrafo che dice all'agente che il codice gira in un core 5G con OAuth2/mTLS sulla SBI &mdash; serve per stimare l'<em>impatto</em> in modo realistico</li>
-                <li><strong>3 &middot; Istruzioni CVSS</strong> (<code>utils/cvss_utils.py</code>): per ogni vulnerabilit&agrave; trovata, emettere <code>function / vector / score</code>. Include la legenda completa dei valori CVSS 4.0, <strong>mai</strong> i valori corretti</li>
+                <li><strong>3 &middot; Istruzioni CVSS</strong> (<code>utils/cvss_utils.py</code>): per ogni vulnerabilit&agrave; trovata, emettere <code>function / vector / score</code>. Il vettore richiesto copre <strong>tutte le 11 metriche base</strong> (anche SC/SI/SA, impatto sui sistemi a valle). Include la legenda completa dei valori CVSS 4.0, <strong>mai</strong> i valori corretti</li>
                 <li>Il file del task su disco <strong>non viene toccato</strong>: hint e istruzioni sono iniettati a runtime</li>
             </ul>
         </div>
@@ -211,7 +211,7 @@ La review testuale: vulnerabilit&agrave;, dove, perch&eacute; ...
 <span class="cm">### CVSS Estimate      ← la parte nuova</span>
 function: HTTPQueryAmData
 vector: CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N
-        /VC:H/VI:N/VA:N
+        /VC:H/VI:N/VA:N/SC:N/SI:N/SA:N
 score: 6.9
 
 function: HTTPModifyAmData
@@ -293,7 +293,7 @@ score: ...</div>
         </div>
     </div>
     <div class="callout blue">
-        <strong>Nota metodologica:</strong> in CVSS 4.0 lo score <em>non</em> &egrave; una somma di pesi per lettera &mdash; deriva da macrovettori + lookup table ufficiale FIRST. Per questo lo script non converte mai vettore &rarr; score da nessuna parte: confronta numeri con numeri e lettere con lettere, sempre contro valori pubblicati.
+        <strong>Nota metodologica:</strong> in CVSS 4.0 lo score <em>non</em> &egrave; una somma di pesi per lettera &mdash; deriva da macrovettori + lookup table ufficiale FIRST. Lo script usa <strong>proprio quell'algoritmo</strong> (libreria <code>cvss</code>) per ricalcolare lo score dal vettore stimato &mdash; validato ricalcolando i 10 vettori della ground truth: <strong>tutti coincidono</strong> con gli score NVD/CNA pubblicati.
     </div>
 </section>
 
@@ -337,7 +337,7 @@ score:    6.9                     &rarr; <span class="fn">abbinato a quella CVE<
 <!-- 09c · RAMO B — COME VALUTIAMO (PER ORA) -->
 <section id="s09c" class="left">
     <div class="eyebrow">Ramo B &middot; Dettaglio 3/4</div>
-    <h2>Passi 2&ndash;3 &mdash; Come valutiamo, per ora (criteri rivedibili)</h2>
+    <h2>Passi 2&ndash;4 &mdash; Come valutiamo (aggiornato post call 11)</h2>
     <div class="two-col">
         <div class="col">
             <div class="card ok" style="margin-bottom:12px;">
@@ -356,9 +356,9 @@ score:    6.9                     &rarr; <span class="fn">abbinato a quella CVE<
             <div class="card warn" style="margin-bottom:12px;">
                 <div class="card-tag"><span class="stepnum" style="background:var(--amber);">3</span>Passo 3 &middot; Vettore campo per campo</div>
                 <div class="card-title">Quanto ci azzecca con le <em>lettere</em></div>
-                <div class="card-row"><strong>Exploitability</strong> (AV/AC/AT/PR/UI): conta i campi uguali, 0&ndash;5</div>
-                <div class="card-row"><strong>Impatto</strong> (VC/VI/VA): 0&ndash;3 &mdash; su questo dataset l'exploitability &egrave; quasi costante tra CVE, &egrave; <em>l'impatto</em> che discrimina</div>
-                <div class="card-row">Confronto <strong>binario</strong>: H vs L vale zero come H vs N &mdash; nessuna nozione di distanza</div>
+                <div class="card-row"><strong>Exploitability</strong> (AV/AC/AT/PR/UI): conta i campi uguali, 0&ndash;5 &middot; <strong>Impatto</strong> (VC/VI/VA): 0&ndash;3 &mdash; &egrave; <em>l'impatto</em> che discrimina su questo dataset</div>
+                <div class="card-row">Oltre al match binario, <strong>distanza di severit&agrave; ordinale</strong> [0&ndash;1] per gruppo: sbagliare di un livello (H vs L) non pesa pi&ugrave; come sbagliare all'estremo opposto (H vs N)</div>
+                <div class="card-row"><strong>SC/SI/SA</strong> (sistemi a valle): valutate a parte, solo sulle run in cui l'agente le emette</div>
             </div>
             <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:#78706e;margin-bottom:6px;">Come appare nei report (campi divergenti in evidenza)</div>
             <div class="cb">| CVE-2026-…  — rep 3      | stimato | pubblicato |
@@ -369,8 +369,8 @@ score:    6.9                     &rarr; <span class="fn">abbinato a quella CVE<
 | VI — Integrity           |   N     |    N       |</div>
         </div>
     </div>
-    <div class="callout gray">
-        "Per ora": questi due criteri sono la baseline funzionante, non la parola definitiva &mdash; la slide successiva elenca dove possono evolvere.
+    <div class="callout teal">
+        <strong>Passo 4 &middot; Matematica ufficiale (novit&agrave; post call 11):</strong> il vettore stimato viene <strong>ripassato nell'algoritmo FIRST 4.0</strong> &rarr; ne esce lo score che quel vettore <em>vale davvero</em>. Da qui: <strong>coerenza interna</strong> (lo score dichiarato dall'agente combacia con il suo stesso vettore?) e <strong>distanza in spazio score</strong> (score ricalcolato vs base B ufficiale). Caso reale: agente dichiara 5.1, il suo vettore vale 7.1 &mdash; molto pi&ugrave; vicino all'8.7 pubblicato di quanto sembrasse.
     </div>
 </section>
 
@@ -383,18 +383,22 @@ score:    6.9                     &rarr; <span class="fn">abbinato a quella CVE<
     </div>
     <div class="two-col">
         <div class="col">
+            <div class="card ok" style="margin-bottom:12px;">
+                <div class="card-tag">Gi&agrave; implementato (post call 11)</div>
+                <div class="card-row"><span class="stepnum" style="background:var(--blue);">&#10003;</span><strong>Distanza sul vettore</strong>: matematica ufficiale 4.0 (algoritmo FIRST, libreria <code>cvss</code>) + distanza di severit&agrave; ordinale per campo</div>
+                <div class="card-row"><span class="stepnum" style="background:var(--blue);">&#10003;</span><strong>Coerenza interna</strong>: lo score dichiarato viene confrontato con lo score che il vettore stimato <em>produce davvero</em></div>
+            </div>
             <div class="card teal" style="margin-bottom:0;">
-                <div class="card-tag">Temi aperti &middot; in ordine di impatto</div>
-                <div class="card-row"><span class="stepnum" style="background:var(--teal);">1</span><strong>Distanza sul vettore</strong>: sostituire il binario con la matematica ufficiale 4.0 (macrovettori + lookup + distanza, materiale Mariano)</div>
-                <div class="card-row"><span class="stepnum" style="background:var(--teal);">2</span><strong>Coerenza interna</strong>: oggi vettore e score dell'agente sono due stime indipendenti &mdash; nessuno verifica che il vettore stimato <em>produca</em> lo score stimato</div>
-                <div class="card-row"><span class="stepnum" style="background:var(--teal);">3</span><strong>B vs BT</strong>: quale riferimento usare come metrica principale nell'articolo</div>
-                <div class="card-row"><span class="stepnum" style="background:var(--teal);">4</span><strong>Calibrazione bande</strong>: le soglie attuali sono ragionevoli per il triage reale?</div>
-                <div class="card-row"><span class="stepnum" style="background:var(--teal);">5</span><strong>Matching multi-CVE</strong>: il criterio "nome funzione" basta, o serve altro (riga di codice, tipo di bug)?</div>
+                <div class="card-tag">Temi ancora aperti &middot; in ordine di impatto</div>
+                <div class="card-row"><span class="stepnum" style="background:var(--teal);">1</span><strong>B vs BT</strong>: quale riferimento usare come metrica principale nell'articolo</div>
+                <div class="card-row"><span class="stepnum" style="background:var(--teal);">2</span><strong>Calibrazione bande</strong>: le soglie attuali sono ragionevoli per il triage reale?</div>
+                <div class="card-row"><span class="stepnum" style="background:var(--teal);">3</span><strong>Matching multi-CVE</strong>: il criterio "nome funzione" basta, o serve altro (riga di codice, tipo di bug)?</div>
+                <div class="card-row"><span class="stepnum" style="background:var(--teal);">4</span><strong>Interpolazione tra vettori</strong>: la distanza FIRST vettore&harr;vettore vera e propria (materiale Mariano) &mdash; oggi la distanza in spazio score usa i due score ricalcolati</div>
             </div>
         </div>
         <div class="col" style="justify-content:center;">
             <div class="callout gray" style="margin:0;max-width:100%;">
-                <strong>Come si procede:</strong> se una metrica alternativa vi convince, si implementa nello script (<code>utils/cvss_eval.py</code>) e si ricalcola tutto retroattivamente su run 1&ndash;3 &mdash; confronto diretto vecchio vs nuovo criterio sugli stessi dati.
+                <strong>Come si procede</strong> (gi&agrave; successo con la matematica ufficiale): la metrica nuova si implementa nello script (<code>utils/cvss_eval.py</code>) e si ricalcola tutto retroattivamente con <code>python -m utils.cvss_eval</code> &mdash; le run 1&ndash;3 hanno gi&agrave; i nuovi campi, zero run rilanciate.
             </div>
         </div>
     </div>
@@ -575,7 +579,7 @@ rows.sort(key=<span class="kw">lambda</span> r: r.get(<span class="str">"score"<
     <rect x="490" y="255" width="200" height="150" rx="10" fill="rgba(46,125,50,0.05)" stroke="#2e7d32" stroke-width="${hl==='cvss'?2.4:1.5}"/>
     <text x="590" y="280" text-anchor="middle" font-size="11" fill="#2e7d32" font-weight="700" letter-spacing="1.2">RAMO B &middot; SCRIPT PYTHON</text>
     <text x="590" y="303" text-anchor="middle" font-size="11.5" fill="#1c1a17">match finding &harr; CVE</text>
-    <text x="590" y="321" text-anchor="middle" font-size="11.5" fill="#1c1a17">bande score &middot; match vettore</text>
+    <text x="590" y="321" text-anchor="middle" font-size="11.5" fill="#1c1a17">bande score &middot; matematica 4.0</text>
     <text x="590" y="346" text-anchor="middle" font-size="10" fill="#78706e">zero LLM &middot; deterministico</text>
     <text x="590" y="362" text-anchor="middle" font-size="10" fill="#78706e">GT: cve_metrics_normalized.json</text>
     <text x="590" y="383" text-anchor="middle" font-size="10" fill="#78706e" font-family="'IBM Plex Mono',monospace">utils/cvss_eval.py &rarr; cvss_eval</text>

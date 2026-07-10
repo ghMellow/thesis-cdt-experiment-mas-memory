@@ -361,7 +361,13 @@ def _build_cvss_vector_detail(roles: Dict[str, List[Dict[str, Any]]]) -> List[st
     dataset legend), columns are estimated/published — a diverging field is
     then visible at a glance without recomputing it from the aggregate
     bands/matches above."""
-    from utils.cvss_eval import _parse_vector, EXPLOITABILITY_METRICS, IMPACT_METRICS, load_cvss_dataset
+    from utils.cvss_eval import (
+        _parse_vector,
+        EXPLOITABILITY_METRICS,
+        IMPACT_METRICS,
+        SUBSEQUENT_METRICS,
+        load_cvss_dataset,
+    )
 
     entries = []
     for role, payloads in sorted(roles.items()):
@@ -385,7 +391,9 @@ def _build_cvss_vector_detail(roles: Dict[str, List[Dict[str, Any]]]) -> List[st
         pub = _parse_vector(m.get("published_vector") or "")
         lines.append(f"| **{m['cve_id']}** — {role}, rep {rep} | estimated | published |")
         lines.append("|---|---|---|")
-        for code in metrics:
+        # SC/SI/SA rows only when the agent emitted them (requested since 2026-07-10).
+        shown_metrics = metrics + [c for c in SUBSEQUENT_METRICS if c in est]
+        for code in shown_metrics:
             label = f"{code} — {legend.get(code, {}).get('name', code)}"
             e_val, p_val = est.get(code, "-"), pub.get(code, "-")
             if e_val != p_val:
