@@ -250,5 +250,45 @@
   "expert/task9_vuln_cross/9803dbe31f275a83": {
     "equivalent": true,
     "explanation": "All three reasonings identify the same set of vulnerabilities: cross-NF SUPI validation inconsistencies, PCF CORS misconfiguration, AMF logic errors (missing default switch case and context type mismatch), and UDR flaws (missing return after 404 and ineffective regex bypass)."
+  },
+  "agent/task5_vuln_pcf/0ab41236b42d7e4f": {
+    "equivalent": false,
+    "explanation": "The second reasoning passage identifies an additional vulnerability related to a 'Lack of Input Validation/Sanitization' of the 'supi' parameter, which is not mentioned in the other two passages."
+  },
+  "agent/task6_vuln_udr/2703b631a0338642": {
+    "equivalent": false,
+    "explanation": "The first reasoning identifies three distinct vulnerabilities, including a nil pointer/logic error in HandleAmfContext3gpp, while the other two reasonings only identify two vulnerabilities."
+  },
+  "agent/task7_vuln_amf/888127a86c32a65e": {
+    "equivalent": false,
+    "explanation": "The three reasonings identify different sets of vulnerabilities: while all three mention inconsistent context state management and issues with error messages/reqbody, the first focuses on Content-Type bypass, the second on a hardcoded failure in HTTPN1N2MessageTransfer, and the third identifies a DoS vulnerability via unbounded memory allocation (GetRawData) which the others miss."
+  },
+  "agent/task8_vuln_udm/ec528e8b5d43e6c2": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same vulnerability (Inconsistent Input Validation/CWE-20), list the exact same set of affected and unaffected handlers, describe the same potential security impacts (Injection, DoS/Instability), and propose the same fix (consistent use of the validator package)."
+  },
+  "agent/task9_vuln_cross/e956259fc2041454": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same set of vulnerabilities: inconsistent UE identifier validation across UDM/UDR/PCF, permissive CORS in PCF, missing default case and type mismatch in AMF, and missing returns and ineffective regex in UDR."
+  },
+  "agent/task5_vuln_pcf/d5ed80fa1f88eed7": {
+    "equivalent": false,
+    "explanation": "The first reasoning focuses only on CORS misconfiguration and the middleware resource leak, while the second and third reasonings identify an additional vulnerability related to the lack of SUPI input validation."
+  },
+  "agent/task6_vuln_udr/7d81f343642c8bd6": {
+    "equivalent": false,
+    "explanation": "The first reasoning passage only identifies two vulnerabilities, whereas the second and third passages both identify a third vulnerability regarding an uninitialized variable in the Put handler."
+  },
+  "agent/task7_vuln_amf/6e95bac58e36942e": {
+    "equivalent": false,
+    "explanation": "Reasoning 1 identifies a critical logic error where three handlers skip deserialization entirely, whereas Reasonings 2 and 3 focus on a different logic error specifically within the HTTPN1N2MessageTransfer handler regarding JSON support."
+  },
+  "agent/task8_vuln_udm/e3b94624499dd9b9": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same vulnerability (Inconsistent Input Validation of the 'supi' parameter), list the exact same set of affected and non-affected handlers, and describe the same security impacts (injection, DoS, and information leakage) and fix."
+  },
+  "agent/task9_vuln_cross/f7963d248cf79a9e": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same set of vulnerabilities: inconsistent SUPI/UEID validation across UDM/PCF/UDR, permissive CORS in PCF, missing default case and type mismatch in AMF, and missing return statements and ineffective regex in UDR."
   }
 }
