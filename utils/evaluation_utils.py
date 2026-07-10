@@ -27,7 +27,7 @@ def _collect_results(results_path: str) -> Dict[str, Dict[str, List[Dict[str, An
     data: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
     if not base.exists():
         return data
-    _SKIP = {"evaluation", "validation"}
+    _SKIP = {"evaluation"}
     for task_dir in sorted(p for p in base.iterdir() if p.is_dir() and p.name not in _SKIP):
         for experiment_dir in sorted(p for p in task_dir.iterdir() if p.is_dir()):
             experiment_id = experiment_dir.name
