@@ -51,7 +51,7 @@ Materiale ausiliario: non necessario per capire lo stato attuale del sistema, ma
 |----------|-----------|
 | [supporto/calls/](supporto/calls/) | Verbali storici delle call (call_1, call_2, call_3) |
 | [supporto/calls/transcripts/](supporto/calls/transcripts/) | Trascrizioni audio grezze delle call (materiale-fonte dei verbali) |
-| [supporto/presentations/](supporto/presentations/) | Speech outline della tesi (`presentation_new.md`) |
+| [supporto/presentations/](supporto/presentations/) | Speech outline della tesi (`presentation_new.md`) + presentazioni HTML architettura-flusso a livelli: `architettura_flusso_v1_pre_cvss.html` (ruoli expert/beginner, 1A/1B, giudice, retry) e `architettura_flusso_v2_cvss.html` (agente unico, doppio ramo giudice/script CVSS, punti di uscita dati) |
 | [supporto/reference/](supporto/reference/) | Materiale esterno (modelli Ollama, paper RUBRICEVAL) |
 | [results_reference/](results_reference/) | Schema JSON dei risultati (`schema_math.json`, `schema_textual.json`) e pacchetto di validazione esterna (`validation/`) — spostati fuori da `results/` per non confonderli con gli output delle run |
 | [supporto/archive/](supporto/archive/) | Materiale storico grezzo (vecchio stack trace di debug) |

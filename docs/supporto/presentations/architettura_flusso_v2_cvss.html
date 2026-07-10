@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architettura v2 — flusso con CVSS (agente unico, doppia valutazione)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='32' height='32' rx='8' fill='%231a5faf'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='16' fill='white' font-family='monospace'%3Ev2%3C/text%3E%3C/svg%3E">
+    <style>
+        :root {
+            --bg: #f7f3ed; --surface: #ffffff; --surface2: #ede9e2; --surface3: #e6e0d6;
+            --border: rgba(0,0,0,0.09); --border-strong: rgba(0,0,0,0.16);
+            --purple: #7a5018; --purple-dark: #4e3210; --purple-light: #b8843a;
+            --purple-dim: rgba(122,80,24,0.11); --purple-faint: rgba(122,80,24,0.05);
+            --green: #1a5faf; --green-bg: rgba(26,95,175,0.05); --green-border: rgba(26,95,175,0.22);
+            --red: #8b2020; --red-bg: rgba(139,32,32,0.05); --red-border: rgba(139,32,32,0.22);
+            --amber: #b8843a; --amber-bg: rgba(184,132,58,0.07); --amber-border: rgba(184,132,58,0.28);
+            --blue: #1a5faf; --blue-bg: rgba(26,95,175,0.05); --blue-border: rgba(26,95,175,0.22);
+            --teal: #2e7d32; --teal-bg: rgba(46,125,50,0.06); --teal-border: rgba(46,125,50,0.25);
+            --mono: 'IBM Plex Mono', monospace; --serif: 'Playfair Display', Georgia, serif;
+            --sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --radius: 10px; --radius-sm: 6px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; background: var(--bg); color: var(--text, #1c1a17); font-family: var(--sans); overflow: hidden; color: #1c1a17; }
+        body::after {
+            content: ''; position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9998; opacity: 0.5;
+        }
+        code { font-family: var(--mono); font-size: 0.82em; background: rgba(122,80,24,0.09); color: var(--purple); padding: 1px 6px; border-radius: 3px; border: 1px solid rgba(122,80,24,0.18); }
+        .deck { width: 100vw; height: 100vh; position: relative; }
+        section {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 56px 76px;
+            opacity: 0; transform: translateY(12px);
+            transition: opacity 0.38s cubic-bezier(0.4,0,0.2,1), transform 0.38s cubic-bezier(0.4,0,0.2,1);
+            pointer-events: none;
+        }
+        section.active { opacity: 1; transform: none; pointer-events: auto; z-index: 1; }
+        section.left { align-items: flex-start; }
+        section.center { align-items: center; text-align: center; }
+        section.left::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+            background: linear-gradient(to bottom, transparent, var(--purple), transparent);
+            opacity: 0; transition: opacity 0.5s 0.15s;
+        }
+        section.left.active::before { opacity: 1; }
+        .eyebrow { font-size: 10px; font-weight: 600; color: var(--purple); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 12px; }
+        h1 { font-family: var(--serif); font-size: clamp(38px, 4.6vw, 60px); font-weight: 700; line-height: 1.1; letter-spacing: -0.5px; margin-bottom: 18px; }
+        h1 .accent { color: var(--purple); }
+        h2 { font-family: var(--serif); font-size: clamp(21px, 2.5vw, 33px); font-weight: 700; line-height: 1.2; margin-bottom: 16px; }
+        .subtitle { font-size: clamp(14px, 1.5vw, 18px); color: #78706e; font-weight: 400; line-height: 1.65; max-width: 660px; }
+        .divider { width: 44px; height: 3px; background: var(--purple); border-radius: 99px; }
+        ul.dl { list-style: none; max-width: 900px; width: 100%; }
+        ul.dl li { font-size: clamp(14px, 1.3vw, 17px); line-height: 1.6; padding: 10px 0 10px 28px; position: relative; color: rgba(28,26,23,0.82); }
+        ul.dl li::before { content: ''; position: absolute; left: 2px; top: 50%; transform: translateY(-50%); width: 7px; height: 7px; background: var(--purple); border-radius: 50%; opacity: 0.65; }
+        ul.dl li strong { color: #1c1a17; font-weight: 600; }
+        .cards { display: flex; gap: 14px; width: 100%; max-width: 1080px; align-items: stretch; }
+        .card { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 7px; box-shadow: var(--shadow-sm); }
+        .card.featured { border-top: 3px solid var(--purple); }
+        .card.ok { border-top: 3px solid var(--green); }
+        .card.bad { border-top: 3px solid var(--red); }
+        .card.warn { border-top: 3px solid var(--amber); }
+        .card.teal { border-top: 3px solid var(--teal); }
+        .card-tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: #78706e; }
+        .card.featured .card-tag { color: var(--purple); }
+        .card.ok .card-tag { color: var(--green); }
+        .card.warn .card-tag { color: var(--amber); }
+        .card.bad .card-tag { color: var(--red); }
+        .card.teal .card-tag { color: var(--teal); }
+        .card-title { font-size: 15px; font-weight: 600; color: #1c1a17; line-height: 1.3; }
+        .card-row { font-size: 13px; color: rgba(28,26,23,0.82); line-height: 1.6; padding: 6px 0; border-bottom: 1px solid var(--border); }
+        .card-row:last-child { border-bottom: none; }
+        .col > .card { flex: 0 0 auto; }
+        .card.plain { border-top: 3px solid #8d857a; background: var(--surface); box-shadow: var(--shadow-sm); }
+        .card.plain .card-tag { color: #6b6257; }
+        .stepnum { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; border-radius: 50%; background: var(--purple); color: #fff; font-size: 12px; font-weight: 700; margin-right: 8px; font-family: var(--mono); vertical-align: middle; }
+        .stepnum.muted { background: var(--surface3); color: #78706e; }
+        .callout { border-radius: var(--radius-sm); padding: 12px 16px; font-size: 13px; font-weight: 500; max-width: 1020px; width: 100%; margin-top: 14px; line-height: 1.6; }
+        .callout.purple { background: var(--purple-faint); border: 1px solid var(--purple-dim); color: var(--purple-dark); }
+        .callout.amber { background: var(--amber-bg); border: 1px solid var(--amber-border); color: #92400E; }
+        .callout.red { background: var(--red-bg); border: 1px solid var(--red-border); color: #B91C1C; }
+        .callout.blue { background: var(--blue-bg); border: 1px solid var(--blue-border); color: #1D4ED8; }
+        .callout.teal { background: var(--teal-bg); border: 1px solid var(--teal-border); color: #1b5e20; }
+        .callout.gray { background: var(--surface3); border: 1px solid var(--border); color: rgba(28,26,23,0.82); }
+        .cb { background: #1E1E2E; border-radius: var(--radius); padding: 15px 17px; font-family: var(--mono); font-size: 11px; line-height: 1.75; color: #CDD6F4; white-space: pre; overflow-x: auto; }
+        .cb .kw { color: #CBA6F7; } .cb .fn { color: #89B4FA; } .cb .str { color: #A6E3A1; } .cb .cm { color: #6C7086; }
+        .two-col { display: flex; gap: 30px; width: 100%; max-width: 1090px; align-items: stretch; }
+        .col { flex: 1; display: flex; flex-direction: column; }
+        .flow-wrap { width: 100%; max-width: 1180px; display: flex; justify-content: center; }
+        .flow-wrap svg { width: 100%; height: auto; }
+        .zoom-note { font-size: 13px; color: #78706e; margin-top: 8px; font-style: italic; }
+        .dtable-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); width: 100%; max-width: 1000px; }
+        .dtable { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .dtable th { text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: #78706e; padding: 9px 14px; border-bottom: 2px solid var(--border); }
+        .dtable td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: rgba(28,26,23,0.82); vertical-align: middle; }
+        .dtable tr:last-child td { border-bottom: none; }
+        .nav-bar { position: fixed; bottom: 24px; right: 32px; display: flex; align-items: center; gap: 10px; z-index: 100; }
+        .nav-btn { width: 32px; height: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #78706e; box-shadow: var(--shadow-sm); transition: all 0.15s; font-size: 13px; }
+        .nav-btn:hover { border-color: var(--purple); color: var(--purple); background: var(--purple-faint); }
+        .slide-count { font-size: 11px; font-weight: 500; color: #78706e; font-family: var(--mono); }
+        .slide-count span { color: var(--purple); }
+        .progress { position: fixed; bottom: 0; left: 0; height: 2px; background: linear-gradient(to right, var(--purple-light), var(--purple)); transition: width 0.38s ease; z-index: 100; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 280px; height: 100vh; background: var(--surface); border-right: 1px solid var(--border); padding: 46px 14px 20px; overflow-y: auto; z-index: 200; transform: translateX(-100%); transition: transform 0.28s cubic-bezier(0.4,0,0.2,1); box-shadow: var(--shadow-md); }
+        .sidebar.open { transform: translateX(0); }
+        .sb-title { font-size: 9px; font-weight: 600; color: #78706e; text-transform: uppercase; letter-spacing: 3px; padding: 0 8px; margin-bottom: 14px; }
+        .sb-item { font-size: 11px; padding: 7px 10px; margin: 2px 0; color: #78706e; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; line-height: 1.4; border-left: 2px solid transparent; }
+        .sb-item:hover { color: #1c1a17; background: var(--surface2); }
+        .sb-item.active { color: var(--purple); border-left-color: var(--purple); background: var(--purple-faint); font-weight: 500; }
+        .sb-num { font-family: var(--mono); font-size: 9px; color: rgba(28,26,23,0.35); margin-right: 6px; }
+        .hamburger { position: fixed; top: 18px; left: 18px; width: 34px; height: 34px; cursor: pointer; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow-sm); }
+        .hamburger span { width: 16px; height: 1.5px; background: #78706e; display: block; }
+        .hamburger:hover span { background: var(--purple); }
+        .overlay { position: fixed; inset: 0; background: rgba(17,24,39,0.25); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.28s; }
+        .overlay.visible { opacity: 1; pointer-events: auto; }
+        .hint { position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 500; color: #78706e; background: var(--surface); border: 1px solid var(--border); padding: 4px 12px; border-radius: 999px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; box-shadow: var(--shadow-sm); white-space: nowrap; }
+        .hint.visible { opacity: 1; }
+    </style>
+</head>
+<body>
+
+<div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+<div class="overlay" id="overlay"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sb-title">Indice</div>
+    <div id="sb-content"></div>
+</div>
+
+<div class="deck" id="deck">
+
+<!-- 01 · COVER -->
+<section id="s01" class="active center">
+    <div class="eyebrow">Multi-Agent Experiment 5G &middot; Architettura &middot; Versione 2</div>
+    <h1>Il flusso <span class="accent">con il CVSS</span></h1>
+    <div class="divider" style="margin: 16px auto;"></div>
+    <p class="subtitle" style="text-align:center;">Agente unico (niente pi&ugrave; expert/beginner), un solo prompt che chiede anche la stima CVSS, e due valutazioni indipendenti: giudice LLM per il testo, script deterministico per i vettori. Con i punti di uscita per usare i dati come volete.</p>
+</section>
+
+<!-- 02 · COSA CAMBIA -->
+<section id="s02" class="left">
+    <div class="eyebrow">v1 &rarr; v2</div>
+    <h2>Cosa cambia rispetto alla versione precedente</h2>
+    <div class="cards">
+        <div class="card bad">
+            <div class="card-tag">Rimosso</div>
+            <div class="card-title">Ruoli expert / beginner</div>
+            <div class="card-row">Le run a 3 ripetizioni mostrano gap minimo tra i ruoli (decisione call 2026-07-10)</div>
+            <div class="card-row">Resta <strong>un solo agente</strong> con un prompt neutro di security review</div>
+        </div>
+        <div class="card warn">
+            <div class="card-tag">Semplificato</div>
+            <div class="card-title">Modelli agente / giudice</div>
+            <div class="card-row">Niente pi&ugrave; setup 1A/1B legati ai ruoli</div>
+            <div class="card-row">Agente e giudice possono usare lo <strong>stesso modello o modelli diversi</strong> &mdash; &egrave; solo una voce in <code>config.py &rarr; MODELS</code></div>
+        </div>
+        <div class="card ok">
+            <div class="card-tag">Aggiunto</div>
+            <div class="card-title">Ramo CVSS (Blocco B)</div>
+            <div class="card-row">Il prompt chiede anche, <strong>per ogni vulnerabilit&agrave; trovata</strong>: vettore CVSS 4.0 + score</div>
+            <div class="card-row">Valutato da uno <strong>script Python</strong>, mai dal giudice &mdash; i due rami non si toccano</div>
+        </div>
+    </div>
+    <div class="callout gray">
+        Invariati: ripetizioni indipendenti (temperatura 0.3), retry ciechi guidati dal giudice, salvataggio JSON completo di ogni tentativo.
+    </div>
+</section>
+
+<!-- 03 · OVERVIEW -->
+<section id="s03">
+    <div class="eyebrow">Livello 0 &middot; Vista dall'alto</div>
+    <h2>Il flusso completo: un prompt, due rami di valutazione</h2>
+    <div class="flow-wrap"><div class="ov" data-hl=""></div></div>
+    <div class="callout gray" style="margin-top:8px;">
+        Un unico prompt entra nell'agente. La risposta esce <strong>gi&agrave; divisa in due parti</strong>: il testo va al giudice (ramo A, LLM), la stima CVSS va allo script (ramo B, zero LLM). I due rami non si influenzano mai e confluiscono nello stesso file JSON.
+    </div>
+</section>
+
+<!-- 04 · ZOOM PROMPT+AGENTE -->
+<section id="s04">
+    <div class="eyebrow">Livello 1 &middot; Zoom</div>
+    <h2>Blocco 1 &mdash; Il prompt unico e l'agente</h2>
+    <div class="flow-wrap"><div class="ov" data-hl="agent"></div></div>
+    <p class="zoom-note">Tutto in una sola chiamata: task, contesto NF e istruzioni CVSS. L'agente non sa di essere valutato in due modi.</p>
+</section>
+
+<!-- 05 · DETTAGLIO PROMPT -->
+<section id="s05" class="left">
+    <div class="eyebrow">Blocco 1 &middot; Dettaglio</div>
+    <h2>Cosa contiene il prompt (nell'ordine)</h2>
+    <div class="two-col">
+        <div class="col">
+            <ul class="dl" style="max-width:100%;">
+                <li><strong>1 &middot; Il task</strong>: scenario + codice Go di una NF free5GC, richiesta di security review cieca (<code>docs/tasks/&lt;task&gt;.md</code>)</li>
+                <li><strong>2 &middot; Hint di contesto NF</strong> (attivabile, <code>CVSS_CONTEXT_HINT_ENABLED</code>): un paragrafo che dice all'agente che il codice gira in un core 5G con OAuth2/mTLS sulla SBI &mdash; serve per stimare l'<em>impatto</em> in modo realistico</li>
+                <li><strong>3 &middot; Istruzioni CVSS</strong> (<code>utils/cvss_utils.py</code>): per ogni vulnerabilit&agrave; trovata, emettere <code>function / vector / score</code>. Include la legenda completa dei valori CVSS 4.0, <strong>mai</strong> i valori corretti</li>
+                <li>Il file del task su disco <strong>non viene toccato</strong>: hint e istruzioni sono iniettati a runtime</li>
+            </ul>
+        </div>
+        <div class="col" style="justify-content:center;">
+            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:#78706e;margin-bottom:6px;">Output dell'agente (un'unica risposta)</div>
+            <div class="cb"><span class="cm">### Answer</span>
+La review testuale: vulnerabilit&agrave;, dove, perch&eacute; ...
+<span class="cm">### Reasoning</span>  /  <span class="cm">### Confidence</span>
+...                    0.8
+
+<span class="cm">### CVSS Estimate      ← la parte nuova</span>
+function: HTTPQueryAmData
+vector: CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N
+        /VC:H/VI:N/VA:N
+score: 6.9
+
+function: HTTPModifyAmData
+vector: ...
+score: ...</div>
+        </div>
+    </div>
+</section>
+
+<!-- 06 · ZOOM RAMO A -->
+<section id="s06">
+    <div class="eyebrow">Livello 1 &middot; Zoom</div>
+    <h2>Ramo A &mdash; Il giudice a rubrica (come in v1)</h2>
+    <div class="flow-wrap"><div class="ov" data-hl="judge"></div></div>
+    <p class="zoom-note">Valuta solo il testo. Non vede mai la stima CVSS n&eacute; la ground truth.</p>
+</section>
+
+<!-- 07 · DETTAGLIO RAMO A -->
+<section id="s07" class="left">
+    <div class="eyebrow">Ramo A &middot; Dettaglio</div>
+    <h2>Giudice: valuta il testo, decide i retry</h2>
+    <div class="two-col">
+        <div class="col">
+            <ul class="dl" style="max-width:100%;">
+                <li><strong>Input</strong>: scenario + rubrica pesata + risposta testuale dell'agente. La sezione <code>### CVSS Estimate</code> <strong>non gli viene passata</strong></li>
+                <li><strong>Verdetto</strong>: somma punteggi per criterio &rarr; normalizza &rarr; <em>correct</em> se &ge; 0.7</li>
+                <li><strong>Retry</strong>: se <em>wrong</em> e restano tentativi, l'agente riprova vedendo <em>solo la propria risposta precedente</em> (mai feedback, punteggio o soluzione)</li>
+                <li><strong>Ruolo nel sistema</strong>: automazione interna &mdash; evita la validazione manuale di ogni output e d&agrave; all'agente una chance di auto-correzione. &Egrave; un dettaglio della "scatola nera": chi consuma gli output pu&ograve; ignorarlo</li>
+            </ul>
+        </div>
+        <div class="col" style="justify-content:center;">
+            <div class="callout blue" style="margin:0;max-width:100%;">
+                <strong>Perch&eacute; tenerlo, in ottica articolo:</strong> il framework ad agenti con validatore &egrave; lo standard corrente per ridurre allucinazioni con modelli locali/limitati. Ma il sistema funziona anche bypassandolo: il ramo CVSS non dipende in alcun modo dal giudice.
+            </div>
+            <div class="callout amber" style="max-width:100%;">
+                <strong>Modello del giudice:</strong> voce separata <code>MODELS["judge"]</code> &mdash; pu&ograve; essere lo stesso dell'agente o uno diverso. Se coincide, c'&egrave; un bias di stile noto: da giustificare nella run definitiva.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 08 · ZOOM RAMO B -->
+<section id="s08">
+    <div class="eyebrow">Livello 1 &middot; Zoom</div>
+    <h2>Ramo B &mdash; Lo script CVSS (deterministico)</h2>
+    <div class="flow-wrap"><div class="ov" data-hl="cvss"></div></div>
+    <p class="zoom-note">Zero LLM: puro Python che confronta la stima con la ground truth. Non influenza mai il verdetto del giudice.</p>
+</section>
+
+<!-- 09a · RAMO B — LA GROUND TRUTH -->
+<section id="s09a" class="left">
+    <div class="eyebrow">Ramo B &middot; Dettaglio 1/4</div>
+    <h2>Il riferimento: la ground truth delle CVE reali</h2>
+    <div class="two-col">
+        <div class="col">
+            <ul class="dl" style="max-width:100%;">
+                <li><strong>Dataset</strong>: <code>File_Free5gc_Vulnerabili/cve_metrics_normalized.json</code> &mdash; le CVE 2026 di free5GC, una entry per CVE, mappata sul task che contiene quel codice</li>
+                <li><strong>Score e vettore sono quelli ufficiali pubblicati</strong> (NVD o CNA, campo <code>cvss_source</code>): il nostro codice <em>non calcola nulla</em> lato ground truth</li>
+                <li><strong>score_type B vs BT</strong>: per 3 CVE lo score pubblicato include la metrica Threat E (BT, pi&ugrave; basso); per quelle il dataset ha anche <code>base_score_B</code>, il base puro ricalcolato una tantum con la libreria Python <code>cvss</code></li>
+                <li><strong><code>handler_functions</code></strong>: i nomi delle funzioni vulnerabili &mdash; sono la chiave con cui lo script aggancia i finding dell'agente alle CVE</li>
+            </ul>
+        </div>
+        <div class="col" style="justify-content:center;">
+            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:#78706e;margin-bottom:6px;">Una entry del dataset (struttura semplificata)</div>
+            <div class="cb">{
+  <span class="str">"id"</span>: <span class="str">"CVE-2026-…"</span>,
+  <span class="str">"task_id"</span>: <span class="str">"task8_vuln_udm"</span>,
+  <span class="str">"handler_functions"</span>: [<span class="str">"HTTPQueryAmData"</span>, …],
+  <span class="str">"in_task_excerpt"</span>: <span class="kw">true</span>,
+  <span class="str">"cvss_source"</span>: <span class="str">"NVD"</span>,     <span class="cm">← fonte ufficiale</span>
+  <span class="str">"cvss"</span>: {
+    <span class="str">"base_score"</span>: <span class="kw">8.7</span>,      <span class="cm">← pubblicato</span>
+    <span class="str">"score_type"</span>: <span class="str">"B"</span>,      <span class="cm">← B o BT</span>
+    <span class="str">"base_score_B"</span>: <span class="kw">null</span>,   <span class="cm">← solo se BT</span>
+    <span class="str">"vector"</span>: <span class="str">"CVSS:4.0/AV:N/…/VC:H/VI:N/VA:N/…"</span>,
+    <span class="str">"base_metrics"</span>: { <span class="str">"AV"</span>:<span class="str">"N"</span>, <span class="str">"VC"</span>:<span class="str">"H"</span>, … }
+  }
+}</div>
+        </div>
+    </div>
+    <div class="callout blue">
+        <strong>Nota metodologica:</strong> in CVSS 4.0 lo score <em>non</em> &egrave; una somma di pesi per lettera &mdash; deriva da macrovettori + lookup table ufficiale FIRST. Per questo lo script non converte mai vettore &rarr; score da nessuna parte: confronta numeri con numeri e lettere con lettere, sempre contro valori pubblicati.
+    </div>
+</section>
+
+<!-- 09b · RAMO B — MATCHING (incipit) -->
+<section id="s09b" class="left">
+    <div class="eyebrow">Ramo B &middot; Dettaglio 2/4</div>
+    <h2>Passo 1 &mdash; Abbinare i finding alle CVE (l'incipit di tutto)</h2>
+    <div class="two-col">
+        <div class="col">
+            <div class="card ok" style="margin-bottom:12px;">
+                <div class="card-tag"><span class="stepnum" style="background:var(--blue);">1</span>Caso semplice &middot; la maggior parte dei task</div>
+                <div class="card-title">1 CVE nel file &rarr; abbinamento diretto</div>
+                <div class="card-row">Una sola CVE attesa, un finding dell'agente: quel finding <em>&egrave;</em> la stima per quella CVE. Nessun matching necessario</div>
+            </div>
+            <div class="card featured" style="margin-bottom:0;">
+                <div class="card-tag"><span class="stepnum">2</span>Caso multi-CVE &middot; es. task6 (UDR) &mdash; il cuore del passo 1</div>
+                <div class="card-title" style="font-size:17px;">Pi&ugrave; CVE nello stesso file &rarr; match sul nome della funzione</div>
+                <div class="card-row">Qui il problema esiste davvero: l'agente riporta pi&ugrave; finding, il file ha pi&ugrave; CVE &mdash; <em>quale stima confronto con quale CVE?</em></div>
+                <div class="card-row">La chiave &egrave; il campo <code>function</code> che l'agente compila per ogni finding: il nome della <strong>funzione Go che gestisce la richiesta</strong> (handler), confrontato con le <code>handler_functions</code> registrate nella ground truth di ogni CVE</div>
+                <div class="card-row">Match per sottostringa, case-insensitive: "HTTPQueryAmData handler" o "httpqueryamdata" agganciano comunque</div>
+            </div>
+        </div>
+        <div class="col">
+            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--purple);margin-bottom:6px;"><span class="stepnum" style="min-width:18px;height:18px;font-size:10px;">2</span>l'esempio del match sul nome funzione</div>
+            <div class="cb" style="margin-bottom:16px;"><span class="cm"># finding dell'agente          # ground truth (CVE)</span>
+function: <span class="str">"HTTPQueryAmData"</span>  &harr;  handler_functions:
+vector:   CVSS:4.0/…              [<span class="str">"HTTPQueryAmData"</span>]
+score:    6.9                     &rarr; <span class="fn">abbinato a quella CVE</span></div>
+            <div class="card ok" style="margin-bottom:12px;">
+                <div class="card-tag"><span class="stepnum" style="background:var(--blue);">3</span>I casi residui</div>
+                <div class="card-row">Finding senza CVE corrispondente: contati a parte (<code>unmatched_findings</code>), <strong>mai penalizzati</strong></div>
+                <div class="card-row">CVE attese che nessun finding copre &rarr; <code>missed_cves</code></div>
+            </div>
+            <div class="callout teal" style="margin:0;max-width:100%;">
+                Il "non penalizzare i finding extra" &egrave; una scelta di design: sono esattamente il caso d'uso che interessa a voi &mdash; potenziali vulnerabilit&agrave; <em>senza</em> CVE associata.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 09c · RAMO B — COME VALUTIAMO (PER ORA) -->
+<section id="s09c" class="left">
+    <div class="eyebrow">Ramo B &middot; Dettaglio 3/4</div>
+    <h2>Passi 2&ndash;3 &mdash; Come valutiamo, per ora (criteri rivedibili)</h2>
+    <div class="two-col">
+        <div class="col">
+            <div class="card ok" style="margin-bottom:12px;">
+                <div class="card-tag"><span class="stepnum" style="background:var(--blue);">2</span>Passo 2 &middot; Score a fasce (banda)</div>
+                <div class="card-title">Quanto ci azzecca il <em>numero</em></div>
+                <div class="card-row">&Delta; = |score stimato &minus; score di riferimento|, poi punti a fasce:</div>
+                <div class="card-row" style="font-family:var(--mono);font-size:12px;">&Delta; &le; 0.5 &rarr; 3 pt &nbsp;&middot;&nbsp; &Delta; &le; 1.5 &rarr; 2 pt &nbsp;&middot;&nbsp; &Delta; &le; 3.0 &rarr; 1 pt &nbsp;&middot;&nbsp; oltre &rarr; 0 pt</div>
+                <div class="card-row">Calcolato <strong>due volte</strong>: vs score pubblicato ("banda vs pubblicato") e vs base B puro ("banda vs base B")</div>
+                <div class="card-row">Esempio: stimato 6.9 vs pubblicato 8.7 &rarr; &Delta; = 1.8 &rarr; <strong>1 pt</strong></div>
+            </div>
+            <div class="callout amber" style="margin:0;max-width:100%;">
+                Le soglie (0.5 / 1.5 / 3.0) sono <strong>provvisorie</strong>, decise in call 10 e centralizzate in <code>config.CVSS_SCORE_BANDS</code>: ricalibrarle &egrave; un cambio di una riga, i dati grezzi restano invariati.
+            </div>
+        </div>
+        <div class="col">
+            <div class="card warn" style="margin-bottom:12px;">
+                <div class="card-tag"><span class="stepnum" style="background:var(--amber);">3</span>Passo 3 &middot; Vettore campo per campo</div>
+                <div class="card-title">Quanto ci azzecca con le <em>lettere</em></div>
+                <div class="card-row"><strong>Exploitability</strong> (AV/AC/AT/PR/UI): conta i campi uguali, 0&ndash;5</div>
+                <div class="card-row"><strong>Impatto</strong> (VC/VI/VA): 0&ndash;3 &mdash; su questo dataset l'exploitability &egrave; quasi costante tra CVE, &egrave; <em>l'impatto</em> che discrimina</div>
+                <div class="card-row">Confronto <strong>binario</strong>: H vs L vale zero come H vs N &mdash; nessuna nozione di distanza</div>
+            </div>
+            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:#78706e;margin-bottom:6px;">Come appare nei report (campi divergenti in evidenza)</div>
+            <div class="cb">| CVE-2026-…  — rep 3      | stimato | pubblicato |
+|--------------------------|---------|------------|
+| AV — Attack Vector       |   N     |    N       |
+| PR — Privileges Required |   L     |    L       |
+| VC — Confidentiality     |  <span class="str">*L*</span>    |   <span class="str">*H*</span>       |
+| VI — Integrity           |   N     |    N       |</div>
+        </div>
+    </div>
+    <div class="callout gray">
+        "Per ora": questi due criteri sono la baseline funzionante, non la parola definitiva &mdash; la slide successiva elenca dove possono evolvere.
+    </div>
+</section>
+
+<!-- 09d · RAMO B — DOVE INTERVENIRE -->
+<section id="s09d" class="left">
+    <div class="eyebrow">Ramo B &middot; Dettaglio 4/4</div>
+    <h2>Dove servono le vostre idee</h2>
+    <div class="callout red" style="margin-top:0;margin-bottom:18px;font-size:15px;padding:16px 20px;">
+        <strong>Il punto chiave per voi:</strong> tutto ci&ograve; che serve per provare criteri alternativi &egrave; gi&agrave; salvato nei JSON (vettore stimato, vettore pubblicato, entrambi gli score, nomi funzione). Cambiare la metrica di valutazione <strong>non richiede rilanciare le run</strong>: si riprocessano i risultati esistenti.
+    </div>
+    <div class="two-col">
+        <div class="col">
+            <div class="card teal" style="margin-bottom:0;">
+                <div class="card-tag">Temi aperti &middot; in ordine di impatto</div>
+                <div class="card-row"><span class="stepnum" style="background:var(--teal);">1</span><strong>Distanza sul vettore</strong>: sostituire il binario con la matematica ufficiale 4.0 (macrovettori + lookup + distanza, materiale Mariano)</div>
+                <div class="card-row"><span class="stepnum" style="background:var(--teal);">2</span><strong>Coerenza interna</strong>: oggi vettore e score dell'agente sono due stime indipendenti &mdash; nessuno verifica che il vettore stimato <em>produca</em> lo score stimato</div>
+                <div class="card-row"><span class="stepnum" style="background:var(--teal);">3</span><strong>B vs BT</strong>: quale riferimento usare come metrica principale nell'articolo</div>
+                <div class="card-row"><span class="stepnum" style="background:var(--teal);">4</span><strong>Calibrazione bande</strong>: le soglie attuali sono ragionevoli per il triage reale?</div>
+                <div class="card-row"><span class="stepnum" style="background:var(--teal);">5</span><strong>Matching multi-CVE</strong>: il criterio "nome funzione" basta, o serve altro (riga di codice, tipo di bug)?</div>
+            </div>
+        </div>
+        <div class="col" style="justify-content:center;">
+            <div class="callout gray" style="margin:0;max-width:100%;">
+                <strong>Come si procede:</strong> se una metrica alternativa vi convince, si implementa nello script (<code>utils/cvss_eval.py</code>) e si ricalcola tutto retroattivamente su run 1&ndash;3 &mdash; confronto diretto vecchio vs nuovo criterio sugli stessi dati.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 10 · ZOOM OUTPUT -->
+<section id="s10">
+    <div class="eyebrow">Livello 1 &middot; Zoom</div>
+    <h2>Blocco finale &mdash; Output e punti di uscita</h2>
+    <div class="flow-wrap"><div class="ov" data-hl="out"></div></div>
+    <p class="zoom-note">Tutto confluisce in un JSON per run. Da l&igrave; i dati si estraggono e si usano come si vuole.</p>
+</section>
+
+<!-- 11 · DETTAGLIO OUTPUT JSON -->
+<section id="s11" class="left">
+    <div class="eyebrow">Output &middot; Dettaglio</div>
+    <h2>Il JSON di risultato: dove sta cosa</h2>
+    <div class="two-col">
+        <div class="col" style="justify-content:center;">
+            <div class="cb">{
+  <span class="str">"task_id"</span>: <span class="str">"task8_vuln_udm"</span>, <span class="str">"model"</span>: ...,
+  <span class="str">"repetitions"</span>: [
+    {
+      <span class="str">"final_answer"</span>: {
+        <span class="str">"answer"</span>: ..., <span class="str">"reasoning"</span>: ...,
+        <span class="str">"cvss_estimate"</span>: {          <span class="cm">← stima grezza</span>
+          <span class="str">"findings"</span>: [ {<span class="str">"function"</span>, <span class="str">"vector"</span>, <span class="str">"score"</span>} ]
+        }
+      },
+      <span class="str">"verdict"</span>: <span class="str">"correct"</span>,          <span class="cm">← ramo A (giudice)</span>
+      <span class="str">"judge_score"</span>: { ... },
+      <span class="str">"cvss_eval"</span>: {                <span class="cm">← ramo B (script)</span>
+        <span class="str">"matched"</span>: [ { <span class="str">"cve_id"</span>, <span class="str">"estimated_vector"</span>,
+          <span class="str">"published_vector"</span>, <span class="str">"score_band_vs_published"</span>,
+          <span class="str">"impact_match"</span>, ... } ],
+        <span class="str">"missed_cves"</span>: [...], <span class="str">"aggregates"</span>: {...}
+      }
+    }
+  ]
+}</div>
+        </div>
+        <div class="col">
+            <ul class="dl" style="max-width:100%;">
+                <li><strong><code>final_answer.cvss_estimate</code></strong> &mdash; ci&ograve; che il modello ha detto, cos&igrave; com'&egrave;: la lista di finding con vettore e score</li>
+                <li><strong><code>verdict</code> / <code>judge_score</code></strong> &mdash; l'esito del ramo A (rubrica)</li>
+                <li><strong><code>cvss_eval</code></strong> &mdash; l'esito del ramo B: matching, bande, vettori stimato vs pubblicato affiancati</li>
+                <li>Schema completo documentato in <code>docs/results_reference/schema_textual.json</code>, con un campo <code>overview</code> che spiega come leggere il file</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- 12 · PUNTI DI USCITA -->
+<section id="s12" class="left">
+    <div class="eyebrow">Output &middot; Per chi consuma i dati</div>
+    <h2>Punti di uscita: prendere i vettori e usarli come volete</h2>
+    <div class="two-col">
+        <div class="col">
+            <ul class="dl" style="max-width:100%;">
+                <li><strong>Uscita 1 &mdash; le stime grezze</strong>: ogni <code>cvss_estimate.findings</code> &egrave; gi&agrave; una <strong>lista JSON di vulnerabilit&agrave; con vettore e score</strong>. Si estrae con due righe e si ordina, filtra, esporta come si vuole (es. ranking decrescente per triage manuale &mdash; proposta Lorenzo)</li>
+                <li><strong>Uscita 2 &mdash; il confronto con la GT</strong>: <code>cvss_eval</code> d&agrave; il quadro gi&agrave; valutato (matched/missed, bande, campi divergenti), utile per le metriche dell'articolo</li>
+                <li><strong>Uscita 3 &mdash; i report leggibili</strong>: tabelle Markdown per-CVE con vettore stimato vs pubblicato affiancati, campi divergenti in grassetto (<code>results/evaluation/</code>)</li>
+                <li>Nessuna uscita richiede il giudice: la scatola nera resta "codice dentro &rarr; lista di vulnerabilit&agrave; quantificate fuori"</li>
+            </ul>
+        </div>
+        <div class="col" style="justify-content:center;">
+            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:#78706e;margin-bottom:6px;">Esempio: tutti i vettori stimati, ordinati per score</div>
+            <div class="cb"><span class="kw">import</span> json, glob
+
+rows = []
+<span class="kw">for</span> f <span class="kw">in</span> glob.glob(<span class="str">"results/*/*/*/*.json"</span>):
+    data = json.load(<span class="fn">open</span>(f))
+    <span class="kw">for</span> rep <span class="kw">in</span> data[<span class="str">"repetitions"</span>]:
+        est = rep[<span class="str">"final_answer"</span>].get(<span class="str">"cvss_estimate"</span>) <span class="kw">or</span> {}
+        rows += est.get(<span class="str">"findings"</span>, [])
+
+rows.sort(key=<span class="kw">lambda</span> r: r.get(<span class="str">"score"</span>, 0), reverse=<span class="kw">True</span>)
+<span class="cm"># → lista pronta: [{"function", "vector", "score"}, ...]</span></div>
+            <div class="callout teal" style="max-width:100%;">
+                Questo &egrave; il punto chiave per l'esperimento 3 (SonarQube + LLM): stesso formato di output, cambia solo l'input.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 13 · RIEPILOGO -->
+<section id="s13" class="center">
+    <div class="eyebrow">Riepilogo v2</div>
+    <h2>Il sistema con CVSS in tre frasi</h2>
+    <div class="cards" style="max-width:980px;margin-top:10px;">
+        <div class="card featured">
+            <div class="card-tag">1 &middot; Un prompt</div>
+            <div class="card-row" style="border:none;">Un solo agente riceve task + contesto NF + istruzioni CVSS in una chiamata unica, e risponde con review testuale <em>e</em> lista di finding quantificati (vettore + score).</div>
+        </div>
+        <div class="card featured">
+            <div class="card-tag">2 &middot; Due valutazioni indipendenti</div>
+            <div class="card-row" style="border:none;">Ramo A: giudice LLM a rubrica sul testo (decide verdetto e retry). Ramo B: script Python deterministico sui vettori CVSS. Non si parlano mai.</div>
+        </div>
+        <div class="card featured">
+            <div class="card-tag">3 &middot; Output riusabile</div>
+            <div class="card-row" style="border:none;">I vettori escono come lista JSON pronta all'uso: ranking, triage manuale, metriche per l'articolo, input per l'esperimento SonarQube+LLM.</div>
+        </div>
+    </div>
+    <p style="font-size:13px;color:#78706e;margin-top:22px;font-style:italic;">Prossimi passi sul ramo B: matematica ufficiale CVSS 4.0 (macrovettori + lookup) al posto del confronto per lettera.</p>
+</section>
+
+</div>
+
+<!-- UI CHROME -->
+<div class="nav-bar">
+    <button class="nav-btn" id="btn-prev" title="Precedente (&#8592;)">&#8592;</button>
+    <div class="slide-count"><span id="cur">1</span> / <span id="tot">13</span></div>
+    <button class="nav-btn" id="btn-next" title="Successiva (&#8594;)">&#8594;</button>
+</div>
+<div class="progress" id="progress" style="width:7.7%"></div>
+<div class="hint" id="hint">&#8592; &#8594; per navigare &middot; ESC per l'indice</div>
+
+<script>
+    // ── Overview diagram v2 (with branch), highlightable per block ──
+    // Blocks: agent | judge | cvss | out
+    function overviewSVG(hl) {
+        const dim = (k) => (hl && hl !== k) ? 'opacity:0.22;' : '';
+        const glow = (k) => (hl === k) ? 'filter:drop-shadow(0 3px 10px rgba(122,80,24,0.35));' : '';
+        const u = hl || 'x';
+        return `
+<svg viewBox="0 0 1180 430" xmlns="http://www.w3.org/2000/svg" font-family="'Inter',sans-serif">
+  <defs>
+    <marker id="a${u}" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#7a5018"/></marker>
+    <marker id="b${u}" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#1a5faf"/></marker>
+    <marker id="g${u}" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#2e7d32"/></marker>
+    <marker id="r${u}" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#8b2020"/></marker>
+  </defs>
+
+  <!-- repetition bracket -->
+  <g style="${hl?'opacity:0.18;':''}">
+    <rect x="12" y="14" width="880" height="402" rx="12" fill="none" stroke="#b8843a" stroke-width="1.2" stroke-dasharray="7,5"/>
+    <rect x="620" y="4" width="250" height="22" rx="11" fill="#f7f3ed" stroke="#b8843a" stroke-width="1"/>
+    <text x="745" y="19" text-anchor="middle" font-size="11" fill="#92400E" font-weight="600" font-family="'IBM Plex Mono',monospace">&#215; REPETITIONS (T = 0.3, run indipendenti)</text>
+  </g>
+
+  <!-- BLOCK: prompt+agent -->
+  <g style="${dim('agent')}${glow('agent')}">
+    <rect x="28" y="130" width="185" height="170" rx="10" fill="#fff" stroke="#7a5018" stroke-width="${hl==='agent'?2.4:1.5}"/>
+    <text x="120" y="156" text-anchor="middle" font-size="11" fill="#7a5018" font-weight="700" letter-spacing="1.5">PROMPT UNICO</text>
+    <text x="120" y="182" text-anchor="middle" font-size="12" fill="#1c1a17">1 &middot; task + codice Go</text>
+    <text x="120" y="202" text-anchor="middle" font-size="12" fill="#1c1a17">2 &middot; hint contesto NF</text>
+    <text x="120" y="222" text-anchor="middle" font-size="12" fill="#1c1a17">3 &middot; istruzioni CVSS</text>
+    <text x="120" y="250" text-anchor="middle" font-size="10" fill="#78706e">mai la soluzione,</text>
+    <text x="120" y="265" text-anchor="middle" font-size="10" fill="#78706e">mai la rubrica</text>
+    <line x1="213" y1="215" x2="248" y2="215" stroke="#7a5018" stroke-width="1.6" marker-end="url(#a${u})"/>
+    <rect x="253" y="150" width="160" height="130" rx="10" fill="rgba(122,80,24,0.06)" stroke="#7a5018" stroke-width="${hl==='agent'?2.4:1.5}"/>
+    <text x="333" y="180" text-anchor="middle" font-size="11" fill="#7a5018" font-weight="700" letter-spacing="1.5">AGENTE LLM</text>
+    <text x="333" y="205" text-anchor="middle" font-size="11.5" fill="#1c1a17">risposta testuale</text>
+    <text x="333" y="223" text-anchor="middle" font-size="11.5" fill="#1c1a17">+ CVSS Estimate</text>
+    <text x="333" y="248" text-anchor="middle" font-size="10" fill="#78706e" font-family="'IBM Plex Mono',monospace">1 sola chiamata</text>
+  </g>
+
+  <!-- split arrows -->
+  <path d="M413 195 Q460 195 480 140" fill="none" stroke="#1a5faf" stroke-width="1.6" marker-end="url(#b${u})" style="${hl&&hl!=='judge'?'opacity:0.22;':''}"/>
+  <path d="M413 240 Q460 240 480 300" fill="none" stroke="#2e7d32" stroke-width="1.6" marker-end="url(#g${u})" style="${hl&&hl!=='cvss'?'opacity:0.22;':''}"/>
+  <text x="452" y="158" font-size="10" fill="#1a5faf" font-weight="600" style="${hl&&hl!=='judge'?'opacity:0.22;':''}">testo</text>
+  <text x="440" y="286" font-size="10" fill="#2e7d32" font-weight="600" style="${hl&&hl!=='cvss'?'opacity:0.22;':''}">vettori + score</text>
+
+  <!-- BRANCH A: judge -->
+  <g style="${dim('judge')}${glow('judge')}">
+    <rect x="490" y="45" width="200" height="140" rx="10" fill="#fff" stroke="#1a5faf" stroke-width="${hl==='judge'?2.4:1.5}"/>
+    <text x="590" y="70" text-anchor="middle" font-size="11" fill="#1a5faf" font-weight="700" letter-spacing="1.5">RAMO A &middot; GIUDICE LLM</text>
+    <text x="590" y="95" text-anchor="middle" font-size="11.5" fill="#1c1a17">rubrica pesata</text>
+    <text x="590" y="113" text-anchor="middle" font-size="11.5" fill="#1c1a17">score norm. &#8805; 0.7?</text>
+    <text x="590" y="138" text-anchor="middle" font-size="10" fill="#78706e">non vede: CVSS, GT</text>
+    <text x="590" y="158" text-anchor="middle" font-size="10" fill="#78706e" font-family="'IBM Plex Mono',monospace">verdict + judge_score</text>
+    <path d="M545 45 Q545 34 500 34 L385 34 Q338 34 335 144" fill="none" stroke="#8b2020" stroke-width="1.3" stroke-dasharray="5,3" marker-end="url(#r${u})" style="${hl==='judge'?'':'opacity:0.55;'}"/>
+    <text x="448" y="52" text-anchor="middle" font-size="10" fill="#8b2020" font-family="'IBM Plex Mono',monospace" style="${hl==='judge'?'':'opacity:0.8;'}">wrong &rarr; retry cieco</text>
+  </g>
+
+  <!-- BRANCH B: cvss script -->
+  <g style="${dim('cvss')}${glow('cvss')}">
+    <rect x="490" y="255" width="200" height="150" rx="10" fill="rgba(46,125,50,0.05)" stroke="#2e7d32" stroke-width="${hl==='cvss'?2.4:1.5}"/>
+    <text x="590" y="280" text-anchor="middle" font-size="11" fill="#2e7d32" font-weight="700" letter-spacing="1.2">RAMO B &middot; SCRIPT PYTHON</text>
+    <text x="590" y="303" text-anchor="middle" font-size="11.5" fill="#1c1a17">match finding &harr; CVE</text>
+    <text x="590" y="321" text-anchor="middle" font-size="11.5" fill="#1c1a17">bande score &middot; match vettore</text>
+    <text x="590" y="346" text-anchor="middle" font-size="10" fill="#78706e">zero LLM &middot; deterministico</text>
+    <text x="590" y="362" text-anchor="middle" font-size="10" fill="#78706e">GT: cve_metrics_normalized.json</text>
+    <text x="590" y="383" text-anchor="middle" font-size="10" fill="#78706e" font-family="'IBM Plex Mono',monospace">utils/cvss_eval.py &rarr; cvss_eval</text>
+  </g>
+
+  <!-- no-crosstalk note -->
+  <g style="${hl?'opacity:0.3;':''}">
+    <line x1="590" y1="192" x2="590" y2="248" stroke="#8b2020" stroke-width="1.2" stroke-dasharray="2,4"/>
+    <text x="655" y="214" text-anchor="middle" font-size="10.5" fill="#8b2020" font-weight="600">i due rami non</text>
+    <text x="655" y="228" text-anchor="middle" font-size="10.5" fill="#8b2020" font-weight="600">si influenzano mai</text>
+  </g>
+
+  <!-- to JSON: two separate, independent entries -->
+  <path d="M690 115 Q740 115 755 190" fill="none" stroke="#1a5faf" stroke-width="1.6" marker-end="url(#b${u})" style="${hl&&hl!=='out'?'opacity:0.22;':''}"/>
+  <path d="M690 330 Q740 330 755 250" fill="none" stroke="#2e7d32" stroke-width="1.6" marker-end="url(#g${u})" style="${hl&&hl!=='out'?'opacity:0.22;':''}"/>
+  <text x="735" y="152" text-anchor="middle" font-size="9" fill="#1a5faf" font-family="'IBM Plex Mono',monospace" style="${hl&&hl!=='out'?'opacity:0.22;':''}">campo A</text>
+  <text x="735" y="296" text-anchor="middle" font-size="9" fill="#2e7d32" font-family="'IBM Plex Mono',monospace" style="${hl&&hl!=='out'?'opacity:0.22;':''}">campo B</text>
+  <text x="825" y="300" text-anchor="middle" font-size="9" fill="#78706e" style="${hl&&hl!=='out'?'opacity:0.22;':''}">stesso file, campi separati:</text>
+  <text x="825" y="312" text-anchor="middle" font-size="9" fill="#78706e" style="${hl&&hl!=='out'?'opacity:0.22;':''}">usabili anche indipendentemente</text>
+
+  <!-- BLOCK: output -->
+  <g style="${dim('out')}${glow('out')}">
+    <rect x="760" y="160" width="130" height="120" rx="10" fill="rgba(26,95,175,0.06)" stroke="#1a5faf" stroke-width="${hl==='out'?2.4:1.5}"/>
+    <text x="825" y="188" text-anchor="middle" font-size="11" fill="#1a5faf" font-weight="700" letter-spacing="1.5">JSON</text>
+    <text x="825" y="210" text-anchor="middle" font-size="10.5" fill="#1c1a17">final_answer</text>
+    <text x="825" y="227" text-anchor="middle" font-size="10.5" fill="#1c1a17">verdict &middot; judge_score</text>
+    <text x="825" y="244" text-anchor="middle" font-size="10.5" fill="#1c1a17">cvss_eval</text>
+    <text x="825" y="266" text-anchor="middle" font-size="9.5" fill="#78706e" font-family="'IBM Plex Mono',monospace">results/&hellip;.json</text>
+    <line x1="890" y1="220" x2="925" y2="220" stroke="#7a5018" stroke-width="1.6" marker-end="url(#a${u})"/>
+    <rect x="930" y="120" width="230" height="200" rx="10" fill="#fff" stroke="#7a5018" stroke-width="${hl==='out'?2.4:1.5}"/>
+    <text x="1045" y="147" text-anchor="middle" font-size="11" fill="#7a5018" font-weight="700" letter-spacing="1.5">USCITE</text>
+    <text x="1045" y="175" text-anchor="middle" font-size="11.5" fill="#1c1a17">&#9654; lista JSON dei vettori</text>
+    <text x="1045" y="192" text-anchor="middle" font-size="10" fill="#78706e">ranking / triage / esperimento 3</text>
+    <text x="1045" y="218" text-anchor="middle" font-size="11.5" fill="#1c1a17">&#9654; report Markdown</text>
+    <text x="1045" y="235" text-anchor="middle" font-size="10" fill="#78706e">tabelle per-CVE, stimato vs pubblicato</text>
+    <text x="1045" y="261" text-anchor="middle" font-size="11.5" fill="#1c1a17">&#9654; metriche aggregate</text>
+    <text x="1045" y="278" text-anchor="middle" font-size="10" fill="#78706e">bande, impact match, per l'articolo</text>
+    <text x="1045" y="303" text-anchor="middle" font-size="9.5" fill="#78706e" font-family="'IBM Plex Mono',monospace">fuori dal bracket: dati riusabili</text>
+  </g>
+</svg>`;
+    }
+    document.querySelectorAll('.ov').forEach(el => { el.innerHTML = overviewSVG(el.dataset.hl || null); el.style.width = '100%'; });
+
+    // ── Deck navigation ──
+    const slides = Array.from(document.querySelectorAll('.deck section'));
+    const total = slides.length;
+    let cur = 0, hintTimer;
+    document.getElementById('tot').textContent = total;
+    function goto(n) {
+        slides[cur].classList.remove('active');
+        cur = ((n % total) + total) % total;
+        slides[cur].classList.add('active');
+        document.getElementById('cur').textContent = cur + 1;
+        document.getElementById('progress').style.width = ((cur + 1) / total * 100) + '%';
+        updateSidebar();
+    }
+    function flashHint() {
+        const h = document.getElementById('hint');
+        h.classList.add('visible');
+        clearTimeout(hintTimer);
+        hintTimer = setTimeout(() => h.classList.remove('visible'), 2000);
+    }
+    document.getElementById('btn-next').addEventListener('click', () => goto(cur + 1));
+    document.getElementById('btn-prev').addEventListener('click', () => goto(cur - 1));
+    document.addEventListener('keydown', e => {
+        if (['ArrowRight', 'ArrowDown', ' '].includes(e.key)) { e.preventDefault(); goto(cur + 1); flashHint(); }
+        else if (['ArrowLeft', 'ArrowUp'].includes(e.key)) { e.preventDefault(); goto(cur - 1); flashHint(); }
+        else if (e.key === 'Escape') toggleSidebar();
+    });
+    let tx = 0;
+    document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - tx;
+        if (Math.abs(dx) > 45) { goto(dx < 0 ? cur + 1 : cur - 1); flashHint(); }
+    }, { passive: true });
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const sbc = document.getElementById('sb-content');
+    slides.forEach((slide, i) => {
+        const title = slide.querySelector('h1,h2')?.textContent?.trim().slice(0, 50) || ('Slide ' + (i + 1));
+        const item = document.createElement('div');
+        item.className = 'sb-item' + (i === 0 ? ' active' : '');
+        item.innerHTML = '<span class="sb-num">' + String(i + 1).padStart(2, '0') + '</span>' + title;
+        item.addEventListener('click', () => { goto(i); toggleSidebar(); });
+        sbc.appendChild(item);
+    });
+    function toggleSidebar() {
+        const open = sidebar.classList.toggle('open');
+        overlay.classList.toggle('visible', open);
+    }
+    document.getElementById('hamburger').addEventListener('click', toggleSidebar);
+    overlay.addEventListener('click', toggleSidebar);
+    function updateSidebar() {
+        document.querySelectorAll('.sb-item').forEach((el, i) => el.classList.toggle('active', i === cur));
+    }
+    document.addEventListener('mousemove', flashHint);
+    flashHint();
+</script>
+</body>
+</html>

@@ -2,6 +2,15 @@
 
 ---
 
+## 2026-07-10 — Presentazioni HTML architettura-flusso v1/v2 (post call 11)  [sessione: 3ee4778c]
+
+**Intent:** "crea una presentazione dell'architettura, ergo il flusso di esecuzione. Io pensavo di farla orizzontale e soprattutto a livelli [...] devi fare due versioni [...] deve essere chiaro che i vettori cvss sputati fuori si possono prendere es come lista json e usabili come si vuole" — risposta all'esigenza emersa in call 11 (esperti sicurezza senza visione chiara del funzionamento)
+**Divergenze:**
+- diagramma overview implementato come funzione JS riusabile (stesso SVG ridisegnato con blocco evidenziato per le slide-zoom) invece di SVG duplicati
+- in v2 aggiunta slide "punti di uscita" con snippet Python di estrazione vettori (riprende la promessa fatta in call: "faccio un grafico dove ci sono i vari punti, anche dove si può uscire") e nota sul limite del confronto per lettera + roadmap macrovettori (materiale Mariano)
+- v2 descrive la rimozione expert/beginner come decisione di call 11, ma il codice non è ancora stato modificato — la presentazione anticipa lo stato target
+**Esito:** creati `docs/supporto/presentations/architettura_flusso_v1_pre_cvss.html` (13 slide: config→prompt/agente→giudice/retry→output) e `architettura_flusso_v2_cvss.html` (13 slide: prompt unico→ramo A giudice / ramo B script CVSS→JSON→uscite); indice `docs/README.md` aggiornato
+
 ## 2026-07-09 — Run 3: REPETITIONS=3 chiude il dubbio "era rumore?"  [sessione: 3ee4778c]
 
 **Intent:** "crea come per @docs/04_risultati_cvss_run2.md ma 05 per questa run specificando cosa cambia" — dopo aver rilanciato la run 2 con `--repetitions 3` invece di 1 (stesso hint di contesto NF)

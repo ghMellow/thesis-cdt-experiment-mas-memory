@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architettura v1 — flusso pre-CVSS (expert/beginner + giudice)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='32' height='32' rx='8' fill='%237a5018'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='16' fill='white' font-family='monospace'%3Ev1%3C/text%3E%3C/svg%3E">
+    <style>
+        :root {
+            --bg: #f7f3ed; --surface: #ffffff; --surface2: #ede9e2; --surface3: #e6e0d6;
+            --border: rgba(0,0,0,0.09); --border-strong: rgba(0,0,0,0.16);
+            --purple: #7a5018; --purple-dark: #4e3210; --purple-light: #b8843a;
+            --purple-dim: rgba(122,80,24,0.11); --purple-faint: rgba(122,80,24,0.05);
+            --text: #1c1a17; --text-sec: rgba(28,26,23,0.82); --text-muted: #78706e; --text-faint: rgba(28,26,23,0.35);
+            --green: #1a5faf; --green-bg: rgba(26,95,175,0.05); --green-border: rgba(26,95,175,0.22);
+            --red: #8b2020; --red-bg: rgba(139,32,32,0.05); --red-border: rgba(139,32,32,0.22);
+            --amber: #b8843a; --amber-bg: rgba(184,132,58,0.07); --amber-border: rgba(184,132,58,0.28);
+            --blue: #1a5faf; --blue-bg: rgba(26,95,175,0.05); --blue-border: rgba(26,95,175,0.22);
+            --mono: 'IBM Plex Mono', monospace; --serif: 'Playfair Display', Georgia, serif;
+            --sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --radius: 10px; --radius-sm: 6px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); overflow: hidden; }
+        body::after {
+            content: ''; position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9998; opacity: 0.5;
+        }
+        code { font-family: var(--mono); font-size: 0.82em; background: rgba(122,80,24,0.09); color: var(--purple); padding: 1px 6px; border-radius: 3px; border: 1px solid rgba(122,80,24,0.18); }
+        .deck { width: 100vw; height: 100vh; position: relative; }
+        section {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 60px 80px;
+            opacity: 0; transform: translateY(12px);
+            transition: opacity 0.38s cubic-bezier(0.4,0,0.2,1), transform 0.38s cubic-bezier(0.4,0,0.2,1);
+            pointer-events: none;
+        }
+        section.active { opacity: 1; transform: none; pointer-events: auto; z-index: 1; }
+        section.left { align-items: flex-start; }
+        section.center { align-items: center; text-align: center; }
+        section.left::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+            background: linear-gradient(to bottom, transparent, var(--purple), transparent);
+            opacity: 0; transition: opacity 0.5s 0.15s;
+        }
+        section.left.active::before { opacity: 1; }
+        .eyebrow { font-size: 10px; font-weight: 600; color: var(--purple); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 12px; }
+        h1 { font-family: var(--serif); font-size: clamp(38px, 4.6vw, 60px); font-weight: 700; line-height: 1.1; letter-spacing: -0.5px; margin-bottom: 18px; }
+        h1 .accent { color: var(--purple); }
+        h2 { font-family: var(--serif); font-size: clamp(22px, 2.6vw, 34px); font-weight: 700; line-height: 1.2; margin-bottom: 18px; }
+        .subtitle { font-size: clamp(14px, 1.5vw, 18px); color: var(--text-muted); font-weight: 400; line-height: 1.65; max-width: 640px; }
+        .divider { width: 44px; height: 3px; background: var(--purple); border-radius: 99px; }
+        ul.dl { list-style: none; max-width: 900px; width: 100%; }
+        ul.dl li { font-size: clamp(14px, 1.3vw, 17px); line-height: 1.6; padding: 11px 0 11px 28px; position: relative; color: var(--text-sec); }
+        ul.dl li::before { content: ''; position: absolute; left: 2px; top: 50%; transform: translateY(-50%); width: 7px; height: 7px; background: var(--purple); border-radius: 50%; opacity: 0.65; }
+        ul.dl li strong { color: var(--text); font-weight: 600; }
+        .cards { display: flex; gap: 14px; width: 100%; max-width: 1080px; align-items: stretch; }
+        .card { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 7px; box-shadow: var(--shadow-sm); }
+        .card.featured { border-top: 3px solid var(--purple); }
+        .card.ok { border-top: 3px solid var(--green); }
+        .card.bad { border-top: 3px solid var(--red); }
+        .card.warn { border-top: 3px solid var(--amber); }
+        .card-tag { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: var(--text-muted); }
+        .card.featured .card-tag { color: var(--purple); }
+        .card.ok .card-tag { color: var(--green); }
+        .card.warn .card-tag { color: var(--amber); }
+        .card.bad .card-tag { color: var(--red); }
+        .card-title { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.3; }
+        .card-row { font-size: 13px; color: var(--text-sec); line-height: 1.6; padding: 6px 0; border-bottom: 1px solid var(--border); }
+        .card-row:last-child { border-bottom: none; }
+        .callout { border-radius: var(--radius-sm); padding: 12px 16px; font-size: 13px; font-weight: 500; max-width: 1000px; width: 100%; margin-top: 14px; line-height: 1.6; }
+        .callout.purple { background: var(--purple-faint); border: 1px solid var(--purple-dim); color: var(--purple-dark); }
+        .callout.amber { background: var(--amber-bg); border: 1px solid var(--amber-border); color: #92400E; }
+        .callout.red { background: var(--red-bg); border: 1px solid var(--red-border); color: #B91C1C; }
+        .callout.blue { background: var(--blue-bg); border: 1px solid var(--blue-border); color: #1D4ED8; }
+        .callout.gray { background: var(--surface3); border: 1px solid var(--border); color: var(--text-sec); }
+        .cb { background: #1E1E2E; border-radius: var(--radius); padding: 16px 18px; font-family: var(--mono); font-size: 11px; line-height: 1.8; color: #CDD6F4; white-space: pre; overflow-x: auto; }
+        .cb .kw { color: #CBA6F7; } .cb .fn { color: #89B4FA; } .cb .str { color: #A6E3A1; } .cb .cm { color: #6C7086; }
+        .two-col { display: flex; gap: 32px; width: 100%; max-width: 1080px; align-items: stretch; }
+        .col { flex: 1; display: flex; flex-direction: column; }
+        .flow-wrap { width: 100%; max-width: 1150px; display: flex; justify-content: center; }
+        .flow-wrap svg { width: 100%; height: auto; }
+        .zoom-note { font-size: 13px; color: var(--text-muted); margin-top: 8px; font-style: italic; }
+        .nav-bar { position: fixed; bottom: 24px; right: 32px; display: flex; align-items: center; gap: 10px; z-index: 100; }
+        .nav-btn { width: 32px; height: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-muted); box-shadow: var(--shadow-sm); transition: all 0.15s; font-size: 13px; }
+        .nav-btn:hover { border-color: var(--purple); color: var(--purple); background: var(--purple-faint); }
+        .slide-count { font-size: 11px; font-weight: 500; color: var(--text-muted); font-family: var(--mono); }
+        .slide-count span { color: var(--purple); }
+        .progress { position: fixed; bottom: 0; left: 0; height: 2px; background: linear-gradient(to right, var(--purple-light), var(--purple)); transition: width 0.38s ease; z-index: 100; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 280px; height: 100vh; background: var(--surface); border-right: 1px solid var(--border); padding: 46px 14px 20px; overflow-y: auto; z-index: 200; transform: translateX(-100%); transition: transform 0.28s cubic-bezier(0.4,0,0.2,1); box-shadow: var(--shadow-md); }
+        .sidebar.open { transform: translateX(0); }
+        .sb-title { font-size: 9px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 3px; padding: 0 8px; margin-bottom: 14px; }
+        .sb-item { font-size: 11px; padding: 7px 10px; margin: 2px 0; color: var(--text-muted); cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; line-height: 1.4; border-left: 2px solid transparent; }
+        .sb-item:hover { color: var(--text); background: var(--surface2); }
+        .sb-item.active { color: var(--purple); border-left-color: var(--purple); background: var(--purple-faint); font-weight: 500; }
+        .sb-num { font-family: var(--mono); font-size: 9px; color: var(--text-faint); margin-right: 6px; }
+        .hamburger { position: fixed; top: 18px; left: 18px; width: 34px; height: 34px; cursor: pointer; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow-sm); }
+        .hamburger span { width: 16px; height: 1.5px; background: var(--text-muted); display: block; }
+        .hamburger:hover span { background: var(--purple); }
+        .overlay { position: fixed; inset: 0; background: rgba(17,24,39,0.25); z-index: 150; opacity: 0; pointer-events: none; transition: opacity 0.28s; }
+        .overlay.visible { opacity: 1; pointer-events: auto; }
+        .hint { position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 500; color: var(--text-muted); background: var(--surface); border: 1px solid var(--border); padding: 4px 12px; border-radius: 999px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; box-shadow: var(--shadow-sm); white-space: nowrap; }
+        .hint.visible { opacity: 1; }
+    </style>
+</head>
+<body>
+
+<div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+<div class="overlay" id="overlay"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sb-title">Indice</div>
+    <div id="sb-content"></div>
+</div>
+
+<div class="deck" id="deck">
+
+<!-- 01 · COVER -->
+<section id="s01" class="active center">
+    <div class="eyebrow">Multi-Agent Experiment 5G &middot; Architettura &middot; Versione 1</div>
+    <h1>Il flusso <span class="accent">prima del CVSS</span></h1>
+    <div class="divider" style="margin: 16px auto;"></div>
+    <p class="subtitle" style="text-align:center;">Come funziona il sistema originale: ruoli expert/beginner, setup 1A/1B, giudice a rubrica, ripetizioni e retry. Prima l'immagine dall'alto, poi ogni blocco nel dettaglio.</p>
+</section>
+
+<!-- 02 · OVERVIEW -->
+<section id="s02">
+    <div class="eyebrow">Livello 0 &middot; Vista dall'alto</div>
+    <h2>Il flusso completo, in una riga</h2>
+    <div class="flow-wrap"><div class="ov" data-hl=""></div></div>
+    <div class="callout gray">
+        Per ogni combinazione <strong>(setup, ruolo, task)</strong> il sistema esegue <strong>N ripetizioni indipendenti</strong>. Dentro ogni ripetizione: si costruisce il prompt, l'agente risponde, il giudice valuta con la rubrica; se il verdetto &egrave; <em>wrong</em> l'agente ritenta (max 3 volte), poi si salva tutto in JSON. Nelle prossime slide entriamo in ogni blocco, uno alla volta.
+    </div>
+</section>
+
+<!-- 03 · ZOOM BLOCCO 1 -->
+<section id="s03">
+    <div class="eyebrow">Livello 1 &middot; Zoom</div>
+    <h2>Blocco 1 &mdash; Configurazione: cosa entra nel sistema</h2>
+    <div class="flow-wrap"><div class="ov" data-hl="config"></div></div>
+    <p class="zoom-note">Prima di lanciare qualsiasi cosa, il sistema decide: quale setup, quale ruolo, quale task, quante ripetizioni.</p>
+</section>
+
+<!-- 04 · DETTAGLIO CONFIG: ruoli e setup -->
+<section id="s04" class="left">
+    <div class="eyebrow">Blocco 1 &middot; Dettaglio</div>
+    <h2>Ruoli e setup: le due leve dell'esperimento</h2>
+    <div class="cards">
+        <div class="card featured">
+            <div class="card-tag">Ruoli (framing)</div>
+            <div class="card-title">Expert vs Beginner</div>
+            <div class="card-row">Due <strong>system prompt</strong> diversi (<code>agents/prompts.py</code>): ingegnere 5G senior vs tecnico junior</div>
+            <div class="card-row">Stesso task, stesso codice: cambia solo <em>chi il modello crede di essere</em></div>
+            <div class="card-row">Domanda: il framing cambia cosa trova il modello?</div>
+        </div>
+        <div class="card ok">
+            <div class="card-tag">Setup 1A</div>
+            <div class="card-title">Stesso modello per entrambi</div>
+            <div class="card-row">Expert e beginner usano lo <strong>stesso LLM</strong></div>
+            <div class="card-row">Isola l'effetto del solo prompt di ruolo (controllo)</div>
+        </div>
+        <div class="card warn">
+            <div class="card-tag">Setup 1B</div>
+            <div class="card-title">Modelli diversi per ruolo</div>
+            <div class="card-row">Expert e beginner possono usare <strong>LLM diversi</strong> (mapping in <code>config.py &rarr; MODELS</code>)</div>
+            <div class="card-row">Misura se conta pi&ugrave; la capacit&agrave; del modello o il framing</div>
+        </div>
+    </div>
+    <div class="callout purple">
+        In totale: 2 setup &times; 2 ruoli &times; N task &times; N ripetizioni. Ogni combinazione produce un file di risultato separato &mdash; nulla viene mai mescolato.
+    </div>
+</section>
+
+<!-- 05 · DETTAGLIO CONFIG: iperparametri -->
+<section id="s05" class="left">
+    <div class="eyebrow">Blocco 1 &middot; Dettaglio</div>
+    <h2>Gli iperparametri (config.py)</h2>
+    <div class="two-col">
+        <div class="col">
+            <ul class="dl" style="max-width:100%;">
+                <li><strong>TEMPERATURE = 0.3</strong> &mdash; condivisa da agente e giudice. Tenuta <em>&gt; 0 apposta</em>: cos&igrave; le ripetizioni misurano la varianza reale del modello, non solo la stabilit&agrave; del parsing</li>
+                <li><strong>REPETITIONS = 3</strong> &mdash; lo <em>stesso identico prompt</em> viene lanciato 3 volte indipendenti, per distinguere effetti reali da rumore di campionamento</li>
+                <li><strong>MAX_RETRIES = 3</strong> &mdash; tentativi <em>dentro</em> una singola ripetizione, solo se il giudice dice <em>wrong</em></li>
+                <li><strong>TEXTUAL_PASS_RATIO = 0.7</strong> &mdash; soglia sul punteggio normalizzato della rubrica per il verdetto <em>correct</em></li>
+            </ul>
+        </div>
+        <div class="col" style="justify-content:center;">
+            <div class="cb"><span class="cm"># config.py — i quattro numeri chiave</span>
+TEMPERATURE        = <span class="kw">0.3</span>   <span class="cm"># &gt; 0: varianza reale</span>
+REPETITIONS        = <span class="kw">3</span>     <span class="cm"># run indipendenti</span>
+MAX_RETRIES        = <span class="kw">3</span>     <span class="cm"># dentro 1 ripetizione</span>
+TEXTUAL_PASS_RATIO = <span class="kw">0.7</span>   <span class="cm"># soglia correct/wrong</span>
+
+MODELS = {
+  <span class="str">"expert_1A"</span>:   ...,  <span class="cm"># un modello per ruolo</span>
+  <span class="str">"beginner_1A"</span>: ...,
+  <span class="str">"expert_1B"</span>:   ...,
+  <span class="str">"beginner_1B"</span>: ...,
+  <span class="str">"judge"</span>:       ...,  <span class="cm"># modello del giudice</span>
+}</div>
+            <div class="callout amber" style="max-width:100%;">
+                <strong>Ripetizioni &ne; retry:</strong> la ripetizione &egrave; una nuova run da zero; il retry &egrave; un secondo tentativo dentro la stessa run dopo un verdetto <em>wrong</em>.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 06 · ZOOM BLOCCO 2 -->
+<section id="s06">
+    <div class="eyebrow">Livello 1 &middot; Zoom</div>
+    <h2>Blocco 2 &mdash; Prompt e Agente</h2>
+    <div class="flow-wrap"><div class="ov" data-hl="agent"></div></div>
+    <p class="zoom-note">Il cuore: come si costruisce il prompt e cosa produce l'agente.</p>
+</section>
+
+<!-- 07 · DETTAGLIO AGENTE -->
+<section id="s07" class="left">
+    <div class="eyebrow">Blocco 2 &middot; Dettaglio</div>
+    <h2>Un prompt, una risposta strutturata</h2>
+    <div class="two-col">
+        <div class="col">
+            <ul class="dl" style="max-width:100%;">
+                <li><strong>System prompt</strong> = il ruolo (expert o beginner). &Egrave; l'unica cosa che distingue i due agenti</li>
+                <li><strong>User prompt</strong> = il testo del task (<code>docs/tasks/&lt;task&gt;.md</code>): scenario + codice Go di free5GC, review <em>cieca</em> &mdash; nessun suggerimento sulla soluzione</li>
+                <li><strong>Output richiesto</strong>: Markdown con tre sezioni fisse, parsate dal codice (<code>agents/agent_runner.py</code>)</li>
+                <li>L'agente <strong>non vede mai</strong>: la rubrica, la ground truth, il feedback del giudice</li>
+            </ul>
+        </div>
+        <div class="col" style="justify-content:center;">
+            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--text-muted);margin-bottom:6px;">Formato di output dell'agente</div>
+            <div class="cb"><span class="cm">### Answer</span>
+La vulnerabilit&agrave; principale &egrave; ...
+
+<span class="cm">### Reasoning</span>
+Ho analizzato gli handler e ...
+
+<span class="cm">### Confidence</span>
+0.8</div>
+            <div class="callout gray" style="max-width:100%;">
+                Le tre sezioni vengono convertite in JSON e salvate in <code>history[]</code> (ogni tentativo) e <code>final_answer</code> (l'ultimo).
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 08 · ZOOM BLOCCO 3 -->
+<section id="s08">
+    <div class="eyebrow">Livello 1 &middot; Zoom</div>
+    <h2>Blocco 3 &mdash; Giudice e retry</h2>
+    <div class="flow-wrap"><div class="ov" data-hl="judge"></div></div>
+    <p class="zoom-note">Un secondo LLM valuta la risposta con una rubrica. Se dice wrong, l'agente ritenta.</p>
+</section>
+
+<!-- 09 · DETTAGLIO GIUDICE -->
+<section id="s09" class="left">
+    <div class="eyebrow">Blocco 3 &middot; Dettaglio</div>
+    <h2>Il giudice: rubrica, non ground truth</h2>
+    <div class="two-col">
+        <div class="col">
+            <ul class="dl" style="max-width:100%;">
+                <li><strong>Cosa riceve</strong>: scenario del task + rubrica (criteri pesati, derivati dalle patch GHSA pubblicate) + risposta dell'agente</li>
+                <li><strong>Cosa NON riceve</strong>: la ground truth testuale &mdash; la rubrica <em>&egrave;</em> la definizione operativa di "corretto"</li>
+                <li><strong>Verdetto</strong>: somma i punteggi per criterio, normalizza su <code>total_max</code>; <em>correct</em> se &ge; 0.7</li>
+                <li><strong>Modello del giudice</strong>: definito a parte in <code>MODELS["judge"]</code> &mdash; pu&ograve; coincidere o meno con quello dell'agente (bias noto, discusso col team)</li>
+            </ul>
+        </div>
+        <div class="col" style="justify-content:center;">
+            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--text-muted);margin-bottom:6px;">Payload del giudice</div>
+            <div class="cb"><span class="cm">## Scenario</span>
+(testo del task)
+
+<span class="cm">## Rubric</span>
+Total max score: 9
+- missing_default_score (0-4)
+- impact_assessment_score (0-2)
+- ...
+
+<span class="cm">## Agent Response</span>
+### Answer / ### Reasoning / ### Confidence</div>
+        </div>
+    </div>
+</section>
+
+<!-- 10 · DETTAGLIO RETRY -->
+<section id="s10" class="left">
+    <div class="eyebrow">Blocco 3 &middot; Dettaglio</div>
+    <h2>Il ciclo di retry: cosa rivede l'agente</h2>
+    <div class="cards">
+        <div class="card bad">
+            <div class="card-tag">Quando scatta</div>
+            <div class="card-title">verdict = wrong &amp; tentativi &lt; 3</div>
+            <div class="card-row">Il giudice boccia la risposta e restano tentativi disponibili</div>
+            <div class="card-row">Il flusso torna a <code>run_agent</code> dentro la <em>stessa</em> ripetizione</div>
+        </div>
+        <div class="card warn">
+            <div class="card-tag">Cosa vede l'agente al retry</div>
+            <div class="card-title">Solo la propria risposta precedente</div>
+            <div class="card-row">Il task + la sua answer/reasoning del tentativo prima + un invito neutro a riprovare</div>
+            <div class="card-row"><strong>Mai</strong>: il feedback del giudice, il punteggio, la ground truth</div>
+        </div>
+        <div class="card ok">
+            <div class="card-tag">Quando si chiude</div>
+            <div class="card-title">correct, oppure 3 tentativi esauriti</div>
+            <div class="card-row">Si salva l'ultimo tentativo come <code>final_answer</code> con il suo verdetto</div>
+            <div class="card-row">Tutti i tentativi restano tracciati in <code>history[]</code></div>
+        </div>
+    </div>
+    <div class="callout purple">
+        Il retry &egrave; volutamente "cieco": misura se il modello riesce ad auto-correggersi <em>senza</em> essere guidato verso la soluzione. Ogni forma di hint invaliderebbe l'esperimento.
+    </div>
+</section>
+
+<!-- 11 · ZOOM BLOCCO 4 -->
+<section id="s11">
+    <div class="eyebrow">Livello 1 &middot; Zoom</div>
+    <h2>Blocco 4 &mdash; Salvataggio e report</h2>
+    <div class="flow-wrap"><div class="ov" data-hl="save"></div></div>
+    <p class="zoom-note">Cosa esce dal sistema e dove trovarlo.</p>
+</section>
+
+<!-- 12 · DETTAGLIO OUTPUT -->
+<section id="s12" class="left">
+    <div class="eyebrow">Blocco 4 &middot; Dettaglio</div>
+    <h2>Output: JSON grezzi + report aggregati</h2>
+    <div class="two-col">
+        <div class="col">
+            <ul class="dl" style="max-width:100%;">
+                <li><strong>JSON per combinazione</strong> in <code>results/&lt;task&gt;/&lt;setup&gt;/&lt;ruolo&gt;/</code>: run_config + array <code>repetitions</code> con tutti i tentativi, verdetti, punteggi, tempi e token</li>
+                <li><strong>Report Markdown</strong> generati a fine run (<code>results/evaluation/</code>): <code>scores_1A.md</code>, <code>scores_1B.md</code>, <code>comparison.md</code>, <code>consistency.md</code></li>
+                <li><strong>Metriche aggregate per ruolo</strong>: accuracy, confidence media, brier score, tentativi medi, punteggio rubrica normalizzato</li>
+                <li><strong>Anomalie evidenziate</strong>: verdetti wrong, retry scattati, reasoning incoerente tra ripetizioni</li>
+            </ul>
+        </div>
+        <div class="col" style="justify-content:center;">
+            <div class="cb">results/
+&#9500;&#9472; task7_vuln_amf/
+&#9474;  &#9500;&#9472; 1A/
+&#9474;  &#9474;  &#9500;&#9472; expert/&lt;modello&gt;.json
+&#9474;  &#9474;  &#9492;&#9472; beginner/&lt;modello&gt;.json
+&#9474;  &#9492;&#9472; 1B/ ...
+&#9492;&#9472; evaluation/
+   &#9500;&#9472; scores_1A.md   <span class="cm"># tabella per ruolo</span>
+   &#9500;&#9472; scores_1B.md
+   &#9500;&#9472; comparison.md  <span class="cm"># 1A vs 1B</span>
+   &#9492;&#9472; consistency.md <span class="cm"># differenze tra rep</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- 13 · RIEPILOGO -->
+<section id="s13" class="center">
+    <div class="eyebrow">Riepilogo v1</div>
+    <h2>Il sistema pre-CVSS in tre frasi</h2>
+    <div class="cards" style="max-width:960px;margin-top:10px;">
+        <div class="card featured">
+            <div class="card-tag">1 &middot; Chi risponde</div>
+            <div class="card-row" style="border:none;">Un agente LLM con framing di ruolo (expert/beginner), su codice free5GC reale, in review cieca. Setup 1A/1B decide se i ruoli condividono il modello.</div>
+        </div>
+        <div class="card featured">
+            <div class="card-tag">2 &middot; Chi valuta</div>
+            <div class="card-row" style="border:none;">Un giudice LLM separato con rubrica pesata (mai la ground truth). Verdetto wrong &rarr; fino a 3 retry ciechi dentro la stessa ripetizione.</div>
+        </div>
+        <div class="card featured">
+            <div class="card-tag">3 &middot; Come si misura</div>
+            <div class="card-row" style="border:none;">3 ripetizioni indipendenti a temperatura 0.3 per distinguere effetti reali dal rumore. Tutto tracciato in JSON + report aggregati.</div>
+        </div>
+    </div>
+    <p style="font-size:13px;color:var(--text-muted);margin-top:22px;font-style:italic;">La versione 2 mostra come questo flusso evolve: via i ruoli, dentro il CVSS.</p>
+</section>
+
+</div>
+
+<!-- UI CHROME -->
+<div class="nav-bar">
+    <button class="nav-btn" id="btn-prev" title="Precedente (&#8592;)">&#8592;</button>
+    <div class="slide-count"><span id="cur">1</span> / <span id="tot">13</span></div>
+    <button class="nav-btn" id="btn-next" title="Successiva (&#8594;)">&#8594;</button>
+</div>
+<div class="progress" id="progress" style="width:7.7%"></div>
+<div class="hint" id="hint">&#8592; &#8594; per navigare &middot; ESC per l'indice</div>
+
+<script>
+    // ── Overview diagram (rendered per-slide, with optional highlighted block) ──
+    // Blocks: config | agent | judge | save
+    function overviewSVG(hl) {
+        const dim = (k) => (hl && hl !== k) ? 'opacity:0.22;' : '';
+        const glow = (k) => (hl === k) ? 'filter:drop-shadow(0 3px 10px rgba(122,80,24,0.35));' : '';
+        return `
+<svg viewBox="0 0 1150 330" xmlns="http://www.w3.org/2000/svg" font-family="'Inter',sans-serif">
+  <defs>
+    <marker id="ar${hl||'x'}" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#7a5018"/></marker>
+    <marker id="arr${hl||'x'}" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#8b2020"/></marker>
+  </defs>
+
+  <!-- repetition bracket -->
+  <g style="${dim('config')==='' && hl ? 'opacity:0.22;' : (hl? 'opacity:0.22;':'')}">
+    <rect x="285" y="40" width="840" height="250" rx="12" fill="none" stroke="#b8843a" stroke-width="1.3" stroke-dasharray="7,5"/>
+    <rect x="700" y="28" width="230" height="24" rx="12" fill="#f7f3ed" stroke="#b8843a" stroke-width="1"/>
+    <text x="815" y="44" text-anchor="middle" font-size="12" fill="#92400E" font-weight="600" font-family="'IBM Plex Mono',monospace">&#215; REPETITIONS = 3 (indipendenti)</text>
+  </g>
+
+  <!-- BLOCK 1: config -->
+  <g style="${dim('config')}${glow('config')}">
+    <rect x="20" y="95" width="240" height="130" rx="10" fill="#fff" stroke="#7a5018" stroke-width="${hl==='config'?2.4:1.5}"/>
+    <text x="140" y="122" text-anchor="middle" font-size="11" fill="#7a5018" font-weight="700" letter-spacing="2">1 &middot; CONFIGURAZIONE</text>
+    <text x="140" y="147" text-anchor="middle" font-size="13" fill="#1c1a17" font-weight="600">setup 1A / 1B</text>
+    <text x="140" y="167" text-anchor="middle" font-size="13" fill="#1c1a17" font-weight="600">ruolo expert / beginner</text>
+    <text x="140" y="187" text-anchor="middle" font-size="13" fill="#1c1a17" font-weight="600">task (docs/tasks/*.md)</text>
+    <text x="140" y="210" text-anchor="middle" font-size="10.5" fill="#78706e" font-family="'IBM Plex Mono',monospace">config.py &middot; main.py</text>
+  </g>
+  <line x1="260" y1="160" x2="300" y2="160" stroke="#7a5018" stroke-width="1.6" marker-end="url(#ar${hl||'x'})" style="${hl?'opacity:0.25;':''}"/>
+
+  <!-- BLOCK 2: prompt+agent -->
+  <g style="${dim('agent')}${glow('agent')}">
+    <rect x="305" y="80" width="150" height="160" rx="10" fill="#fff" stroke="#b8843a" stroke-width="${hl==='agent'?2.4:1.3}"/>
+    <text x="380" y="106" text-anchor="middle" font-size="11" fill="#b8843a" font-weight="700" letter-spacing="2">2 &middot; PROMPT</text>
+    <text x="380" y="132" text-anchor="middle" font-size="12" fill="#1c1a17">system: ruolo</text>
+    <text x="380" y="150" text-anchor="middle" font-size="12" fill="#1c1a17">user: task + codice</text>
+    <text x="380" y="175" text-anchor="middle" font-size="10.5" fill="#78706e">niente rubrica,</text>
+    <text x="380" y="190" text-anchor="middle" font-size="10.5" fill="#78706e">niente soluzione</text>
+    <line x1="455" y1="160" x2="490" y2="160" stroke="#7a5018" stroke-width="1.6" marker-end="url(#ar${hl||'x'})"/>
+    <rect x="495" y="95" width="170" height="130" rx="10" fill="rgba(122,80,24,0.06)" stroke="#7a5018" stroke-width="${hl==='agent'?2.4:1.5}"/>
+    <text x="580" y="125" text-anchor="middle" font-size="11" fill="#7a5018" font-weight="700" letter-spacing="2">AGENTE LLM</text>
+    <text x="580" y="150" text-anchor="middle" font-size="12" fill="#1c1a17">### Answer</text>
+    <text x="580" y="168" text-anchor="middle" font-size="12" fill="#1c1a17">### Reasoning</text>
+    <text x="580" y="186" text-anchor="middle" font-size="12" fill="#1c1a17">### Confidence</text>
+    <text x="580" y="210" text-anchor="middle" font-size="10.5" fill="#78706e" font-family="'IBM Plex Mono',monospace">T = 0.3</text>
+  </g>
+  <line x1="665" y1="160" x2="705" y2="160" stroke="#7a5018" stroke-width="1.6" marker-end="url(#ar${hl||'x'})" style="${hl?'opacity:0.25;':''}"/>
+
+  <!-- BLOCK 3: judge -->
+  <g style="${dim('judge')}${glow('judge')}">
+    <rect x="710" y="95" width="185" height="130" rx="10" fill="#fff" stroke="#1a5faf" stroke-width="${hl==='judge'?2.4:1.5}"/>
+    <text x="802" y="122" text-anchor="middle" font-size="11" fill="#1a5faf" font-weight="700" letter-spacing="2">3 &middot; GIUDICE LLM</text>
+    <text x="802" y="147" text-anchor="middle" font-size="12" fill="#1c1a17">rubrica pesata</text>
+    <text x="802" y="165" text-anchor="middle" font-size="12" fill="#1c1a17">score norm. &#8805; 0.7?</text>
+    <text x="802" y="188" text-anchor="middle" font-size="10.5" fill="#78706e">mai la ground truth</text>
+    <text x="802" y="210" text-anchor="middle" font-size="10.5" fill="#78706e" font-family="'IBM Plex Mono',monospace">verdict: correct/wrong</text>
+    <!-- retry loop -->
+    <path d="M760 225 Q700 275 610 265 Q560 260 555 228" fill="none" stroke="#8b2020" stroke-width="1.4" stroke-dasharray="5,3" marker-end="url(#arr${hl||'x'})"/>
+    <text x="660" y="288" text-anchor="middle" font-size="11" fill="#8b2020" font-family="'IBM Plex Mono',monospace">wrong &amp; tentativi &lt; 3 &rarr; retry (vede solo la propria risposta)</text>
+  </g>
+  <line x1="895" y1="160" x2="935" y2="160" stroke="#7a5018" stroke-width="1.6" marker-end="url(#ar${hl||'x'})" style="${hl?'opacity:0.25;':''}"/>
+  <text x="915" y="148" text-anchor="middle" font-size="9.5" fill="#78706e" style="${hl?'opacity:0.25;':''}">correct o</text>
+  <text x="915" y="139" text-anchor="middle" font-size="9.5" fill="#78706e" style="${hl?'opacity:0.25;':''}">&#160;</text>
+  <text x="915" y="180" text-anchor="middle" font-size="9.5" fill="#78706e" style="${hl?'opacity:0.25;':''}">max retry</text>
+
+  <!-- BLOCK 4: save -->
+  <g style="${dim('save')}${glow('save')}">
+    <rect x="940" y="95" width="185" height="130" rx="10" fill="rgba(26,95,175,0.06)" stroke="#1a5faf" stroke-width="${hl==='save'?2.4:1.5}"/>
+    <text x="1032" y="122" text-anchor="middle" font-size="11" fill="#1a5faf" font-weight="700" letter-spacing="2">4 &middot; SALVATAGGIO</text>
+    <text x="1032" y="147" text-anchor="middle" font-size="12" fill="#1c1a17">JSON per (task, setup,</text>
+    <text x="1032" y="164" text-anchor="middle" font-size="12" fill="#1c1a17">ruolo, modello)</text>
+    <text x="1032" y="188" text-anchor="middle" font-size="10.5" fill="#78706e">+ report aggregati</text>
+    <text x="1032" y="207" text-anchor="middle" font-size="10.5" fill="#78706e" font-family="'IBM Plex Mono',monospace">results/ &middot; evaluation/</text>
+  </g>
+</svg>`;
+    }
+    document.querySelectorAll('.ov').forEach(el => { el.innerHTML = overviewSVG(el.dataset.hl || null); el.style.width = '100%'; });
+
+    // ── Deck navigation ──
+    const slides = Array.from(document.querySelectorAll('.deck section'));
+    const total = slides.length;
+    let cur = 0, hintTimer;
+    document.getElementById('tot').textContent = total;
+    function goto(n) {
+        slides[cur].classList.remove('active');
+        cur = ((n % total) + total) % total;
+        slides[cur].classList.add('active');
+        document.getElementById('cur').textContent = cur + 1;
+        document.getElementById('progress').style.width = ((cur + 1) / total * 100) + '%';
+        updateSidebar();
+    }
+    function flashHint() {
+        const h = document.getElementById('hint');
+        h.classList.add('visible');
+        clearTimeout(hintTimer);
+        hintTimer = setTimeout(() => h.classList.remove('visible'), 2000);
+    }
+    document.getElementById('btn-next').addEventListener('click', () => goto(cur + 1));
+    document.getElementById('btn-prev').addEventListener('click', () => goto(cur - 1));
+    document.addEventListener('keydown', e => {
+        if (['ArrowRight', 'ArrowDown', ' '].includes(e.key)) { e.preventDefault(); goto(cur + 1); flashHint(); }
+        else if (['ArrowLeft', 'ArrowUp'].includes(e.key)) { e.preventDefault(); goto(cur - 1); flashHint(); }
+        else if (e.key === 'Escape') toggleSidebar();
+    });
+    let tx = 0;
+    document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - tx;
+        if (Math.abs(dx) > 45) { goto(dx < 0 ? cur + 1 : cur - 1); flashHint(); }
+    }, { passive: true });
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const sbc = document.getElementById('sb-content');
+    slides.forEach((slide, i) => {
+        const title = slide.querySelector('h1,h2')?.textContent?.trim().slice(0, 50) || ('Slide ' + (i + 1));
+        const item = document.createElement('div');
+        item.className = 'sb-item' + (i === 0 ? ' active' : '');
+        item.innerHTML = '<span class="sb-num">' + String(i + 1).padStart(2, '0') + '</span>' + title;
+        item.addEventListener('click', () => { goto(i); toggleSidebar(); });
+        sbc.appendChild(item);
+    });
+    function toggleSidebar() {
+        const open = sidebar.classList.toggle('open');
+        overlay.classList.toggle('visible', open);
+    }
+    document.getElementById('hamburger').addEventListener('click', toggleSidebar);
+    overlay.addEventListener('click', toggleSidebar);
+    function updateSidebar() {
+        document.querySelectorAll('.sb-item').forEach((el, i) => el.classList.toggle('active', i === cur));
+    }
+    document.addEventListener('mousemove', flashHint);
+    flashHint();
+</script>
+</body>
+</html>
