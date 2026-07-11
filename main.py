@@ -73,7 +73,17 @@ def main() -> None:
         dest="export_graph",
         help="Export LangGraph to a PNG file and exit",
     )
+    parser.add_argument(
+        "--run-id",
+        dest="run_id",
+        default=None,
+        help="Tag every repetition saved by this invocation with a run id (default: "
+             "auto-generated UTC timestamp). Stored in the JSON, not just the folder name — "
+             "lets utils.evaluation_utils filter/report on exactly this run later, even if "
+             "results land in a folder shared with other runs (e.g. --experiment-id reuse).",
+    )
     args = parser.parse_args()
+    run_id = args.run_id or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
     handler = _SpinnerClearHandler(sys.stderr)
     handler.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(message)s", datefmt="%H:%M:%S"))
@@ -139,7 +149,8 @@ def main() -> None:
     worst_case_secs = worst_case_seconds % 60
     worst_case_hms = f"{worst_case_hours}h {worst_case_minutes}m {worst_case_secs}s"
     logger.info(
-        "worst-case max time: %s | Ollama timeout: %ss | Remaining repetitions: %s",
+        "run_id=%s | worst-case max time: %s | Ollama timeout: %ss | Remaining repetitions: %s",
+        run_id,
         worst_case_hms,
         config.OLLAMA_TIMEOUT_SECONDS,
         remaining_repetitions,
@@ -198,6 +209,7 @@ def main() -> None:
                     "repetition": repetition,
                     "started_at": started_at,
                     "start_perf": start_perf,
+                    "run_id": run_id,
                 }
                 # Tasks with FULL_TASK_SUFFIX in the name get an extended timeout
                 # because their prompts are much larger and each LLM call takes proportionally longer.

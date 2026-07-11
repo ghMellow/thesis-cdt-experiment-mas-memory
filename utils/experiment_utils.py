@@ -146,6 +146,7 @@ class ExperimentState(TypedDict, total=False):
     sol_path: str
     experiment_id: str
     repetition: int
+    run_id: str
     started_at: str
     finished_at: str
     elapsed_seconds: float
@@ -330,6 +331,10 @@ def _save_result(state: ExperimentState) -> ExperimentState:
     rep_payload = {
         # --- repetition index ---
         "repetition": state["repetition"],
+        # Tags this repetition with the main.py invocation that produced it —
+        # independent of folder naming, so a "run" stays identifiable even
+        # when saved alongside other runs under the same role folder.
+        "run_id": state.get("run_id"),
         # --- timing ---
         "started_at": state.get("started_at"),
         "finished_at": finished_at,

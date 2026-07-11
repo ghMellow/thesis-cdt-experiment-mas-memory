@@ -139,6 +139,7 @@ python main.py [--experiment 1A|1B|all]
                [--repetitions N]        # sovrascrive REPETITIONS da config
                [--task-timeout N]       # secondi max per ripetizione (0 = nessuno)
                [--export-graph <file>]  # esporta il grafo LangGraph e termina
+               [--run-id <id>]          # tag di run (v. §7 "gestione delle run")
 ```
 
 ### Skip automatico
@@ -250,7 +251,7 @@ Per ogni ripetizione vengono scritti due file:
 
 Dentro il JSON di risultato (campi principali):
 
-- metadati: `task_id`, `task_type`, `agent_role`, `model`, `repetition`
+- metadati: `task_id`, `task_type`, `agent_role`, `model`, `repetition`, `run_id`
 - esecuzione: `attempts`, `history`, `final_answer`, `verdict`, `judge_score`
 - tempi: `started_at`, `finished_at`, `elapsed_seconds`
 - token: `tokens.agent_in`, `tokens.agent_out`, `tokens.judge_in`, `tokens.judge_out` (null se Ollama non li restituisce)
@@ -266,6 +267,18 @@ Alla fine di una run, `utils/evaluation_utils.py` genera:
 - `consistency.md`: segnala ripetizioni in cui il `final_answer` differisce dalla precedente
 
 > ⚠️ **Precisazione:** il rilevamento delle inconsistenze nei report `scores_*.md` usa due fasi (string equality → LLM semantic check). Il confronto per `consistency.md` usa invece `_answers_equal` sull'intero `final_answer` (confronto JSON, invariato).
+
+### Gestione delle run (`run_id`) — post run 5
+
+**Problema (emerso scrivendo il doc 07):** il nome della cartella-ruolo (`agent`, `agent_8m`, `agent_run4`, ...) è l'**unica** cosa che separa run diverse sullo stesso task/esperimento — non c'è nulla nel JSON che dica "questo risultato appartiene alla run X". Finora la separazione era mantenuta a mano con `git mv` dopo ogni run; funzionava finché si ricordava la cronologia a memoria, si è rotto scrivendo il doc 07 (i report aggregati mescolavano run 4/agent_8m/run5 per task5 e task9).
+
+**Soluzione:** ogni ripetizione salvata porta ora un campo `run_id` — timestamp UTC generato una volta per invocazione di `main.py` (`--run-id <id>` per un'etichetta a scelta, es. `run6_full_v2`), indipendente dal nome della cartella. Strumenti:
+
+- `poetry run python -m utils.evaluation_utils --list-runs`: elenca ogni combinazione (task, esperimento, ruolo, run_id) con conteggio ripetizioni e timestamp più vecchio — la tabella di lookup per capire "cosa c'è dove" senza script ad hoc
+- `poetry run python -m utils.evaluation_utils --run-id <id>`: rigenera i report `result_*.md`/`comparison.md` usando **solo** le ripetizioni di quel run_id, qualunque cartella condividano
+- `_write_evaluation_reports(..., run_id=...)` e `_collect_results(..., run_id=...)`: stesso filtro, richiamabile da script di analisi
+
+I risultati salvati prima di questa modifica non hanno `run_id` (`list_runs` li segna "legacy result") — restano leggibili ma non filtrabili per run; la separazione per quelli resta quella del nome-cartella, come prima.
 
 ---
 

@@ -2,6 +2,15 @@
 
 ---
 
+## 2026-07-12 — run_id: la gestione delle run smette di essere manuale  [sessione: 3ee4778c]
+
+**Intent:** due domande dell'utente su doc 07 — "queste cose si evincono anche da docs/07?" e "la gestione dei risultati si può migliorare? ora capire come prendere le cose è un po' problematico"
+**Divergenze:**
+- risposta onesta alla prima domanda: no, i numeri puntuali (missing_return_score 0.0 su 6/6, match 4/6 su CVE-40249) erano asseriti nel testo, ricavati con script Python ad hoc mai salvati — stesso limite dei doc 02–06, aggravato qui dal fatto che ho dovuto anche scoprire e aggirare il mescolamento di cartelle-ruolo
+- causa isolata: `_collect_results` usa il nome della cartella-ruolo come unica chiave di raggruppamento, niente nel JSON dice a quale run appartiene un risultato — la separazione `agent`/`agent_8m`/`agent_run4` esisteva solo perché rinominavo le cartelle a mano dopo ogni run
+- implementata soluzione non esplicitamente richiesta nel dettaglio ma nello spirito della domanda: campo `run_id` (timestamp UTC auto o `--run-id <label>`) stampato su ogni ripetizione salvata, indipendente dal nome cartella; `utils.evaluation_utils.list_runs` + `--list-runs`/`--run-id` per ispezionare/filtrare senza script ad hoc
+**Esito:** `main.py` (flag `--run-id`, generazione automatica), `utils/experiment_utils.py` (campo in `ExperimentState` e nel payload salvato), `utils/evaluation_utils.py` (`_collect_results`/`_write_evaluation_reports` filtrabili per `run_id`, nuova `list_runs`, entry point CLI); schema e architecture §7 aggiornati. I risultati esistenti restano "legacy" (nessun run_id, distinguibili solo per nome cartella come prima) — nessuna retro-etichettatura tentata
+
 ## 2026-07-11 — Run 5 (contesto pieno): doc 07, crollo rubric su task6/7  [sessione: 3ee4778c]
 
 **Intent:** "crea il doc 07 sulla riga di docs/06 [...] sui dati di questo test run usando i relativi evaluation/ corretti perché mi sa che ci sono anche di altre run" — dopo il lancio manuale della run full-only concordata in sessione precedente

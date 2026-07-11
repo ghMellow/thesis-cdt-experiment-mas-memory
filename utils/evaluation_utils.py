@@ -22,7 +22,17 @@ def _record_consistency_finding(lines: List[str]) -> None:
     eval_path.write_text(content.strip() + "\n", encoding="utf-8")
 
 
-def _collect_results(results_path: str) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
+def _collect_results(
+    results_path: str, run_id: Optional[str] = None
+) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
+    """Scan results/ into {experiment_id: {role: [payloads]}}.
+
+    run_id: when set, keep only repetitions tagged with this exact run_id
+    (main.py stamps every repetition of one invocation with the same id,
+    independent of folder naming — use this instead of relying on which
+    role-folder a result happens to live in, e.g. when several runs share
+    the same task/experiment and only manual folder renaming told them apart).
+    """
     base = Path(results_path)
     data: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
     if not base.exists():
@@ -45,11 +55,48 @@ def _collect_results(results_path: str) -> Dict[str, Dict[str, List[Dict[str, An
                         # New format: single file with run_config + repetitions array
                         run_config = {k: v for k, v in file_data.items() if k != "repetitions"}
                         for rep in file_data["repetitions"]:
-                            data[experiment_id][role].append({**run_config, **rep})
+                            merged = {**run_config, **rep}
+                            if run_id is not None and merged.get("run_id") != run_id:
+                                continue
+                            data[experiment_id][role].append(merged)
                     else:
-                        # Old format: one file per repetition
-                        data[experiment_id][role].append(file_data)
+                        # Old format: one file per repetition (no run_id — never matches a filter)
+                        if run_id is None:
+                            data[experiment_id][role].append(file_data)
     return data
+
+
+def list_runs(results_path: str) -> List[Tuple[str, str, str, str, int, str]]:
+    """List distinct (task_id, experiment_id, role, run_id) groups found under
+    results_path, with repetition count and the earliest started_at — the
+    lookup table for `--run-id` filtering and for `06_*`/`07_*`-style findings
+    docs, so identifying "which data is this run" doesn't need an ad hoc
+    script each time."""
+    base = Path(results_path)
+    groups: Dict[Tuple[str, str, str, str], List[str]] = {}
+    if not base.exists():
+        return []
+    for task_dir in sorted(p for p in base.iterdir() if p.is_dir() and p.name != "evaluation"):
+        for experiment_dir in sorted(p for p in task_dir.iterdir() if p.is_dir()):
+            for role_dir in sorted(p for p in experiment_dir.iterdir() if p.is_dir()):
+                for f in sorted(role_dir.glob("*.json")):
+                    try:
+                        file_data = json.loads(f.read_text(encoding="utf-8"))
+                    except Exception:
+                        continue
+                    reps = file_data.get("repetitions", [file_data])
+                    for rep in reps:
+                        key = (
+                            task_dir.name,
+                            experiment_dir.name,
+                            role_dir.name,
+                            rep.get("run_id") or "(no run_id — legacy result)",
+                        )
+                        groups.setdefault(key, []).append(rep.get("started_at") or "")
+    return sorted(
+        (task, exp, role, run, len(starts), min(s for s in starts if s) if any(starts) else "")
+        for (task, exp, role, run), starts in groups.items()
+    )
 
 
 def _avg(values: List[float]) -> Optional[float]:
@@ -589,8 +636,9 @@ def _write_evaluation_reports(
     results_path: str,
     task_filter: Optional[List[str]] = None,
     experiment_ids: Optional[List[str]] = None,
+    run_id: Optional[str] = None,
 ) -> None:
-    data = _collect_results(results_path)
+    data = _collect_results(results_path, run_id=run_id)
     eval_dir = Path(results_path) / "evaluation"
     eval_dir.mkdir(parents=True, exist_ok=True)
 
@@ -625,7 +673,8 @@ def _write_evaluation_reports(
             "| --- | --- | --- | --- |",
         ]
         has_delta = False
-        for role in ["expert", "beginner"]:
+        roles_present = sorted(set(data.get("1A", {})) | set(data.get("1B", {})))
+        for role in roles_present:
             payloads_1a = data.get("1A", {}).get(role, [])
             payloads_1b = data.get("1B", {}).get(role, [])
             acc_1a = (sum(1 for p in payloads_1a if p.get("verdict") == "correct") / len(payloads_1a)) if payloads_1a else None
@@ -640,3 +689,37 @@ def _write_evaluation_reports(
         if not has_delta:
             lines.append("No accuracy difference between 1A and 1B.")
         (eval_dir / "comparison.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+if __name__ == "__main__":
+    import argparse
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(message)s")
+    parser = argparse.ArgumentParser(
+        description="List saved run_ids, or regenerate reports scoped to one run_id — "
+        "the fix for 'which folder is which run': every repetition is tagged with the "
+        "run_id of the main.py invocation that produced it, independent of folder naming."
+    )
+    parser.add_argument(
+        "--list-runs", action="store_true",
+        help="Print every (task, experiment, role, run_id) group with rep count and earliest timestamp.",
+    )
+    parser.add_argument(
+        "--run-id", default=None,
+        help="Regenerate result_*.md/comparison.md using only repetitions tagged with this run_id.",
+    )
+    args = parser.parse_args()
+
+    if args.list_runs:
+        rows = list_runs(RESULTS_PATH)
+        if not rows:
+            print("No results found.")
+        else:
+            print(f"{'task':24} {'exp':6} {'role':14} {'run_id':22} {'n':>3}  earliest")
+            for task, exp, role, run, n, earliest in rows:
+                print(f"{task:24} {exp:6} {role:14} {run:22} {n:>3}  {earliest}")
+    elif args.run_id:
+        _write_evaluation_reports(RESULTS_PATH, run_id=args.run_id)
+        logger.info("Reports regenerated for run_id=%s", args.run_id)
+    else:
+        parser.print_help()

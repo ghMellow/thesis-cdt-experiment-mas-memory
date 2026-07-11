@@ -67,6 +67,11 @@
           "producer": "main.py",
           "description": "Repetition index for consistency checks (1-based)."
         },
+        "run_id": {
+          "type": "string|null",
+          "producer": "main.py",
+          "description": "Tags this repetition with the main.py invocation that produced it (auto UTC timestamp, or --run-id for a custom label) — independent of which role folder it's saved under. Use utils.evaluation_utils.list_runs / '--list-runs' to see what run_ids exist, and '--run-id <id>' to regenerate reports scoped to exactly one run. Null on results saved before this field existed (pre 2026-07-12); those are only distinguishable by folder name, as before."
+        },
         "timing": {
           "description": "Wall-clock timestamps and elapsed duration for the full repetition.",
           "fields": {
