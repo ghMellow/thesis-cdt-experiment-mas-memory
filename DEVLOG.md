@@ -2,6 +2,15 @@
 
 ---
 
+## 2026-07-11 — Run 5 (contesto pieno): doc 07, crollo rubric su task6/7  [sessione: 3ee4778c]
+
+**Intent:** "crea il doc 07 sulla riga di docs/06 [...] sui dati di questo test run usando i relativi evaluation/ corretti perché mi sa che ci sono anche di altre run" — dopo il lancio manuale della run full-only concordata in sessione precedente
+**Divergenze:**
+- l'utente aveva segnalato correttamente il rischio: i report `results/evaluation/*.md` aggregano tutte le cartelle-ruolo (`agent`, `agent_8m`, `agent_run4`) per task5/task9 (niente variante `_full` per loro) — ricalcolate le statistiche a mano filtrando solo `results/<task>/<exp>/agent/` di questa run, ignorando i report aggregati pre-generati
+- risultato non atteso: il contesto pieno non migliora, **rompe** il Blocco A su 2 task su 4 (task6_full, task7_full: 0/6 correct, `missing_return_score` sempre 0.0 su tutti i 6 tentativi — deterministico, non rumore); task8_full e task9 restano identici a run 4
+- indagine aggiuntiva non richiesta esplicitamente: isolata la causa a bug "cross-handler"/controllo di flusso diluiti nel file intero (non alla dimensione del file: task7_full è più piccolo di task8_full ma comunque crolla)
+**Esito:** `docs/07_risultati_cvss_run5_full_context.md` (F21–F24: contesto pieno non generico ma specifico alla forma della rubrica; matching CVSS task6 peggiora nonostante 6 CVE candidate invece di 3; bias impatto task8 invariato; verbosità/unmatched quasi triplicati 83 vs 28); indice README e status aggiornati
+
 ## 2026-07-11 — Finding senza CVE: salvati, valutati e rankati per triage  [sessione: 3ee4778c]
 
 **Intent:** "l'agente non sa quante cve sputare quindi potrebbe trovarne altre. In call gli esperti chiedevano se le salviamo nel json (mi sembra di si) nel report trova il posto in cui salvarle e ordinate per punteggio di importanza [...] fai lo script — oppure è già così?"

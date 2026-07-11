@@ -1,13 +1,13 @@
-# 1A — task5_vuln_pcf
+# 1A — task6_vuln_udr_full
 
 ## Summary
 
 | metric | value |
 | --- | --- |
-| total results | 9 |
-| correct | 9 (100.0%) |
-| wrong | 0 |
-| retried (attempts > 1) | 0 |
+| total results | 3 |
+| correct | 0 (0.0%) |
+| wrong | 3 |
+| retried (attempts > 1) | 3 |
 | truly inconsistent tasks | 4 |
 | surface-only differences (semantically equiv.) | 5 |
 
@@ -17,9 +17,9 @@ _truly inconsistent_: LLM confirmed different conclusions across repetitions. _s
 
 | role | accuracy | avg_confidence | brier_score | avg_attempts | avg_textual_norm |
 | --- | --- | --- | --- | --- | --- |
-| agent | 100.0% | 1.000 | 0.0000 | 1.00 | 0.963 |
-| agent_8m | 100.0% | 1.000 | 0.0000 | 1.00 | 1.000 |
-| agent_run4 | 100.0% | 1.000 | 0.0000 | 1.00 | 1.000 |
+| agent | 0.0% | 0.900 | 0.8100 | 3.00 | 0.481 |
+| agent_8m | n/a | n/a | n/a | n/a | n/a |
+| agent_run4 | n/a | n/a | n/a | n/a | n/a |
 
 **Legend**
 
@@ -36,9 +36,7 @@ _truly inconsistent_: LLM confirmed different conclusions across repetitions. _s
 
 | role | estimates | matched | missed CVEs | unmatched findings | avg band vs published (0-3) | avg band vs B (0-3) | avg exploitability (0-5) | avg impact (0-3) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | 3/3 | 3 | 0 | 4 | 0.00 | 0.00 | 4.00 | 1.00 |
-| agent_8m | 3/3 | 3 | 0 | 2 | 0.33 | 0.33 | 4.33 | 1.67 |
-| agent_run4 | 3/3 | 3 | 0 | 4 | 0.33 | 0.33 | 4.00 | 0.67 |
+| agent | 3/3 | 1 | 17 | 11 | 3.00 | 3.00 | 4.00 | 2.00 |
 
 _`estimates` = repetitions where the agent produced a CVSS block. `matched` = findings paired to a ground-truth CVE via handler function. ⚠️ **Diagnostic columns only**: the band columns here are computed on the score the agent *declares*, which is produced independently of its vector and has no official rigor behind it (F17: systematically lower than what the vector is worth). The quantitative metrics that count are in the official-math table below, based on the score recomputed from the vector. These columns are kept for comparability with runs 1-3 and as an internal-coherence diagnostic._
 
@@ -46,167 +44,66 @@ _`estimates` = repetitions where the agent produced a CVSS block. `matched` = fi
 
 | role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg subseq. distance (0-1) | avg Hamming (0-8) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | 1.87 | 3.40 | 0.00 | 0.10 | 0.50 | 0.17 | 3.00 |
-| agent_8m | 1.00 | 2.27 | 1.00 | 0.07 | 0.33 | 0.11 | 2.00 |
-| agent_run4 | 2.17 | 2.37 | 1.00 | 0.10 | 0.61 | 0.22 | 3.33 |
+| agent | 1.20 | 1.40 | 2.00 | 0.10 | 0.17 | 0.33 | 2.00 |
 
 _The estimated vector is rescored with the official FIRST CVSS 4.0 algorithm (macrovector + lookup table, `cvss` library). `coherence Δ` = |score declared by the agent − score its own vector actually produces| (the two outputs are independent, nothing forces them to agree). `computed Δ vs B` compares the recomputed score against the ground-truth pure base score — a vector distance in official score space. Severity distances are ordinal and normalized per metric group (0 = identical vector, 1 = every field at the opposite end of its scale); the subsequent-system triad SC/SI/SA is scored only on runs where the agent emitted it (requested since 2026-07-10); Hamming counts plainly differing fields among the 8 vulnerable-system metrics (n/a = older runs, recompute with `python -m utils.cvss_eval`)._
 
 ### Vector detail (estimated vs. published)
 
-| **CVE-2026-41135** — agent, rep 1 | estimated | published |
+| **CVE-2026-40249** — agent, rep 1 | estimated | published |
 |---|---|---|
 | AV — Attack Vector | N | N |
 | AC — Attack Complexity | L | L |
 | AT — Attack Requirements | N | N |
-| PR — Privileges Required | N | N |
-| UI — User Interaction | **P** | **N** |
-| VC — Confidentiality Impact to the Vulnerable System | **L** | **N** |
-| VI — Integrity Impact to the Vulnerable System | N | N |
-| VA — Availability Impact to the Vulnerable System | **N** | **H** |
-| SC — Confidentiality Impact to the Subsequent System | **L** | **N** |
-| SI — Integrity Impact to the Subsequent System | N | N |
-| SA — Availability Impact to the Subsequent System | N | N |
-| base score — declared / from vector (official math) | 3.1 / **5.3** | 8.7 |
-
-| **CVE-2026-41135** — agent, rep 2 | estimated | published |
-|---|---|---|
-| AV — Attack Vector | N | N |
-| AC — Attack Complexity | L | L |
-| AT — Attack Requirements | N | N |
-| PR — Privileges Required | N | N |
-| UI — User Interaction | **P** | **N** |
-| VC — Confidentiality Impact to the Vulnerable System | **L** | **N** |
-| VI — Integrity Impact to the Vulnerable System | N | N |
-| VA — Availability Impact to the Vulnerable System | **N** | **H** |
-| SC — Confidentiality Impact to the Subsequent System | **L** | **N** |
-| SI — Integrity Impact to the Subsequent System | N | N |
-| SA — Availability Impact to the Subsequent System | N | N |
-| base score — declared / from vector (official math) | 3.1 / **5.3** | 8.7 |
-
-| **CVE-2026-41135** — agent, rep 3 | estimated | published |
-|---|---|---|
-| AV — Attack Vector | N | N |
-| AC — Attack Complexity | L | L |
-| AT — Attack Requirements | N | N |
-| PR — Privileges Required | N | N |
-| UI — User Interaction | **P** | **N** |
-| VC — Confidentiality Impact to the Vulnerable System | **L** | **N** |
-| VI — Integrity Impact to the Vulnerable System | N | N |
-| VA — Availability Impact to the Vulnerable System | **N** | **H** |
-| SC — Confidentiality Impact to the Subsequent System | **L** | **N** |
-| SI — Integrity Impact to the Subsequent System | N | N |
-| SA — Availability Impact to the Subsequent System | N | N |
-| base score — declared / from vector (official math) | 4.1 / **5.3** | 8.7 |
-
-| **CVE-2026-41135** — agent_8m, rep 1 | estimated | published |
-|---|---|---|
-| AV — Attack Vector | N | N |
-| AC — Attack Complexity | L | L |
-| AT — Attack Requirements | N | N |
-| PR — Privileges Required | N | N |
+| PR — Privileges Required | **L** | **N** |
 | UI — User Interaction | N | N |
 | VC — Confidentiality Impact to the Vulnerable System | N | N |
-| VI — Integrity Impact to the Vulnerable System | N | N |
-| VA — Availability Impact to the Vulnerable System | H | H |
+| VI — Integrity Impact to the Vulnerable System | **H** | **L** |
+| VA — Availability Impact to the Vulnerable System | N | N |
 | SC — Confidentiality Impact to the Subsequent System | N | N |
-| SI — Integrity Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | **H** | **N** |
 | SA — Availability Impact to the Subsequent System | N | N |
-| base score — declared / from vector (official math) | 7.1 / **8.7** | 8.7 |
-
-| **CVE-2026-41135** — agent_8m, rep 2 | estimated | published |
-|---|---|---|
-| AV — Attack Vector | N | N |
-| AC — Attack Complexity | L | L |
-| AT — Attack Requirements | N | N |
-| PR — Privileges Required | N | N |
-| UI — User Interaction | **P** | **N** |
-| VC — Confidentiality Impact to the Vulnerable System | **L** | **N** |
-| VI — Integrity Impact to the Vulnerable System | N | N |
-| VA — Availability Impact to the Vulnerable System | **N** | **H** |
-| SC — Confidentiality Impact to the Subsequent System | **L** | **N** |
-| SI — Integrity Impact to the Subsequent System | N | N |
-| SA — Availability Impact to the Subsequent System | N | N |
-| base score — declared / from vector (official math) | 5.1 / **5.3** | 8.7 |
-
-| **CVE-2026-41135** — agent_8m, rep 3 | estimated | published |
-|---|---|---|
-| AV — Attack Vector | N | N |
-| AC — Attack Complexity | L | L |
-| AT — Attack Requirements | N | N |
-| PR — Privileges Required | N | N |
-| UI — User Interaction | **P** | **N** |
-| VC — Confidentiality Impact to the Vulnerable System | **L** | **N** |
-| VI — Integrity Impact to the Vulnerable System | N | N |
-| VA — Availability Impact to the Vulnerable System | **N** | **H** |
-| SC — Confidentiality Impact to the Subsequent System | **L** | **N** |
-| SI — Integrity Impact to the Subsequent System | N | N |
-| SA — Availability Impact to the Subsequent System | N | N |
-| base score — declared / from vector (official math) | 4.1 / **5.3** | 8.7 |
-
-| **CVE-2026-41135** — agent_run4, rep 1 | estimated | published |
-|---|---|---|
-| AV — Attack Vector | N | N |
-| AC — Attack Complexity | L | L |
-| AT — Attack Requirements | N | N |
-| PR — Privileges Required | N | N |
-| UI — User Interaction | **P** | **N** |
-| VC — Confidentiality Impact to the Vulnerable System | **L** | **N** |
-| VI — Integrity Impact to the Vulnerable System | N | N |
-| VA — Availability Impact to the Vulnerable System | **N** | **H** |
-| SC — Confidentiality Impact to the Subsequent System | N | N |
-| SI — Integrity Impact to the Subsequent System | N | N |
-| SA — Availability Impact to the Subsequent System | N | N |
-| base score — declared / from vector (official math) | 2.3 / **5.3** | 8.7 |
-
-| **CVE-2026-41135** — agent_run4, rep 2 | estimated | published |
-|---|---|---|
-| AV — Attack Vector | N | N |
-| AC — Attack Complexity | L | L |
-| AT — Attack Requirements | N | N |
-| PR — Privileges Required | N | N |
-| UI — User Interaction | **P** | **N** |
-| VC — Confidentiality Impact to the Vulnerable System | **L** | **N** |
-| VI — Integrity Impact to the Vulnerable System | N | N |
-| VA — Availability Impact to the Vulnerable System | **N** | **H** |
-| SC — Confidentiality Impact to the Subsequent System | **L** | **N** |
-| SI — Integrity Impact to the Subsequent System | N | N |
-| SA — Availability Impact to the Subsequent System | N | N |
-| base score — declared / from vector (official math) | 3.1 / **5.3** | 8.7 |
-
-| **CVE-2026-41135** — agent_run4, rep 3 | estimated | published |
-|---|---|---|
-| AV — Attack Vector | N | N |
-| AC — Attack Complexity | L | L |
-| AT — Attack Requirements | N | N |
-| PR — Privileges Required | N | N |
-| UI — User Interaction | **P** | **N** |
-| VC — Confidentiality Impact to the Vulnerable System | **H** | **N** |
-| VI — Integrity Impact to the Vulnerable System | **L** | **N** |
-| VA — Availability Impact to the Vulnerable System | **N** | **H** |
-| SC — Confidentiality Impact to the Subsequent System | **H** | **N** |
-| SI — Integrity Impact to the Subsequent System | **L** | **N** |
-| SA — Availability Impact to the Subsequent System | N | N |
-| base score — declared / from vector (official math) | 7.1 / **8.4** | 8.7 |
+| base score — declared / from vector (official math) | 7.1 / **8.3** | 6.9 |
 
 ### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)
 
 | # | score (from vector) | declared | function | task | role | rep | vector |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 8.7 | 7.1 | `setCorsHeader` | task5_vuln_pcf | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 2 | 8.7 | 7.1 | `setCorsHeader` | task5_vuln_pcf | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 3 | 8.7 | 7.1 | `setCorsHeader` | task5_vuln_pcf | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 4 | 8.7 | 7.1 | `setCorsHeader` | task5_vuln_pcf | agent_8m | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 5 | 8.7 | 7.1 | `setCorsHeader` | task5_vuln_pcf | agent_8m | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 6 | 8.7 | 6.8 | `setCorsHeader` | task5_vuln_pcf | agent_run4 | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 7 | 8.7 | 7.1 | `setCorsHeader` | task5_vuln_pcf | agent_run4 | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 8 | 8.7 | 6.2 | `setCorsHeader` | task5_vuln_pcf | agent_run4 | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 9 | 7.1 | 6.2 | `HTTPOAMGetAmPolicy` | task5_vuln_pcf | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 10 | 5.3 | 4.0 | `HTTPOAMGetAmPolicy` | task5_vuln_pcf | agent_run4 | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:L/SI:N/SA:N` |
+| 1 | 8.5 | 6.0 | `HandleCreateSdmSubscriptions` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N` |
+| 2 | 8.3 | 7.1 | `HandleCreateSdmSubscriptions` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:H/VA:N/SC:N/SI:H/SA:N` |
+| 3 | 8.3 | 7.3 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H` |
+| 4 | 7.1 | 5.1 | `HandleCreateSdmSubscriptions` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:H/VA:N/SC:N/SI:N/SA:N` |
+| 5 | 7.1 | 4.1 | `HandlePolicyDataUesUeIdSmDataGet` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| 6 | 5.3 | 5.3 | `HandleCreateEeSubscriptions, HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:L/SI:L/SA:N` |
+| 7 | 5.3 | 3.1 | `HandleCreateEeSubscriptions` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N` |
+| 8 | 5.3 | 3.1 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 9 | 5.1 | 4.0 | `HandleCreateEeSubscriptions` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 10 | 5.1 | 3.0 | `HandlePolicyDataUesUeIdSmDataGet` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 11 | 5.1 | 4.0 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N` |
 
 _Findings the agent reported that matched no ground-truth CVE. Never counted against the evaluation (design choice: these are the practical use case — potential vulnerabilities without a CVE). Ranked most-severe-first by the score recomputed from the vector with the official CVSS 4.0 math; the declared score is diagnostic only. Full raw data in each result JSON under `cvss_eval.unmatched` (and the original agent output in `final_answer.cvss_estimate.findings`)._
 
 ## Anomalies
+
+### Wrong verdicts (3)
+
+| role | task_id | rep | attempts | confidence | score/delta |
+| --- | --- | --- | --- | --- | --- |
+| agent | task6_vuln_udr_full | 1 | 3 | 0.900 | 4.0 |
+| agent | task6_vuln_udr_full | 2 | 3 | 0.900 | 4.0 |
+| agent | task6_vuln_udr_full | 3 | 3 | 0.900 | 5.0 |
+
+_`rep` = repetition index. `attempts` = total LLM calls (all failed). `confidence` = agent self-reported confidence on the final answer. `score/delta` = normalized rubric score (textual) or |answer − ground_truth| (math)._
+
+### Retries triggered (3)
+
+| role | task_id | rep | attempts | final_verdict |
+| --- | --- | --- | --- | --- |
+| agent | task6_vuln_udr_full | 1 | 3 | wrong |
+| agent | task6_vuln_udr_full | 2 | 3 | wrong |
+| agent | task6_vuln_udr_full | 3 | 3 | wrong |
+
+_Each row is one repetition. `rep` = repetition index (1-based). `attempts` = LLM calls within that repetition (2 means wrong on attempt 1, correct on attempt 2). `final_verdict` = outcome after all attempts._
 
 ### Truly inconsistent reasoning (4)
 

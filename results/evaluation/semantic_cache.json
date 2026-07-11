@@ -450,5 +450,45 @@
   "agent_run4/task9_vuln_cross/905cffb2449bfd68": {
     "equivalent": true,
     "explanation": "All three reasonings identify the same core issues: inconsistent UE identifier validation across UDM/PCF/UDR, permissive CORS in PCF, the missing default case in AMF's HTTPUEContextTransfer, the missing return after 404 in UDR's influenceId handlers, and the trivial regex bypass in UDR's HandleCreateEeSubscriptions; the second and third versions additionally note a type mismatch in AMF's context storage."
+  },
+  "agent/task5_vuln_pcf/c7d4272a9abf190c": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same three vulnerabilities: permissive CORS configuration in setCorsHeader, the memory leak/DoS caused by calling .Use() inside a request handler, and the lack of input validation or authorization for the SUPI parameter in HTTPOAMGetAmPolicy."
+  },
+  "agent/task6_vuln_udr_full/0fa4cef20e26c6fa": {
+    "equivalent": false,
+    "explanation": "The three reasonings identify different sets of vulnerabilities: the first mentions a deserialization error (nil pointer) and a DoS via comma-splitting, while the others identify JSON unmarshaling issues and NoSQL injection in the same locations."
+  },
+  "agent/task7_vuln_amf_full/4af574d11765fa95": {
+    "equivalent": false,
+    "explanation": "The three passages identify different sets of vulnerabilities: the first focuses on information exposure, a missing default case in HTTPUEContextTransfer, and path parameter validation; the second highlights context state management type mismatches and header parsing; the third identifies unbounded memory allocation (DoS) along with some overlapping issues."
+  },
+  "agent/task8_vuln_udm_full/a8cffc68c96662de": {
+    "equivalent": false,
+    "explanation": "The three passages identify different sets of vulnerabilities: the first lists three, the second lists four (including information leakage), and the third lists four (including a DoS via GetRawData())."
+  },
+  "agent/task9_vuln_cross/ec189654802efa37": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same set of vulnerabilities: cross-file UE identifier validation inconsistencies (UDM, PCF, UDR), an overly permissive CORS policy in PCF, a missing default case in AMF's HTTPUEContextTransfer, a type mismatch in AMF's context storage, improper control flow in UDR's HandleApplicationData functions, and a trivial regex bypass in UDR's HandleCreateEeSubscriptions."
+  },
+  "agent/task5_vuln_pcf/bbeaea02d8db0f0a": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same three core issues: the critical CORS misconfiguration (wildcard origin with credentials), the memory leak/DoS caused by calling `router.Use` within a request handler, and the lack of input validation for the `supi` parameter."
+  },
+  "agent/task6_vuln_udr_full/784639089ac0a27d": {
+    "equivalent": false,
+    "explanation": "The three reasonings identify different sets of vulnerabilities: the first and second both identify the deserialization and regex issues, but the first includes a specific JSON unmarshaling error in HandlePolicyDataUesUeIdSmDataGet, while the second includes a NoSQL query manipulation issue in HandleApplicationDataInfluenceDataGet and the third includes a different query parameter handling issue in the same function."
+  },
+  "agent/task7_vuln_amf_full/70005c979bf73a1d": {
+    "equivalent": false,
+    "explanation": "The three reasonings identify different sets of vulnerabilities: the first focuses on compilation errors and Gin context type mismatches, while the second and third focus on unbounded request bodies (DoS), path parameter neglect, and content-type handling logic, with only 'Information Exposure' being a common theme."
+  },
+  "agent/task8_vuln_udm_full/dec1fe8cad8723f1": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same three core vulnerabilities: missing SUPI validation in specific handlers, unsafe JSON unmarshaling in `getPlmnIDStruct`, and fragile manual manipulation of `c.Params` in the layer handler functions."
+  },
+  "agent/task9_vuln_cross/c68747fabb24dd4c": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same set of vulnerabilities: cross-NF UE identifier validation inconsistencies (UDM, PCF, UDR), the permissive CORS policy in PCF, the missing default case in AMF's HTTPUEContextTransfer, the type mismatch in AMF's context storage, the missing return after 404 in UDR, and the trivial regex bypass in UDR."
   }
 }
