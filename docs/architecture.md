@@ -280,6 +280,8 @@ Alla fine di una run, `utils/evaluation_utils.py` genera:
 
 I risultati salvati prima di questa modifica non hanno `run_id` (`list_runs` li segna "legacy result") — restano leggibili ma non filtrabili per run; la separazione per quelli resta quella del nome-cartella, come prima.
 
+**Il run_id compare anche dentro i report**, non solo da CLI: ogni `result_<task>_<exp>.md` e `comparison.md` apre con un blocco `> **Run(s) in this report:**` — una riga per (ruolo, run_id) che ha contribuito ai dati aggregati in quel file. Basta aprire il report per sapere se sta mescolando più run senza dover incrociare cartelle o timestamp a mano.
+
 ---
 
 ## 9) Come funziona la generazione dei report

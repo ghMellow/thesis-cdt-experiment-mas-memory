@@ -2,6 +2,11 @@
 
 ---
 
+## 2026-07-12 — run_id visibile anche dentro i report  [sessione: 3ee4778c]
+
+**Intent:** "la run id si propaga anche dentro i evaluation? così posso identificare anche loro facilmente" — seguito diretto della feature precedente, il filtro CLI da solo non bastava: bisognava vedere subito aprendo un report quali run lo compongono
+**Esito:** ogni `result_<task>_<exp>.md` e `comparison.md` apre con `> **Run(s) in this report:**`, una riga per (ruolo, run_id); `_build_run_id_note` condivisa tra i due generatori di report; report rigenerati (dati esistenti → "legacy (no run_id)" per ogni ruolo, corretto: sono pre-esistenti alla feature)
+
 ## 2026-07-12 — run_id: la gestione delle run smette di essere manuale  [sessione: 3ee4778c]
 
 **Intent:** due domande dell'utente su doc 07 — "queste cose si evincono anche da docs/07?" e "la gestione dei risultati si può migliorare? ora capire come prendere le cose è un po' problematico"

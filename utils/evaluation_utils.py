@@ -504,6 +504,20 @@ def _build_cvss_vector_detail(roles: Dict[str, List[Dict[str, Any]]]) -> List[st
     return lines
 
 
+def _build_run_id_note(all_payloads: List[Dict[str, Any]]) -> List[str]:
+    """One line per (role, run_id) contributing to this report — so a reader
+    can tell straight from the file which run(s) it aggregates, without
+    cross-checking folder names or timestamps by hand (the doc-07 problem)."""
+    per_role_runs: Dict[str, set] = {}
+    for p in all_payloads:
+        per_role_runs.setdefault(p.get("_role", "?"), set()).add(p.get("run_id") or "legacy (no run_id)")
+    lines = ["> **Run(s) in this report:**"]
+    for role, runs in sorted(per_role_runs.items()):
+        lines.append(f"> - `{role}`: {', '.join(sorted(runs))}")
+    lines.append("")
+    return lines
+
+
 def _build_experiment_report(
     experiment_id: str,
     roles: Dict[str, List[Dict[str, Any]]],
@@ -532,6 +546,8 @@ def _build_experiment_report(
     if not all_payloads:
         lines.append("No results found.")
         return "\n".join(lines) + "\n"
+
+    lines += _build_run_id_note(all_payloads)
 
     total = len(all_payloads)
     correct = sum(1 for p in all_payloads if p.get("verdict") == "correct")
@@ -666,9 +682,15 @@ def _write_evaluation_reports(
 
     # Comparison report — only meaningful when both 1A and 1B are in scope
     if "1A" in ids_to_report and "1B" in ids_to_report:
-        lines = [
-            "# Comparison 1A vs 1B",
-            "",
+        all_payloads_both = [
+            {"_role": role, **p}
+            for exp_id in ("1A", "1B")
+            for role, payloads in data.get(exp_id, {}).items()
+            for p in payloads
+        ]
+        lines = ["# Comparison 1A vs 1B", ""]
+        lines += _build_run_id_note(all_payloads_both)
+        lines += [
             "| role | accuracy_1A | accuracy_1B | delta |",
             "| --- | --- | --- | --- |",
         ]

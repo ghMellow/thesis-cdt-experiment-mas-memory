@@ -1,5 +1,10 @@
 # 1B — task5_vuln_pcf
 
+> **Run(s) in this report:**
+> - `agent`: legacy (no run_id)
+> - `agent_8m`: legacy (no run_id)
+> - `agent_run4`: legacy (no run_id)
+
 ## Summary
 
 | metric | value |

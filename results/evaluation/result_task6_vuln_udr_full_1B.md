@@ -1,5 +1,8 @@
 # 1B — task6_vuln_udr_full
 
+> **Run(s) in this report:**
+> - `agent`: legacy (no run_id)
+
 ## Summary
 
 | metric | value |

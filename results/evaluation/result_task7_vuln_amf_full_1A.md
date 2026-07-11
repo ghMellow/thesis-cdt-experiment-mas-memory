@@ -1,5 +1,8 @@
 # 1A — task7_vuln_amf_full
 
+> **Run(s) in this report:**
+> - `agent`: legacy (no run_id)
+
 ## Summary
 
 | metric | value |
