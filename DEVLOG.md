@@ -2,6 +2,16 @@
 
 ---
 
+## 2026-07-11 — Score dichiarato declassato a diagnostica; doc 06 reso indipendente  [sessione: 3ee4778c]
+
+**Intent:** tre domande utente: eseguire solo i task full ("task5 è già full anche se il nome non lo è, 6 7 8 ok, 9 per costruzione è parziale"), doc 06 da rendere indipendente dalle run precedenti ("bisogna parlare di questa indipendentemente"), verifica della libreria vs repo FIRST condivisa dal team (github.com/FIRSTdotorg/cvss-v4-calculator), e decisione score: "(b) continuare a chiederlo ma usarlo solo come diagnostica di coerenza interna però da segnalare esplicitamente nei report che non ha valore come le metriche ufficiali"
+**Decisioni:**
+- opzione (b) accettata: score dichiarato = solo diagnostica; report marcati con "⚠️ Diagnostic columns only" sulla tabella bande-dichiarato, tabella official math rinominata "the reference metrics"
+- doc 06 ristrutturato standalone: rimosse le righe di confronto run3/8m dalle tabelle §1, confronti restanti (F17/F19) esplicitati come "stessa matematica ufficiale, ricalcolo retroattivo"
+- prossima run: full-only (task5 com'è, task6/7/8 `_full`, task9 com'è) — registrata nel doc 06 §4
+- CVE-2026-47780 chiarita: task_id null è intenzionale (regex `|.+` non nei 4 file dei task), non un dato perso — aggiunta ai punti aperti (fuori perimetro o task dedicato?)
+**Esito:** verificato che la libreria `cvss` è un port diretto della reference FIRST (CVSS_LOOKUP_GLOBAL 270 macrovettori, MAX_COMPOSED, severity_distance/mean_distance); report rigenerati; architecture §6.3 aggiornata con la gerarchia delle metriche
+
 ## 2026-07-10 — Run 4 (agente unico, 11 metriche) e doc 06  [sessione: 3ee4778c]
 
 **Intent:** "se tutto corretto crea il doc 06 (come fatto per docs/05) dove riporti i risultati ora che lo score ha senso. infine pusha tutto su git" — run lanciata dall'utente dopo lo spostamento dei risultati 8-metriche in `agent_8m/`

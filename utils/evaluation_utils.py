@@ -315,12 +315,14 @@ def _build_cvss_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
         "",
         "_`estimates` = repetitions where the agent produced a CVSS block. "
         "`matched` = findings paired to a ground-truth CVE via handler function. "
-        "`band vs published` compares against the published score (BT where the vector "
-        "includes Threat E); `band vs B` against the pure base score. "
-        "Exploitability counts AV/AC/AT/PR/UI matches; impact counts VC/VI/VA — the "
-        "impact triad is the discriminating signal on this dataset._",
+        "⚠️ **Diagnostic columns only**: the band columns here are computed on the score "
+        "the agent *declares*, which is produced independently of its vector and has no "
+        "official rigor behind it (F17: systematically lower than what the vector is "
+        "worth). The quantitative metrics that count are in the official-math table "
+        "below, based on the score recomputed from the vector. These columns are kept "
+        "for comparability with runs 1-3 and as an internal-coherence diagnostic._",
         "",
-        "### Official CVSS 4.0 math (score recomputed from the estimated vector)",
+        "### Official CVSS 4.0 math (score recomputed from the estimated vector) — the reference metrics",
         "",
         "| role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg subseq. distance (0-1) | avg Hamming (0-8) |",
         "| --- | --- | --- | --- | --- | --- | --- | --- |",

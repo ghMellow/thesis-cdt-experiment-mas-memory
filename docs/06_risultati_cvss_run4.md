@@ -9,12 +9,12 @@
 ## 0. Cosa cambia rispetto alla run 3
 
 1. **Agente unico** (`SYSTEM_PROMPTS["agent"]`, prompt neutro): 30 run invece di 60. Coerente con F12 di run 3 (l'effetto di ruolo non esisteva).
-2. **Valutazione con la matematica ufficiale** (`utils/cvss_eval.py` + libreria `cvss`, algoritmo FIRST macrovettori + lookup table — validato: i 10 vettori GT ricalcolati coincidono tutti con gli score NVD/CNA). Nuovi assi per ogni finding abbinato:
+2. **Valutazione con la matematica ufficiale** (`utils/cvss_eval.py` + libreria `cvss` di RedHat, port Python diretto della reference implementation FIRST [cvss-v4-calculator](https://github.com/FIRSTdotorg/cvss-v4-calculator): stessa lookup table a 270 macrovettori, stessa interpolazione `severity_distance`/`mean_distance` — validato: i 10 vettori GT ricalcolati coincidono tutti con gli score NVD/CNA). Nuovi assi per ogni finding abbinato:
    - `computed_score_B` — lo score che il vettore stimato *vale davvero*;
    - `score_coherence_delta` — |score dichiarato − score del proprio vettore| (i due output dell'agente sono generati indipendentemente);
    - `computed_delta_vs_B` — distanza del vettore dalla GT espressa in punti CVSS;
    - distanze ordinali di severità per campo (exploitability / impatto / subsequent, 0–1).
-   La rivalutazione è **retroattiva** (`python -m utils.cvss_eval`): anche run 1–3 e `agent_8m` hanno i nuovi campi.
+   La rivalutazione è **retroattiva** (`python -m utils.cvss_eval`): anche run 1–3 e `agent_8m` hanno i nuovi campi — ogni confronto con run precedenti citato in questo documento usa quindi la **stessa** matematica ufficiale, mai il vecchio criterio.
 3. **Prompt a 11 metriche**: il blocco CVSS chiede anche SC/SI/SA (impatto sui sistemi a valle).
 4. ⚠️ **Caveat setup**: in questa run `agent_1A`, `agent_1B` e `judge` puntano tutti a `gemma4:31b-cloud` — 1A e 1B sono quindi lo **stesso setup** sotto due etichette (di fatto 6 campioni per task, non 2 condizioni). Da differenziare in config alla prossima run se si vuole tornare al confronto "stesso modello vs modelli diversi".
 
@@ -24,25 +24,19 @@
 
 ### Blocco A — rubrica testuale (30 run)
 
-| | correct | avg score normalizzato | wrong |
-|---|---|---|---|
-| **Run 4 (agente unico)** | 29/30 (96.7%) | 0.941 | task7_vuln_amf / 1A / rep 1 (3 tentativi) |
-| Run agent_8m (stesso giorno) | 29/30 | 0.933 | task7_vuln_amf / 1A / rep 2 |
-| Run 3 (expert+beginner) | 59/60 | 0.941 | task7_vuln_amf / 1B expert / rep 3 |
+| correct | avg score normalizzato | wrong |
+|---|---|---|
+| 29/30 (96.7%) | 0.941 | task7_vuln_amf / 1A / rep 1 (3 tentativi) |
 
-Il punto fragile è **sempre task7**, e la ripetizione che ci cade sopra cambia a ogni campionamento — conferma diretta di F12: non era il ruolo, è il task.
+L'unico wrong è su task7, il punto fragile già noto del sistema (F12): la ripetizione che ci cade sopra cambia a ogni campionamento.
 
 ### Blocco B — CVSS con la matematica ufficiale (24 finding abbinati su 24 possibili; task9 sempre `null`, F4)
 
-| | n | coerenza Δ (dich.↔vettore) | Δ vettore vs B (punti CVSS) | banda score *ricalcolato* vs B | banda score *dichiarato* vs B | dist. impatto (0–1) | dist. exploitability (0–1) | SC/SI/SA emesse |
-|---|---|---|---|---|---|---|---|---|
-| **Run 4 (prompt 11 metriche)** | 24 | 1.35 (σ 1.12) | 1.72 | **1.42 / 3** | 0.54 / 3 | 0.53 | 0.10 | 24/24 |
-| Run agent_8m (prompt 8 metriche) | 24 | 0.94 (σ 0.72) | 1.65 | **1.50 / 3** | 0.79 / 3 | 0.50 | 0.10 | 24/24 |
+| n | coerenza Δ (dich.↔vettore) | Δ vettore vs B (punti CVSS) | banda score *ricalcolato* vs B | banda score *dichiarato* vs B (diagnostica) | dist. impatto (0–1) | dist. exploitability (0–1) | SC/SI/SA emesse |
+|---|---|---|---|---|---|---|---|
+| 24 | 1.35 (σ 1.12) | 1.72 | **1.42 / 3** | 0.54 / 3 | 0.53 | 0.10 | 24/24 |
 
-Due letture immediate:
-
-- **Lo score ricalcolato dal vettore è molto più vicino alla GT dello score dichiarato** (banda 1.42–1.50 vs 0.54–0.79). Il vettore è l'output affidabile; il numero dichiarato no (→ F17).
-- **Il prompt a 11 metriche è risultato neutro sulla qualità**: il modello emetteva già SC/SI/SA spontaneamente in tutti i 24 finding abbinati anche col prompt a 8. Le differenze tra le due run (coerenza 1.35 vs 0.94, impatto 0.53 vs 0.50) sono entro il rumore a n=24 (→ F19).
+**La lettura centrale: lo score ricalcolato dal vettore è molto più vicino alla GT dello score dichiarato** (banda 1.42/3 contro 0.54/3). Il vettore è l'output affidabile; il numero dichiarato no (→ F17). Per questo, da questa run in poi, **lo score dichiarato è declassato a diagnostica di coerenza interna**: nei report le sue colonne sono marcate come non-ufficiali, e le metriche di riferimento sono quelle ricalcolate dal vettore.
 
 ---
 
@@ -69,13 +63,13 @@ Due letture immediate:
 
 ## 3. Findings (continuano la numerazione di [run 3](05_risultati_cvss_run3.md))
 
-**F17 — Lo score dichiarato è sistematicamente più basso di quanto vale il vettore che lo accompagna; lo score ricalcolato è la stima migliore.** Scarto medio −1.35 (21/24 casi; −0.94 e 23/24 nella run 8m — il pattern precede il cambio di prompt). Banda vs B: 1.42/3 col ricalcolato contro 0.54/3 col dichiarato. **Implicazione operativa diretta per il caso d'uso di Lorenzo (ranking per triage): ordinare per `computed_score_B`, non per lo score dichiarato.** Con la valutazione pre-call-11 questo era invisibile: si confrontava solo il numero dichiarato.
+**F17 — Lo score dichiarato è sistematicamente più basso di quanto vale il vettore che lo accompagna; lo score ricalcolato è la stima migliore.** Scarto medio −1.35 (21/24 casi in questa run; il pattern si osserva identico anche rivalutando la run gemella pre-estensione con la stessa matematica: −0.94, 23/24 — quindi precede il cambio di prompt). Banda vs B: 1.42/3 col ricalcolato contro 0.54/3 col dichiarato. **Decisione conseguente: lo score dichiarato è declassato a diagnostica di coerenza interna** — si continua a chiederlo (costa zero e F17 è un finding in sé), ma nei report le sue colonne sono esplicitamente marcate come non-ufficiali; ranking per triage (caso d'uso Lorenzo) e metriche di confronto usano solo `computed_score_B`.
 
 **F18 — F9 (task8 sottostimato) è un bias nel *vettore*, non nello scoring.** Coerenza interna quasi perfetta (0.45) ma vettore a 2.87 punti dalla GT: il modello "crede" davvero a una severità 5 e costruisce il vettore di conseguenza. L'hint di contesto non c'entra con la conversione — è la percezione dell'impatto VC a monte che va corretta (contesto più specifico per NF, direzione Mariano/Andrea).
 
-**F19 — L'estensione del prompt a 11 metriche è neutra sulla qualità: il modello emetteva già SC/SI/SA spontaneamente (24/24 anche col prompt a 8).** Il valore dell'estensione è di *formato* (vettore completo garantito per costruzione → score ufficiale calcolabile senza padding), non di accuratezza. Unica differenza osservata: più finding totali (52 vs 44) e più unmatched (28 vs 20) — direzione "più verboso", entro il rumore.
+**F19 — L'estensione del prompt a 11 metriche è neutra sulla qualità: il modello emetteva già SC/SI/SA spontaneamente in tutti i 24 finding abbinati anche col prompt a 8** (verificato sulla run gemella `agent_8m`, rivalutata con la stessa matematica ufficiale). Il valore dell'estensione è di *formato* (vettore completo garantito per costruzione → score ufficiale calcolabile senza padding), non di accuratezza. Unica differenza osservata: più finding totali (52 vs 44) e più unmatched (28 vs 20) — direzione "più verboso", entro il rumore.
 
-**F20 — L'agente unico riproduce il comportamento dei due ruoli: nessuna perdita misurabile.** Stesso avg normalizzato di run 3 (0.941), stesso unico wrong su task7 (che continua a spostarsi tra ripetizioni a ogni campionamento), stessi pattern CVSS per task. La semplificazione di call 11 non è costata nulla in qualità e ha dimezzato le chiamate.
+**F20 — L'agente unico non perde nulla rispetto al setup a due ruoli.** Avg normalizzato 0.941 (identico al valore storico con expert+beginner), unico wrong sul solito task7, stessi pattern CVSS per task. La semplificazione di call 11 ha dimezzato le chiamate a parità di qualità.
 
 ---
 
@@ -85,12 +79,15 @@ Due letture immediate:
 
 Per il **flusso pratico** (esperimento 3, SonarQube+LLM): la lista ordinabile per il triage va costruita su `computed_score_B`. Il campo è già in ogni JSON, insieme al dichiarato — nessun dato perso.
 
-**Punti ancora aperti** (invariati da run 3, più uno nuovo):
+**Punti ancora aperti:**
 1. **B vs BT** come riferimento principale nell'articolo (task7: il ricalcolato è più vicino al published BT che al B — il confronto giusto dipende da questa scelta);
 2. calibrazione bande (ora applicate anche alle Δ ricalcolate);
 3. matching multi-CVE task6 (F14, strutturale);
 4. interpolazione FIRST vettore↔vettore (materiale Mariano) — oggi la distanza usa i due score ricalcolati;
-5. *(nuovo)* differenziare davvero 1A/1B in config: in questa run erano lo stesso setup (caveat §0.4).
+5. differenziare davvero 1A/1B in config: in questa run erano lo stesso setup (caveat §0.4);
+6. CVE-2026-47780 (la regex `|.+` scoperta dal team) ha `task_id: null` nel dataset: la regex vulnerabile non sta nei 4 file usati dai task, quindi non è valutabile da nessuna run — decidere se resta fuori perimetro o se merita un task dedicato.
+
+**Prossima run pianificata:** solo varianti a contesto pieno — task5 (già full di fatto: l'estratto copre il file), task6/7/8 in variante `_full`, task9 (parziale per costruzione, cross-NF). Per task6 la GT si allarga da 3 a 6 CVE: le 3 fuori estratto (`in_task_excerpt: false`) entrano nella valutazione solo con la variante full.
 
 ---
 
