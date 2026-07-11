@@ -24,7 +24,7 @@ MODELS = {
     },
     "judge": {
         "local": "gemma4:e4b",
-        "hosted": "gemma4:31b-cloud",
+        "hosted": "deepseek-v4-flash:cloud",
         "use_hosted": True
     },
     "semantic_check": {

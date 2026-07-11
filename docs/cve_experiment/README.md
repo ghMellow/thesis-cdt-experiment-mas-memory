@@ -149,7 +149,7 @@ Score task prodotto: **6/9 (~67%)** — ma solo #14/#15/#17/#19 restano prove pu
 
 ## 6. Materiali
 
-- **Aggiornamento di chiusura per il team** (findings, problemi, prompt testuali — pronto da condividere): [team_update.md](team_update.md)
+- **Aggiornamento di chiusura per il team** (findings, problemi, prompt testuali — pronto da condividere): [team_update.md](team_update_CVE-2026-47780%20%20GHSA-6gxq-gpr8-xgjp.md)
 - **Log tecnico di tutti i tentativi:** [attempts/log.md](attempts/log.md)
 - **Dettaglio per tentativo** (parametri, prompt verbatim, catena di ragionamento, verdetto): `attempts/attempt_<N>/`
 - **Prompt che funzionano + come rifare il test tu stesso:** [hands_on.md](hands_on.md)

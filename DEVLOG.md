@@ -2,6 +2,15 @@
 
 ---
 
+## 2026-07-11 — Finding senza CVE: salvati, valutati e rankati per triage  [sessione: 3ee4778c]
+
+**Intent:** "l'agente non sa quante cve sputare quindi potrebbe trovarne altre. In call gli esperti chiedevano se le salviamo nel json (mi sembra di si) nel report trova il posto in cui salvarle e ordinate per punteggio di importanza [...] fai lo script — oppure è già così?"
+**Divergenze:**
+- non era già così: i finding grezzi erano nel JSON (`cvss_estimate.findings`) ma `cvss_eval` li riduceva a un contatore; ora `cvss_eval.unmatched` è una lista con vettore, score dichiarato e score ricalcolato ufficiale, ordinata per severità decrescente (scelta: decrescente = ordine di triage)
+- estensione non richiesta esplicitamente ma implicata: sui task senza CVE mappate (task9, F4) `cvss_eval` non è più `null` — valutazione unmatched-only, tutti i finding rankati (prima si perdevano proprio dove gli esperti ne hanno più bisogno)
+- fix collaterale: `python -m utils.cvss_eval` non caricava `.env` → rigenerazione report falliva sul semantic check hosted quando la cache era invalidata dal rename `agent_run4`; aggiunto load_dotenv + refresh di `config.OLLAMA_API_KEY`
+**Esito:** sezione "Unmatched findings — ranked by recomputed score" nei report (task9 1A: top finding dichiarato 5.1 / ricalcolato 8.2 — il bias F17 vale anche qui); schema, architecture §6.3, doc 06 §1 e slide matching v2 aggiornati; recompute retroattivo eseguito
+
 ## 2026-07-11 — Score dichiarato declassato a diagnostica; doc 06 reso indipendente  [sessione: 3ee4778c]
 
 **Intent:** tre domande utente: eseguire solo i task full ("task5 è già full anche se il nome non lo è, 6 7 8 ok, 9 per costruzione è parziale"), doc 06 da rendere indipendente dalle run precedenti ("bisogna parlare di questa indipendentemente"), verifica della libreria vs repo FIRST condivisa dal team (github.com/FIRSTdotorg/cvss-v4-calculator), e decisione score: "(b) continuare a chiederlo ma usarlo solo come diagnostica di coerenza interna però da segnalare esplicitamente nei report che non ha valore come le metriche ufficiali"

@@ -157,7 +157,7 @@
         "cvss_eval": {
           "type": "object|null",
           "producer": "utils.cvss_eval.evaluate_cvss_estimate",
-          "description": "Blocco B — deterministic evaluation of final_answer.cvss_estimate against the ground-truth dataset (File_Free5gc_Vulnerabili/cve_metrics_normalized.json). No LLM involved; never influences 'verdict'. Only computed once per repetition (on the final answer), not per attempt. Null when the task_id has no CVEs mapped in the dataset (e.g. task9_vuln_cross, see docs/02_risultati_cvss_run1.md F4) or the task is not a 'vuln' task.",
+          "description": "Blocco B — deterministic evaluation of final_answer.cvss_estimate against the ground-truth dataset (File_Free5gc_Vulnerabili/cve_metrics_normalized.json). No LLM involved; never influences 'verdict'. Only computed once per repetition (on the final answer), not per attempt. Null only when the task is not a 'vuln' task or the agent produced no estimate on a task without mapped CVEs. On tasks with no mapped CVEs but an estimate present (e.g. task9_vuln_cross, F4), the evaluation is unmatched-only: n_target_cves=0, matched=[], every finding rescored and ranked in 'unmatched'.",
           "fields": {
             "estimate_provided": {
               "type": "boolean",
@@ -181,7 +181,11 @@
             },
             "unmatched_findings": {
               "type": "integer",
-              "description": "Number of agent findings that could not be paired to any candidate CVE (counted separately, never penalized — see docs/02_risultati_cvss_run1.md F6)."
+              "description": "Number of agent findings that could not be paired to any candidate CVE (counted separately, never penalized — see docs/02_risultati_cvss_run1.md F6). Equals len(unmatched)."
+            },
+            "unmatched": {
+              "type": "array",
+              "description": "The unmatched findings themselves, sorted most-severe-first by computed_score_B (declared_score as fallback) — triage order, the experts' use case: potential vulnerabilities without a CVE. Each entry: function, declared_score (diagnostic only), vector, computed_score_B (official CVSS 4.0 math from the vector), padded_metrics (when SC/SI/SA were absent). Also listed in the evaluation reports under 'Unmatched findings'."
             },
             "aggregates": {
               "type": "object",

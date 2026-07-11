@@ -354,6 +354,52 @@ def _build_cvss_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
     ]
 
     lines += _build_cvss_vector_detail(roles)
+    lines += _build_cvss_unmatched(roles)
+    return lines
+
+
+def _build_cvss_unmatched(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
+    """Findings with no ground-truth CVE, ranked most-severe-first by the
+    officially recomputed score — the experts' use case: potential
+    vulnerabilities not (yet) tied to a CVE, ready for manual triage."""
+    entries = []
+    for role, payloads in sorted(roles.items()):
+        for p in payloads:
+            ce = p.get("cvss_eval")
+            if not isinstance(ce, dict):
+                continue
+            for u in ce.get("unmatched", []):
+                entries.append((role, p.get("task_id"), p.get("repetition"), u))
+    if not entries:
+        return []
+
+    entries.sort(
+        key=lambda e: e[3].get("computed_score_B", e[3].get("declared_score", -1.0)) or -1.0,
+        reverse=True,
+    )
+    lines = [
+        "### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)",
+        "",
+        "| # | score (from vector) | declared | function | task | role | rep | vector |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for i, (role, task_id, rep, u) in enumerate(entries, 1):
+        lines.append(
+            f"| {i} | {_fmt(u.get('computed_score_B'), 1)} | {_fmt(u.get('declared_score'), 1)} | "
+            f"`{u.get('function') or '—'}` | {task_id} | {role} | {rep} | "
+            f"`{u.get('vector', '—')}` |"
+        )
+    lines += [
+        "",
+        "_Findings the agent reported that matched no ground-truth CVE. Never counted "
+        "against the evaluation (design choice: these are the practical use case — "
+        "potential vulnerabilities without a CVE). Ranked most-severe-first by the "
+        "score recomputed from the vector with the official CVSS 4.0 math; the "
+        "declared score is diagnostic only. Full raw data in each result JSON under "
+        "`cvss_eval.unmatched` (and the original agent output in "
+        "`final_answer.cvss_estimate.findings`)._",
+        "",
+    ]
     return lines
 
 

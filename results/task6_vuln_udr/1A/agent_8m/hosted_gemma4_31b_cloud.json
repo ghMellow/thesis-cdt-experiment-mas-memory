@@ -123,6 +123,20 @@
           "CVE-2026-40248"
         ],
         "unmatched_findings": 2,
+        "unmatched": [
+          {
+            "function": "HandleCreateEeSubscriptions/HandleQueryeesubscriptions",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:L/SI:L/SA:L",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandlePolicyDataUesUeIdSmDataGet",
+            "declared_score": 3.1,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:L/SI:N/SA:N",
+            "computed_score_B": 5.3
+          }
+        ],
         "aggregates": {
           "avg_score_band_vs_published": 3.0,
           "avg_score_band_vs_B": 3.0,
@@ -258,6 +272,20 @@
           "CVE-2026-40248"
         ],
         "unmatched_findings": 2,
+        "unmatched": [
+          {
+            "function": "HandleCreateEeSubscriptions/HandleQueryeesubscriptions",
+            "declared_score": 5.1,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:L/SI:L/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandlePolicyDataUesUeIdSmDataGet",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:L/SI:N/SA:N",
+            "computed_score_B": 5.3
+          }
+        ],
         "aggregates": {
           "avg_score_band_vs_published": 3.0,
           "avg_score_band_vs_B": 3.0,
@@ -383,6 +411,14 @@
           "CVE-2026-40248"
         ],
         "unmatched_findings": 1,
+        "unmatched": [
+          {
+            "function": "HandleCreateEeSubscriptions/HandleQueryeesubscriptions",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          }
+        ],
         "aggregates": {
           "avg_score_band_vs_published": 1.0,
           "avg_score_band_vs_B": 1.0,

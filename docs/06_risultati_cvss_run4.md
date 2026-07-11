@@ -30,7 +30,9 @@
 
 L'unico wrong è su task7, il punto fragile già noto del sistema (F12): la ripetizione che ci cade sopra cambia a ogni campionamento.
 
-### Blocco B — CVSS con la matematica ufficiale (24 finding abbinati su 24 possibili; task9 sempre `null`, F4)
+### Blocco B — CVSS con la matematica ufficiale (24 finding abbinati su 24 possibili)
+
+> Aggiornamento post-run: i finding **senza** CVE corrispondente (28 in questa run, inclusi tutti quelli di task9 che non ha CVE mappate — F4) non vengono più solo contati: sono salvati in `cvss_eval.unmatched` con lo score ricalcolato dal vettore e **ordinati per severità decrescente** (triage), e compaiono nei report nella sezione "Unmatched findings". Era la richiesta degli esperti in call: le potenziali vulnerabilità senza CVE sono il loro caso d'uso.
 
 | n | coerenza Δ (dich.↔vettore) | Δ vettore vs B (punti CVSS) | banda score *ricalcolato* vs B | banda score *dichiarato* vs B (diagnostica) | dist. impatto (0–1) | dist. exploitability (0–1) | SC/SI/SA emesse |
 |---|---|---|---|---|---|---|---|

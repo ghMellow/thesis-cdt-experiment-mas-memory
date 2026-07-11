@@ -102,6 +102,7 @@
         ],
         "missed_cves": [],
         "unmatched_findings": 0,
+        "unmatched": [],
         "aggregates": {
           "avg_score_band_vs_published": 2.0,
           "avg_score_band_vs_B": 1.0,
@@ -216,6 +217,7 @@
         ],
         "missed_cves": [],
         "unmatched_findings": 0,
+        "unmatched": [],
         "aggregates": {
           "avg_score_band_vs_published": 1.0,
           "avg_score_band_vs_B": 0.0,
@@ -330,6 +332,7 @@
         ],
         "missed_cves": [],
         "unmatched_findings": 0,
+        "unmatched": [],
         "aggregates": {
           "avg_score_band_vs_published": 1.0,
           "avg_score_band_vs_B": 0.0,

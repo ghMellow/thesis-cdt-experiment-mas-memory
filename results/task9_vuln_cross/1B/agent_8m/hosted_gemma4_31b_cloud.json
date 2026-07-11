@@ -101,7 +101,54 @@
         "judge_elapsed_seconds": 3.63,
         "normalized_score": 1.0
       },
-      "cvss_eval": null,
+      "cvss_eval": {
+        "estimate_provided": true,
+        "n_findings": 4,
+        "n_target_cves": 0,
+        "matched": [],
+        "missed_cves": [],
+        "unmatched_findings": 4,
+        "unmatched": [
+          {
+            "function": "setCorsHeader",
+            "declared_score": 3.0,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 6.9
+          },
+          {
+            "function": "HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete/Get/Put",
+            "declared_score": 5.1,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleQueryAmfContext3gpp / HandleGetSmfSelectData / HTTPOAMGetAmPolicy",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:L/SI:L/SA:L",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HTTPUEContextTransfer",
+            "declared_score": 4.1,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:L/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          }
+        ],
+        "aggregates": {
+          "avg_score_band_vs_published": null,
+          "avg_score_band_vs_B": null,
+          "avg_exploitability_match": null,
+          "avg_impact_match": null,
+          "avg_score_coherence_delta": null,
+          "avg_computed_delta_vs_B": null,
+          "avg_score_band_computed_vs_B": null,
+          "avg_exploitability_distance": null,
+          "avg_impact_distance": null,
+          "avg_subsequent_match": null,
+          "avg_subsequent_distance": null,
+          "avg_hamming_distance": null
+        }
+      },
       "tokens": {
         "agent_in": null,
         "agent_out": null,
@@ -210,7 +257,60 @@
         "judge_elapsed_seconds": 3.22,
         "normalized_score": 1.0
       },
-      "cvss_eval": null,
+      "cvss_eval": {
+        "estimate_provided": true,
+        "n_findings": 5,
+        "n_target_cves": 0,
+        "matched": [],
+        "missed_cves": [],
+        "unmatched_findings": 5,
+        "unmatched": [
+          {
+            "function": "HTTPUEContextTransfer",
+            "declared_score": 5.1,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+            "computed_score_B": 7.1
+          },
+          {
+            "function": "setCorsHeader",
+            "declared_score": 4.8,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:L/VI:L/VA:N/SC:L/SI:L/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetSmfSelectData (and UDR/PCF equivalents)",
+            "declared_score": 6.2,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:L/SI:L/SA:L",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete",
+            "declared_score": 4.1,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleCreateEeSubscriptions",
+            "declared_score": 4.1,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N",
+            "computed_score_B": 5.3
+          }
+        ],
+        "aggregates": {
+          "avg_score_band_vs_published": null,
+          "avg_score_band_vs_B": null,
+          "avg_exploitability_match": null,
+          "avg_impact_match": null,
+          "avg_score_coherence_delta": null,
+          "avg_computed_delta_vs_B": null,
+          "avg_score_band_computed_vs_B": null,
+          "avg_exploitability_distance": null,
+          "avg_impact_distance": null,
+          "avg_subsequent_match": null,
+          "avg_subsequent_distance": null,
+          "avg_hamming_distance": null
+        }
+      },
       "tokens": {
         "agent_in": null,
         "agent_out": null,
@@ -319,7 +419,60 @@
         "judge_elapsed_seconds": 3.12,
         "normalized_score": 1.0
       },
-      "cvss_eval": null,
+      "cvss_eval": {
+        "estimate_provided": true,
+        "n_findings": 5,
+        "n_target_cves": 0,
+        "matched": [],
+        "missed_cves": [],
+        "unmatched_findings": 5,
+        "unmatched": [
+          {
+            "function": "HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete",
+            "declared_score": 6.5,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:H/VA:N/SC:N/SI:H/SA:N",
+            "computed_score_B": 8.3
+          },
+          {
+            "function": "setCorsHeader",
+            "declared_score": 4.8,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:L/VI:L/VA:N/SC:L/SI:L/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HTTPUEContextTransfer",
+            "declared_score": 3.1,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleCreateEeSubscriptions",
+            "declared_score": 3.1,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetSmfSelectData (and others)",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:L/SI:L/SA:L",
+            "computed_score_B": 5.3
+          }
+        ],
+        "aggregates": {
+          "avg_score_band_vs_published": null,
+          "avg_score_band_vs_B": null,
+          "avg_exploitability_match": null,
+          "avg_impact_match": null,
+          "avg_score_coherence_delta": null,
+          "avg_computed_delta_vs_B": null,
+          "avg_score_band_computed_vs_B": null,
+          "avg_exploitability_distance": null,
+          "avg_impact_distance": null,
+          "avg_subsequent_match": null,
+          "avg_subsequent_distance": null,
+          "avg_hamming_distance": null
+        }
+      },
       "tokens": {
         "agent_in": null,
         "agent_out": null,

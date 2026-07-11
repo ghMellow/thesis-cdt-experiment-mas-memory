@@ -230,15 +230,35 @@ def _evaluate_matched_pair(finding: Dict[str, Any], cve: Dict[str, Any]) -> Dict
     return result
 
 
+def _describe_unmatched(finding: Dict[str, Any]) -> Dict[str, Any]:
+    """Standalone record for a finding with no GT CVE — the experts' use case
+    (potential vulnerabilities not yet tied to a CVE). The estimated vector is
+    rescored with the official math so these can be ranked for triage."""
+    entry: Dict[str, Any] = {"function": str(finding.get("function", "")).strip() or None}
+    score = finding.get("score")
+    if isinstance(score, (int, float)):
+        entry["declared_score"] = float(score)
+    vector = finding.get("vector")
+    if isinstance(vector, str) and vector.strip():
+        entry["vector"] = vector.strip()
+        computed, padded = compute_base_score(_parse_vector(vector))
+        if computed is not None:
+            entry["computed_score_B"] = computed
+            if padded:
+                entry["padded_metrics"] = padded
+    return entry
+
+
 def evaluate_cvss_estimate(task_id: str, estimate: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
     """Evaluate the agent's CVSS estimate for one repetition.
 
-    Returns None when the task has no CVEs in the dataset. Never raises:
-    a malformed estimate yields an evaluation with zero matches.
+    Returns None only when the task has no CVEs in the dataset AND the agent
+    produced no estimate. On tasks without mapped CVEs (e.g. task9, F4) an
+    estimate still yields an unmatched-only evaluation: every finding is
+    rescored and ranked — the experts' use case. Never raises: a malformed
+    estimate yields an evaluation with zero matches.
     """
     candidates = _candidate_cves(task_id)
-    if not candidates:
-        return None
 
     findings = []
     if isinstance(estimate, dict):
@@ -246,8 +266,11 @@ def evaluate_cvss_estimate(task_id: str, estimate: Optional[Dict[str, Any]]) -> 
         if isinstance(raw_findings, list):
             findings = [f for f in raw_findings if isinstance(f, dict)]
 
+    if not candidates and not findings:
+        return None
+
     matched: List[Dict[str, Any]] = []
-    unmatched_findings = 0
+    unmatched: List[Dict[str, Any]] = []
     remaining = list(candidates)
 
     # Single finding on a single-CVE task needs no function-name matching.
@@ -258,10 +281,17 @@ def evaluate_cvss_estimate(task_id: str, estimate: Optional[Dict[str, Any]]) -> 
         for finding in findings:
             cve = _match_finding(finding, remaining)
             if cve is None:
-                unmatched_findings += 1
+                unmatched.append(_describe_unmatched(finding))
                 continue
             matched.append(_evaluate_matched_pair(finding, cve))
             remaining = [c for c in remaining if c["id"] != cve["id"]]
+
+    # Triage order: most severe first, by the officially recomputed score
+    # (declared score as fallback when the vector didn't rescore).
+    unmatched.sort(
+        key=lambda e: e.get("computed_score_B", e.get("declared_score", -1.0)) or -1.0,
+        reverse=True,
+    )
 
     def _collect(key: str) -> List[float]:
         return [m[key] for m in matched if isinstance(m.get(key), (int, float))]
@@ -275,7 +305,8 @@ def evaluate_cvss_estimate(task_id: str, estimate: Optional[Dict[str, Any]]) -> 
         "n_target_cves": len(candidates),
         "matched": matched,
         "missed_cves": [c["id"] for c in remaining],
-        "unmatched_findings": unmatched_findings,
+        "unmatched_findings": len(unmatched),
+        "unmatched": unmatched,
         "aggregates": {
             "avg_score_band_vs_published": _mean(_collect("score_band_vs_published")),
             "avg_score_band_vs_B": _mean(_collect("score_band_vs_B")),
@@ -324,6 +355,13 @@ def recompute_saved_results(results_path: Optional[str] = None) -> int:
 
 
 if __name__ == "__main__":
+    import os
+
+    from dotenv import load_dotenv
+
+    load_dotenv()  # report regeneration may call the hosted semantic-check LLM
+    # config reads the key at import time (before load_dotenv here): refresh it.
+    config.OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY", "")
     logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(message)s")
     n = recompute_saved_results()
     logger.info("Updated %s result files, regenerating reports", n)

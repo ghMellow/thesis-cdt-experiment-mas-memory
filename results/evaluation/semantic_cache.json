@@ -410,5 +410,45 @@
   "agent_8m/task9_vuln_cross/43c417870d95f499": {
     "equivalent": true,
     "explanation": "All three passages identify the same set of vulnerabilities: inconsistent UE identifier validation across UDM/PCF/UDR, permissive CORS in PCF, a missing default case in AMF's HTTPUEContextTransfer, a type mismatch in AMF's context storage, missing return statements in UDR's influence data handlers, and a flawed regex in UDR's EE subscription handler."
+  },
+  "agent_run4/task5_vuln_pcf/8a2e3009d2266406": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same three vulnerabilities: a permissive CORS policy in `setCorsHeader`, a middleware registration bug in `setCorsHeader` leading to a memory leak/DoS, and a lack of input validation for the `supi` parameter in `HTTPOAMGetAmPolicy`, providing consistent analysis and fixes for each."
+  },
+  "agent_run4/task6_vuln_udr/583bcaaa8e1f806c": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same three vulnerabilities (missing return statements in subscription handlers, an ineffective regex for ueId, and unhandled JSON unmarshaling errors) with identical locations, analyses, impacts, and fixes."
+  },
+  "agent_run4/task7_vuln_amf/60de9db0589c420b": {
+    "equivalent": false,
+    "explanation": "The reasonings identify different sets of vulnerabilities: the first focuses on a compilation error (undefined variable reqbody), while the second and third focus on different logic errors, such as the missing deserialization in HTTPRegistrationStatusUpdate and HTTPReleaseUEContext."
+  },
+  "agent_run4/task8_vuln_udm/049c213afd6f99a3": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same vulnerability (Inconsistent Input Validation of the 'supi' parameter), list the same affected and unaffected handlers, discuss the same potential security impacts (Injection, DoS, Information Leakage), and propose the same fix (consistent use of validator.IsValidSupi)."
+  },
+  "agent_run4/task9_vuln_cross/add46c806dfc0f86": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same set of vulnerabilities: inconsistent UE identifier validation across UDM, PCF, and UDR; a permissive CORS policy in PCF; a missing default case in AMF's HTTPUEContextTransfer; a missing return statement causing double responses in UDR; and a trivial regex bypass in UDR's HandleCreateEeSubscriptions."
+  },
+  "agent_run4/task5_vuln_pcf/80219abd6b30ebb5": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same three core vulnerabilities: the overly permissive CORS policy (AllowAllOrigins and AllowCredentials), the incorrect placement of middleware within a request handler leading to memory leaks/DoS, and the lack of input validation for the SUPI parameter."
+  },
+  "agent_run4/task6_vuln_udr/8fc3339b170890c4": {
+    "equivalent": false,
+    "explanation": "The first reasoning passage identifies only two vulnerabilities, whereas the second and third passages both identify three, including an unhandled JSON unmarshal error in `HandlePolicyDataUesUeIdSmDataGet`."
+  },
+  "agent_run4/task7_vuln_amf/f4596830165ee390": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same four core issues: information exposure via error messages, improper content-type handling leading to uninitialized requests, inconsistent state management using the Gin context key, and the specific logic error/limitation in HTTPN1N2MessageTransfer regarding JSON support."
+  },
+  "agent_run4/task8_vuln_udm/a69c768a75d3a439": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same vulnerability (Inconsistent Input Validation of the supi parameter), list the exact same affected and unaffected handlers, describe the same security impacts (injection, DoS), and propose the same fix (implementing consistent validation across all handlers)."
+  },
+  "agent_run4/task9_vuln_cross/905cffb2449bfd68": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same core issues: inconsistent UE identifier validation across UDM/PCF/UDR, permissive CORS in PCF, the missing default case in AMF's HTTPUEContextTransfer, the missing return after 404 in UDR's influenceId handlers, and the trivial regex bypass in UDR's HandleCreateEeSubscriptions; the second and third versions additionally note a type mismatch in AMF's context storage."
   }
 }
