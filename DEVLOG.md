@@ -2,6 +2,12 @@
 
 ---
 
+## 2026-07-12 — Run 6 (verifica indipendente, primo run_id reale): doc 08  [sessione: 3ee4778c]
+
+**Intent:** analisi dei 12 file di evaluation della run rilanciata dopo il wipe — tre domande esplicite: "cosa ne ricaviamo, findings? anche diff tra 1A e 1B visto che i modelli sono uguali e i prompt pure differnze? come cvss i vettori predetti distano di tanto risp quelli ufficiali fatti con la matematica corretta?"
+**Divergenze:** nessuna — applicato il template appena creato; verificato nei JSON che agent_1A=agent_1B=judge=gemma4:31b-cloud anche in questa run (stesso caveat run4/5), quindi il gap 1A/1B (73.3% vs 66.7%, tutto su task7) è dichiarato esplicitamente come rumore di campionamento e non un effetto
+**Esito:** `docs/08_risultati_cvss_run6_verifica_indipendente.md` (F25–F28: F17/F18/F21 confermati su campione indipendente — declared<computed 20/23 scarto -1.20, task8 bias impatto Δ3.5 riproducibile, task6 matching resta il collo di bottiglia non il vettore, 1A=1B a modello identico misura solo rumore); prima run con run_id non-legacy (20260712T142416Z); indice README aggiornato
+
 ## 2026-07-12 — Template documento di risultati + regenerate-all CLI  [sessione: 3ee4778c]
 
 **Intent:** "lancia lo script che riesegue la generazione degli evaluation e poi crea un doc [come] docs/07 [ma come] report template con le cose da riportare a valore aggiunto rispetto i file di evaluation"

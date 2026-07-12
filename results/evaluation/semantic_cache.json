@@ -1,0 +1,42 @@
+{
+  "agent/task5_vuln_pcf/72a22c980350f45a": {
+    "equivalent": false,
+    "explanation": "The first reasoning only identifies the CORS misconfiguration and the middleware memory leak, whereas the second and third reasonings also identify a third vulnerability regarding lack of input validation/sanitization for the SUPI parameter."
+  },
+  "agent/task6_vuln_udr_full/eb55bfe83254e5c5": {
+    "equivalent": false,
+    "explanation": "The three reasonings differ in their identification of vulnerabilities: the second reasoning identifies a DoS via unbounded JSON unmarshaling in `HandlePolicyDataUesUeIdSmDataGet` and `HandleQuerySmData`, which is absent in the first and third, and the first and third reasonings identify an improper deserialization issue that the second one ignores."
+  },
+  "agent/task7_vuln_amf_full/558d5e3214ebe9c1": {
+    "equivalent": false,
+    "explanation": "The second reasoning passage identifies different vulnerabilities (DoS via unbounded memory allocation and path parameter validation) and misses others (Incorrect Type Assignment in Context) present in the first and third passages."
+  },
+  "agent/task8_vuln_udm_full/528e595a0a1ca9a3": {
+    "equivalent": false,
+    "explanation": "The third reasoning identifies an additional 'Information Leakage' vulnerability not mentioned in the others, and the three reasonings disagree on the specific location and nature of the routing/parameter logic error (comparing TwoLayer vs ThreeLayer and strings.Contains vs manual slice manipulation)."
+  },
+  "agent/task9_vuln_cross/b3759056f04c7183": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same set of vulnerabilities: inconsistent SUPI/UEID validation across UDM, PCF, and UDR; overly permissive CORS in PCF; missing default case and type mismatch in AMF; and missing return statements and regex bypass in UDR."
+  },
+  "agent/task5_vuln_pcf/57ea560714188fb2": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same three vulnerabilities: a permissive CORS policy with credentials enabled, the incorrect registration of Gin middleware inside a request handler leading to a DoS/memory leak, and a lack of input validation for the SUPI parameter."
+  },
+  "agent/task6_vuln_udr_full/94869d3831c7946e": {
+    "equivalent": false,
+    "explanation": "The three passages identify different sets of vulnerabilities: the first includes a NoSQL injection and an integer parsing error not mentioned in others, while the second and third identify a database collection logic error and a JSON unmarshaling DoS that the first misses."
+  },
+  "agent/task7_vuln_amf_full/ba923883d09a65d9": {
+    "equivalent": false,
+    "explanation": "The reasonings identify different sets of vulnerabilities: the first identifies 'Missing Path Parameter Extraction', the second identifies a 'global variable' logic error in error messages, and the third identifies a 'Type Mismatch in Context Storage' not mentioned in the others."
+  },
+  "agent/task8_vuln_udm_full/ef285a041d3f8fc1": {
+    "equivalent": false,
+    "explanation": "The three reasonings identify different sets of vulnerabilities: the first focuses on inconsistent UE ID validation in HandleSubscribe, the second identifies a logic error in ThreeLayerPathHandlerFunc, and the third identifies redundant query parameter handling logic."
+  },
+  "agent/task9_vuln_cross/eadfdd80860622e8": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same set of vulnerabilities: inconsistent UE identifier validation across UDM/UDR/PCF, a permissive CORS policy in PCF, a missing default case in AMF's HTTPUEContextTransfer, a type mismatch in AMF context storage, and a missing return statement in UDR's influenceId handlers, as well as the trivial regex bypass in UDR's HandleCreateEeSubscriptions."
+  }
+}
