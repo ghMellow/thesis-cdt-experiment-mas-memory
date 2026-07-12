@@ -48,12 +48,16 @@ Aggregati calcolati a mano da questo run (`agent`/`20260712T142416Z`); i numeri 
 
 **Ci sono differenze 1A vs 1B, visto che modelli e prompt sono identici?** Sì (73.3% vs 66.7%), interamente concentrate su task7_full, e **non sono un effetto reale**: 1A e 1B usano lo stesso identico modello per agente e giudice in questa run (verificato nei JSON: `gemma4:31b-cloud` ovunque). La differenza è temperatura > 0 su un task già noto per essere il punto fragile del sistema (F12/F21) — è la controprova che, quando davvero non c'è nessuna variabile a differenziare 1A da 1B, il gap osservato è proprio la misura del rumore di campionamento puro su quel task. Per un confronto 1A/1B che misuri qualcosa di reale serve differenziare i modelli in `config.MODELS` prima della prossima run (punto aperto ripetuto da run 4).
 
-**Quanto distano i vettori predetti da quelli ufficiali (matematica corretta)?** In media **2.08 punti CVSS** (scala 0–10) sul campione di 23 finding abbinati, ma la distribuzione per task è tutt'altro che uniforme:
-- **task6_full: Δ 0.42, quasi esatto** — quando il matching funziona, il vettore stimato è molto vicino alla GT (banda 2.60/3, la migliore di questa run);
-- **task8_full: Δ 3.50, il peggiore** — bias sistematico e ora confermato due volte su run indipendenti (F18): il modello sottostima sempre l'impatto di confidenzialità (VC atteso H, stimato L/N);
-- task5 e task7_full stanno in mezzo (Δ 2.80 e 1.30).
+**Quanto distano i vettori predetti da quelli ufficiali, e in che direzione?** Il Δ riportato sopra è un valore assoluto — dice quanto ma non se il modello è più prudente o più allarmista della realtà. Con il segno (`computed − GT base pura`; negativo = sottostima, positivo = sovrastima):
 
-La distanza non è quindi un numero unico rappresentativo del sistema — è specifica alla CVE/task, e i due estremi (task6 quasi perfetto, task8 sistematicamente sbagliato) sono stabili tra run diverse.
+| task | Δ con segno per rep | media | lettura |
+|---|---|---|---|
+| task5 | −3.4, −1.6, −1.6, −3.4, −3.4, −3.4 | **−2.80** | sottostima **sistematica**: mai una ripetizione va nella direzione opposta |
+| task6_full | 0.0, +0.2, −1.6, +0.3, +0.2 | −0.18 | oscilla intorno allo zero, **nessun bias direzionale** — è dispersione, non errore sistematico |
+| task7_full | −1.6, +1.4, −1.6, −1.6, +1.4, +0.2 | −0.30 | segno che **cambia da una ripetizione all'altra** — stessa lettura di task6 |
+| task8_full | −3.6, −3.6, −3.4, −3.6, −3.4, −3.4 | **−3.50** | sottostima **sistematica**, la più marcata |
+
+**Distinzione importante**: task5/task8 hanno un vero **bias direzionale riproducibile** (ogni singola ripetizione sottostima, mai il contrario — coerente con F18, lettura conservativa dell'impatto). task6/task7 invece non hanno una direzione dominante: l'errore è **varianza**, il modello sovrastima tanto quanto sottostima a seconda della ripetizione. Le implicazioni sono diverse: su task5/8 va corretto un bias specifico (probabilmente nella percezione dell'impatto); su task6/7 va ridotta la variabilità della stima, non una direzione sbagliata.
 
 **Cosa ricaviamo di nuovo?** Vedi findings sotto — la sintesi è che **questa run non aggiunge un fenomeno nuovo, conferma che quelli di run 4/5 sono reali e riproducibili**, non artefatti di un singolo campionamento.
 
@@ -66,6 +70,8 @@ La distanza non è quindi un numero unico rappresentativo del sistema — è spe
 **F26 — Il collo di bottiglia di task6_full resta il matching, non il vettore (F22 riconfermato).** Solo 2/18 (1A) e 3/18 (1B) possibili abbinamenti CVE riusciti, ma quando l'abbinamento avviene lo score ricalcolato è quasi esatto (Δ 0.42 medio, banda 2.60/3 — la migliore di tutto il dataset). Il problema non è la qualità della stima quando il modello identifica il bug giusto — è che lo identifica raramente.
 
 **F27 — Il bias di sottostima dell'impatto su task8 (F9/F18) è ora confermato su due run full-context indipendenti con lo stesso valore (Δ ~3.5, banda 0/3).** Coerenza interna alta in entrambe le run (0.90 qui, 0.45–0.65 in run 4/5) — il modello è internamente consistente ma il vettore che costruisce è sbagliato sull'impatto di confidenzialità, in modo riproducibile.
+
+**F29 — Non tutti i task sbagliano nello stesso modo: task5/task8 hanno un bias direzionale (sempre sottostima, mai il contrario), task6/task7 hanno solo dispersione (il segno cambia ripetizione per ripetizione, media vicina a zero).** Verificato sul Δ con segno per rep (§2): task5 (−3.4,−1.6,−1.6,−3.4,−3.4,−3.4) e task8 (−3.6,−3.6,−3.4,−3.6,−3.4,−3.4) non hanno mai un segno positivo; task6 (0.0,+0.2,−1.6,+0.3,+0.2) e task7 (−1.6,+1.4,−1.6,−1.6,+1.4,+0.2) oscillano. **Implicazione:** correggere task5/8 richiede un intervento mirato sul bias di percezione dell'impatto (prompt/contesto); correggere task6/7 richiederebbe invece ridurre la variabilità della stima (es. più campioni, temperatura più bassa), non una direzione sbagliata da correggere.
 
 **F28 — Con 1A e 1B a modello identico, il gap di accuratezza osservato (73.3% vs 66.7%, tutto su task7) è la misura diretta del rumore di campionamento puro su un task fragile.** Nessuna variabile sperimentale separa 1A da 1B in questa run — è la controprova più pulita finora che le fluttuazioni 1A/1B a questo campione (n=3 per cella) non vanno lette come effetti se non si è certi che i due bracci usino modelli diversi.
 
