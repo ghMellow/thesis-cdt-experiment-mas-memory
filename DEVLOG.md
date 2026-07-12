@@ -2,6 +2,14 @@
 
 ---
 
+## 2026-07-12 — Template documento di risultati + regenerate-all CLI  [sessione: 3ee4778c]
+
+**Intent:** "lancia lo script che riesegue la generazione degli evaluation e poi crea un doc [come] docs/07 [ma come] report template con le cose da riportare a valore aggiunto rispetto i file di evaluation"
+**Divergenze:**
+- `python -m utils.evaluation_utils` senza argomenti non aveva un'azione di default (richiedeva `--list-runs` o `--run-id`, altrimenti stampava l'help) — aggiunta rigenerazione completa come comportamento di default, poi eseguita (nessun diff: i report erano già aggiornati dalla sessione precedente)
+- il template non è un altro doc numerato ma `docs/risultati_template.md`: scheletro copiabile + lista esplicita di cosa NON ripetere (già coperto da `results/evaluation/*.md` dopo le feature di oggi: nota run_id, unmatched rankati, tabella matematica ufficiale) + checklist di verificabilità (risposta strutturale alla domanda "si evince dal doc?" di ieri)
+**Esito:** `docs/risultati_template.md` creato, indice README aggiornato, CLI evaluation_utils esteso
+
 ## 2026-07-12 — run_id visibile anche dentro i report  [sessione: 3ee4778c]
 
 **Intent:** "la run id si propaga anche dentro i evaluation? così posso identificare anche loro facilmente" — seguito diretto della feature precedente, il filtro CLI da solo non bastava: bisognava vedere subito aprendo un report quali run lo compongono

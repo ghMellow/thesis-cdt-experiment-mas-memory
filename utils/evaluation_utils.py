@@ -744,4 +744,7 @@ if __name__ == "__main__":
         _write_evaluation_reports(RESULTS_PATH, run_id=args.run_id)
         logger.info("Reports regenerated for run_id=%s", args.run_id)
     else:
-        parser.print_help()
+        # No filter: regenerate every result_*.md/comparison.md from all saved
+        # results, same as main.py does automatically at the end of a run.
+        _write_evaluation_reports(RESULTS_PATH)
+        logger.info("Reports regenerated for all results")
