@@ -2,7 +2,7 @@
 
 > Documento di condivisione per il team. Stesso setup della [run 1](02_risultati_cvss_run1.md) (task5–9, 1A/1B, expert/beginner, `gemma4:31b-cloud`), con un'unica differenza: il prompt ora include un paragrafo di contesto di sistema (proposta di Lorenzo Cannella, [discussione post-01/02](03_discussione_post_01_02.md)) prima del blocco istruzioni CVSS. Obiettivo: capire se F2 (impatto sbagliato sistematicamente, default a confidenzialità) dipende dalla mancanza di contesto sul ruolo della NF nel sistema più ampio.
 
-**Data run:** 2026-07-09 · **Autore:** Nicolò (con supporto AI) · **Baseline di confronto:** run 1, archiviata in `results/_baseline_run1_no_context_hint_20260709/`
+**Data run:** 2026-07-09 · **Autore:** Nicolò (con supporto AI) · **Baseline di confronto:** run 1 (archivio grezzo `results/_baseline_run1_no_context_hint_20260709/` cancellato il 2026-07-12 in una pulizia completa di `results/` — restano i dati aggregati e la narrativa in questo documento)
 
 ---
 
@@ -111,4 +111,4 @@ poetry run python main.py \
   --repetitions 1 --task-timeout 240
 ```
 
-Per riprodurre la run 1 (senza hint): impostare `CVSS_CONTEXT_HINT_ENABLED = False` in `config.py`. I risultati grezzi della run 1 sono archiviati in `results/_baseline_run1_no_context_hint_20260709/` (stessa struttura di `results/<task>/<exp>/<role>/`).
+Per riprodurre la run 1 (senza hint): impostare `CVSS_CONTEXT_HINT_ENABLED = False` in `config.py`. ⚠️ I risultati grezzi della run 1 (e di questa run) sono stati cancellati il 2026-07-12 in una pulizia completa di `results/` — una nuova esecuzione con lo stesso comando non riprodurrebbe dati identici byte-per-byte (temperatura > 0), ma dovrebbe confermare gli stessi pattern qualitativi descritti sopra.

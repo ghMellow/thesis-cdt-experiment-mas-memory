@@ -2,7 +2,7 @@
 
 > Documento di condivisione per il team. Stesso setup della [run 2](04_risultati_cvss_run2.md) (task5–9, 1A/1B, expert/beginner, `gemma4:31b-cloud`, hint di contesto NF attivo), con un'unica differenza: **3 ripetizioni per combinazione invece di 1** (60 run totali invece di 20). Obiettivo: capire se gli effetti osservati in run 2 (F8–F11) erano reali o rumore a singolo campione — punto esplicitamente lasciato aperto in run 2 §4 e nella lista "da chiudere col team".
 
-**Data run:** 2026-07-09 · **Autore:** Nicolò (con supporto AI) · **Run precedenti:** [run 1](02_risultati_cvss_run1.md) (senza hint, 1 rep, archiviata in `results/_baseline_run1_no_context_hint_20260709/`), [run 2](04_risultati_cvss_run2.md) (con hint, 1 rep, archiviata in `results/_run2_hint_1rep_20260709/`)
+**Data run:** 2026-07-09 · **Autore:** Nicolò (con supporto AI) · **Run precedenti:** [run 1](02_risultati_cvss_run1.md) (senza hint, 1 rep), [run 2](04_risultati_cvss_run2.md) (con hint, 1 rep) — ⚠️ archivi grezzi di entrambe cancellati il 2026-07-12 (pulizia completa di `results/`), restano i dati aggregati nei rispettivi documenti
 
 ---
 
@@ -94,4 +94,4 @@ poetry run python main.py \
   --repetitions 3 --task-timeout 240
 ```
 
-`CVSS_CONTEXT_HINT_ENABLED = True` in `config.py` (invariato dalla run 2). I risultati grezzi di run 2 (1 rep, stesso hint) sono archiviati in `results/_run2_hint_1rep_20260709/`; quelli di run 1 (senza hint) in `results/_baseline_run1_no_context_hint_20260709/` — stessa struttura `results/<task>/<exp>/<role>/`.
+`CVSS_CONTEXT_HINT_ENABLED = True` in `config.py` (invariato dalla run 2). ⚠️ Gli archivi grezzi di run 1 e run 2 sono stati cancellati il 2026-07-12 in una pulizia completa di `results/`; questa run 3, come tutte le run 1–5, va ora considerata riproducibile solo qualitativamente (temperatura > 0), non byte-per-byte.
