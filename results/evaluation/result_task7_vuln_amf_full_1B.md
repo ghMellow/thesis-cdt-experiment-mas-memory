@@ -9,6 +9,8 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | agent | 3/3 | 3 | 0 | 7 | 2.00 | 1.67 | 4.00 | 1.00 |
 
+**Legend**
+
 - `estimates` = X/Y — X = repetitions where the agent emitted *at least one* CVSS finding block; Y = total repetitions evaluated for this task. **This is block presence, not correctness** — it says nothing about how many vulnerabilities were actually found or matched (see `matched`/`missed CVEs` below for that).
 - `matched` = total findings, summed across all repetitions, successfully paired to a ground-truth CVE (by comparing the function name the agent reported to that CVE's known handler function).
 - `missed CVEs` = total ground-truth CVEs, summed across all repetitions, that no finding in that repetition matched — i.e. vulnerabilities the agent failed to surface at all.
@@ -21,6 +23,8 @@
 | role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg subseq. distance (0-1) | avg Hamming (0-8) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | agent | 1.40 | 1.07 | 2.00 | 0.10 | 0.44 | 0.11 | 3.00 |
+
+**Legend**
 
 - The estimated vector is rescored with the official FIRST CVSS 4.0 algorithm (macrovector + lookup table, `cvss` library).
 - `coherence Δ` = |score declared by the agent − score its own vector actually produces| (the two outputs are independent, nothing forces them to agree).
@@ -78,24 +82,26 @@
 
 ### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)
 
-| # | score (from vector) | declared | function | task | role | rep | vector |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 8.3 | 7.2 | `HTTPAMFStatusChangeSubscribeModify` (and all others using `GetRawData`)` | task7_vuln_amf_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H` |
-| 2 | 7.1 | 5.1 | `HTTPAMFStatusChangeSubscribeModify` (and others using `GetRawData`)` | task7_vuln_amf_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 3 | 7.1 | 5.3 | `HTTPAMFStatusChangeSubscribeModify` (and all `GetRawData` callers)` | task7_vuln_amf_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 4 | 7.1 | 5.3 | `HTTPCreateUEContext` (and others using `c.Set`)` | task7_vuln_amf_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 5 | 5.3 | 3.0 | `HTTPCreateUEContext` (and others returning `err.Error()`)` | task7_vuln_amf_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 6 | 5.3 | 5.3 | `HTTPAMFStatusChangeSubscribeModify` (and all others returning `err.Error()`)` | task7_vuln_amf_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 7 | 5.3 | 2.0 | `HTTPAMFStatusChangeSubscribeModify` (and all error response callers)` | task7_vuln_amf_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| # | score (from vector) | declared | function | task | role | rep | vector | details |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 8.3 | 7.2 | `HTTPAMFStatusChangeSubscribeModify` (and all others using `GetRawData`)` | task7_vuln_amf_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H` | [detail](unmatched_findings/task7_vuln_amf_full_1B_agent_rep2_f1.md) |
+| 2 | 7.1 | 5.1 | `HTTPAMFStatusChangeSubscribeModify` (and others using `GetRawData`)` | task7_vuln_amf_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task7_vuln_amf_full_1B_agent_rep1_f1.md) |
+| 3 | 7.1 | 5.3 | `HTTPAMFStatusChangeSubscribeModify` (and all `GetRawData` callers)` | task7_vuln_amf_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task7_vuln_amf_full_1B_agent_rep3_f1.md) |
+| 4 | 7.1 | 5.3 | `HTTPCreateUEContext` (and others using `c.Set`)` | task7_vuln_amf_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task7_vuln_amf_full_1B_agent_rep3_f2.md) |
+| 5 | 5.3 | 3.0 | `HTTPCreateUEContext` (and others returning `err.Error()`)` | task7_vuln_amf_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task7_vuln_amf_full_1B_agent_rep1_f2.md) |
+| 6 | 5.3 | 5.3 | `HTTPAMFStatusChangeSubscribeModify` (and all others returning `err.Error()`)` | task7_vuln_amf_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task7_vuln_amf_full_1B_agent_rep2_f2.md) |
+| 7 | 5.3 | 2.0 | `HTTPAMFStatusChangeSubscribeModify` (and all error response callers)` | task7_vuln_amf_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task7_vuln_amf_full_1B_agent_rep3_f3.md) |
+
+**Legend**
 
 - One row per finding the agent reported that matched no ground-truth CVE — either a false positive, or a genuine extra vulnerability with no catalogued CVE. Never counted against the evaluation (design choice: this is the practical use case, findings worth a human's triage).
 - `score (from vector)` = the recomputed score, official CVSS 4.0 math — sort key, most severe first.
 - `declared` = the score the agent stated directly; diagnostic only (see note above, not produced from the vector).
 - `function` = the Go function the agent pointed to as the vulnerability's location.
 - `task` / `role` = which task and role produced this finding.
-- `rep` = repetition index (1-based) — which run of that task/role produced this finding; cross-reference the raw result JSON with `task`+`role`+`rep`.
+- `rep` = repetition index (1-based) — which run of that task/role produced this finding.
 - `vector` = the full CVSS 4.0 vector string the agent estimated.
-- Full raw data in each result JSON under `cvss_eval.unmatched` (and the original agent output in `final_answer.cvss_estimate.findings`).
+- `details` = link to a self-contained file with this finding's structured data plus the agent's full narrative for that repetition (function name bolded for quick scanning) — everything needed to review it without opening the raw JSON.
 
 
 ---
@@ -113,7 +119,10 @@
 | truly inconsistent tasks | 1 |
 | surface-only differences (semantically equiv.) | 0 |
 
-_truly inconsistent_: LLM confirmed different conclusions across repetitions. _surface-only_: string-different but semantically equivalent (paraphrases, same logic).
+**Legend**
+
+- `truly inconsistent` = LLM confirmed different conclusions across repetitions.
+- `surface-only` = string-different but semantically equivalent (paraphrases, same logic).
 
 ### Scores by role
 
@@ -141,7 +150,12 @@ _truly inconsistent_: LLM confirmed different conclusions across repetitions. _s
 | agent | task7_vuln_amf_full | 1 | 3 | 0.900 | 6.0 |
 | agent | task7_vuln_amf_full | 2 | 3 | 1.000 | 6.0 |
 
-_`rep` = repetition index. `attempts` = total LLM calls (all failed). `confidence` = agent self-reported confidence on the final answer. `score/delta` = normalized rubric score (textual) or |answer − ground_truth| (math)._
+**Legend**
+
+- `rep` = repetition index (1-based).
+- `attempts` = total LLM calls (all failed).
+- `confidence` = agent self-reported confidence on the final answer.
+- `score/delta` = normalized rubric score (textual) or |answer − ground_truth| (math).
 
 #### Retries triggered (3)
 
@@ -151,17 +165,88 @@ _`rep` = repetition index. `attempts` = total LLM calls (all failed). `confidenc
 | agent | task7_vuln_amf_full | 2 | 3 | wrong |
 | agent | task7_vuln_amf_full | 3 | 2 | correct |
 
-_Each row is one repetition. `rep` = repetition index (1-based). `attempts` = LLM calls within that repetition (2 means wrong on attempt 1, correct on attempt 2). `final_verdict` = outcome after all attempts._
+**Legend**
+
+- Each row is one repetition.
+- `rep` = repetition index (1-based).
+- `attempts` = LLM calls within that repetition (2 means wrong on attempt 1, correct on attempt 2).
+- `final_verdict` = outcome after all attempts.
 
 #### Truly inconsistent reasoning (1)
 
 **agent — task7_vuln_amf_full**
 > The reasonings identify different sets of vulnerabilities: the first identifies 'Missing Path Parameter Extraction', the second identifies a 'global variable' logic error in error messages, and the third identifies a 'Type Mismatch in Context Storage' not mentioned in the others.
 
-- **rep 1:** 1. **Denial of Service (Unbounded Memory Allocation)**:    - **Location**: All handlers using `c.GetRawData()`, specifically: `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, and `HTTPAMFStatusChangeSubscribe`.    - **Pattern**: `c.GetRawData()` reads the entire request body into memory without a size limit.    - **Impact**: A compromised NF or an attacker with access to the SBI can send an extremely large payload, causing the AMF to exhaust its memory (OOM) and crash. This results in a complete outage of the AMF, disconnecting all associated UEs.    - **Fix**: Use `http.MaxBytesReader` to limit the request body size before reading.  2. **Information Exposure (Verbose Error Messages)**:    - **Location**: Multiple handlers (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, etc.).    - **Pattern**: The code uses `problemDetail := reqbody + err.Error()` and returns this in the `Detail` field of the JSON response.    - **Impact**: Returning raw error strings from the `openapi.Deserialize` function or the system can leak internal implementation details, library versions, or memory structure information to a calling NF.    - **Fix**: Use static, generic error messages for the client and log the detailed error internally.  3. **Logic Error / Potential Panic (Missing Default Case in Content-Type Switch)**:    - **Location**: `HTTPUEContextTransfer`.    - **Pattern**: The `switch str[0]` block handles `applicationjson` and `multipartrelate` but lacks a `default` case.    - **Impact**: If an unsupported `Content-Type` is provided, `err` remains `nil`. The code then proceeds to call `s.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)` with an uninitialized/empty request object. Depending on the processor's implementation, this could lead to a null pointer dereference (panic) or corrupted state.    - **Fix**: Add a `default` case that returns `http.StatusUnsupportedMediaType`.  4. **Improper Input Validation (Missing Path Parameter Extraction)**:    - **Location**: All handlers with parameterized routes (e.g., `HTTPCreateUEContext` for `:ueContextId`, `HTTPAMFStatusChangeSubscribeModify` for `:subscriptionId`).    - **Pattern**: The routes define parameters (e.g., `/ue-contexts/:ueContextId`), but the handlers never call `c.Param("ueContextId")` to validate or sanitize the input before passing the context to the processor.    - **Impact**: This shifts all validation responsibility to the processor. If the processor lacks rigorous checks, it could lead to IDOR or injection attacks if these parameters are used in database queries or internal lookups.    - **Fix**: Extract and validate path parameters using `c.Param()` at the handler level.
+**rep 1:**
 
-- **rep 2:** 1. **Denial of Service (DoS) via Unbounded Memory Allocation**:     - **Location**: All functions calling `c.GetRawData()` (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`).     - **Pattern**: The use of `c.GetRawData()` reads the entire HTTP request body into memory without any size limit.     - **Impact**: An attacker (or a compromised NF) can send an extremely large payload, leading to memory exhaustion (Out-of-Memory) and crashing the AMF. Given the AMF's role as the central signaling point for UEs, this results in a total loss of availability for the 5G core's access stratum.     - **Fix**: Use `http.MaxBytesReader` to limit the request body size before reading.  2. **Information Exposure via Error Messages**:     - **Location**: Multiple functions (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, etc.).     - **Pattern**: The code returns `err.Error()` directly to the client within the `ProblemDetails` object. Furthermore, it references a variable `reqbody` (e.g., `problemDetail := reqbody + err.Error()`) which is not defined within the local scope of these functions, indicating a logic error or reliance on a global variable.     - **Impact**: Returning raw system errors leaks internal implementation details, library versions, and potentially memory addresses or data structures, aiding an attacker in crafting more precise exploits.     - **Fix**: Return generic error messages to the client and log the detailed error internally.  3. **Logic Error / Potential Nil Pointer Dereference**:     - **Location**: `HTTPUEContextTransfer`     - **Pattern**: The `switch str[0]` block handles `applicationjson` and `multipartrelate` but lacks a `default` case. If a request is sent with an unsupported `Content-Type` (e.g., `text/plain`), the `err` variable remains `nil`. The code then proceeds to call `s.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)`.     - **Impact**: Since `ueContextTransferRequest.JsonData` was initialized but not populated by the `Deserialize` function (because the switch case was skipped), the processor will likely encounter a nil pointer or an empty object when attempting to access the request data, leading to a panic and AMF crash.     - **Fix**: Add a `default` case to the switch statement that returns `http.StatusBadRequest` or `http.StatusUnsupportedMediaType`.
+1. **Denial of Service (Unbounded Memory Allocation)**:
+   - **Location**: All handlers using `c.GetRawData()`, specifically: `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, and `HTTPAMFStatusChangeSubscribe`.
+   - **Pattern**: `c.GetRawData()` reads the entire request body into memory without a size limit.
+   - **Impact**: A compromised NF or an attacker with access to the SBI can send an extremely large payload, causing the AMF to exhaust its memory (OOM) and crash. This results in a complete outage of the AMF, disconnecting all associated UEs.
+   - **Fix**: Use `http.MaxBytesReader` to limit the request body size before reading.
 
-- **rep 3:** 1. **Denial of Service via Unbounded Memory Allocation**:     - **Location**: All functions calling `c.GetRawData()` (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`).     - **Pattern**: The code uses `c.GetRawData()` which reads the entire request body into a byte slice without any size restriction.     - **Impact**: A compromised or malicious Network Function (NF) within the SBI can send an oversized payload, causing the AMF to allocate excessive memory, leading to an Out-of-Memory (OOM) panic and crashing the AMF. This disrupts the control plane for all UEs managed by that AMF.     - **Fix**: Implement a middleware or use `http.MaxBytesReader` to enforce a strict limit on the request body size.  2. **Information Exposure via Verbose Error Responses**:     - **Location**: Multiple functions (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, etc.).     - **Pattern**: The code returns `reqbody + err.Error()` inside the `ProblemDetails.Detail` field of the HTTP response.     - **Impact**: This leaks internal implementation details of the `openapi` deserialization process and potentially echoes back parts of the request. While mTLS is present, this aids an attacker in fingerprinting the AMF's internal logic to craft more precise exploits.     - **Fix**: Log the detailed error internally and return a generic "Malformed request" message to the client.  3. **Logic Error / Missing Default Case in Content-Type Handling**:     - **Location**: `HTTPUEContextTransfer`.     - **Pattern**: The `switch str[0]` block handles `applicationjson` and `multipartrelate` but lacks a `default` case.     - **Impact**: If a request is sent with an unsupported `Content-Type`, the `err` variable remains `nil`. The code then proceeds to call `s.Processor().HandleUEContextTransferRequest` with an empty/uninitialized `ueContextTransferRequest` object. This can lead to null pointer dereferences or unexpected state transitions in the processor.     - **Fix**: Add a `default` case to the switch statement that returns a `400 Bad Request` or `415 Unsupported Media Type` error.  4. **Improper Error Handling / Type Mismatch in Context Storage**:     - **Location**: `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`.     - **Pattern**: The code calls `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)`. In these functions, `problemDetail` is a `models.ProblemDetails` struct, whereas in other functions (like `HTTPAMFStatusChangeSubscribeModify`), it is a `string` (the `.Cause` field).     - **Impact**: This creates an inconsistency in the Gin context. If downstream middleware or the Processor expects a string but receives a struct (or vice versa), it may cause a panic during type assertion, leading to a DoS.     - **Fix**: Consistently store only the `Cause` string or the full struct, ensuring type consistency across all handlers.
+2. **Information Exposure (Verbose Error Messages)**:
+   - **Location**: Multiple handlers (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, etc.).
+   - **Pattern**: The code uses `problemDetail := reqbody + err.Error()` and returns this in the `Detail` field of the JSON response.
+   - **Impact**: Returning raw error strings from the `openapi.Deserialize` function or the system can leak internal implementation details, library versions, or memory structure information to a calling NF.
+   - **Fix**: Use static, generic error messages for the client and log the detailed error internally.
+
+3. **Logic Error / Potential Panic (Missing Default Case in Content-Type Switch)**:
+   - **Location**: `HTTPUEContextTransfer`.
+   - **Pattern**: The `switch str[0]` block handles `applicationjson` and `multipartrelate` but lacks a `default` case.
+   - **Impact**: If an unsupported `Content-Type` is provided, `err` remains `nil`. The code then proceeds to call `s.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)` with an uninitialized/empty request object. Depending on the processor's implementation, this could lead to a null pointer dereference (panic) or corrupted state.
+   - **Fix**: Add a `default` case that returns `http.StatusUnsupportedMediaType`.
+
+4. **Improper Input Validation (Missing Path Parameter Extraction)**:
+   - **Location**: All handlers with parameterized routes (e.g., `HTTPCreateUEContext` for `:ueContextId`, `HTTPAMFStatusChangeSubscribeModify` for `:subscriptionId`).
+   - **Pattern**: The routes define parameters (e.g., `/ue-contexts/:ueContextId`), but the handlers never call `c.Param("ueContextId")` to validate or sanitize the input before passing the context to the processor.
+   - **Impact**: This shifts all validation responsibility to the processor. If the processor lacks rigorous checks, it could lead to IDOR or injection attacks if these parameters are used in database queries or internal lookups.
+   - **Fix**: Extract and validate path parameters using `c.Param()` at the handler level.
+
+**rep 2:**
+
+1. **Denial of Service (DoS) via Unbounded Memory Allocation**:
+    - **Location**: All functions calling `c.GetRawData()` (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`).
+    - **Pattern**: The use of `c.GetRawData()` reads the entire HTTP request body into memory without any size limit.
+    - **Impact**: An attacker (or a compromised NF) can send an extremely large payload, leading to memory exhaustion (Out-of-Memory) and crashing the AMF. Given the AMF's role as the central signaling point for UEs, this results in a total loss of availability for the 5G core's access stratum.
+    - **Fix**: Use `http.MaxBytesReader` to limit the request body size before reading.
+
+2. **Information Exposure via Error Messages**:
+    - **Location**: Multiple functions (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, etc.).
+    - **Pattern**: The code returns `err.Error()` directly to the client within the `ProblemDetails` object. Furthermore, it references a variable `reqbody` (e.g., `problemDetail := reqbody + err.Error()`) which is not defined within the local scope of these functions, indicating a logic error or reliance on a global variable.
+    - **Impact**: Returning raw system errors leaks internal implementation details, library versions, and potentially memory addresses or data structures, aiding an attacker in crafting more precise exploits.
+    - **Fix**: Return generic error messages to the client and log the detailed error internally.
+
+3. **Logic Error / Potential Nil Pointer Dereference**:
+    - **Location**: `HTTPUEContextTransfer`
+    - **Pattern**: The `switch str[0]` block handles `applicationjson` and `multipartrelate` but lacks a `default` case. If a request is sent with an unsupported `Content-Type` (e.g., `text/plain`), the `err` variable remains `nil`. The code then proceeds to call `s.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)`.
+    - **Impact**: Since `ueContextTransferRequest.JsonData` was initialized but not populated by the `Deserialize` function (because the switch case was skipped), the processor will likely encounter a nil pointer or an empty object when attempting to access the request data, leading to a panic and AMF crash.
+    - **Fix**: Add a `default` case to the switch statement that returns `http.StatusBadRequest` or `http.StatusUnsupportedMediaType`.
+
+**rep 3:**
+
+1. **Denial of Service via Unbounded Memory Allocation**:
+    - **Location**: All functions calling `c.GetRawData()` (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`).
+    - **Pattern**: The code uses `c.GetRawData()` which reads the entire request body into a byte slice without any size restriction.
+    - **Impact**: A compromised or malicious Network Function (NF) within the SBI can send an oversized payload, causing the AMF to allocate excessive memory, leading to an Out-of-Memory (OOM) panic and crashing the AMF. This disrupts the control plane for all UEs managed by that AMF.
+    - **Fix**: Implement a middleware or use `http.MaxBytesReader` to enforce a strict limit on the request body size.
+
+2. **Information Exposure via Verbose Error Responses**:
+    - **Location**: Multiple functions (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, etc.).
+    - **Pattern**: The code returns `reqbody + err.Error()` inside the `ProblemDetails.Detail` field of the HTTP response.
+    - **Impact**: This leaks internal implementation details of the `openapi` deserialization process and potentially echoes back parts of the request. While mTLS is present, this aids an attacker in fingerprinting the AMF's internal logic to craft more precise exploits.
+    - **Fix**: Log the detailed error internally and return a generic "Malformed request" message to the client.
+
+3. **Logic Error / Missing Default Case in Content-Type Handling**:
+    - **Location**: `HTTPUEContextTransfer`.
+    - **Pattern**: The `switch str[0]` block handles `applicationjson` and `multipartrelate` but lacks a `default` case.
+    - **Impact**: If a request is sent with an unsupported `Content-Type`, the `err` variable remains `nil`. The code then proceeds to call `s.Processor().HandleUEContextTransferRequest` with an empty/uninitialized `ueContextTransferRequest` object. This can lead to null pointer dereferences or unexpected state transitions in the processor.
+    - **Fix**: Add a `default` case to the switch statement that returns a `400 Bad Request` or `415 Unsupported Media Type` error.
+
+4. **Improper Error Handling / Type Mismatch in Context Storage**:
+    - **Location**: `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`.
+    - **Pattern**: The code calls `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)`. In these functions, `problemDetail` is a `models.ProblemDetails` struct, whereas in other functions (like `HTTPAMFStatusChangeSubscribeModify`), it is a `string` (the `.Cause` field).
+    - **Impact**: This creates an inconsistency in the Gin context. If downstream middleware or the Processor expects a string but receives a struct (or vice versa), it may cause a panic during type assertion, leading to a DoS.
+    - **Fix**: Consistently store only the `Cause` string or the full struct, ensuring type consistency across all handlers.
 
 

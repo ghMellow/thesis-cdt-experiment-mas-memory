@@ -9,6 +9,8 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | agent | 3/3 | 3 | 0 | 3 | 0.00 | 0.00 | 4.00 | 1.00 |
 
+**Legend**
+
 - `estimates` = X/Y — X = repetitions where the agent emitted *at least one* CVSS finding block; Y = total repetitions evaluated for this task. **This is block presence, not correctness** — it says nothing about how many vulnerabilities were actually found or matched (see `matched`/`missed CVEs` below for that).
 - `matched` = total findings, summed across all repetitions, successfully paired to a ground-truth CVE (by comparing the function name the agent reported to that CVE's known handler function).
 - `missed CVEs` = total ground-truth CVEs, summed across all repetitions, that no finding in that repetition matched — i.e. vulnerabilities the agent failed to surface at all.
@@ -21,6 +23,8 @@
 | role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg subseq. distance (0-1) | avg Hamming (0-8) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | agent | 1.20 | 3.40 | 0.00 | 0.10 | 0.50 | 0.17 | 3.00 |
+
+**Legend**
 
 - The estimated vector is rescored with the official FIRST CVSS 4.0 algorithm (macrovector + lookup table, `cvss` library).
 - `coherence Δ` = |score declared by the agent − score its own vector actually produces| (the two outputs are independent, nothing forces them to agree).
@@ -78,20 +82,22 @@
 
 ### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)
 
-| # | score (from vector) | declared | function | task | role | rep | vector |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 8.7 | 7.1 | `setCorsHeader` | task5_vuln_pcf | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 2 | 8.7 | 7.7 | `setCorsHeader` | task5_vuln_pcf | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 3 | 8.7 | 7.1 | `setCorsHeader` | task5_vuln_pcf | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| # | score (from vector) | declared | function | task | role | rep | vector | details |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 8.7 | 7.1 | `setCorsHeader` | task5_vuln_pcf | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task5_vuln_pcf_1B_agent_rep1_f1.md) |
+| 2 | 8.7 | 7.7 | `setCorsHeader` | task5_vuln_pcf | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task5_vuln_pcf_1B_agent_rep2_f1.md) |
+| 3 | 8.7 | 7.1 | `setCorsHeader` | task5_vuln_pcf | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task5_vuln_pcf_1B_agent_rep3_f1.md) |
+
+**Legend**
 
 - One row per finding the agent reported that matched no ground-truth CVE — either a false positive, or a genuine extra vulnerability with no catalogued CVE. Never counted against the evaluation (design choice: this is the practical use case, findings worth a human's triage).
 - `score (from vector)` = the recomputed score, official CVSS 4.0 math — sort key, most severe first.
 - `declared` = the score the agent stated directly; diagnostic only (see note above, not produced from the vector).
 - `function` = the Go function the agent pointed to as the vulnerability's location.
 - `task` / `role` = which task and role produced this finding.
-- `rep` = repetition index (1-based) — which run of that task/role produced this finding; cross-reference the raw result JSON with `task`+`role`+`rep`.
+- `rep` = repetition index (1-based) — which run of that task/role produced this finding.
 - `vector` = the full CVSS 4.0 vector string the agent estimated.
-- Full raw data in each result JSON under `cvss_eval.unmatched` (and the original agent output in `final_answer.cvss_estimate.findings`).
+- `details` = link to a self-contained file with this finding's structured data plus the agent's full narrative for that repetition (function name bolded for quick scanning) — everything needed to review it without opening the raw JSON.
 
 
 ---
@@ -109,7 +115,10 @@
 | truly inconsistent tasks | 0 |
 | surface-only differences (semantically equiv.) | 1 |
 
-_truly inconsistent_: LLM confirmed different conclusions across repetitions. _surface-only_: string-different but semantically equivalent (paraphrases, same logic).
+**Legend**
+
+- `truly inconsistent` = LLM confirmed different conclusions across repetitions.
+- `surface-only` = string-different but semantically equivalent (paraphrases, same logic).
 
 All tasks passed with full consistency — no anomalies detected.
 

@@ -9,6 +9,8 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | agent | 3/3 | 3 | 0 | 2 | 0.33 | 0.33 | 4.00 | 1.00 |
 
+**Legend**
+
 - `estimates` = X/Y — X = repetitions where the agent emitted *at least one* CVSS finding block; Y = total repetitions evaluated for this task. **This is block presence, not correctness** — it says nothing about how many vulnerabilities were actually found or matched (see `matched`/`missed CVEs` below for that).
 - `matched` = total findings, summed across all repetitions, successfully paired to a ground-truth CVE (by comparing the function name the agent reported to that CVE's known handler function).
 - `missed CVEs` = total ground-truth CVEs, summed across all repetitions, that no finding in that repetition matched — i.e. vulnerabilities the agent failed to surface at all.
@@ -21,6 +23,8 @@
 | role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg subseq. distance (0-1) | avg Hamming (0-8) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | agent | 1.30 | 2.20 | 0.67 | 0.10 | 0.61 | 0.11 | 3.00 |
+
+**Legend**
 
 - The estimated vector is rescored with the official FIRST CVSS 4.0 algorithm (macrovector + lookup table, `cvss` library).
 - `coherence Δ` = |score declared by the agent − score its own vector actually produces| (the two outputs are independent, nothing forces them to agree).
@@ -78,19 +82,21 @@
 
 ### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)
 
-| # | score (from vector) | declared | function | task | role | rep | vector |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 8.7 | 5.3 | `setCorsHeader` | task5_vuln_pcf | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 2 | 8.7 | 7.1 | `setCorsHeader` | task5_vuln_pcf | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| # | score (from vector) | declared | function | task | role | rep | vector | details |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 8.7 | 5.3 | `setCorsHeader` | task5_vuln_pcf | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task5_vuln_pcf_1A_agent_rep2_f1.md) |
+| 2 | 8.7 | 7.1 | `setCorsHeader` | task5_vuln_pcf | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task5_vuln_pcf_1A_agent_rep3_f1.md) |
+
+**Legend**
 
 - One row per finding the agent reported that matched no ground-truth CVE — either a false positive, or a genuine extra vulnerability with no catalogued CVE. Never counted against the evaluation (design choice: this is the practical use case, findings worth a human's triage).
 - `score (from vector)` = the recomputed score, official CVSS 4.0 math — sort key, most severe first.
 - `declared` = the score the agent stated directly; diagnostic only (see note above, not produced from the vector).
 - `function` = the Go function the agent pointed to as the vulnerability's location.
 - `task` / `role` = which task and role produced this finding.
-- `rep` = repetition index (1-based) — which run of that task/role produced this finding; cross-reference the raw result JSON with `task`+`role`+`rep`.
+- `rep` = repetition index (1-based) — which run of that task/role produced this finding.
 - `vector` = the full CVSS 4.0 vector string the agent estimated.
-- Full raw data in each result JSON under `cvss_eval.unmatched` (and the original agent output in `final_answer.cvss_estimate.findings`).
+- `details` = link to a self-contained file with this finding's structured data plus the agent's full narrative for that repetition (function name bolded for quick scanning) — everything needed to review it without opening the raw JSON.
 
 
 ---
@@ -108,7 +114,10 @@
 | truly inconsistent tasks | 1 |
 | surface-only differences (semantically equiv.) | 0 |
 
-_truly inconsistent_: LLM confirmed different conclusions across repetitions. _surface-only_: string-different but semantically equivalent (paraphrases, same logic).
+**Legend**
+
+- `truly inconsistent` = LLM confirmed different conclusions across repetitions.
+- `surface-only` = string-different but semantically equivalent (paraphrases, same logic).
 
 ### Scores by role
 
@@ -134,10 +143,62 @@ _truly inconsistent_: LLM confirmed different conclusions across repetitions. _s
 **agent — task5_vuln_pcf**
 > The first reasoning only identifies the CORS misconfiguration and the middleware memory leak, whereas the second and third reasonings also identify a third vulnerability regarding lack of input validation/sanitization for the SUPI parameter.
 
-- **rep 1:** The code contains a critical **CORS (Cross-Origin Resource Sharing) Misconfiguration**.   1. **Vulnerability Class:** CORS Misconfiguration / Overly Permissive Policy. 2. **Location:** `setCorsHeader` function. 3. **Analysis:**      - The code uses `AllowAllOrigins: true` and explicitly sets `Access-Control-Allow-Origin: "*"`.     - Simultaneously, it sets `AllowCredentials: true` and `Access-Control-Allow-Credentials: "true"`.     - According to the CORS specification, the combination of `Allow-Origin: *` and `Allow-Credentials: true` is forbidden and insecure. Most modern browsers will block this, but if the server dynamically reflects the origin, it allows any website to make authenticated requests to the PCF.     - Furthermore, the `setCorsHeader` function is called *inside* the request handler (`HTTPOAMGetAmPolicy`), but it calls `s.router.Use(...)`. In Gin, `router.Use` adds middleware globally to the router. Calling this inside a handler means every time the `/am-policy/:supi` endpoint is hit, a new instance of the CORS middleware is appended to the global middleware stack, leading to a **Memory Leak** and degraded performance (DoS). 4. **5G Context Impact:** The PCF handles sensitive subscriber policy data (AM Policy). While SBI is typically protected by mTLS/OAuth2, OAM interfaces are sometimes exposed to internal management networks. If a network administrator accesses a malicious website while logged into a management console, the browser could be used to exfiltrate subscriber policies (SUPI-linked data) via CSRF/CORS attacks. 5. **Proposed Fix:**      - Remove `setCorsHeader` from the request handler.     - Move CORS configuration to the server initialization phase.     - Replace `AllowAllOrigins: true` with a strict whitelist of trusted management domains.     - Remove `AllowCredentials: true` unless explicitly required by a specific authentication mechanism.
+**rep 1:**
 
-- **rep 2:** 1. **CORS Misconfiguration (Permissive Policy):**    - **Location:** `setCorsHeader` function.    - **Analysis:** The code implements an extremely permissive Cross-Origin Resource Sharing (CORS) policy. It sets `AllowAllOrigins: true` and explicitly sets the header `Access-Control-Allow-Origin: "*"`. Furthermore, it sets `AllowCredentials: true`.     - **5G Context Impact:** In a 5G Core, the SBI is intended for inter-NF communication. While SBI is typically protected by mTLS/OAuth2, if this OAM interface is exposed to a management network or a web-based dashboard, a permissive CORS policy allows any website visited by an administrator to make authenticated requests to the PCF. The combination of `AllowAllOrigins: true` and `AllowCredentials: true` is a critical security flaw that can lead to Cross-Site Request Forgery (CSRF) or unauthorized data extraction if the browser session is used for authentication.    - **Fix:** Replace `AllowAllOrigins: true` and `"*"` with a strict whitelist of trusted management domains. Remove `AllowCredentials: true` unless explicitly required by a secure authentication mechanism.  2. **Inefficient/Incorrect Middleware Application:**    - **Location:** `setCorsHeader` function.    - **Analysis:** The function calls `s.router.Use(cors.New(...))` inside a request handler. In the Gin framework, `.Use()` attaches middleware to the router globally or for a group. Calling this inside a handler means the middleware is re-added to the router on every single request to `HTTPOAMGetAmPolicy`.    - **5G Context Impact:** This leads to a memory leak and performance degradation (DoS) as the middleware chain grows indefinitely with every request. In a high-traffic 5G core, this could crash the PCF OAM handler, impacting the availability of policy management.    - **Fix:** Move the CORS middleware configuration to the server initialization phase (e.g., in `getOamRoutes` or a dedicated setup function) so it is applied once at startup.  3. **Lack of Input Validation/Sanitization (Potential IDOR/Injection):**    - **Location:** `HTTPOAMGetAmPolicy` function, line `supi := c.Params.ByName("supi")`.    - **Analysis:** The `supi` (Subscription Permanent Identifier) is taken directly from the URL path and passed to the processor without any validation or sanitization.    - **5G Context Impact:** While the processor might handle validation, the handler allows any string to be passed. If the underlying processor uses this value in a database query or log without escaping, it could lead to injection. More importantly, it facilitates Insecure Direct Object Reference (IDOR) if the OAM layer doesn't verify that the requester has the authority to access the policy of that specific SUPI.    - **Fix:** Implement a regex check to ensure the `supi` conforms to the expected 3GPP format (numeric string) before passing it to the processor.
+The code contains a critical **CORS (Cross-Origin Resource Sharing) Misconfiguration**. 
 
-- **rep 3:** 1. **CORS Misconfiguration (Permissive Policy):**    - **Location:** `setCorsHeader` function.    - **Analysis:** The code implements an extremely permissive Cross-Origin Resource Sharing (CORS) policy. It sets `AllowAllOrigins: true` and explicitly sets the `Access-Control-Allow-Origin` header to `*`. Furthermore, it sets `AllowCredentials: true`.     - **5G Context Impact:** In a 5G Core, the SBI is intended for inter-NF communication. While SBI is typically protected by mTLS/OAuth2, OAM interfaces are often accessed via management consoles. A permissive CORS policy combined with `AllowCredentials: true` is a dangerous combination; it allows any website visited by an administrator to make authenticated requests to the PCF OAM interface on behalf of the admin (Cross-Site Request Forgery/Data Exfiltration).    - **Fix:** Replace `AllowAllOrigins: true` and `*` with a strict whitelist of trusted management domains. Remove `AllowCredentials: true` unless strictly necessary and paired with a specific origin.  2. **Inefficient/Incorrect Middleware Application:**    - **Location:** `setCorsHeader` function.    - **Analysis:** The function calls `s.router.Use(cors.New(...))` inside a request handler. In Gin, `.Use()` adds middleware to the router's global chain. Calling this inside a handler means every single request to the OAM endpoint adds a *new* instance of the CORS middleware to the router.    - **5G Context Impact:** This leads to a memory leak and performance degradation (Availability). As the number of requests increases, the middleware chain grows indefinitely, eventually causing the PCF to crash or become unresponsive (DoS).    - **Fix:** Move the CORS middleware configuration to the server initialization phase (e.g., in `getOamRoutes` or a separate setup function), not inside the request handler.  3. **Information Exposure / Lack of Input Validation:**    - **Location:** `HTTPOAMGetAmPolicy` function.    - **Analysis:** The `supi` (Subscription Permanent Identifier) is taken directly from the URL path and passed to the processor. While there is a check for an empty string, there is no validation of the SUPI format (e.g., length, numeric characters).    - **5G Context Impact:** SUPI is a highly sensitive unique identifier. If the `HandleOAMGetAmPolicyRequest` does not perform strict authorization checks, an attacker with access to the OAM interface could enumerate SUPIs to extract policy information for arbitrary subscribers.    - **Fix:** Implement strict regex validation for the `supi` parameter to ensure it conforms to 3GPP standards before processing.
+1. **Vulnerability Class:** CORS Misconfiguration / Overly Permissive Policy.
+2. **Location:** `setCorsHeader` function.
+3. **Analysis:** 
+    - The code uses `AllowAllOrigins: true` and explicitly sets `Access-Control-Allow-Origin: "*"`.
+    - Simultaneously, it sets `AllowCredentials: true` and `Access-Control-Allow-Credentials: "true"`.
+    - According to the CORS specification, the combination of `Allow-Origin: *` and `Allow-Credentials: true` is forbidden and insecure. Most modern browsers will block this, but if the server dynamically reflects the origin, it allows any website to make authenticated requests to the PCF.
+    - Furthermore, the `setCorsHeader` function is called *inside* the request handler (`HTTPOAMGetAmPolicy`), but it calls `s.router.Use(...)`. In Gin, `router.Use` adds middleware globally to the router. Calling this inside a handler means every time the `/am-policy/:supi` endpoint is hit, a new instance of the CORS middleware is appended to the global middleware stack, leading to a **Memory Leak** and degraded performance (DoS).
+4. **5G Context Impact:** The PCF handles sensitive subscriber policy data (AM Policy). While SBI is typically protected by mTLS/OAuth2, OAM interfaces are sometimes exposed to internal management networks. If a network administrator accesses a malicious website while logged into a management console, the browser could be used to exfiltrate subscriber policies (SUPI-linked data) via CSRF/CORS attacks.
+5. **Proposed Fix:** 
+    - Remove `setCorsHeader` from the request handler.
+    - Move CORS configuration to the server initialization phase.
+    - Replace `AllowAllOrigins: true` with a strict whitelist of trusted management domains.
+    - Remove `AllowCredentials: true` unless explicitly required by a specific authentication mechanism.
+
+**rep 2:**
+
+1. **CORS Misconfiguration (Permissive Policy):**
+   - **Location:** `setCorsHeader` function.
+   - **Analysis:** The code implements an extremely permissive Cross-Origin Resource Sharing (CORS) policy. It sets `AllowAllOrigins: true` and explicitly sets the header `Access-Control-Allow-Origin: "*"`. Furthermore, it sets `AllowCredentials: true`. 
+   - **5G Context Impact:** In a 5G Core, the SBI is intended for inter-NF communication. While SBI is typically protected by mTLS/OAuth2, if this OAM interface is exposed to a management network or a web-based dashboard, a permissive CORS policy allows any website visited by an administrator to make authenticated requests to the PCF. The combination of `AllowAllOrigins: true` and `AllowCredentials: true` is a critical security flaw that can lead to Cross-Site Request Forgery (CSRF) or unauthorized data extraction if the browser session is used for authentication.
+   - **Fix:** Replace `AllowAllOrigins: true` and `"*"` with a strict whitelist of trusted management domains. Remove `AllowCredentials: true` unless explicitly required by a secure authentication mechanism.
+
+2. **Inefficient/Incorrect Middleware Application:**
+   - **Location:** `setCorsHeader` function.
+   - **Analysis:** The function calls `s.router.Use(cors.New(...))` inside a request handler. In the Gin framework, `.Use()` attaches middleware to the router globally or for a group. Calling this inside a handler means the middleware is re-added to the router on every single request to `HTTPOAMGetAmPolicy`.
+   - **5G Context Impact:** This leads to a memory leak and performance degradation (DoS) as the middleware chain grows indefinitely with every request. In a high-traffic 5G core, this could crash the PCF OAM handler, impacting the availability of policy management.
+   - **Fix:** Move the CORS middleware configuration to the server initialization phase (e.g., in `getOamRoutes` or a dedicated setup function) so it is applied once at startup.
+
+3. **Lack of Input Validation/Sanitization (Potential IDOR/Injection):**
+   - **Location:** `HTTPOAMGetAmPolicy` function, line `supi := c.Params.ByName("supi")`.
+   - **Analysis:** The `supi` (Subscription Permanent Identifier) is taken directly from the URL path and passed to the processor without any validation or sanitization.
+   - **5G Context Impact:** While the processor might handle validation, the handler allows any string to be passed. If the underlying processor uses this value in a database query or log without escaping, it could lead to injection. More importantly, it facilitates Insecure Direct Object Reference (IDOR) if the OAM layer doesn't verify that the requester has the authority to access the policy of that specific SUPI.
+   - **Fix:** Implement a regex check to ensure the `supi` conforms to the expected 3GPP format (numeric string) before passing it to the processor.
+
+**rep 3:**
+
+1. **CORS Misconfiguration (Permissive Policy):**
+   - **Location:** `setCorsHeader` function.
+   - **Analysis:** The code implements an extremely permissive Cross-Origin Resource Sharing (CORS) policy. It sets `AllowAllOrigins: true` and explicitly sets the `Access-Control-Allow-Origin` header to `*`. Furthermore, it sets `AllowCredentials: true`. 
+   - **5G Context Impact:** In a 5G Core, the SBI is intended for inter-NF communication. While SBI is typically protected by mTLS/OAuth2, OAM interfaces are often accessed via management consoles. A permissive CORS policy combined with `AllowCredentials: true` is a dangerous combination; it allows any website visited by an administrator to make authenticated requests to the PCF OAM interface on behalf of the admin (Cross-Site Request Forgery/Data Exfiltration).
+   - **Fix:** Replace `AllowAllOrigins: true` and `*` with a strict whitelist of trusted management domains. Remove `AllowCredentials: true` unless strictly necessary and paired with a specific origin.
+
+2. **Inefficient/Incorrect Middleware Application:**
+   - **Location:** `setCorsHeader` function.
+   - **Analysis:** The function calls `s.router.Use(cors.New(...))` inside a request handler. In Gin, `.Use()` adds middleware to the router's global chain. Calling this inside a handler means every single request to the OAM endpoint adds a *new* instance of the CORS middleware to the router.
+   - **5G Context Impact:** This leads to a memory leak and performance degradation (Availability). As the number of requests increases, the middleware chain grows indefinitely, eventually causing the PCF to crash or become unresponsive (DoS).
+   - **Fix:** Move the CORS middleware configuration to the server initialization phase (e.g., in `getOamRoutes` or a separate setup function), not inside the request handler.
+
+3. **Information Exposure / Lack of Input Validation:**
+   - **Location:** `HTTPOAMGetAmPolicy` function.
+   - **Analysis:** The `supi` (Subscription Permanent Identifier) is taken directly from the URL path and passed to the processor. While there is a check for an empty string, there is no validation of the SUPI format (e.g., length, numeric characters).
+   - **5G Context Impact:** SUPI is a highly sensitive unique identifier. If the `HandleOAMGetAmPolicyRequest` does not perform strict authorization checks, an attacker with access to the OAM interface could enumerate SUPIs to extract policy information for arbitrary subscribers.
+   - **Fix:** Implement strict regex validation for the `supi` parameter to ensure it conforms to 3GPP standards before processing.
 
 

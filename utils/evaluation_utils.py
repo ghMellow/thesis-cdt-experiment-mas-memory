@@ -3,6 +3,7 @@
 import hashlib
 import json
 import logging
+import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -317,7 +318,9 @@ def _build_scores_table(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
     return lines
 
 
-def _build_cvss_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
+def _build_cvss_section(
+    roles: Dict[str, List[Dict[str, Any]]], experiment_id: str, results_path: str
+) -> List[str]:
     """CVSS sub-scores (Blocco B, deterministic) — reported separately from the
     rubric judge scores, never merged into accuracy."""
     has_cvss = any(
@@ -359,6 +362,8 @@ def _build_cvss_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
             f"{_fmt(_agg_mean(evals, 'avg_impact_match'), 2)} |"
         )
     lines += [
+        "",
+        "**Legend**",
         "",
         "- `estimates` = X/Y — X = repetitions where the agent emitted *at least one* "
         "CVSS finding block; Y = total repetitions evaluated for this task. **This is "
@@ -403,6 +408,8 @@ def _build_cvss_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
         )
     lines += [
         "",
+        "**Legend**",
+        "",
         "- The estimated vector is rescored with the official FIRST CVSS 4.0 algorithm "
         "(macrovector + lookup table, `cvss` library).",
         "- `coherence Δ` = |score declared by the agent − score its own vector actually "
@@ -420,42 +427,123 @@ def _build_cvss_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
     ]
 
     lines += _build_cvss_vector_detail(roles)
-    lines += _build_cvss_unmatched(roles)
+    lines += _build_cvss_unmatched(roles, experiment_id, results_path)
     return lines
 
 
-def _build_cvss_unmatched(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
+def _highlight_function(text: str, function: str) -> str:
+    """Bold every occurrence of the function name so a reader scanning a
+    multi-finding narrative can spot the passage about this one finding.
+    Backtick-wrapped occurrences (`` `setCorsHeader` ``, the common case in
+    these narratives) are bolded as a whole code span — bolding only the text
+    *inside* backticks would be inert, Markdown doesn't parse emphasis inside
+    a code span."""
+    if not text or not function:
+        return text
+    escaped = re.escape(function)
+    text = re.sub(rf"`{escaped}`", lambda m: f"**{m.group(0)}**", text, flags=re.IGNORECASE)
+    text = re.sub(rf"(?<!`){escaped}(?!`)", lambda m: f"**{m.group(0)}**", text, flags=re.IGNORECASE)
+    return text
+
+
+def _write_unmatched_finding_file(
+    path: Path,
+    task_id: str,
+    experiment_id: str,
+    role: str,
+    rep: Any,
+    run_id: Optional[str],
+    u: Dict[str, Any],
+    final_answer: Dict[str, Any],
+) -> None:
+    """One self-contained file per unmatched finding: its structured data plus
+    the agent's full narrative for that repetition, so an expert triaging it
+    doesn't have to open the raw multi-repetition JSON at all."""
+    function = u.get("function") or "—"
+    answer = _highlight_function(str(final_answer.get("answer") or "").strip(), function)
+    reasoning = _highlight_function(str(final_answer.get("reasoning") or "").strip(), function)
+
+    lines = [
+        f"# Unmatched finding — {task_id} ({experiment_id}) — {role}, rep {rep}",
+        "",
+        "| field | value |",
+        "| --- | --- |",
+        f"| function | `{function}` |",
+        f"| vector (estimated) | `{u.get('vector', '—')}` |",
+        f"| score declared | {_fmt(u.get('declared_score'), 1)} |",
+        f"| score computed (official CVSS 4.0 math) | {_fmt(u.get('computed_score_B'), 1)} |",
+        "",
+        "## Agent narrative for this repetition",
+        "",
+        f"_Shared across every finding reported in the same repetition — occurrences "
+        f"of `{function}` are **bolded** below to help locate the relevant passage._",
+        "",
+    ]
+    if answer:
+        lines += ["**Answer:**", "", answer, ""]
+    if reasoning:
+        lines += ["**Reasoning:**", "", reasoning, ""]
+    lines += [
+        "---",
+        f"_Source: `results/{task_id}/{experiment_id}/{role}/*.json`, run_id "
+        f"`{run_id or 'legacy (no run_id)'}`, repetition {rep}._",
+        "",
+    ]
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def _build_cvss_unmatched(
+    roles: Dict[str, List[Dict[str, Any]]], experiment_id: str, results_path: str
+) -> List[str]:
     """Findings with no ground-truth CVE, ranked most-severe-first by the
     officially recomputed score — the experts' use case: potential
-    vulnerabilities not (yet) tied to a CVE, ready for manual triage."""
+    vulnerabilities not (yet) tied to a CVE, ready for manual triage. Each row
+    also gets a self-contained detail file (see _write_unmatched_finding_file)
+    since the finding record itself carries no free-text rationale."""
     entries = []
     for role, payloads in sorted(roles.items()):
         for p in payloads:
             ce = p.get("cvss_eval")
             if not isinstance(ce, dict):
                 continue
+            final_answer = p.get("final_answer") or {}
             for u in ce.get("unmatched", []):
-                entries.append((role, p.get("task_id"), p.get("repetition"), u))
+                entries.append(
+                    (role, p.get("task_id"), p.get("repetition"), p.get("run_id"), final_answer, u)
+                )
     if not entries:
         return []
 
     entries.sort(
-        key=lambda e: e[3].get("computed_score_B", e[3].get("declared_score", -1.0)) or -1.0,
+        key=lambda e: e[5].get("computed_score_B", e[5].get("declared_score", -1.0)) or -1.0,
         reverse=True,
     )
+
+    out_dir = Path(results_path) / "evaluation" / "unmatched_findings"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
     lines = [
         "### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)",
         "",
-        "| # | score (from vector) | declared | function | task | role | rep | vector |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+        "| # | score (from vector) | declared | function | task | role | rep | vector | details |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
-    for i, (role, task_id, rep, u) in enumerate(entries, 1):
+    seen: Dict[Tuple[str, str, Any], int] = {}
+    for i, (role, task_id, rep, run_id, final_answer, u) in enumerate(entries, 1):
+        key = (task_id, role, rep)
+        seen[key] = seen.get(key, 0) + 1
+        filename = f"{task_id}_{experiment_id}_{role}_rep{rep}_f{seen[key]}.md"
+        _write_unmatched_finding_file(
+            out_dir / filename, task_id, experiment_id, role, rep, run_id, u, final_answer
+        )
         lines.append(
             f"| {i} | {_fmt(u.get('computed_score_B'), 1)} | {_fmt(u.get('declared_score'), 1)} | "
             f"`{u.get('function') or '—'}` | {task_id} | {role} | {rep} | "
-            f"`{u.get('vector', '—')}` |"
+            f"`{u.get('vector', '—')}` | [detail](unmatched_findings/{filename}) |"
         )
     lines += [
+        "",
+        "**Legend**",
         "",
         "- One row per finding the agent reported that matched no ground-truth CVE — "
         "either a false positive, or a genuine extra vulnerability with no catalogued "
@@ -469,10 +557,12 @@ def _build_cvss_unmatched(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
         "location.",
         "- `task` / `role` = which task and role produced this finding.",
         "- `rep` = repetition index (1-based) — which run of that task/role produced "
-        "this finding; cross-reference the raw result JSON with `task`+`role`+`rep`.",
+        "this finding.",
         "- `vector` = the full CVSS 4.0 vector string the agent estimated.",
-        "- Full raw data in each result JSON under `cvss_eval.unmatched` (and the "
-        "original agent output in `final_answer.cvss_estimate.findings`).",
+        "- `details` = link to a self-contained file with this finding's structured "
+        "data plus the agent's full narrative for that repetition (function name "
+        "bolded for quick scanning) — everything needed to review it without opening "
+        "the raw JSON.",
         "",
     ]
     return lines
@@ -551,14 +641,16 @@ def _build_experiment_report(
     roles: Dict[str, List[Dict[str, Any]]],
     task_filter: Optional[List[str]] = None,
     per_task_id: Optional[str] = None,
+    results_path: str = RESULTS_PATH,
 ) -> str:
     """Generate evaluation report.
-    
+
     Args:
         experiment_id: 1A or 1B
         roles: dict of {role: [payloads]}
         task_filter: optional list of task_ids to include (None = all)
         per_task_id: if set, generate report for only this task_id; else aggregate
+        results_path: where to write companion files (e.g. unmatched-finding detail pages)
     """
     lines = [f"# Evaluation Report: {experiment_id}", ""]
 
@@ -598,8 +690,10 @@ def _build_experiment_report(
         f"| truly inconsistent tasks | {len(inconsistencies)} |",
         f"| surface-only differences (semantically equiv.) | {n_surface_equiv} |",
         "",
-        "_truly inconsistent_: LLM confirmed different conclusions across repetitions. "
-        "_surface-only_: string-different but semantically equivalent (paraphrases, same logic).",
+        "**Legend**",
+        "",
+        "- `truly inconsistent` = LLM confirmed different conclusions across repetitions.",
+        "- `surface-only` = string-different but semantically equivalent (paraphrases, same logic).",
         "",
     ]
 
@@ -628,9 +722,12 @@ def _build_experiment_report(
                 )
             anomalies_section += [
                 "",
-                "_`rep` = repetition index. `attempts` = total LLM calls (all failed). "
-                "`confidence` = agent self-reported confidence on the final answer. "
-                "`score/delta` = normalized rubric score (textual) or |answer − ground_truth| (math)._",
+                "**Legend**",
+                "",
+                "- `rep` = repetition index (1-based).",
+                "- `attempts` = total LLM calls (all failed).",
+                "- `confidence` = agent self-reported confidence on the final answer.",
+                "- `score/delta` = normalized rubric score (textual) or |answer − ground_truth| (math).",
                 "",
             ]
 
@@ -647,9 +744,12 @@ def _build_experiment_report(
                 )
             anomalies_section += [
                 "",
-                "_Each row is one repetition. `rep` = repetition index (1-based). "
-                "`attempts` = LLM calls within that repetition (2 means wrong on attempt 1, correct on attempt 2). "
-                "`final_verdict` = outcome after all attempts._",
+                "**Legend**",
+                "",
+                "- Each row is one repetition.",
+                "- `rep` = repetition index (1-based).",
+                "- `attempts` = LLM calls within that repetition (2 means wrong on attempt 1, correct on attempt 2).",
+                "- `final_verdict` = outcome after all attempts.",
                 "",
             ]
 
@@ -661,7 +761,9 @@ def _build_experiment_report(
                     anomalies_section.append(f"> {explanation}")
                 anomalies_section.append("")
                 for rep, reasoning in rep_reasonings:
-                    anomalies_section.append(f"- **rep {rep}:** {reasoning.replace(chr(10), ' ')}")
+                    anomalies_section.append(f"**rep {rep}:**")
+                    anomalies_section.append("")
+                    anomalies_section.append(reasoning.strip())
                     anomalies_section.append("")
                 anomalies_section.append("")
 
@@ -673,7 +775,7 @@ def _build_experiment_report(
     # Blocco B (deterministic, script-computed CVSS metrics) leads the report;
     # Blocco A (LLM-judge rubric: summary/scores/anomalies) follows, since its
     # shape is more likely to change and shouldn't push B further down.
-    lines += _build_cvss_section(filtered_roles)
+    lines += _build_cvss_section(filtered_roles, experiment_id, results_path)
     lines += ["", "---", ""]
     lines += ["## Rubric evaluation (Blocco A, LLM judge)", ""]
     lines += summary_section
@@ -710,7 +812,9 @@ def _write_evaluation_reports(
 
         task_ids = sorted(set(p.get("task_id") for p in all_payloads if p.get("task_id")))
         for task_id in task_ids:
-            task_report = _build_experiment_report(experiment_id, roles, task_filter=task_filter, per_task_id=task_id)
+            task_report = _build_experiment_report(
+                experiment_id, roles, task_filter=task_filter, per_task_id=task_id, results_path=results_path
+            )
             filename = f"result_{task_id}_{experiment_id}.md"
             (eval_dir / filename).write_text(task_report, encoding="utf-8")
             logger.info("Written %s", filename)
