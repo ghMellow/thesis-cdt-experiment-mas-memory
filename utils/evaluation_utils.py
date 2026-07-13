@@ -253,7 +253,7 @@ def _build_scores_table(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
         header = "| role | accuracy | avg_confidence | brier_score | avg_attempts | avg_math_delta | avg_textual_norm |"
         sep = "| --- | --- | --- | --- | --- | --- | --- |"
     
-    lines = ["## Scores by role", "", header, sep]
+    lines = ["### Scores by role", "", header, sep]
     
     for role, payloads in sorted(roles.items()):
         total = len(payloads)
@@ -360,14 +360,31 @@ def _build_cvss_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
         )
     lines += [
         "",
-        "_`estimates` = repetitions where the agent produced a CVSS block. "
-        "`matched` = findings paired to a ground-truth CVE via handler function. "
-        "⚠️ **Diagnostic columns only**: the band columns here are computed on the score "
-        "the agent *declares*, which is produced independently of its vector and has no "
-        "official rigor behind it (F17: systematically lower than what the vector is "
-        "worth). The quantitative metrics that count are in the official-math table "
-        "below, based on the score recomputed from the vector. These columns are kept "
-        "for comparability with runs 1-3 and as an internal-coherence diagnostic._",
+        "- `estimates` = X/Y — X = repetitions where the agent emitted *at least one* "
+        "CVSS finding block; Y = total repetitions evaluated for this task. **This is "
+        "block presence, not correctness** — it says nothing about how many "
+        "vulnerabilities were actually found or matched (see `matched`/`missed CVEs` "
+        "below for that).",
+        "- `matched` = total findings, summed across all repetitions, successfully "
+        "paired to a ground-truth CVE (by comparing the function name the agent "
+        "reported to that CVE's known handler function).",
+        "- `missed CVEs` = total ground-truth CVEs, summed across all repetitions, that "
+        "no finding in that repetition matched — i.e. vulnerabilities the agent failed "
+        "to surface at all.",
+        "- `unmatched findings` = total findings, summed across all repetitions, that "
+        "matched no ground-truth CVE — either a false positive, or a genuine extra "
+        "vulnerability with no catalogued CVE (ranked for triage in the table further "
+        "down).",
+        "- ⚠️ **The remaining four columns are diagnostic only, not the headline "
+        "metric**: `avg band vs published` / `avg band vs B` score how close the "
+        "*declared* score is to the reference (0 = far, 3 = exact band), and "
+        "`avg exploitability` (0-5) / `avg impact` (0-3) count binary field matches on "
+        "the estimated vector. The declared score is produced independently of the "
+        "vector the agent also emits and carries no official rigor of its own (F17: "
+        "systematically lower than what the vector is actually worth). These four "
+        "columns exist only for comparability with runs 1-3.",
+        "- The metrics that actually count — recomputed from the vector with the "
+        "official CVSS 4.0 algorithm — are in the table below.",
         "",
         "### Official CVSS 4.0 math (score recomputed from the estimated vector) — the reference metrics",
         "",
@@ -386,17 +403,19 @@ def _build_cvss_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
         )
     lines += [
         "",
-        "_The estimated vector is rescored with the official FIRST CVSS 4.0 algorithm "
-        "(macrovector + lookup table, `cvss` library). `coherence Δ` = |score declared "
-        "by the agent − score its own vector actually produces| (the two outputs are "
-        "independent, nothing forces them to agree). `computed Δ vs B` compares the "
-        "recomputed score against the ground-truth pure base score — a vector distance "
-        "in official score space. Severity distances are ordinal and normalized per "
-        "metric group (0 = identical vector, 1 = every field at the opposite end of "
-        "its scale); the subsequent-system triad SC/SI/SA is scored only on runs where "
-        "the agent emitted it (requested since 2026-07-10); Hamming counts plainly "
-        "differing fields among the 8 vulnerable-system metrics (n/a = older runs, "
-        "recompute with `python -m utils.cvss_eval`)._",
+        "- The estimated vector is rescored with the official FIRST CVSS 4.0 algorithm "
+        "(macrovector + lookup table, `cvss` library).",
+        "- `coherence Δ` = |score declared by the agent − score its own vector actually "
+        "produces| (the two outputs are independent, nothing forces them to agree).",
+        "- `computed Δ vs B` compares the recomputed score against the ground-truth pure "
+        "base score — a vector distance in official score space.",
+        "- Severity distances are ordinal and normalized per metric group (0 = identical "
+        "vector, 1 = every field at the opposite end of its scale).",
+        "- The subsequent-system triad SC/SI/SA is part of the required vector; its "
+        "distance is scored only when the agent's estimate actually includes all "
+        "three fields (older/legacy runs may lack them, shown as `n/a`).",
+        "- Hamming counts plainly differing fields among the 8 vulnerable-system metrics "
+        "(n/a = older runs, recompute with `python -m utils.cvss_eval`).",
         "",
     ]
 
@@ -438,13 +457,22 @@ def _build_cvss_unmatched(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
         )
     lines += [
         "",
-        "_Findings the agent reported that matched no ground-truth CVE. Never counted "
-        "against the evaluation (design choice: these are the practical use case — "
-        "potential vulnerabilities without a CVE). Ranked most-severe-first by the "
-        "score recomputed from the vector with the official CVSS 4.0 math; the "
-        "declared score is diagnostic only. Full raw data in each result JSON under "
-        "`cvss_eval.unmatched` (and the original agent output in "
-        "`final_answer.cvss_estimate.findings`)._",
+        "- One row per finding the agent reported that matched no ground-truth CVE — "
+        "either a false positive, or a genuine extra vulnerability with no catalogued "
+        "CVE. Never counted against the evaluation (design choice: this is the "
+        "practical use case, findings worth a human's triage).",
+        "- `score (from vector)` = the recomputed score, official CVSS 4.0 math — sort "
+        "key, most severe first.",
+        "- `declared` = the score the agent stated directly; diagnostic only (see note "
+        "above, not produced from the vector).",
+        "- `function` = the Go function the agent pointed to as the vulnerability's "
+        "location.",
+        "- `task` / `role` = which task and role produced this finding.",
+        "- `rep` = repetition index (1-based) — which run of that task/role produced "
+        "this finding; cross-reference the raw result JSON with `task`+`role`+`rep`.",
+        "- `vector` = the full CVSS 4.0 vector string the agent estimated.",
+        "- Full raw data in each result JSON under `cvss_eval.unmatched` (and the "
+        "original agent output in `final_answer.cvss_estimate.findings`).",
         "",
     ]
     return lines
@@ -553,12 +581,13 @@ def _build_experiment_report(
     correct = sum(1 for p in all_payloads if p.get("verdict") == "correct")
     wrong_list = [p for p in all_payloads if p.get("verdict") != "correct"]
     retried_list = [p for p in all_payloads if p.get("attempts", 1) > 1]
-    inconsistencies, n_surface_equiv = _detect_inconsistencies(roles, task_filter=task_filter)
+    inconsistency_task_filter = [per_task_id] if per_task_id is not None else task_filter
+    inconsistencies, n_surface_equiv = _detect_inconsistencies(roles, task_filter=inconsistency_task_filter)
 
     anomaly_count = len(wrong_list) + len(retried_list) + len(inconsistencies)
 
-    lines += [
-        "## Summary",
+    summary_section = [
+        "### Summary",
         "",
         "| metric | value |",
         "| --- | --- |",
@@ -575,14 +604,14 @@ def _build_experiment_report(
     ]
 
     if anomaly_count == 0:
-        lines.append("All tasks passed with full consistency — no anomalies detected.")
-        lines.append("")
+        summary_section.append("All tasks passed with full consistency — no anomalies detected.")
+        summary_section.append("")
         anomalies_section = []
     else:
-        anomalies_section = ["## Anomalies", ""]
+        anomalies_section = ["### Anomalies", ""]
 
         if wrong_list:
-            anomalies_section += [f"### Wrong verdicts ({len(wrong_list)})", ""]
+            anomalies_section += [f"#### Wrong verdicts ({len(wrong_list)})", ""]
             anomalies_section += [
                 "| role | task_id | rep | attempts | confidence | score/delta |",
                 "| --- | --- | --- | --- | --- | --- |",
@@ -606,7 +635,7 @@ def _build_experiment_report(
             ]
 
         if retried_list:
-            anomalies_section += [f"### Retries triggered ({len(retried_list)})", ""]
+            anomalies_section += [f"#### Retries triggered ({len(retried_list)})", ""]
             anomalies_section += [
                 "| role | task_id | rep | attempts | final_verdict |",
                 "| --- | --- | --- | --- | --- |",
@@ -625,7 +654,7 @@ def _build_experiment_report(
             ]
 
         if inconsistencies:
-            anomalies_section += [f"### Truly inconsistent reasoning ({len(inconsistencies)})", ""]
+            anomalies_section += [f"#### Truly inconsistent reasoning ({len(inconsistencies)})", ""]
             for role, task_id, rep_reasonings, explanation in inconsistencies:
                 anomalies_section.append(f"**{role} — {task_id}**")
                 if explanation:
@@ -640,10 +669,16 @@ def _build_experiment_report(
     filtered_roles = {}
     for role in roles.keys():
         filtered_roles[role] = [p for p in all_payloads if p.get("_role") == role]
-    
+
+    # Blocco B (deterministic, script-computed CVSS metrics) leads the report;
+    # Blocco A (LLM-judge rubric: summary/scores/anomalies) follows, since its
+    # shape is more likely to change and shouldn't push B further down.
+    lines += _build_cvss_section(filtered_roles)
+    lines += ["", "---", ""]
+    lines += ["## Rubric evaluation (Blocco A, LLM judge)", ""]
+    lines += summary_section
     lines += _build_scores_table(filtered_roles)
     lines.append("")
-    lines += _build_cvss_section(filtered_roles)
     lines += anomalies_section
     return "\n".join(lines) + "\n"
 
