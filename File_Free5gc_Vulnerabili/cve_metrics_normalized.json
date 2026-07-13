@@ -10,6 +10,8 @@
     "nota_threat_E": "La metrica Threat E (Exploit Maturity: esiste sfruttamento/PoC nel mondo reale?) è presente per 3 CVE (47780, 41136, 42459). Nel JSON originale stava solo dentro la stringa del vettore; qui è esplicitata in threat_metrics. Come per le Subsequent: presente nei dati ma NON usata nel confronto con la stima del modello, perché non è deducibile dal codice (è threat intelligence esterna). Effetto collaterale: per queste 3 CVE il base_score pubblicato è di tipo BT (abbassato dalla E), non base puro.",
     "nota_base_score_B": "base_score_B = score ricalcolato SENZA la metrica E, per le 3 CVE di tipo BT. Elemento OPZIONALE, tenuto come metadata per lasciare aperte entrambe le strade del confronto (su B o su BT — decisione rimandata, §5.4 del doc proposta): se si sceglie B è già pronto, altrimenti si ignora. Il calcolo è deterministico (lookup FIRST, zero soggettività): 41136 e 42459 derivati dalle coppie gemelle interne al dataset (metriche base identiche a 40249 e 40245) e confermati con la libreria python 'cvss'; 47780 calcolato con la stessa libreria (validata riproducendo esattamente gli 8.7 e 6.9 noti).",
     "nota_matching": "Corrispondenza individuale CVE<->GHSA e handler_functions verificate il 2026-07-08 interrogando la GitHub Advisory API (api.github.com/advisories/<ghsa>): ogni advisory dichiara il proprio cve_id e l'endpoint/handler colpito. in_task_excerpt = true se la funzione compare nell'estratto usato come task (verificato con grep sui task file): per task6 solo 3 delle 6 CVE UDR sono nel task (40246/40247/40248); 40245, 40249 e 40343 stanno in handler fuori estratto e NON vanno contate come miss. handler_functions e' la chiave per l'abbinamento deterministico risposta<->CVE (doc proposta §7.3).",
+    "nota_correzione_vettori_2026-07-13": "Verifica incrociata con l'API ufficiale NVD (services.nvd.nist.gov/rest/json/cves/2.0) ha rivelato che il JSON originale 'cve_metrics (1).json' aveva lo stesso vettore VC:H/VI:N/VA:N copiato su 4 CVE sorelle UDR (40245/40246/40247/40248, righe identiche) — errore di copia-incolla della fonte, non della normalizzazione: lo score finale (8.7) coincideva comunque per simmetria della formula CVSS4, mascherando l'errore. Corretti (in_task_excerpt=true, quindi usati attivamente nello scoring task6): CVE-2026-40246 VC:H->VA:H (impatto disponibilità, non confidenzialità) e CVE-2026-40248 VC:H->VI:H (impatto integrità, non confidenzialità), entrambi confermati sulla metrica cvssMetricV40/secondary/security-advisories@github.com via API NVD. Score 8.7 invariato per entrambe (la formula CVSS4 e' simmetrica tra i tre assi di impatto quando gli altri metrici sono identici). CVE-2026-40247 (l'unica delle 4 con VC:H reale) lasciata invariata. NON corrette: CVE-2026-40245 e CVE-2026-41135 (in_task_excerpt=false, non impattano lo scoring) — per queste NVD non pubblica ad oggi alcuna valutazione CVSS 4.0 (solo 3.1), quindi il vettore 4.0 dichiarato nel dataset resta senza fonte verificabile; da chiarire con Mariano/Lorenzo.",
+    "nota_correzione_vettori_2026-07-13b": "Seconda verifica incrociata con l'API ufficiale NVD (stessa fonte e metodo della nota precedente), su richiesta di controllo end-to-end di tutte le 10 CVE. Trovato lo stesso pattern di errore (campo del vettore sbagliato ma score che coincide per coincidenza numerica, mascherando l'errore): CVE-2026-40343 aveva SI:N nel JSON originale, ma NVD (cvssMetricV40/secondary/security-advisories@github.com) pubblica SI:L. Score 6.9 invariato in entrambi i casi (verificato con la libreria python 'cvss': la metrica SI non sposta lo score in questo macrovettore quando VC/VI/VA restano fissi). Corretto SI:N->SI:L nel vettore e in base_metrics. Nessun impatto sui run passati: SC/SI/SA sono escluse dal confronto attivo (nota_subsequent) e in_task_excerpt=false per 40343 (non entra nello scoring di task6). Le restanti 9 CVE (incluse tutte le in_task_excerpt=true: 40246, 40247, 40248, 41135, 41136, 42459, 47780) sono state confermate identiche alla fonte ufficiale (NVD per le prime 6, GitHub Advisory API/CNA per 47780) — nessun'altra discrepanza trovata.",
     "cvss_version": "4.0",
     "legenda_metriche": {
       "AV": { "name": "Attack Vector", "values": { "N": "Network", "A": "Adjacent", "L": "Local", "P": "Physical" } },
@@ -62,12 +64,12 @@
       "in_task_excerpt": true,
       "cvss": {
         "version": "4.0",
-        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
         "base_score": 8.7,
         "score_type": "B",
         "severity": "High",
         "cvss_source": "NVD",
-        "base_metrics": { "AV": "N", "AC": "L", "AT": "N", "PR": "N", "UI": "N", "VC": "H", "VI": "N", "VA": "N", "SC": "N", "SI": "N", "SA": "N" },
+        "base_metrics": { "AV": "N", "AC": "L", "AT": "N", "PR": "N", "UI": "N", "VC": "N", "VI": "N", "VA": "H", "SC": "N", "SI": "N", "SA": "N" },
         "threat_metrics": null
       }
     },
@@ -104,12 +106,12 @@
       "in_task_excerpt": true,
       "cvss": {
         "version": "4.0",
-        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N",
         "base_score": 8.7,
         "score_type": "B",
         "severity": "High",
         "cvss_source": "NVD",
-        "base_metrics": { "AV": "N", "AC": "L", "AT": "N", "PR": "N", "UI": "N", "VC": "H", "VI": "N", "VA": "N", "SC": "N", "SI": "N", "SA": "N" },
+        "base_metrics": { "AV": "N", "AC": "L", "AT": "N", "PR": "N", "UI": "N", "VC": "N", "VI": "H", "VA": "N", "SC": "N", "SI": "N", "SA": "N" },
         "threat_metrics": null
       }
     },
@@ -146,12 +148,12 @@
       "in_task_excerpt": false,
       "cvss": {
         "version": "4.0",
-        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N",
+        "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N",
         "base_score": 6.9,
         "score_type": "B",
         "severity": "Medium",
         "cvss_source": "NVD",
-        "base_metrics": { "AV": "N", "AC": "L", "AT": "N", "PR": "N", "UI": "N", "VC": "N", "VI": "L", "VA": "N", "SC": "N", "SI": "N", "SA": "N" },
+        "base_metrics": { "AV": "N", "AC": "L", "AT": "N", "PR": "N", "UI": "N", "VC": "N", "VI": "L", "VA": "N", "SC": "N", "SI": "L", "SA": "N" },
         "threat_metrics": null
       }
     },

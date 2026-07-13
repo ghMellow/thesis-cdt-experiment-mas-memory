@@ -2,6 +2,15 @@
 
 ---
 
+## 2026-07-13 — Verifica ground truth CVSS 4.0 + fix CVE-2026-40343  [sessione: 6d305a14]
+
+**Intent:** "Devo verificare la correttezza dei dati ground-truth CVSS 4.0 usati nel progetto e la correttezza del codice che li elabora" — verifica online delle 10 CVE contro NVD API/GHSA API + verifica della matematica di `compute_base_score()` in `utils/cvss_eval.py`
+**Decisioni:** utente conferma di correggere il JSON dopo la review ("correggi il json normalizzato per la discrepanza trovata... segna anche lui" riferendosi al metadato di correzione già esistente)
+**Esito/Problemi:** trovata discrepanza su CVE-2026-40343: dataset aveva `SI:N`, NVD (`cvssMetricV40`) pubblica `SI:L` — stesso pattern del bug già noto in `nota_correzione_vettori_2026-07-13` (score 6.9 identico in entrambi i casi, la coincidenza numerica maschera l'errore). Corretto `vector` e `base_metrics.SI` in `File_Free5gc_Vulnerabili/cve_metrics_normalized.json`, aggiunta nota `_meta.nota_correzione_vettori_2026-07-13b`. Nessun impatto sui run passati (CVE non `in_task_excerpt`, SI escluso dal confronto attivo). Le altre 9 CVE confermate identiche alla fonte ufficiale; matematica di `compute_base_score()` confermata corretta su tutte e 10 (via libreria `cvss`, CVSS4)
+**Lesson learned:** lo score CVSS4 può essere invariante rispetto a un campo del vettore quando gli altri assi di impatto sono fissi — un confronto basato solo sullo score non basta a validare il ground truth, serve sempre il confronto campo-per-campo del vettore contro la fonte primaria
+
+---
+
 ## 2026-07-13 — Proposta SGV: cartella di discussione + reazioni team  [sessione: 2e99bcd7]
 
 **Intent:** il relatore condivide un documento con la proposta di un Syntactic Grounding Verifier (filtro deterministico G1–G4 per il retry, al posto del giudizio LLM); richiesta esplicita: "vorrei ne discutessimo per capire la direzione da prendere" + "Crea una cartella dentro docs dove inserire i risultati di questa conversazione-ragionamento"
