@@ -2,6 +2,15 @@
 
 ---
 
+## 2026-07-13 — Proposta SGV: cartella di discussione + reazioni team  [sessione: 2e99bcd7]
+
+**Intent:** il relatore condivide un documento con la proposta di un Syntactic Grounding Verifier (filtro deterministico G1–G4 per il retry, al posto del giudizio LLM); richiesta esplicita: "vorrei ne discutessimo per capire la direzione da prendere" + "Crea una cartella dentro docs dove inserire i risultati di questa conversazione-ragionamento"
+**Divergenze:** oltre a salvare il documento, ho mappato la proposta sull'architettura attuale (`docs/sgv_protocol/01_discussione_2026-07-13.md`) evidenziando cosa è già allineato (retry neutro senza feedback judge, CVSS Blocco B già deterministico) e cosa richiede refactor (trigger di retry ancora guidato da LLM-judge con rubrica GT-derived; cambio di granularità task→finding)
+**Decisioni:** creata `docs/sgv_protocol/` con 00 (proposta verbatim), 01 (mia analisi), 02 (reazioni team — Andrea, Raffaele); **decisione presa da Andrea** (15:26): il primo esperimento del protocollo SGV esclude il SAST — si parte da un flusso solo-LLM (G1–G4); il suggerimento SAST (e quindi il G5 "Semantic CWE Match" proposto da Raffaele) entra solo al terzo esperimento della sequenza
+**Esito/Problemi:** nessuna implementazione ancora — solo documentazione di proposta/discussione; punto aperto non ancora chiarito con il team: cosa occupa il secondo esperimento della sequenza (tra "solo LLM" e "con SAST/G5")
+
+---
+
 ## 2026-07-13 — Disattivazione framing 1B  [sessione: c8bc651e]
 
 **Intent:** "la direzione del progetto ora prende una direzione molto più snella [...] è però rimasto il framing 1A e 1B, commenta quella sezione in modo che venga eseguito solo 1A"
