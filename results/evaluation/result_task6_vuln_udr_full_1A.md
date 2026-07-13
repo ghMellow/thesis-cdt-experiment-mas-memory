@@ -3,36 +3,23 @@
 > **Run(s) in this report:**
 > - `agent`: 20260712T142416Z
 
+<a id="toc"></a>
+**Contents**
+
+- [Vector detail (estimated vs. published)](#vector-detail)
+- [Unmatched findings](#unmatched-findings)
+- [Aggregate metrics (across repetitions)](#aggregate-metrics)
+  - [Estimates vs ground truth](#estimates-vs-gt)
+  - [Official CVSS 4.0 math](#official-cvss-math)
+- [Rubric evaluation](#rubric-evaluation)
+  - [Summary](#rubric-summary)
+  - [Scores by role](#rubric-scores)
+  - [Anomalies](#rubric-anomalies)
+
+<a id="cvss-estimate"></a>
 ## CVSS estimate (Blocco B, deterministic)
 
-| role | estimates | matched | missed CVEs | unmatched findings | avg band vs published (0-3) | avg band vs B (0-3) | avg exploitability (0-5) | avg impact (0-3) |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | 3/3 | 2 | 16 | 10 | 1.00 | 1.00 | 4.00 | 2.00 |
-
-**Legend**
-
-- `estimates` = X/Y — X = repetitions where the agent emitted *at least one* CVSS finding block; Y = total repetitions evaluated for this task. **This is block presence, not correctness** — it says nothing about how many vulnerabilities were actually found or matched (see `matched`/`missed CVEs` below for that).
-- `matched` = total findings, summed across all repetitions, successfully paired to a ground-truth CVE (by comparing the function name the agent reported to that CVE's known handler function).
-- `missed CVEs` = total ground-truth CVEs, summed across all repetitions, that no finding in that repetition matched — i.e. vulnerabilities the agent failed to surface at all.
-- `unmatched findings` = total findings, summed across all repetitions, that matched no ground-truth CVE — either a false positive, or a genuine extra vulnerability with no catalogued CVE (ranked for triage in the table further down).
-- ⚠️ **The remaining four columns are diagnostic only, not the headline metric**: `avg band vs published` / `avg band vs B` score how close the *declared* score is to the reference (0 = far, 3 = exact band), and `avg exploitability` (0-5) / `avg impact` (0-3) count binary field matches on the estimated vector. The declared score is produced independently of the vector the agent also emits and carries no official rigor of its own (F17: systematically lower than what the vector is actually worth). These four columns exist only for comparability with runs 1-3.
-- The metrics that actually count — recomputed from the vector with the official CVSS 4.0 algorithm — are in the table below.
-
-### Official CVSS 4.0 math (score recomputed from the estimated vector) — the reference metrics
-
-| role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg subseq. distance (0-1) | avg Hamming (0-8) |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | 2.10 | 0.10 | 3.00 | 0.15 | 0.17 | 0.00 | 2.00 |
-
-**Legend**
-
-- The estimated vector is rescored with the official FIRST CVSS 4.0 algorithm (macrovector + lookup table, `cvss` library).
-- `coherence Δ` = |score declared by the agent − score its own vector actually produces| (the two outputs are independent, nothing forces them to agree).
-- `computed Δ vs B` compares the recomputed score against the ground-truth pure base score — a vector distance in official score space.
-- Severity distances are ordinal and normalized per metric group (0 = identical vector, 1 = every field at the opposite end of its scale).
-- The subsequent-system triad SC/SI/SA is part of the required vector; its distance is scored only when the agent's estimate actually includes all three fields (older/legacy runs may lack them, shown as `n/a`).
-- Hamming counts plainly differing fields among the 8 vulnerable-system metrics (n/a = older runs, recompute with `python -m utils.cvss_eval`).
-
+<a id="vector-detail"></a>
 ### Vector detail (estimated vs. published)
 
 | **CVE-2026-40249** — agent, rep 1 | estimated | published |
@@ -65,6 +52,7 @@
 | SA — Availability Impact to the Subsequent System | N | N |
 | base score — declared / from vector (official math) | 5.3 / **7.1** | 6.9 |
 
+<a id="unmatched-findings"></a>
 ### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)
 
 | # | group | details | score (from vector) | declared | function | task | role | rep | vector |
@@ -92,11 +80,50 @@
 - `vector` = the full CVSS 4.0 vector string the agent estimated.
 - `details` = link to a self-contained file with this finding's structured data plus the agent's full narrative for that repetition (function name bolded for quick scanning) — everything needed to review it without opening the raw JSON.
 
+<a id="aggregate-metrics"></a>
+### Aggregate metrics (across repetitions)
+
+_Diagnostic roll-up, useful for a global read once you've checked the detail above isn't spitting nonsense — not the first thing to read._
+
+<a id="estimates-vs-gt"></a>
+#### Estimates vs ground truth
+
+| role | estimates | matched | missed CVEs | unmatched findings | avg band vs published (0-3) | avg band vs B (0-3) | avg exploitability (0-5) | avg impact (0-3) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| agent | 3/3 | 2 | 16 | 10 | 1.00 | 1.00 | 4.00 | 2.00 |
+
+**Legend**
+
+- `estimates` = X/Y — X = repetitions where the agent emitted *at least one* CVSS finding block; Y = total repetitions evaluated for this task. **This is block presence, not correctness** — it says nothing about how many vulnerabilities were actually found or matched (see `matched`/`missed CVEs` below for that).
+- `matched` = total findings, summed across all repetitions, successfully paired to a ground-truth CVE (by comparing the function name the agent reported to that CVE's known handler function).
+- `missed CVEs` = total ground-truth CVEs, summed across all repetitions, that no finding in that repetition matched — i.e. vulnerabilities the agent failed to surface at all.
+- `unmatched findings` = total findings, summed across all repetitions, that matched no ground-truth CVE — either a false positive, or a genuine extra vulnerability with no catalogued CVE (ranked for triage in the table further down).
+- ⚠️ **The remaining four columns are diagnostic only, not the headline metric**: `avg band vs published` / `avg band vs B` score how close the *declared* score is to the reference (0 = far, 3 = exact band), and `avg exploitability` (0-5) / `avg impact` (0-3) count binary field matches on the estimated vector. The declared score is produced independently of the vector the agent also emits and carries no official rigor of its own (F17: systematically lower than what the vector is actually worth). These four columns exist only for comparability with runs 1-3.
+- The metrics that actually count — recomputed from the vector with the official CVSS 4.0 algorithm — are in the table below.
+
+<a id="official-cvss-math"></a>
+#### Official CVSS 4.0 math (score recomputed from the estimated vector) — the reference metrics
+
+| role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg subseq. distance (0-1) | avg Hamming (0-8) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| agent | 2.10 | 0.10 | 3.00 | 0.15 | 0.17 | 0.00 | 2.00 |
+
+**Legend**
+
+- The estimated vector is rescored with the official FIRST CVSS 4.0 algorithm (macrovector + lookup table, `cvss` library).
+- `coherence Δ` = |score declared by the agent − score its own vector actually produces| (the two outputs are independent, nothing forces them to agree).
+- `computed Δ vs B` compares the recomputed score against the ground-truth pure base score — a vector distance in official score space.
+- Severity distances are ordinal and normalized per metric group (0 = identical vector, 1 = every field at the opposite end of its scale).
+- The subsequent-system triad SC/SI/SA is part of the required vector; its distance is scored only when the agent's estimate actually includes all three fields (older/legacy runs may lack them, shown as `n/a`).
+- Hamming counts plainly differing fields among the 8 vulnerable-system metrics (n/a = older runs, recompute with `python -m utils.cvss_eval`).
+
 
 ---
 
+<a id="rubric-evaluation"></a>
 ## Rubric evaluation (Blocco A, LLM judge)
 
+<a id="rubric-summary"></a>
 ### Summary
 
 | metric | value |
@@ -113,6 +140,7 @@
 - `truly inconsistent` = LLM confirmed different conclusions across repetitions.
 - `surface-only` = string-different but semantically equivalent (paraphrases, same logic).
 
+<a id="rubric-scores"></a>
 ### Scores by role
 
 | role | accuracy | avg_confidence | brier_score | avg_attempts | avg_textual_norm |
@@ -130,6 +158,7 @@
 | `avg_math_delta` | math | mean \|answer − ground\_truth\| on math tasks — lower = more precise |
 | `avg_textual_norm` | textual | mean normalized judge score (0–1) — higher = better rubric coverage |
 
+<a id="rubric-anomalies"></a>
 ### Anomalies
 
 #### Wrong verdicts (3)

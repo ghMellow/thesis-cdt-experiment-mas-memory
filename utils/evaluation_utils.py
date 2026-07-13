@@ -254,7 +254,7 @@ def _build_scores_table(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
         header = "| role | accuracy | avg_confidence | brier_score | avg_attempts | avg_math_delta | avg_textual_norm |"
         sep = "| --- | --- | --- | --- | --- | --- | --- |"
     
-    lines = ["### Scores by role", "", header, sep]
+    lines = ['<a id="rubric-scores"></a>', "### Scores by role", "", header, sep]
     
     for role, payloads in sorted(roles.items()):
         total = len(payloads)
@@ -343,8 +343,19 @@ def _build_cvss_section(
         ]
         return _avg(vals)
 
-    lines = [
-        "## CVSS estimate (Blocco B, deterministic)",
+    lines = ['<a id="cvss-estimate"></a>', "## CVSS estimate (Blocco B, deterministic)", ""]
+    lines += _build_cvss_vector_detail(roles)
+    lines += _build_cvss_unmatched(roles, experiment_id, results_path)
+
+    lines += [
+        '<a id="aggregate-metrics"></a>',
+        "### Aggregate metrics (across repetitions)",
+        "",
+        "_Diagnostic roll-up, useful for a global read once you've checked the "
+        "detail above isn't spitting nonsense — not the first thing to read._",
+        "",
+        '<a id="estimates-vs-gt"></a>',
+        "#### Estimates vs ground truth",
         "",
         "| role | estimates | matched | missed CVEs | unmatched findings | avg band vs published (0-3) | avg band vs B (0-3) | avg exploitability (0-5) | avg impact (0-3) |",
         "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
@@ -391,7 +402,8 @@ def _build_cvss_section(
         "- The metrics that actually count — recomputed from the vector with the "
         "official CVSS 4.0 algorithm — are in the table below.",
         "",
-        "### Official CVSS 4.0 math (score recomputed from the estimated vector) — the reference metrics",
+        '<a id="official-cvss-math"></a>',
+        "#### Official CVSS 4.0 math (score recomputed from the estimated vector) — the reference metrics",
         "",
         "| role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg subseq. distance (0-1) | avg Hamming (0-8) |",
         "| --- | --- | --- | --- | --- | --- | --- | --- |",
@@ -425,9 +437,6 @@ def _build_cvss_section(
         "(n/a = older runs, recompute with `python -m utils.cvss_eval`).",
         "",
     ]
-
-    lines += _build_cvss_vector_detail(roles)
-    lines += _build_cvss_unmatched(roles, experiment_id, results_path)
     return lines
 
 
@@ -674,6 +683,7 @@ def _build_cvss_unmatched(
     out_dir.mkdir(parents=True, exist_ok=True)
 
     lines = [
+        '<a id="unmatched-findings"></a>',
         "### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)",
         "",
         "| # | group | details | score (from vector) | declared | function | task | role | rep | vector |",
@@ -760,7 +770,7 @@ def _build_cvss_vector_detail(roles: Dict[str, List[Dict[str, Any]]]) -> List[st
     legend = load_cvss_dataset().get("_meta", {}).get("legenda_metriche", {})
     metrics = EXPLOITABILITY_METRICS + IMPACT_METRICS
 
-    lines = ["### Vector detail (estimated vs. published)", ""]
+    lines = ['<a id="vector-detail"></a>', "### Vector detail (estimated vs. published)", ""]
     for role, rep, m in entries:
         est = _parse_vector(m["estimated_vector"])
         pub = _parse_vector(m.get("published_vector") or "")
@@ -841,6 +851,7 @@ def _build_experiment_report(
     anomaly_count = len(wrong_list) + len(retried_list) + len(inconsistencies)
 
     summary_section = [
+        '<a id="rubric-summary"></a>',
         "### Summary",
         "",
         "| metric | value |",
@@ -864,7 +875,7 @@ def _build_experiment_report(
         summary_section.append("")
         anomalies_section = []
     else:
-        anomalies_section = ["### Anomalies", ""]
+        anomalies_section = ['<a id="rubric-anomalies"></a>', "### Anomalies", ""]
 
         if wrong_list:
             anomalies_section += [f"#### Wrong verdicts ({len(wrong_list)})", ""]
@@ -937,9 +948,33 @@ def _build_experiment_report(
     # Blocco B (deterministic, script-computed CVSS metrics) leads the report;
     # Blocco A (LLM-judge rubric: summary/scores/anomalies) follows, since its
     # shape is more likely to change and shouldn't push B further down.
-    lines += _build_cvss_section(filtered_roles, experiment_id, results_path)
+    # Within Blocco B, the concrete per-finding detail (vector detail vs GT,
+    # then unmatched findings) comes before the aggregate roll-up tables: a
+    # reader calibrates on "is this agent talking sense" from the detail
+    # first, then uses the aggregates for a global summary — not the other
+    # way around (2026-07-13 feedback).
+    cvss_lines = _build_cvss_section(filtered_roles, experiment_id, results_path)
+
+    toc = ['<a id="toc"></a>', "**Contents**", ""]
+    if '<a id="vector-detail"></a>' in cvss_lines:
+        toc.append("- [Vector detail (estimated vs. published)](#vector-detail)")
+    if '<a id="unmatched-findings"></a>' in cvss_lines:
+        toc.append("- [Unmatched findings](#unmatched-findings)")
+    if '<a id="aggregate-metrics"></a>' in cvss_lines:
+        toc.append("- [Aggregate metrics (across repetitions)](#aggregate-metrics)")
+        toc.append("  - [Estimates vs ground truth](#estimates-vs-gt)")
+        toc.append("  - [Official CVSS 4.0 math](#official-cvss-math)")
+    toc.append("- [Rubric evaluation](#rubric-evaluation)")
+    toc.append("  - [Summary](#rubric-summary)")
+    toc.append("  - [Scores by role](#rubric-scores)")
+    if anomalies_section:
+        toc.append("  - [Anomalies](#rubric-anomalies)")
+    toc.append("")
+    lines += toc
+
+    lines += cvss_lines
     lines += ["", "---", ""]
-    lines += ["## Rubric evaluation (Blocco A, LLM judge)", ""]
+    lines += ['<a id="rubric-evaluation"></a>', "## Rubric evaluation (Blocco A, LLM judge)", ""]
     lines += summary_section
     lines += _build_scores_table(filtered_roles)
     lines.append("")
