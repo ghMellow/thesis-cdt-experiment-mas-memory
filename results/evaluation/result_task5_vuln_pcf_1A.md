@@ -82,10 +82,10 @@
 
 ### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)
 
-| # | group | score (from vector) | declared | function | task | role | rep | vector | details |
+| # | group | details | score (from vector) | declared | function | task | role | rep | vector |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | a | 8.7 | 5.3 | `setCorsHeader` | task5_vuln_pcf | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task5_vuln_pcf_1A_agent_rep2_f1.md) |
-| 2 | a | 8.7 | 7.1 | `setCorsHeader` | task5_vuln_pcf | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task5_vuln_pcf_1A_agent_rep3_f1.md) |
+| 1 | a | [detail](unmatched_findings/task5_vuln_pcf_1A_agent_rep2_f1.md) | 8.7 | 5.3 | `setCorsHeader` | task5_vuln_pcf | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| 2 | a | [detail](unmatched_findings/task5_vuln_pcf_1A_agent_rep3_f1.md) | 8.7 | 7.1 | `setCorsHeader` | task5_vuln_pcf | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
 
 **Legend**
 

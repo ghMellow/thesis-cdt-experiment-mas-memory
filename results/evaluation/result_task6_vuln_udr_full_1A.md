@@ -67,18 +67,18 @@
 
 ### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)
 
-| # | group | score (from vector) | declared | function | task | role | rep | vector | details |
+| # | group | details | score (from vector) | declared | function | task | role | rep | vector |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | ≠ | 8.7 | 7.1 | `HandleCreateSdmSubscriptions` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep3_f1.md) |
-| 2 | ≠ | 8.6 | 7.1 | `HandleCreateSdmSubscriptions` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep2_f1.md) |
-| 3 | — | 7.1 | 5.3 | `HandlePolicyDataUesUeIdSmDataGet, HandleQuerySmData` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep2_f2.md) |
-| 4 | ≠ | 7.1 | 5.3 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep3_f2.md) |
-| 5 | ≠ | 6.9 | 4.5 | `HandleCreateSdmSubscriptions` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep1_f1.md) |
-| 6 | ≠ | 6.9 | 4.1 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep1_f2.md) |
-| 7 | ≠ | 5.3 | 4.0 | `HandleCreateEeSubscriptions, HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N` | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep2_f3.md) |
-| 8 | ≠ | 5.3 | 4.0 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep2_f4.md) |
-| 9 | ≠ | 5.3 | 3.1 | `HandleCreateEeSubscriptions, HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep3_f3.md) |
-| 10 | ≠ | 5.1 | 2.7 | `HandleCreateEeSubscriptions, HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep1_f3.md) |
+| 1 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep3_f1.md) | 8.7 | 7.1 | `HandleCreateSdmSubscriptions` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N` |
+| 2 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep2_f1.md) | 8.6 | 7.1 | `HandleCreateSdmSubscriptions` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N` |
+| 3 | — | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep2_f2.md) | 7.1 | 5.3 | `HandlePolicyDataUesUeIdSmDataGet, HandleQuerySmData` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| 4 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep3_f2.md) | 7.1 | 5.3 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| 5 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep1_f1.md) | 6.9 | 4.5 | `HandleCreateSdmSubscriptions` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N` |
+| 6 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep1_f2.md) | 6.9 | 4.1 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| 7 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep2_f3.md) | 5.3 | 4.0 | `HandleCreateEeSubscriptions, HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N` |
+| 8 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep2_f4.md) | 5.3 | 4.0 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 9 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep3_f3.md) | 5.3 | 3.1 | `HandleCreateEeSubscriptions, HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 10 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep1_f3.md) | 5.1 | 2.7 | `HandleCreateEeSubscriptions, HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
 
 **Legend**
 

@@ -82,15 +82,15 @@
 
 ### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)
 
-| # | group | score (from vector) | declared | function | task | role | rep | vector | details |
+| # | group | details | score (from vector) | declared | function | task | role | rep | vector |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | — | 8.3 | 6.2 | `All handlers using GetRawData()` | task7_vuln_amf_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H` | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep2_f1.md) |
-| 2 | a | 5.3 | 2.3 | `Multiple (Error Handling)` | task7_vuln_amf_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep1_f1.md) |
-| 3 | ≠ | 5.3 | 2.3 | `Multiple (Context Set)` | task7_vuln_amf_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep1_f2.md) |
-| 4 | — | 5.3 | 3.0 | `Multiple handlers (Error Detail)` | task7_vuln_amf_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep2_f2.md) |
-| 5 | — | 5.3 | 4.0 | `getCommunicationRoutes() / Processor calls` | task7_vuln_amf_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:L/SC:N/SI:L/SA:L` | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep2_f3.md) |
-| 6 | a | 5.3 | 2.0 | `Multiple (Error Handling)` | task7_vuln_amf_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep3_f1.md) |
-| 7 | — | 5.3 | 5.3 | `HTTPCreateUEContext/HTTPN1N2MessageTransfer` | task7_vuln_amf_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep3_f2.md) |
+| 1 | — | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep2_f1.md) | 8.3 | 6.2 | `All handlers using GetRawData()` | task7_vuln_amf_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H` |
+| 2 | a | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep1_f1.md) | 5.3 | 2.3 | `Multiple (Error Handling)` | task7_vuln_amf_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 3 | ≠ | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep1_f2.md) | 5.3 | 2.3 | `Multiple (Context Set)` | task7_vuln_amf_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 4 | — | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep2_f2.md) | 5.3 | 3.0 | `Multiple handlers (Error Detail)` | task7_vuln_amf_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 5 | — | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep2_f3.md) | 5.3 | 4.0 | `getCommunicationRoutes() / Processor calls` | task7_vuln_amf_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:L/SC:N/SI:L/SA:L` |
+| 6 | a | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep3_f1.md) | 5.3 | 2.0 | `Multiple (Error Handling)` | task7_vuln_amf_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 7 | — | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep3_f2.md) | 5.3 | 5.3 | `HTTPCreateUEContext/HTTPN1N2MessageTransfer` | task7_vuln_amf_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
 
 **Legend**
 

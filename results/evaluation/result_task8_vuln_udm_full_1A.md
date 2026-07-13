@@ -82,15 +82,15 @@
 
 ### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)
 
-| # | group | score (from vector) | declared | function | task | role | rep | vector | details |
+| # | group | details | score (from vector) | declared | function | task | role | rep | vector |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | ≠ | 6.9 | 4.1 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f1.md) |
-| 2 | ≠ | 5.3 | 4.0 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f1.md) |
-| 3 | — | 5.3 | 4.0 | `ThreeLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f2.md) |
-| 4 | — | 5.3 | 4.0 | `HandleSubscribe, HandleModify` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f3.md) |
-| 5 | — | 5.1 | 3.1 | `TwoLayerPathHandlerFunc, ThreeLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f2.md) |
-| 6 | ≠ | 5.1 | 2.2 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f1.md) |
-| 7 | — | 5.1 | 3.1 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f2.md) |
+| 1 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f1.md) | 6.9 | 4.1 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| 2 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f1.md) | 5.3 | 4.0 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 3 | — | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f2.md) | 5.3 | 4.0 | `ThreeLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 4 | — | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f3.md) | 5.3 | 4.0 | `HandleSubscribe, HandleModify` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 5 | — | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f2.md) | 5.1 | 3.1 | `TwoLayerPathHandlerFunc, ThreeLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 6 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f1.md) | 5.1 | 2.2 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 7 | — | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f2.md) | 5.1 | 3.1 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
 
 **Legend**
 

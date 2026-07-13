@@ -676,7 +676,7 @@ def _build_cvss_unmatched(
     lines = [
         "### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)",
         "",
-        "| # | group | score (from vector) | declared | function | task | role | rep | vector | details |",
+        "| # | group | details | score (from vector) | declared | function | task | role | rep | vector |",
         "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     seen: Dict[Tuple[str, str, Any], int] = {}
@@ -692,9 +692,9 @@ def _build_cvss_unmatched(
             group_label=marker,
         )
         lines.append(
-            f"| {i} | {marker} | {_fmt(u.get('computed_score_B'), 1)} | "
-            f"{_fmt(u.get('declared_score'), 1)} | `{u.get('function') or '—'}` | {task_id} | "
-            f"{role} | {rep} | `{u.get('vector', '—')}` | [detail](unmatched_findings/{filename}) |"
+            f"| {i} | {marker} | [detail](unmatched_findings/{filename}) | "
+            f"{_fmt(u.get('computed_score_B'), 1)} | {_fmt(u.get('declared_score'), 1)} | "
+            f"`{u.get('function') or '—'}` | {task_id} | {role} | {rep} | `{u.get('vector', '—')}` |"
         )
     lines += [
         "",
