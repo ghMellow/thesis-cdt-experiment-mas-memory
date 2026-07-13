@@ -2,6 +2,14 @@
 
 ---
 
+## 2026-07-13 — Disattivazione framing 1B  [sessione: c8bc651e]
+
+**Intent:** "la direzione del progetto ora prende una direzione molto più snella [...] è però rimasto il framing 1A e 1B, commenta quella sezione in modo che venga eseguito solo 1A"
+**Decisioni:** commentato il loop `for exp_id in ["1A", "1B"]` in `main.py` a `["1A"]` — 1B non viene più costruito né eseguito, anche con `--experiment all`; config `agent_1B` lasciata intatta in `config.py` per eventuale riattivazione
+**Esito:** aggiornato `docs/status.md` con nota di correzione sulla semplificazione post call 11
+
+---
+
 ## 2026-07-12 — Run 6 (verifica indipendente, primo run_id reale): doc 08  [sessione: 3ee4778c]
 
 **Intent:** analisi dei 12 file di evaluation della run rilanciata dopo il wipe — tre domande esplicite: "cosa ne ricaviamo, findings? anche diff tra 1A e 1B visto che i modelli sono uguali e i prompt pure differnze? come cvss i vettori predetti distano di tanto risp quelli ufficiali fatti con la matematica corretta?"

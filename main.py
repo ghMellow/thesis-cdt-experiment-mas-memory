@@ -107,8 +107,10 @@ def main() -> None:
             raise SystemExit(1)
         tasks = [task for task in tasks if task.stem in requested]
 
+    # 1B disabilitato (2026-07-13): il progetto ora esegue solo il framing 1A.
+    # Per riattivarlo, scommentare "1B" nella lista sottostante.
     experiments = []
-    for exp_id in ["1A", "1B"]:
+    for exp_id in ["1A"]:  # era ["1A", "1B"]
         model, is_hosted = resolve_model_config(f"agent_{exp_id}")
         experiments.append({"id": exp_id, "role": "agent", "model": model, "is_hosted": is_hosted})
     if args.experiment != "all":

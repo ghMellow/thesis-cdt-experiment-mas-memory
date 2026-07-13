@@ -47,6 +47,15 @@ Riproduzione della scoperta spontanea della regex `|.+` (GHSA-6gxq-gpr8-xgjp) in
 | [cve_experiment/regex_scan/](cve_experiment/regex_scan/) | `/cve-branch-scan` (scansione regex nei branch) |
 | [cve_experiment/task_map/](cve_experiment/task_map/) | `/task-branch-map` (mappa task cross-branch) |
 
+## 🧪 Protocollo SGV — proposta in discussione
+
+Proposta del relatore (2026-07-13): sostituire il retry guidato da LLM-judge con un verificatore sintattico deterministico (Syntactic Grounding Verifier), per eliminare leakage semantico e non-riproducibilità dal loop in-loop. **Non ancora implementata** — solo discussione.
+
+| Documento | Contenuto |
+|-----------|-----------|
+| [sgv_protocol/00_proposta_relatore.md](sgv_protocol/00_proposta_relatore.md) | Proposta originale del relatore (verbatim): motivazione, protocollo G1–G4, metriche M/S, related work |
+| [sgv_protocol/01_discussione_2026-07-13.md](sgv_protocol/01_discussione_2026-07-13.md) | Mappatura sull'architettura attuale — cosa è già allineato, cosa richiede refactor, rischi aperti, prossimi passi |
+
 ## 📎 Supporto
 
 Materiale ausiliario: non necessario per capire lo stato attuale del sistema, ma utile come riferimento/archivio.

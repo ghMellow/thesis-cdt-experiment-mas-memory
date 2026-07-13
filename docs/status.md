@@ -29,6 +29,8 @@ Sistema operativo. 12 task disponibili, framework LangGraph con retry/judge/toke
 
 **Semplificazione post call 11 (2026-07-10):** rimosso il framing expert/beginner (19/20 verdetti identici tra i ruoli — richiesta di Andrea). Ora c'è un **agente unico** con prompt neutro (`SYSTEM_PROMPTS["agent"]`); i risultati nuovi finiscono in `results/<task>/<exp>/agent/`. Il flag CLI `--role` è stato rimosso. La scelta dei modelli resta libera in `config.MODELS`: 1A = stesso modello per agente e giudice, 1B = modelli diversi.
 
+> ⚠️ **Ulteriore semplificazione (2026-07-13):** il framing 1B è stato disattivato in `main.py` (loop `experiments` commentato a `["1A"]`) — il progetto ora esegue solo 1A. La config `agent_1B` resta in `config.py` per riattivazione futura ma non viene più eseguita di default (anche `--experiment all` produce solo 1A).
+
 ### Modelli (`config.py`)
 
 | Chiave | Local | Hosted | use_hosted |
