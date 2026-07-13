@@ -5,5 +5,6 @@
 
 | role | accuracy_1A | accuracy_1B | delta |
 | --- | --- | --- | --- |
-| agent | 73.3% | 66.7% | -6.7% |
+| agent | 73.3% | n/a | n/a |
 
+No accuracy difference between 1A and 1B.

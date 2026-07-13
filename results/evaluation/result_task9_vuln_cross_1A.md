@@ -35,26 +35,27 @@
 
 ### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)
 
-| # | score (from vector) | declared | function | task | role | rep | vector | details |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 8.5 | 7.1 | `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete/Get/Put` | task9_vuln_cross | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep2_f1.md) |
-| 2 | 6.9 | 4.1 | `HTTPUEContextTransfer` | task9_vuln_cross | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep2_f2.md) |
-| 3 | 6.9 | 4.1 | `HTTPUEContextTransfer (AMF)` | task9_vuln_cross | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep3_f1.md) |
-| 4 | 6.9 | 4.1 | `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete/Get/Put (UDR)` | task9_vuln_cross | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep3_f2.md) |
-| 5 | 5.3 | 3.0 | `setCorsHeader` | task9_vuln_cross | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep1_f1.md) |
-| 6 | 5.3 | 3.1 | `setCorsHeader (PCF)` | task9_vuln_cross | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:L/VI:N/VA:N/SC:L/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep3_f3.md) |
-| 7 | 5.1 | 4.1 | `HTTPUEContextTransfer` | task9_vuln_cross | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep1_f2.md) |
-| 8 | 5.1 | 4.1 | `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete` | task9_vuln_cross | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:L/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep1_f3.md) |
-| 9 | 5.1 | 5.3 | `HandleQueryAmfContext3gpp (Cross-NF Validation)` | task9_vuln_cross | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:L/VA:L/SC:L/SI:L/SA:L` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep1_f4.md) |
-| 10 | 5.1 | 3.1 | `HandleCreateEeSubscriptions` | task9_vuln_cross | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep1_f5.md) |
-| 11 | 5.1 | 4.5 | `HandleQueryAmfContext3gpp` | task9_vuln_cross | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:L/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep2_f3.md) |
-| 12 | 5.1 | 3.2 | `HandleCreateEeSubscriptions` | task9_vuln_cross | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep2_f4.md) |
-| 13 | 5.1 | 4.3 | `HandleGetSmfSelectData / HandleQueryAmfContext3gpp / HTTPOAMGetAmPolicy (Cross-NF)` | task9_vuln_cross | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:L/VA:N/SC:L/SI:L/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep3_f4.md) |
-| 14 | n/a | 3.1 | `setCorsHeader` | task9_vuln_cross | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:R/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep2_f5.md) |
+| # | group | score (from vector) | declared | function | task | role | rep | vector | details |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | ≠ | 8.5 | 7.1 | `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete/Get/Put` | task9_vuln_cross | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep2_f1.md) |
+| 2 | a | 6.9 | 4.1 | `HTTPUEContextTransfer` | task9_vuln_cross | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep2_f2.md) |
+| 3 | a | 6.9 | 4.1 | `HTTPUEContextTransfer (AMF)` | task9_vuln_cross | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep3_f1.md) |
+| 4 | ≠ | 6.9 | 4.1 | `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete/Get/Put (UDR)` | task9_vuln_cross | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep3_f2.md) |
+| 5 | ≠ | 5.3 | 3.0 | `setCorsHeader` | task9_vuln_cross | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep1_f1.md) |
+| 6 | ≠ | 5.3 | 3.1 | `setCorsHeader (PCF)` | task9_vuln_cross | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:L/VI:N/VA:N/SC:L/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep3_f3.md) |
+| 7 | ≠ | 5.1 | 4.1 | `HTTPUEContextTransfer` | task9_vuln_cross | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep1_f2.md) |
+| 8 | — | 5.1 | 4.1 | `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete` | task9_vuln_cross | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:L/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep1_f3.md) |
+| 9 | ≠ | 5.1 | 5.3 | `HandleQueryAmfContext3gpp (Cross-NF Validation)` | task9_vuln_cross | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:L/VA:L/SC:L/SI:L/SA:L` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep1_f4.md) |
+| 10 | b | 5.1 | 3.1 | `HandleCreateEeSubscriptions` | task9_vuln_cross | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep1_f5.md) |
+| 11 | ≠ | 5.1 | 4.5 | `HandleQueryAmfContext3gpp` | task9_vuln_cross | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:L/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep2_f3.md) |
+| 12 | b | 5.1 | 3.2 | `HandleCreateEeSubscriptions` | task9_vuln_cross | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep2_f4.md) |
+| 13 | — | 5.1 | 4.3 | `HandleGetSmfSelectData / HandleQueryAmfContext3gpp / HTTPOAMGetAmPolicy (Cross-NF)` | task9_vuln_cross | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:L/VA:N/SC:L/SI:L/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep3_f4.md) |
+| 14 | ≠ | n/a | 3.1 | `setCorsHeader` | task9_vuln_cross | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:R/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` | [detail](unmatched_findings/task9_vuln_cross_1A_agent_rep2_f5.md) |
 
 **Legend**
 
 - One row per finding the agent reported that matched no ground-truth CVE — either a false positive, or a genuine extra vulnerability with no catalogued CVE. Never counted against the evaluation (design choice: this is the practical use case, findings worth a human's triage).
+- `group` = a letter (a, b, c…) means same-letter rows are the same finding re-reported across repetitions (same function; identical vector, or an LLM-confirmed equivalent one). `≠` means the function recurred with a different vector and the LLM was asked and judged it a genuinely different finding, not a re-estimate. `—` means the function was seen only once — nothing to compare, no LLM call made. Grouping never removes or merges rows, it only labels them.
 - `score (from vector)` = the recomputed score, official CVSS 4.0 math — sort key, most severe first.
 - `declared` = the score the agent stated directly; diagnostic only (see note above, not produced from the vector).
 - `function` = the Go function the agent pointed to as the vulnerability's location.

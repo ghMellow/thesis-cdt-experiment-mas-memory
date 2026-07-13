@@ -38,5 +38,45 @@
   "agent/task9_vuln_cross/eadfdd80860622e8": {
     "equivalent": true,
     "explanation": "All three passages identify the same set of vulnerabilities: inconsistent UE identifier validation across UDM/UDR/PCF, a permissive CORS policy in PCF, a missing default case in AMF's HTTPUEContextTransfer, a type mismatch in AMF context storage, and a missing return statement in UDR's influenceId handlers, as well as the trivial regex bypass in UDR's HandleCreateEeSubscriptions."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlecreatesdmsubscriptions/a3ade50cd083dcaf": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their PR (Privileges Required) and impact (VC, VI, VA) metrics."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handleapplicationdatainfluencedataget/25bf700679bae635": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their privilege requirements (PR:H vs PR:L) and impact levels (VA:H vs VC:L/VA:N)."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlecreateeesubscriptions, handlequeryeesubscriptions/0840901b3ce190f9": {
+    "equivalent": false,
+    "explanation": "The reasoning passages provide different CVSS vectors, specifically differing in the Privileges Required (PR:H vs PR:L) and Integrity impact (SI:N vs SI:L) metrics."
+  },
+  "unmatched/task8_vuln_udm_full/agent/getplmnidstruct/f297c9adec9449bc": {
+    "equivalent": false,
+    "explanation": "The reasoning passages provide different CVSS vectors, specifically differing in Availability (VA:H vs VA:L) and Privileges Required (PR:H vs PR:L)."
+  },
+  "unmatched/task9_vuln_cross/agent/httpuecontexttransfer/bcbab3933826d558": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the Availability requirement (VA:H versus VA:L)."
+  },
+  "unmatched/task9_vuln_cross/agent/setcorsheader/fef564e25c76dc64": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the User Interaction (UI) metric: one specifies 'P' (Passive) and the other specifies 'R' (Required)."
+  },
+  "unmatched/task7_vuln_amf_full/agent/multiple/51667721dfcdb715": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the confidentiality and availability impacts: the first claims VC:L/VA:N, while the second claims VC:N/VA:L."
+  },
+  "unmatched/task9_vuln_cross/agent/handleapplicationdatainfluencedatasubstonotifysubscriptioniddelete/get/put/3dc2fb0e4ac5eb66": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the confidentiality impact: the first lists 'VC:H' (High) while the second lists 'VC:N' (None)."
+  },
+  "unmatched/task9_vuln_cross/agent/setcorsheader/ee58715b30e5de39": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their scope (SC) and user interaction (UI) metrics."
+  },
+  "unmatched/task9_vuln_cross/agent/handlequeryamfcontext3gpp/1ddf5293db95e8a4": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the Integrity (VI, SI) and Availability (VA, SA) metrics, where one assigns 'L' (Low) and the other assigns 'N' (None)."
   }
 }

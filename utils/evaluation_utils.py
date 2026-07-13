@@ -446,6 +446,142 @@ def _highlight_function(text: str, function: str) -> str:
     return text
 
 
+def _normalize_function_name(function: Optional[str]) -> str:
+    """Lowercase and strip trailing '(NF name)'/'(Cross-NF ...)' annotations the
+    agent sometimes appends (e.g. 'setCorsHeader (PCF)' vs 'setCorsHeader') so
+    the same function isn't treated as two different locations."""
+    name = (function or "").strip().lower()
+    while True:
+        stripped = re.sub(r"\s*\([^()]*\)\s*$", "", name).strip()
+        if stripped == name:
+            return name
+        name = stripped
+
+
+def _letter_label(n: int) -> str:
+    """0, 1, 2, ... -> 'a', 'b', ..., 'z', 'aa', 'ab', ... (spreadsheet-style)."""
+    label = ""
+    while True:
+        label = chr(ord("a") + n % 26) + label
+        n = n // 26 - 1
+        if n < 0:
+            return label
+
+
+def _cluster_unmatched_findings(
+    entries: List[Tuple[str, str, Any, Optional[str], Dict[str, Any], Dict[str, Any]]],
+    semantic_check: bool = True,
+) -> Tuple[List[int], set]:
+    """Assign a cluster id to each unmatched finding so the same finding
+    recurring across repetitions can be spotted at a glance, without hiding
+    any row.
+
+    Phase 1 (always, free): findings within the same (task_id, role) that
+    share a normalized function name and an identical vector are the same
+    finding re-reported — grouped with no LLM call.
+    Phase 2 (if semantic_check): candidate groups that share a function but
+    differ in vector are ambiguous (same bug re-estimated vs. two distinct
+    bugs in the same function) — resolved with one LLM call per function,
+    cached like the Blocco A consistency check.
+
+    Returns (cluster_id per entry, set of cluster ids the LLM actually
+    inspected and judged genuinely different — as opposed to never compared
+    at all — so the caller can render the two "no group" cases differently).
+    """
+    cluster_id = [0] * len(entries)
+    key_to_id: Dict[Tuple[str, str, str, str], int] = {}
+    for idx, (role, task_id, _rep, _run_id, _final_answer, u) in enumerate(entries):
+        function_norm = _normalize_function_name(u.get("function"))
+        vector = (u.get("vector") or "").strip()
+        key = (task_id, role, function_norm, vector)
+        if key not in key_to_id:
+            key_to_id[key] = len(key_to_id)
+        cluster_id[idx] = key_to_id[key]
+
+    if not semantic_check:
+        return cluster_id, set()
+
+    by_function: Dict[Tuple[str, str, str], List[Tuple[str, int]]] = {}
+    for (task_id, role, function_norm, vector), cid in key_to_id.items():
+        if not function_norm:
+            continue
+        by_function.setdefault((task_id, role, function_norm), []).append((vector, cid))
+    ambiguous = {k: v for k, v in by_function.items() if len({c for _, c in v}) > 1}
+    if not ambiguous:
+        return cluster_id, set()
+
+    from agents.judge_agent import run_semantic_equivalence_check
+    from agents._llm_utils import resolve_model_config
+
+    cache_path = Path(RESULTS_PATH) / "evaluation" / "semantic_cache.json"
+    cache: Dict[str, Any] = {}
+    if cache_path.exists():
+        try:
+            cache = json.loads(cache_path.read_text(encoding="utf-8"))
+        except Exception:
+            cache = {}
+
+    if "semantic_check" not in config.MODELS:
+        raise ValueError("MODELS['semantic_check'] must be set for semantic consistency checks")
+    model, sem_is_hosted = resolve_model_config("semantic_check")
+    base_url = config.OLLAMA_BASE_URL
+
+    cache_updated = False
+    remap: Dict[int, int] = {}
+    checked_not_equal: set = set()
+    for (task_id, role, function_norm), vector_clusters in ambiguous.items():
+        distinct_vectors = sorted({v for v, _ in vector_clusters})
+        descriptions = [
+            f"Function `{function_norm}`, estimated CVSS vector `{v}`." for v in distinct_vectors
+        ]
+        check_id = f"unmatched/{task_id}/{role}/{function_norm}"
+        cache_key = (
+            check_id + "/" + hashlib.sha256(json.dumps(descriptions).encode()).hexdigest()[:16]
+        )
+        if cache_key in cache:
+            result = cache[cache_key]
+        else:
+            result = run_semantic_equivalence_check(
+                task_id=check_id,
+                reasonings=descriptions,
+                model=model,
+                base_url=base_url,
+                is_hosted=sem_is_hosted,
+            )
+            cache[cache_key] = result
+            cache_updated = True
+        if result.get("equivalent", False):
+            target = min(cid for _, cid in vector_clusters)
+            for _, cid in vector_clusters:
+                if cid != target:
+                    remap[cid] = target
+        else:
+            checked_not_equal.update(cid for _, cid in vector_clusters)
+
+    if cache_updated:
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        cache_path.write_text(json.dumps(cache, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    if remap:
+        cluster_id = [remap.get(cid, cid) for cid in cluster_id]
+        checked_not_equal = {remap.get(cid, cid) for cid in checked_not_equal}
+    return cluster_id, checked_not_equal
+
+
+def _assign_group_labels(cluster_ids: List[int]) -> Dict[int, str]:
+    """Letter per cluster with >1 member, in order of first appearance;
+    singleton clusters (finding seen only once) get no label — the letter
+    is only meaningful as a "this recurs" signal."""
+    counts: Dict[int, int] = {}
+    for cid in cluster_ids:
+        counts[cid] = counts.get(cid, 0) + 1
+    labels: Dict[int, str] = {}
+    for cid in cluster_ids:
+        if counts[cid] > 1 and cid not in labels:
+            labels[cid] = _letter_label(len(labels))
+    return labels
+
+
 def _write_unmatched_finding_file(
     path: Path,
     task_id: str,
@@ -455,6 +591,7 @@ def _write_unmatched_finding_file(
     run_id: Optional[str],
     u: Dict[str, Any],
     final_answer: Dict[str, Any],
+    group_label: Optional[str] = None,
 ) -> None:
     """One self-contained file per unmatched finding: its structured data plus
     the agent's full narrative for that repetition, so an expert triaging it
@@ -472,6 +609,7 @@ def _write_unmatched_finding_file(
         f"| vector (estimated) | `{u.get('vector', '—')}` |",
         f"| score declared | {_fmt(u.get('declared_score'), 1)} |",
         f"| score computed (official CVSS 4.0 math) | {_fmt(u.get('computed_score_B'), 1)} |",
+        f"| group (recurs across reps) | {group_label or '—'} |",
         "",
         "## Agent narrative for this repetition",
         "",
@@ -493,13 +631,21 @@ def _write_unmatched_finding_file(
 
 
 def _build_cvss_unmatched(
-    roles: Dict[str, List[Dict[str, Any]]], experiment_id: str, results_path: str
+    roles: Dict[str, List[Dict[str, Any]]],
+    experiment_id: str,
+    results_path: str,
+    semantic_check: bool = True,
 ) -> List[str]:
     """Findings with no ground-truth CVE, ranked most-severe-first by the
     officially recomputed score — the experts' use case: potential
     vulnerabilities not (yet) tied to a CVE, ready for manual triage. Each row
     also gets a self-contained detail file (see _write_unmatched_finding_file)
-    since the finding record itself carries no free-text rationale."""
+    since the finding record itself carries no free-text rationale.
+
+    Every repetition's finding stays its own row (nothing is deduplicated or
+    hidden) — the `group` column only adds a recurrence label so the same
+    finding re-reported across repetitions is visible at a glance (see
+    _cluster_unmatched_findings)."""
     entries = []
     for role, payloads in sorted(roles.items()):
         for p in payloads:
@@ -519,27 +665,36 @@ def _build_cvss_unmatched(
         reverse=True,
     )
 
+    cluster_ids, checked_not_equal = _cluster_unmatched_findings(
+        entries, semantic_check=semantic_check
+    )
+    group_labels = _assign_group_labels(cluster_ids)
+
     out_dir = Path(results_path) / "evaluation" / "unmatched_findings"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     lines = [
         "### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)",
         "",
-        "| # | score (from vector) | declared | function | task | role | rep | vector | details |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+        "| # | group | score (from vector) | declared | function | task | role | rep | vector | details |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     seen: Dict[Tuple[str, str, Any], int] = {}
     for i, (role, task_id, rep, run_id, final_answer, u) in enumerate(entries, 1):
         key = (task_id, role, rep)
         seen[key] = seen.get(key, 0) + 1
         filename = f"{task_id}_{experiment_id}_{role}_rep{rep}_f{seen[key]}.md"
+        cid = cluster_ids[i - 1]
+        group_label = group_labels.get(cid)
+        marker = group_label or ("≠" if cid in checked_not_equal else "—")
         _write_unmatched_finding_file(
-            out_dir / filename, task_id, experiment_id, role, rep, run_id, u, final_answer
+            out_dir / filename, task_id, experiment_id, role, rep, run_id, u, final_answer,
+            group_label=marker,
         )
         lines.append(
-            f"| {i} | {_fmt(u.get('computed_score_B'), 1)} | {_fmt(u.get('declared_score'), 1)} | "
-            f"`{u.get('function') or '—'}` | {task_id} | {role} | {rep} | "
-            f"`{u.get('vector', '—')}` | [detail](unmatched_findings/{filename}) |"
+            f"| {i} | {marker} | {_fmt(u.get('computed_score_B'), 1)} | "
+            f"{_fmt(u.get('declared_score'), 1)} | `{u.get('function') or '—'}` | {task_id} | "
+            f"{role} | {rep} | `{u.get('vector', '—')}` | [detail](unmatched_findings/{filename}) |"
         )
     lines += [
         "",
@@ -549,6 +704,13 @@ def _build_cvss_unmatched(
         "either a false positive, or a genuine extra vulnerability with no catalogued "
         "CVE. Never counted against the evaluation (design choice: this is the "
         "practical use case, findings worth a human's triage).",
+        "- `group` = a letter (a, b, c…) means same-letter rows are the same finding "
+        "re-reported across repetitions (same function; identical vector, or an "
+        "LLM-confirmed equivalent one). `≠` means the function recurred with a "
+        "different vector and the LLM was asked and judged it a genuinely different "
+        "finding, not a re-estimate. `—` means the function was seen only once — "
+        "nothing to compare, no LLM call made. Grouping never removes or merges "
+        "rows, it only labels them.",
         "- `score (from vector)` = the recomputed score, official CVSS 4.0 math — sort "
         "key, most severe first.",
         "- `declared` = the score the agent stated directly; diagnostic only (see note "
@@ -854,7 +1016,13 @@ def _write_evaluation_reports(
 
 if __name__ == "__main__":
     import argparse
+    import os
 
+    from dotenv import load_dotenv
+
+    load_dotenv()  # report regeneration may call the hosted semantic-check LLM
+    # config reads the key at import time (before load_dotenv here): refresh it.
+    config.OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY", "")
     logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(message)s")
     parser = argparse.ArgumentParser(
         description="List saved run_ids, or regenerate reports scoped to one run_id — "
