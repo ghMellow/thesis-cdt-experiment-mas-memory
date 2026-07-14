@@ -344,7 +344,7 @@ def _build_cvss_section(
         return _avg(vals)
 
     lines = ['<a id="cvss-estimate"></a>', "## CVSS estimate (Blocco B, deterministic)", ""]
-    lines += _build_cvss_vector_detail(roles)
+    lines += _build_cvss_vector_detail(roles, experiment_id, results_path)
     lines += _build_cvss_unmatched(roles, experiment_id, results_path)
 
     lines += [
@@ -639,6 +639,57 @@ def _write_unmatched_finding_file(
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
+def _write_matched_finding_file(
+    path: Path,
+    task_id: str,
+    experiment_id: str,
+    role: str,
+    rep: Any,
+    run_id: Optional[str],
+    m: Dict[str, Any],
+    final_answer: Dict[str, Any],
+) -> None:
+    """One self-contained file per finding that DID pair to a ground-truth
+    CVE: its structured data plus the agent's full narrative for that
+    repetition. Mirrors _write_unmatched_finding_file — the vector-detail
+    table shows the field-by-field diff, this shows *why* the agent estimated
+    it that way (or misdiagnosed the root cause) without opening the raw
+    multi-repetition JSON."""
+    function = m.get("function") or "—"
+    answer = _highlight_function(str(final_answer.get("answer") or "").strip(), function)
+    reasoning = _highlight_function(str(final_answer.get("reasoning") or "").strip(), function)
+
+    lines = [
+        f"# Matched finding — {m.get('cve_id', '—')} — {task_id} ({experiment_id}) — {role}, rep {rep}",
+        "",
+        "| field | value |",
+        "| --- | --- |",
+        f"| GT CVE | {m.get('cve_id', '—')} |",
+        f"| function | `{function}` |",
+        f"| vector (estimated) | `{m.get('estimated_vector', '—')}` |",
+        f"| vector (published) | `{m.get('published_vector', '—')}` |",
+        f"| score computed (official CVSS 4.0 math) | {_fmt(m.get('computed_score_B'), 1)} |",
+        f"| score published | {_fmt(m.get('published_score'), 1)} |",
+        "",
+        "## Agent narrative for this repetition",
+        "",
+        f"_Shared across every finding reported in the same repetition — occurrences "
+        f"of `{function}` are **bolded** below to help locate the relevant passage._",
+        "",
+    ]
+    if answer:
+        lines += ["**Answer:**", "", answer, ""]
+    if reasoning:
+        lines += ["**Reasoning:**", "", reasoning, ""]
+    lines += [
+        "---",
+        f"_Source: `results/{task_id}/{experiment_id}/{role}/*.json`, run_id "
+        f"`{run_id or 'legacy (no run_id)'}`, repetition {rep}._",
+        "",
+    ]
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
 def _build_cvss_unmatched(
     roles: Dict[str, List[Dict[str, Any]]],
     experiment_id: str,
@@ -740,12 +791,17 @@ def _build_cvss_unmatched(
     return lines
 
 
-def _build_cvss_vector_detail(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
+def _build_cvss_vector_detail(
+    roles: Dict[str, List[Dict[str, Any]]], experiment_id: str, results_path: str
+) -> List[str]:
     """Per-finding estimated vs. published CVSS vector, one compact table per
     CVE: rows are the compared metrics (labelled with the full name from the
     dataset legend), columns are estimated/published — a diverging field is
     then visible at a glance without recomputing it from the aggregate
-    bands/matches above."""
+    bands/matches above. Each table also gets a self-contained detail file
+    (see _write_matched_finding_file) with the agent's full reasoning for
+    that repetition, linked right below — mirrors the unmatched-findings
+    table so matched CVEs aren't the only ones without visible rationale."""
     from utils.cvss_eval import (
         _parse_vector,
         EXPLOITABILITY_METRICS,
@@ -763,15 +819,21 @@ def _build_cvss_vector_detail(roles: Dict[str, List[Dict[str, Any]]]) -> List[st
             for m in ce.get("matched", []):
                 if "estimated_vector" not in m:
                     continue
-                entries.append((role, p.get("repetition"), m))
+                entries.append(
+                    (role, p.get("task_id"), p.get("repetition"), p.get("run_id"),
+                     p.get("final_answer") or {}, m)
+                )
     if not entries:
         return []
 
     legend = load_cvss_dataset().get("_meta", {}).get("legenda_metriche", {})
     metrics = EXPLOITABILITY_METRICS + IMPACT_METRICS
 
+    out_dir = Path(results_path) / "evaluation" / "matched_findings"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
     lines = ['<a id="vector-detail"></a>', "### Vector detail (estimated vs. published)", ""]
-    for role, rep, m in entries:
+    for role, task_id, rep, run_id, final_answer, m in entries:
         est = _parse_vector(m["estimated_vector"])
         pub = _parse_vector(m.get("published_vector") or "")
         lines.append(f"| **{m['cve_id']}** — {role}, rep {rep} | estimated | published |")
@@ -790,6 +852,11 @@ def _build_cvss_vector_detail(roles: Dict[str, List[Dict[str, Any]]]) -> List[st
                 f"| base score — declared / from vector (official math) | "
                 f"{declared} / **{m['computed_score_B']}** | {m.get('published_score', '-')} |"
             )
+        filename = f"{task_id}_{experiment_id}_{role}_rep{rep}_{m['cve_id']}.md"
+        _write_matched_finding_file(
+            out_dir / filename, task_id, experiment_id, role, rep, run_id, m, final_answer
+        )
+        lines.append(f"| [reasoning detail](matched_findings/{filename}) | | |")
         lines.append("")
     return lines
 

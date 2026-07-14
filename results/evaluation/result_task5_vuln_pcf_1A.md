@@ -36,6 +36,7 @@
 | SI — Integrity Impact to the Subsequent System | N | N |
 | SA — Availability Impact to the Subsequent System | N | N |
 | base score — declared / from vector (official math) | 4.1 / **5.3** | 8.7 |
+| [reasoning detail](matched_findings/task5_vuln_pcf_1A_agent_rep1_CVE-2026-41135.md) | | |
 
 | **CVE-2026-41135** — agent, rep 2 | estimated | published |
 |---|---|---|
@@ -51,6 +52,7 @@
 | SI — Integrity Impact to the Subsequent System | N | N |
 | SA — Availability Impact to the Subsequent System | N | N |
 | base score — declared / from vector (official math) | 6.2 / **7.1** | 8.7 |
+| [reasoning detail](matched_findings/task5_vuln_pcf_1A_agent_rep2_CVE-2026-41135.md) | | |
 
 | **CVE-2026-41135** — agent, rep 3 | estimated | published |
 |---|---|---|
@@ -66,6 +68,7 @@
 | SI — Integrity Impact to the Subsequent System | N | N |
 | SA — Availability Impact to the Subsequent System | N | N |
 | base score — declared / from vector (official math) | 5.3 / **7.1** | 8.7 |
+| [reasoning detail](matched_findings/task5_vuln_pcf_1A_agent_rep3_CVE-2026-41135.md) | | |
 
 <a id="unmatched-findings"></a>
 ### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)

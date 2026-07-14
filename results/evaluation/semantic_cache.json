@@ -78,5 +78,41 @@
   "unmatched/task9_vuln_cross/agent/handlequeryamfcontext3gpp/1ddf5293db95e8a4": {
     "equivalent": false,
     "explanation": "The CVSS vectors differ in the Integrity (VI, SI) and Availability (VA, SA) metrics, where one assigns 'L' (Low) and the other assigns 'N' (None)."
+  },
+  "agent/task6_vuln_udr_full/060f9e44116d61fb": {
+    "equivalent": false,
+    "explanation": "The three passages identify different sets of vulnerabilities: the first focuses on resource exhaustion via over-fetching and unsafe JSON unmarshaling, the second highlights a missing return statement causing potential panics and NoSQL injection, and the third identifies a DoS risk due to unbounded request bodies via GetRawData."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlecreatesmfcontextnon3gpp/f3727ede7bf2fb44": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their integrity impact levels (VI:H/SI:H vs VI:L/SI:L)."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handleapplicationdatainfluencedataget/61b492cd6d353ede": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the Confidentiality (VC:L vs VC:N) and Availability (VA:N vs VA:H) metrics."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlepolicydatauesueidsmdataget, handlequerysmdata/9fa9e825698fb288": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their impact components: the first has VC:L/VA:N, while the second has VC:N/VA:L."
+  },
+  "agent/task7_vuln_amf_full/eb0a5caf26c0c208": {
+    "equivalent": false,
+    "explanation": "The three reasonings identify different sets of vulnerabilities: the first focuses on context state management and input validation, the second on unbounded request bodies (DoS), and the third on HTTP status code semantics; they do not agree on the key claims."
+  },
+  "unmatched/task7_vuln_amf_full/agent/c.getrawdata()`/26e18aa01fb009ae": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the Safety Availability (SA) metric, where one is 'H' and the other is 'N'."
+  },
+  "agent/task8_vuln_udm_full/c69342d62210c13c": {
+    "equivalent": false,
+    "explanation": "The three reasonings differ on their fourth key claim: the first identifies an inconsistent parameter handling error in HandleGetTraceData, the second identifies a routing logic error using strings.Contains, and the third identifies both of these issues but presents them as distinct points."
+  },
+  "unmatched/task8_vuln_udm_full/agent/getplmnidstruct/9dc45035e4438637": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the confidentiality, integrity, and availability impacts (VI:L/SI:L vs VI:N/VA:H/SI:N)."
+  },
+  "unmatched/task8_vuln_udm_full/agent/handlegettracedata/45537c622aa7e12e": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their confidentiality (VC:L vs VC:N) and availability (VA:N vs VA:L) impacts."
   }
 }

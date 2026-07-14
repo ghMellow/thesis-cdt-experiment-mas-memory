@@ -1,7 +1,7 @@
 # 1A — task7_vuln_amf_full
 
 > **Run(s) in this report:**
-> - `agent`: 20260712T142416Z
+> - `agent`: 20260713T174027Z
 
 <a id="toc"></a>
 **Contents**
@@ -31,13 +31,30 @@
 | UI — User Interaction | N | N |
 | VC — Confidentiality Impact to the Vulnerable System | N | N |
 | VI — Integrity Impact to the Vulnerable System | **N** | **L** |
-| VA — Availability Impact to the Vulnerable System | **L** | **N** |
+| VA — Availability Impact to the Vulnerable System | **H** | **N** |
 | SC — Confidentiality Impact to the Subsequent System | N | N |
 | SI — Integrity Impact to the Subsequent System | N | N |
 | SA — Availability Impact to the Subsequent System | N | N |
-| base score — declared / from vector (official math) | 2.3 / **5.3** | 5.5 |
+| base score — declared / from vector (official math) | 5.3 / **7.1** | 5.5 |
+| [reasoning detail](matched_findings/task7_vuln_amf_full_1A_agent_rep1_CVE-2026-41136.md) | | |
 
 | **CVE-2026-41136** — agent, rep 2 | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | N | N |
+| VI — Integrity Impact to the Vulnerable System | **N** | **L** |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 0.0 / **0.0** | 5.5 |
+| [reasoning detail](matched_findings/task7_vuln_amf_full_1A_agent_rep2_CVE-2026-41136.md) | | |
+
+| **CVE-2026-41136** — agent, rep 3 | estimated | published |
 |---|---|---|
 | AV — Attack Vector | N | N |
 | AC — Attack Complexity | L | L |
@@ -50,35 +67,22 @@
 | SC — Confidentiality Impact to the Subsequent System | N | N |
 | SI — Integrity Impact to the Subsequent System | N | N |
 | SA — Availability Impact to the Subsequent System | **H** | **N** |
-| base score — declared / from vector (official math) | 6.2 / **8.3** | 5.5 |
-
-| **CVE-2026-41136** — agent, rep 3 | estimated | published |
-|---|---|---|
-| AV — Attack Vector | N | N |
-| AC — Attack Complexity | L | L |
-| AT — Attack Requirements | N | N |
-| PR — Privileges Required | **L** | **N** |
-| UI — User Interaction | N | N |
-| VC — Confidentiality Impact to the Vulnerable System | N | N |
-| VI — Integrity Impact to the Vulnerable System | **N** | **L** |
-| VA — Availability Impact to the Vulnerable System | **L** | **N** |
-| SC — Confidentiality Impact to the Subsequent System | N | N |
-| SI — Integrity Impact to the Subsequent System | N | N |
-| SA — Availability Impact to the Subsequent System | N | N |
-| base score — declared / from vector (official math) | 5.3 / **5.3** | 5.5 |
+| base score — declared / from vector (official math) | 7.1 / **8.3** | 5.5 |
+| [reasoning detail](matched_findings/task7_vuln_amf_full_1A_agent_rep3_CVE-2026-41136.md) | | |
 
 <a id="unmatched-findings"></a>
 ### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)
 
 | # | group | details | score (from vector) | declared | function | task | role | rep | vector |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | — | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep2_f1.md) | 8.3 | 6.2 | `All handlers using GetRawData()` | task7_vuln_amf_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H` |
-| 2 | a | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep1_f1.md) | 5.3 | 2.3 | `Multiple (Error Handling)` | task7_vuln_amf_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 3 | ≠ | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep1_f2.md) | 5.3 | 2.3 | `Multiple (Context Set)` | task7_vuln_amf_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
-| 4 | — | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep2_f2.md) | 5.3 | 3.0 | `Multiple handlers (Error Detail)` | task7_vuln_amf_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 5 | — | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep2_f3.md) | 5.3 | 4.0 | `getCommunicationRoutes() / Processor calls` | task7_vuln_amf_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:L/SC:N/SI:L/SA:L` |
-| 6 | a | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep3_f1.md) | 5.3 | 2.0 | `Multiple (Error Handling)` | task7_vuln_amf_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 7 | — | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep3_f2.md) | 5.3 | 5.3 | `HTTPCreateUEContext/HTTPN1N2MessageTransfer` | task7_vuln_amf_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 1 | ≠ | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep3_f1.md) | 8.3 | 7.1 | `c.GetRawData()` (multiple handlers)` | task7_vuln_amf_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H` |
+| 2 | ≠ | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep2_f1.md) | 7.1 | 4.8 | `c.GetRawData()` (multiple handlers)` | task7_vuln_amf_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| 3 | ≠ | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep1_f1.md) | 5.3 | 5.1 | `multiple (Error Detail Leak)` | task7_vuln_amf_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 4 | ≠ | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep1_f2.md) | 5.3 | 4.0 | `multiple (Content-Type handling)` | task7_vuln_amf_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 5 | — | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep2_f2.md) | 5.3 | 3.5 | `sbi.IN_PB_DETAILS_CTX_STR` (multiple handlers)` | task7_vuln_amf_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 6 | — | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep2_f3.md) | 5.3 | 2.3 | `models.ProblemDetails` (multiple handlers)` | task7_vuln_amf_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 7 | — | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep3_f2.md) | 5.3 | 3.0 | `HTTPAMFStatusChangeSubscribeModify` (and others)` | task7_vuln_amf_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 8 | — | [detail](unmatched_findings/task7_vuln_amf_full_1A_agent_rep3_f3.md) | 0.0 | 0.0 | `HTTPN1N2MessageTransfer` | task7_vuln_amf_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:N/SC:N/SI:N/SA:N` |
 
 **Legend**
 
@@ -102,7 +106,7 @@ _Diagnostic roll-up, useful for a global read once you've checked the detail abo
 
 | role | estimates | matched | missed CVEs | unmatched findings | avg band vs published (0-3) | avg band vs B (0-3) | avg exploitability (0-5) | avg impact (0-3) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | 3/3 | 3 | 0 | 7 | 1.67 | 1.00 | 4.00 | 1.00 |
+| agent | 3/3 | 3 | 0 | 8 | 1.33 | 1.33 | 4.00 | 1.33 |
 
 **Legend**
 
@@ -118,7 +122,7 @@ _Diagnostic roll-up, useful for a global read once you've checked the detail abo
 
 | role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg subseq. distance (0-1) | avg Hamming (0-8) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | 1.70 | 1.53 | 1.33 | 0.10 | 0.39 | 0.11 | 3.00 |
+| agent | 1.00 | 2.83 | 1.67 | 0.10 | 0.39 | 0.11 | 2.67 |
 
 **Legend**
 
@@ -141,9 +145,9 @@ _Diagnostic roll-up, useful for a global read once you've checked the detail abo
 | metric | value |
 | --- | --- |
 | total results | 3 |
-| correct | 2 (66.7%) |
-| wrong | 1 |
-| retried (attempts > 1) | 1 |
+| correct | 1 (33.3%) |
+| wrong | 2 |
+| retried (attempts > 1) | 2 |
 | truly inconsistent tasks | 1 |
 | surface-only differences (semantically equiv.) | 0 |
 
@@ -157,7 +161,7 @@ _Diagnostic roll-up, useful for a global read once you've checked the detail abo
 
 | role | accuracy | avg_confidence | brier_score | avg_attempts | avg_textual_norm |
 | --- | --- | --- | --- | --- | --- |
-| agent | 66.7% | 0.900 | 0.2767 | 1.67 | 0.889 |
+| agent | 33.3% | 0.950 | 0.6375 | 2.33 | 0.741 |
 
 **Legend**
 
@@ -173,11 +177,12 @@ _Diagnostic roll-up, useful for a global read once you've checked the detail abo
 <a id="rubric-anomalies"></a>
 ### Anomalies
 
-#### Wrong verdicts (1)
+#### Wrong verdicts (2)
 
 | role | task_id | rep | attempts | confidence | score/delta |
 | --- | --- | --- | --- | --- | --- |
-| agent | task7_vuln_amf_full | 2 | 3 | 0.900 | 6.0 |
+| agent | task7_vuln_amf_full | 2 | 3 | 1.000 | 5.0 |
+| agent | task7_vuln_amf_full | 3 | 3 | 0.950 | 6.0 |
 
 **Legend**
 
@@ -186,11 +191,12 @@ _Diagnostic roll-up, useful for a global read once you've checked the detail abo
 - `confidence` = agent self-reported confidence on the final answer.
 - `score/delta` = normalized rubric score (textual) or |answer − ground_truth| (math).
 
-#### Retries triggered (1)
+#### Retries triggered (2)
 
 | role | task_id | rep | attempts | final_verdict |
 | --- | --- | --- | --- | --- |
 | agent | task7_vuln_amf_full | 2 | 3 | wrong |
+| agent | task7_vuln_amf_full | 3 | 3 | wrong |
 
 **Legend**
 
@@ -202,84 +208,84 @@ _Diagnostic roll-up, useful for a global read once you've checked the detail abo
 #### Truly inconsistent reasoning (1)
 
 **agent — task7_vuln_amf_full**
-> The second reasoning passage identifies different vulnerabilities (DoS via unbounded memory allocation and path parameter validation) and misses others (Incorrect Type Assignment in Context) present in the first and third passages.
+> The three reasonings identify different sets of vulnerabilities: the first focuses on context state management and input validation, the second on unbounded request bodies (DoS), and the third on HTTP status code semantics; they do not agree on the key claims.
 
 **rep 1:**
 
-1. **Improper Input Validation / Potential Panic (Index Out of Bounds):**
-   - **Location:** `HTTPCreateUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`.
-   - **Pattern:** The code performs `str := strings.Split(contentType, ";")` and immediately accesses `str[0]` without checking if the `Content-Type` header is present or if the resulting slice is empty.
-   - **Impact:** If a request is sent without a `Content-Type` header, `c.GetHeader("Content-Type")` returns an empty string. `strings.Split("", ";")` returns a slice containing one empty string `[""]`. While this specific case doesn't panic, if the header is manipulated or if the logic were slightly different, it's a fragile pattern. More importantly, it lacks validation of the header's existence.
-   - **Fix:** Check if the header is empty before splitting and validate the slice length.
+1. **Information Exposure via Error Messages**:
+   - **Location**: `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`.
+   - **Pattern**: The code concatenates `reqbody` (a global or package-level variable, likely containing the raw request) with `err.Error()` and returns it in the `Detail` field of a `ProblemDetails` JSON response to the client.
+   - **Impact**: This leaks internal deserialization errors and potentially parts of the request body back to the caller. While SBI is protected by mTLS, this aids an attacker (e.g., a compromised NF) in fingerprinting the internal parser or debugging exploit payloads.
+   - **Fix**: Use generic error messages for the client and log the detailed error internally.
 
-2. **Information Exposure through Error Messages:**
-   - **Location:** `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`.
-   - **Pattern:** The code concatenates `reqbody + err.Error()` and sends it back to the client in the `ProblemDetails.Detail` field.
-   - **Impact:** `reqbody` (likely a constant or variable defined elsewhere in the package) combined with raw deserialization errors can leak internal structural information about the expected data models or the parser's state to a calling NF. While SBI is internal, this violates the principle of least privilege in error reporting.
-   - **Fix:** Use generic error messages for the client and log the detailed error internally.
+2. **Improper Input Validation (Content-Type Handling)**:
+   - **Location**: `HTTPCreateUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`.
+   - **Pattern**: The code performs `strings.Split(contentType, ";")` and accesses `str[0]` without checking if the `Content-Type` header is present or if the slice has any elements.
+   - **Impact**: If a request is sent without a `Content-Type` header, `c.GetHeader("Content-Type")` returns an empty string. `strings.Split("", ";")` returns a slice of length 1 containing an empty string. While this specific case doesn't panic, it's a fragile pattern. More importantly, in `HTTPUEContextTransfer`, if the `Content-Type` is neither `applicationjson` nor `multipartrelate`, the `err` variable remains `nil` (or carries a previous value), and the code proceeds to call `s.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)` with an uninitialized/empty request object.
+   - **Fix**: Validate that the `Content-Type` is supported and return a `415 Unsupported Media Type` if it is not.
 
-3. **Incorrect Type Assignment in Context (Logic Error):**
-   - **Location:** `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`.
-   - **Pattern:** `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)`.
-   - **Impact:** In several functions, the code attempts to store the entire `models.ProblemDetails` struct into the Gin context using a key that suggests it expects a string (`...CTX_STR`). In other functions (like `HTTPAMFStatusChangeSubscribeModify`), it correctly stores `problemDetail.Cause` (a string). This inconsistency can lead to type assertion panics in downstream middleware or processors that expect a string from that context key.
-   - **Fix:** Consistently store only the string cause/status in the context.
+3. **Logic Error / Uninitialized Data Processing**:
+   - **Location**: `HTTPUEContextTransfer`.
+   - **Pattern**: In the `switch str[0]` block, there is no `default` case. If the content type is invalid, `err` is not set. The subsequent `if err != nil` check is skipped, and the handler calls the processor with an empty `ueContextTransferRequest`.
+   - **Impact**: This leads to the processor handling a "null" or empty request, which could cause a panic (Nil Pointer Dereference) in the processor layer, leading to a Denial of Service (DoS) of the AMF.
+   - **Fix**: Add a `default` case that sets an error.
 
-4. **Missing Default Case/Error Handling in Switch:**
-   - **Location:** `HTTPUEContextTransfer`.
-   - **Pattern:** The `switch str[0]` block handles `applicationjson` and `multipartrelate` but has no `default` case.
-   - **Impact:** If an unsupported content type is provided, `err` remains `nil` (from the previous assignment), and the code proceeds to call `s.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)` with an uninitialized/empty request object. This could lead to null pointer dereferences or logic errors in the processor.
-   - **Fix:** Add a `default` case that sets an error and returns a `400 Bad Request`.
+4. **Inconsistent Context State Management**:
+   - **Location**: `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`.
+   - **Pattern**: `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)` where `problemDetail` is a `models.ProblemDetails` struct, whereas in other functions (like `HTTPAMFStatusChangeSubscribeModify`), it sets `problemDetail.Cause` (a string).
+   - **Impact**: This creates type inconsistency in the Gin context. If downstream middleware or the processor expects a string but receives a struct (or vice versa), it will cause a runtime panic.
+   - **Fix**: Consistently store only the error cause (string) in the context.
 
 **rep 2:**
 
-1. **Denial of Service (Unbounded Memory Allocation)**:
-   - **Location**: All handlers using `c.GetRawData()` (e.g., `HTTPCreateUEContext`, `HTTPAMFStatusChangeSubscribeModify`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`).
-   - **Pattern**: `c.GetRawData()` reads the entire request body into memory without a size limit.
-   - **Impact**: A compromised or malfunctioning NF can send an extremely large payload, causing the AMF to exhaust memory and crash (OOM). In a 5G core, this disrupts the control plane for all UEs attached to that AMF.
-   - **Fix**: Use `http.MaxBytesReader` or a Gin middleware to limit the request body size.
+1. **Denial of Service (DoS) via Unbounded Request Body**:
+    - **Location**: All handlers calling `c.GetRawData()` (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`).
+    - **Pattern**: The use of `c.GetRawData()` in Gin reads the entire request body into memory without a size limit.
+    - **Impact**: A compromised or malicious NF within the SBI can send a massive payload, causing the AMF to exhaust memory (OOM), leading to a crash. This results in a total loss of availability for all UEs managed by that AMF.
+    - **Fix**: Use `http.MaxBytesReader` or a Gin middleware to limit the maximum allowed request body size.
 
-2. **Information Exposure through Error Messages**:
-   - **Location**: Multiple handlers (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`).
-   - **Pattern**: The code concatenates `err.Error()` into the `ProblemDetails.Detail` field returned to the client (e.g., `problemDetail := reqbody + err.Error()`).
-   - **Impact**: Leaks internal system details, library versions, or memory structure information from the `openapi` deserializer, aiding an attacker in crafting more precise exploits.
-   - **Fix**: Use generic error messages for the client and log the specific error internally.
+2. **Type Mismatch in Context Storage (Logic Error/Potential Panic)**:
+    - **Location**: Inconsistent use of `sbi.IN_PB_DETAILS_CTX_STR` across handlers.
+    - **Pattern**: In `HTTPAMFStatusChangeSubscribeModify` and `HTTPN1N2MessageSubscribe`, the code stores a string (`problemDetail.Cause`). In `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, and `HTTPN1N2MessageTransfer`, it stores the entire `models.ProblemDetails` struct.
+    - **Impact**: If a downstream middleware or logger attempts to retrieve this value using a type assertion (e.g., `val.(string)`), the application will panic when it encounters the struct, causing a DoS of the request handler.
+    - **Fix**: Consistently store only one type (preferably the string cause or the full struct) across all handlers.
 
-3. **Improper Input Validation (Path Parameters)**:
-   - **Location**: `getCommunicationRoutes()` and handlers processing `:ueContextId`, `:subscriptionId`, and `:n1N2MessageId`.
-   - **Pattern**: The router accepts any string for these parameters, and they are passed to the `Processor` without validation.
-   - **Impact**: A compromised NF could use malformed IDs to attempt injection attacks or trigger logic errors/crashes in the `Processor` layer.
-   - **Fix**: Implement regex validation for path parameters to ensure they conform to 3GPP specifications.
+3. **Information Exposure via Error Messages**:
+    - **Location**: All handlers returning `models.ProblemDetails` (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, etc.).
+    - **Pattern**: The `Detail` field of the response is populated directly with `err.Error()`.
+    - **Impact**: This leaks internal implementation details, such as Go library errors or internal data model constraints. While mTLS/OAuth2 limits the attacker to other NFs, this aids in reconnaissance for crafting more precise attacks.
+    - **Fix**: Use generic error messages for the client and log the detailed error internally.
 
-4. **Logic Error / Potential Null Pointer Dereference (Missing Default Case)**:
-   - **Location**: `HTTPUEContextTransfer`.
-   - **Pattern**: The `switch str[0]` block handles `applicationjson` and `multipartrelate` but lacks a `default` case. If an unsupported `Content-Type` is sent, `err` remains `nil`, and an empty/uninitialized `ueContextTransferRequest` is passed to the processor.
-   - **Impact**: This can lead to a panic (null pointer dereference) in the `Processor` when it attempts to access `JsonData`, resulting in a DoS.
-   - **Fix**: Add a `default` case that returns `http.StatusUnsupportedMediaType`.
+4. **Fragile Content-Type Parsing**:
+    - **Location**: `HTTPCreateUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`.
+    - **Pattern**: `contentType := c.GetHeader("Content-Type")` followed by `strings.Split(contentType, ";")` and accessing `str[0]`.
+    - **Impact**: If the `Content-Type` header is missing, `c.GetHeader` returns an empty string. `strings.Split("", ";")` returns a slice of length 1 containing an empty string. While it doesn't panic, it leads to a "wrong content type" error. More importantly, it lacks validation for the existence of the header before processing.
+    - **Fix**: Validate that the `Content-Type` header is present and non-empty before attempting to split and switch on it.
 
 **rep 3:**
 
-1. **Improper Input Validation / Potential Panic (Index Out of Bounds):**
-   - **Location:** `HTTPCreateUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`.
-   - **Pattern:** The code performs `str := strings.Split(contentType, ";")` and immediately accesses `str[0]` without checking if the `Content-Type` header is present or if the slice contains any elements.
-   - **Impact:** If a request is sent without a `Content-Type` header, `c.GetHeader` returns an empty string, `strings.Split` returns a slice with one empty string element (so `str[0]` is safe), but if the header is malformed or the logic changes, this is a fragile pattern. More critically, it lacks validation of the header's existence before processing.
-   - **Fix:** Check if the header is empty before splitting and validate the length of the resulting slice.
+1. **Unbounded Memory Allocation (Denial of Service):**
+   - **Location:** Every handler utilizing `c.GetRawData()` (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`).
+   - **Pattern:** `c.GetRawData()` reads the entire request body into memory without a size limit.
+   - **Impact:** A compromised or malicious NF within the SBI can send an extremely large payload, leading to memory exhaustion (OOM) and crashing the AMF. Since the AMF is the primary entry point for UE registration and mobility, its failure results in a complete outage for all attached UEs.
+   - **Fix:** Implement a `http.MaxBytesReader` or a Gin middleware to enforce a strict maximum request body size.
 
-2. **Information Exposure through Error Messages:**
-   - **Location:** `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`.
-   - **Pattern:** The code concatenates `reqbody + err.Error()` into the `Detail` field of the `ProblemDetails` response sent back to the client.
-   - **Impact:** While `reqbody` is likely a constant string, returning raw `err.Error()` from the `openapi.Deserialize` function can leak internal implementation details, library versions, or structural expectations of the JSON/Multipart parser to a potentially compromised NF.
-   - **Fix:** Use generic error messages for the client and log the detailed error internally.
+2. **Information Leakage via Error Responses:**
+   - **Location:** Multiple handlers (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, etc.).
+   - **Pattern:** The code concatenates `err.Error()` into the `ProblemDetails.Detail` field returned to the client (e.g., `problemDetail := reqbody + err.Error()`).
+   - **Impact:** This exposes internal system details, library versions, or deserialization logic. While SBI is protected by mTLS, this information aids an attacker in crafting precise payloads for other vulnerabilities.
+   - **Fix:** Use generic error messages for the client response and log the detailed error internally.
 
-3. **Incorrect Type Assignment in Context (Logic Error):**
-   - **Location:** `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`.
-   - **Pattern:** `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)`.
-   - **Impact:** In `HTTPCreateUEContext` and others, `problemDetail` is a `models.ProblemDetails` struct. However, in `HTTPAMFStatusChangeSubscribeModify`, the code does `c.Set(..., problemDetail.Cause)` (a string). This inconsistency in the type stored in the Gin context can lead to `interface conversion` panics in the `Processor` or middleware if they expect a specific type (string vs struct).
-   - **Fix:** Consistently store only the `Cause` string or the full struct across all handlers.
-
-4. **Missing Default Case/Error Handling in Switch:**
+3. **Logic Error / Potential Null Pointer Dereference (Missing Default Case):**
    - **Location:** `HTTPUEContextTransfer`.
-   - **Pattern:** The `switch str[0]` block handles `applicationjson` and `multipartrelate` but has no `default` case.
-   - **Impact:** If an unsupported content type is provided, `err` remains `nil` (or retains a previous value), and the code proceeds to call `s.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)` with an empty/uninitialized request object. This could lead to null pointer dereferences or logic errors in the processor.
-   - **Fix:** Add a `default` case that sets an error and returns a `400 Bad Request`.
+   - **Pattern:** The `switch str[0]` block handles `applicationjson` and `multipartrelate`, but lacks a `default` case. If an unsupported `Content-Type` is provided, the `err` variable remains `nil`.
+   - **Impact:** The code proceeds to call `s.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)` with an uninitialized/empty `ueContextTransferRequest` object. Depending on the processor's implementation, this could lead to a panic (Null Pointer Dereference) or inconsistent state.
+   - **Fix:** Add a `default` case to the switch statement that returns `http.StatusUnsupportedMediaType` (415).
+
+4. **Incorrect HTTP Status Code (Semantic Error):**
+   - **Location:** `HTTPN1N2MessageTransfer`.
+   - **Pattern:** When `applicationjson` is received, the code manually sets an error and subsequently returns `http.StatusBadRequest` (400).
+   - **Impact:** This is a violation of HTTP semantics. If the endpoint specifically requires `multipart/related` for binary data, receiving JSON should result in `415 Unsupported Media Type`. This causes interoperability issues and incorrect diagnostics.
+   - **Fix:** Return `http.StatusUnsupportedMediaType` (415) when the content type is not supported.
 
 

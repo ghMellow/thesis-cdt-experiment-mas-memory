@@ -2,6 +2,42 @@
 
 ---
 
+## 2026-07-14 — Reasoning detail anche per i finding matched  [sessione: 95b680ae]
+
+**Intent:** discussione con collega su come rispondere a due dubbi sul report CVSS (task5-9): perché mancano CVE nell'UDR, e come esporre il ragionamento del modello quando sbaglia i campi CVSS. Durante la ricostruzione del contesto l'utente nota: *"il ragionamento c'è per gli unmatched, manca per i matched con gt! aggiungi un campo lì"*
+**Divergenze:** nessuna — richiesta puntuale, ho riusato lo stesso pattern già esistente per gli unmatched (`_write_unmatched_finding_file`) invece di inventare un formato nuovo.
+**Esito/Problemi:** aggiunto `function` al dict di ritorno di `_evaluate_matched_pair` (utils/cvss_eval.py, prima veniva letto solo per il match e scartato); nuova `_write_matched_finding_file` + cartella `results/evaluation/matched_findings/` in `utils/evaluation_utils.py`, linkata da ogni tabella "Vector detail" (prima il narrative dei matched era raggiungibile solo indirettamente passando da un unmatched finding della stessa ripetizione). Verificato su `task6_..._rep2_CVE-2026-40245.md`: la funzione corretta (`HandleApplicationDataInfluenceDataSubsToNotifyGet`) risulta bolded nel punto 2 del reasoning, che è esattamente la root cause reale (missing return dopo errore).
+**Lesson learned:** la sessione ha anche chiarito (verifica campo-per-campo, non supposizione) che i 6 miss del task6 UDR non sono un bug del matching per nome funzione (`_match_finding`, substring case-insensitive) — sono handler che il modello non nomina mai nel narrative, root cause reale è l'esaustività su file lunghi già diagnosticata il 13/07.
+
+---
+
+## 2026-07-14 — Call 12: via libera a implementare l'SGV  [sessione: 2e99bcd7]
+
+**Intent:** l'utente condivide la trascrizione della dodicesima call (relatore + Nicolò) e chiede di estrarre/raggruppare concetti, dare una valutazione e proporre come iniziare a implementare il checker no-LLM
+**Divergenze:** ho collegato la call al precedente già esistente nel codice (`_match_finding` in `utils/cvss_eval.py:156-165` — match deterministico per sostringa funzione↔GT, già di fatto un G2 embrionale) e segnalato un rischio non discusso esplicitamente in call: la rubrica CWE-based rischia overfitting sulla metrica di valutazione stessa se le CWE vengono scelte guardando ai 4 file noti invece che alla tassonomia MITRE a priori
+**Decisioni (prese dal team in call, non da me):** si parte a implementare l'SGV (G1-G4, solo LLM, senza SAST); doppio esperimento per l'articolo (A: rubrica+giudice LLM, storico, citato ma non in produzione; B: filtro sintattico, quello reale); rubrica CWE-based resta ipotesi da esplorare, nessuna decisione presa ("ragioniamoci senza fare test"); priorità esplicita all'SGV prima di ottimizzare modello/prompt (rischio overfitting sui 4 file noti)
+**Esito/Problemi:** creato `docs/sgv_protocol/04_call12_2026-07-14.md` con sintesi, valutazione e piano operativo (5 step, dal riuso di `_match_finding` al refactor di granularità per-finding nel grafo); bug aperto non ancora risolto: 6 finding non classificati nel matching CVE, da investigare prima di riusare quel codice per G2
+
+---
+
+## 2026-07-13 — Analisi report 1A (task5-9) + fix anti-saturazione su task_full  [sessione: 62524560]
+
+**Intent:** "cosa possiamo evincere dalle prestazione del modello sui file completi? trova tutte le cve gt? ne trova altre? [...] fai un analisi per task in un unico report finale" — poi, seguito da "quindi è perchè non analizza in maniera esaustiva il file? potremmo sfruttare le conoscenze acquisite in team_update_CVE-2026-47780 per migliorare il prompt in input dato al modello?"
+**Divergenze:** ho proposto un fix al prompt di `task6_vuln_udr_full` che mescolava un fix strutturale (anti-saturazione: "leggi tutto prima di scegliere, nessun limite ai finding") con un hint di contenuto ("presta attenzione alle famiglie di handler ripetuti come *SubsToNotify*") — quest'ultimo derivato dalla conoscenza del ground truth (le 6 CVE mancate sono tutte in handler quasi identici), quindi in realtà un hint_level ≥2 mascherato da consiglio di processo.
+**Decisioni:** l'utente ha fatto notare la contaminazione ("però così lo stai limitando - dandogli hint o sbaglio?"). Accettata solo la parte strutturale (leggi l'intero file function-by-function prima di riportare, nessun limite ai finding, non fermarsi ai primi 2-3 problemi); **rifiutato** il riferimento esplicito alle famiglie di handler ripetuti. Applicata la stessa formulazione "pulita" a task6/7/8_vuln_*_full.md per coerenza (task5 e task9 non hanno varianti `_full`, non modificati).
+**Esito/Problemi:** analisi comparativa dei 5 report 1A (task5-9): recall alto sulla CVE singola per file (task5/7/8, 3/3 sempre), crollo severo su task6 (UDR, file con 6 CVE quasi-gemelle nello stesso file: solo 2/18 matched) — root cause verificata sul ground truth reale (`cve_metrics_normalized.json`): non è un bug del matching per nome funzione, il modello ignora una intera famiglia di handler (`...InfluenceDataSubsToNotify*`) e su un'altra famiglia (`...PolicyDataSubsToNotify*`) individua la funzione giusta ma diagnostica un bug diverso da quello reale (root cause GT: return mancante dopo errore; diagnosi modello: deserializzazione pass-by-value). Stessa dinamica dei failure mode #1/#3 già documentati nell'esperimento CVE (saturazione + scope coverage), qui aggravata dalla nota di prompt "Analyse as much as your context allows" che concedeva esplicitamente la non-esaustività — rimossa.
+**Lesson learned:** la distinzione tra "fix strutturale/di processo" (legittimo, non contamina la scoperta autonoma — validato dal test #19 dell'esperimento CVE: la narrativa non conta, la struttura sì) e "hint di contenuto" (anche se formulato in modo generico, se informato dal ground truth orienta l'attenzione esattamente dove serve trovare la risposta) va sempre esplicitata quando si modificano i prompt dei task di valutazione — altrimenti si rompe la comparabilità tra task che restano a scenario "pulito" (5/7/8 con singola CVE) e quello modificato.
+
+**Esito del re-run (utente ha cancellato `results/task{6,7,8}_vuln_*_full` e rilanciato `python main.py --experiment 1A --task task6_vuln_udr_full --task task7_vuln_amf_full --task task8_vuln_udm_full`, run_id `20260713T174027Z`):**
+
+- task6 (UDR): matched CVE 2→**5** (su 18), missed 16→13 — trovata la seconda famiglia di handler ripetuti (`...InfluenceDataSubsToNotifyGet`, CVE-2026-40245) prima ignorata, e su `HandlePolicyDataSubsToNotify*` ora la root cause diagnosticata in 2/3 rep coincide con quella reale (return mancante dopo errore, non più solo il bug di deserializzazione pass-by-value). Miglioramento reale, non rumore. Ma rubric resta 0% (tutti wrong) e la confidenza media self-reported sale (0.950→0.983) mentre l'accuratezza resta a zero — overconfidence peggiorata, non risolta.
+- task7 (AMF): recall CVE invariato (3/3), ma rubric accuracy **scende** 66.7%→33.3% e brier peggiora (0.277→0.638); un rep emette un vettore CVSS degenere (score 0.0/0.0) sul CVE comunque "matched" — possibile segnale che l'esaustività diluisce la qualità della stima sul finding target. Con n=3 repetition il segnale è troppo debole per concludere che sia un effetto reale del fix e non rumore statistico.
+- task8 (UDM): nessuna variazione significativa (matched 3/3, rubric 100%, brier invariato) — non aveva il problema di handler ripetuti che il fix indirizzava.
+
+**Lesson learned:** il fix ha funzionato esattamente sul meccanismo diagnosticato (recall su famiglie di handler ripetuti), ma non è una soluzione — resta un miglioramento parziale, non risolve la rubric di task6, e introduce un possibile costo di coerenza altrove (task7). Da confermare con più ripetizioni prima di trattarlo come conclusione stabile nel report finale della tesi.
+
+---
+
 ## 2026-07-13 — Verifica ground truth CVSS 4.0 + fix CVE-2026-40343  [sessione: 6d305a14]
 
 **Intent:** "Devo verificare la correttezza dei dati ground-truth CVSS 4.0 usati nel progetto e la correttezza del codice che li elabora" — verifica online delle 10 CVE contro NVD API/GHSA API + verifica della matematica di `compute_base_score()` in `utils/cvss_eval.py`

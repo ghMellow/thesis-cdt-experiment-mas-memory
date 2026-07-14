@@ -2,45 +2,45 @@
 
 | field | value |
 | --- | --- |
-| function | `All handlers using GetRawData()` |
-| vector (estimated) | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H` |
-| score declared | 6.2 |
-| score computed (official CVSS 4.0 math) | 8.3 |
-| group (recurs across reps) | — |
+| function | `c.GetRawData()` (multiple handlers)` |
+| vector (estimated) | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| score declared | 4.8 |
+| score computed (official CVSS 4.0 math) | 7.1 |
+| group (recurs across reps) | ≠ |
 
 ## Agent narrative for this repetition
 
-_Shared across every finding reported in the same repetition — occurrences of `All handlers using GetRawData()` are **bolded** below to help locate the relevant passage._
+_Shared across every finding reported in the same repetition — occurrences of `c.GetRawData()` (multiple handlers)` are **bolded** below to help locate the relevant passage._
 
 **Answer:**
 
-The code contains several critical security and logic flaws: unbounded memory allocation via `GetRawData()` leading to DoS, information leakage through detailed error responses, lack of path parameter validation, and a missing default case in `HTTPUEContextTransfer` that could trigger a null pointer dereference.
+The AMF implementation is vulnerable to memory-exhaustion DoS due to unbounded request body reading via `c.GetRawData()`. It contains a critical logic error where inconsistent data types (strings vs. structs) are stored in the Gin context, potentially leading to runtime panics. Additionally, the code leaks internal error details to the SBI and uses fragile HTTP header parsing.
 
 **Reasoning:**
 
-1. **Denial of Service (Unbounded Memory Allocation)**:
-   - **Location**: All handlers using `c.GetRawData()` (e.g., `HTTPCreateUEContext`, `HTTPAMFStatusChangeSubscribeModify`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`).
-   - **Pattern**: `c.GetRawData()` reads the entire request body into memory without a size limit.
-   - **Impact**: A compromised or malfunctioning NF can send an extremely large payload, causing the AMF to exhaust memory and crash (OOM). In a 5G core, this disrupts the control plane for all UEs attached to that AMF.
-   - **Fix**: Use `http.MaxBytesReader` or a Gin middleware to limit the request body size.
+1. **Denial of Service (DoS) via Unbounded Request Body**:
+    - **Location**: All handlers calling `c.GetRawData()` (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`).
+    - **Pattern**: The use of `c.GetRawData()` in Gin reads the entire request body into memory without a size limit.
+    - **Impact**: A compromised or malicious NF within the SBI can send a massive payload, causing the AMF to exhaust memory (OOM), leading to a crash. This results in a total loss of availability for all UEs managed by that AMF.
+    - **Fix**: Use `http.MaxBytesReader` or a Gin middleware to limit the maximum allowed request body size.
 
-2. **Information Exposure through Error Messages**:
-   - **Location**: Multiple handlers (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`).
-   - **Pattern**: The code concatenates `err.Error()` into the `ProblemDetails.Detail` field returned to the client (e.g., `problemDetail := reqbody + err.Error()`).
-   - **Impact**: Leaks internal system details, library versions, or memory structure information from the `openapi` deserializer, aiding an attacker in crafting more precise exploits.
-   - **Fix**: Use generic error messages for the client and log the specific error internally.
+2. **Type Mismatch in Context Storage (Logic Error/Potential Panic)**:
+    - **Location**: Inconsistent use of `sbi.IN_PB_DETAILS_CTX_STR` across handlers.
+    - **Pattern**: In `HTTPAMFStatusChangeSubscribeModify` and `HTTPN1N2MessageSubscribe`, the code stores a string (`problemDetail.Cause`). In `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, and `HTTPN1N2MessageTransfer`, it stores the entire `models.ProblemDetails` struct.
+    - **Impact**: If a downstream middleware or logger attempts to retrieve this value using a type assertion (e.g., `val.(string)`), the application will panic when it encounters the struct, causing a DoS of the request handler.
+    - **Fix**: Consistently store only one type (preferably the string cause or the full struct) across all handlers.
 
-3. **Improper Input Validation (Path Parameters)**:
-   - **Location**: `getCommunicationRoutes()` and handlers processing `:ueContextId`, `:subscriptionId`, and `:n1N2MessageId`.
-   - **Pattern**: The router accepts any string for these parameters, and they are passed to the `Processor` without validation.
-   - **Impact**: A compromised NF could use malformed IDs to attempt injection attacks or trigger logic errors/crashes in the `Processor` layer.
-   - **Fix**: Implement regex validation for path parameters to ensure they conform to 3GPP specifications.
+3. **Information Exposure via Error Messages**:
+    - **Location**: All handlers returning `models.ProblemDetails` (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, etc.).
+    - **Pattern**: The `Detail` field of the response is populated directly with `err.Error()`.
+    - **Impact**: This leaks internal implementation details, such as Go library errors or internal data model constraints. While mTLS/OAuth2 limits the attacker to other NFs, this aids in reconnaissance for crafting more precise attacks.
+    - **Fix**: Use generic error messages for the client and log the detailed error internally.
 
-4. **Logic Error / Potential Null Pointer Dereference (Missing Default Case)**:
-   - **Location**: `HTTPUEContextTransfer`.
-   - **Pattern**: The `switch str[0]` block handles `applicationjson` and `multipartrelate` but lacks a `default` case. If an unsupported `Content-Type` is sent, `err` remains `nil`, and an empty/uninitialized `ueContextTransferRequest` is passed to the processor.
-   - **Impact**: This can lead to a panic (null pointer dereference) in the `Processor` when it attempts to access `JsonData`, resulting in a DoS.
-   - **Fix**: Add a `default` case that returns `http.StatusUnsupportedMediaType`.
+4. **Fragile Content-Type Parsing**:
+    - **Location**: `HTTPCreateUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`.
+    - **Pattern**: `contentType := c.GetHeader("Content-Type")` followed by `strings.Split(contentType, ";")` and accessing `str[0]`.
+    - **Impact**: If the `Content-Type` header is missing, `c.GetHeader` returns an empty string. `strings.Split("", ";")` returns a slice of length 1 containing an empty string. While it doesn't panic, it leads to a "wrong content type" error. More importantly, it lacks validation for the existence of the header before processing.
+    - **Fix**: Validate that the `Content-Type` header is present and non-empty before attempting to split and switch on it.
 
 ---
-_Source: `results/task7_vuln_amf_full/1A/agent/*.json`, run_id `20260712T142416Z`, repetition 2._
+_Source: `results/task7_vuln_amf_full/1A/agent/*.json`, run_id `20260713T174027Z`, repetition 2._

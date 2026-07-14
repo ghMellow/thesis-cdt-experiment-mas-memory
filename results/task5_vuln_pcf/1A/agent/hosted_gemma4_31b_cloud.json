@@ -81,6 +81,7 @@
         "matched": [
           {
             "cve_id": "CVE-2026-41135",
+            "function": "setCorsHeader",
             "estimated_score": 4.1,
             "published_score": 8.7,
             "published_score_type": "B",
@@ -207,6 +208,7 @@
         "matched": [
           {
             "cve_id": "CVE-2026-41135",
+            "function": "setCorsHeader",
             "estimated_score": 6.2,
             "published_score": 8.7,
             "published_score_type": "B",
@@ -340,6 +342,7 @@
         "matched": [
           {
             "cve_id": "CVE-2026-41135",
+            "function": "setCorsHeader",
             "estimated_score": 5.3,
             "published_score": 8.7,
             "published_score_type": "B",

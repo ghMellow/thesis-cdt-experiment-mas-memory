@@ -2,15 +2,15 @@
 
 | field | value |
 | --- | --- |
-| function | `HandleCreateEeSubscriptions, HandleQueryeesubscriptions` |
-| vector (estimated) | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N` |
+| function | `HandlePolicyDataUesUeIdSmDataGet, HandleQuerySmData` |
+| vector (estimated) | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
 | score declared | 2.0 |
 | score computed (official CVSS 4.0 math) | 5.3 |
-| group (recurs across reps) | a |
+| group (recurs across reps) | ≠ |
 
 ## Agent narrative for this repetition
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleCreateEeSubscriptions, HandleQueryeesubscriptions` are **bolded** below to help locate the relevant passage._
+_Shared across every finding reported in the same repetition — occurrences of `HandlePolicyDataUesUeIdSmDataGet, HandleQuerySmData` are **bolded** below to help locate the relevant passage._
 
 **Answer:**
 

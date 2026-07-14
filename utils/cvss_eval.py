@@ -167,7 +167,10 @@ def _match_finding(finding: Dict[str, Any], candidates: List[Dict[str, Any]]) ->
 
 def _evaluate_matched_pair(finding: Dict[str, Any], cve: Dict[str, Any]) -> Dict[str, Any]:
     gt_cvss = cve["cvss"]
-    result: Dict[str, Any] = {"cve_id": cve["id"]}
+    result: Dict[str, Any] = {
+        "cve_id": cve["id"],
+        "function": str(finding.get("function", "")).strip() or None,
+    }
     # Pure base reference: base_score_B where published score is BT, else the
     # published score itself (already type B).
     reference_b = gt_cvss.get("base_score_B") or gt_cvss["base_score"]

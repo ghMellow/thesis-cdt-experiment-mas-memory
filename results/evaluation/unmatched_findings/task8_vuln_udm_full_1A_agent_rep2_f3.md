@@ -2,15 +2,15 @@
 
 | field | value |
 | --- | --- |
-| function | `getPlmnIDStruct` |
-| vector (estimated) | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| score declared | 6.2 |
-| score computed (official CVSS 4.0 math) | 7.1 |
-| group (recurs across reps) | a |
+| function | `OneLayerPathHandlerFunc, TwoLayerPathHandlerFunc` |
+| vector (estimated) | `CVSS:4.0/AV:N/AC:H/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| score declared | 4.3 |
+| score computed (official CVSS 4.0 math) | 2.3 |
+| group (recurs across reps) | — |
 
 ## Agent narrative for this repetition
 
-_Shared across every finding reported in the same repetition — occurrences of `getPlmnIDStruct` are **bolded** below to help locate the relevant passage._
+_Shared across every finding reported in the same repetition — occurrences of `OneLayerPathHandlerFunc, TwoLayerPathHandlerFunc` are **bolded** below to help locate the relevant passage._
 
 **Answer:**
 
@@ -22,7 +22,7 @@ The UDM implementation suffers from inconsistent input validation of SUPIs/UEIDs
    - **Impact:** While the processor might handle it, allowing malformed identifiers into the business logic can lead to unexpected behavior, potential injection into backend database queries (depending on the processor implementation), or DoS via malformed strings.
    - **Fix:** Apply `validator.IsValidSupi(supi)` or `validator.IsValidGpsi(ueId)` consistently across all handlers using these parameters.
 
-2. **Unsafe JSON Unmarshaling of Query Parameters:** The function **`getPlmnIDStruct`** takes a query parameter `plmn-id` and passes it directly to `json.Unmarshal`.
+2. **Unsafe JSON Unmarshaling of Query Parameters:** The function `getPlmnIDStruct` takes a query parameter `plmn-id` and passes it directly to `json.Unmarshal`.
    - **Impact:** Query parameters are typically plain strings. Expecting a JSON object in a query string is non-standard and dangerous. A malicious NF could send a large or deeply nested JSON payload in the URL, potentially leading to CPU/Memory exhaustion (DoS) during unmarshaling.
    - **Fix:** Use standard query parameter parsing (e.g., `c.Query("mcc")` and `c.Query("mnc")`) instead of requiring a JSON string inside a URL parameter.
 

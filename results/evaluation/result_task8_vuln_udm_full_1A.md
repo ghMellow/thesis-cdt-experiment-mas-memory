@@ -1,7 +1,7 @@
 # 1A — task8_vuln_udm_full
 
 > **Run(s) in this report:**
-> - `agent`: 20260712T142416Z
+> - `agent`: 20260713T174027Z
 
 <a id="toc"></a>
 **Contents**
@@ -27,30 +27,32 @@
 | AV — Attack Vector | N | N |
 | AC — Attack Complexity | L | L |
 | AT — Attack Requirements | N | N |
-| PR — Privileges Required | **H** | **N** |
+| PR — Privileges Required | **L** | **N** |
 | UI — User Interaction | N | N |
 | VC — Confidentiality Impact to the Vulnerable System | **L** | **H** |
 | VI — Integrity Impact to the Vulnerable System | **L** | **N** |
 | VA — Availability Impact to the Vulnerable System | N | N |
-| SC — Confidentiality Impact to the Subsequent System | N | N |
-| SI — Integrity Impact to the Subsequent System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | **L** | **N** |
+| SI — Integrity Impact to the Subsequent System | **L** | **N** |
 | SA — Availability Impact to the Subsequent System | N | N |
-| base score — declared / from vector (official math) | 3.1 / **5.1** | 7.7 |
+| base score — declared / from vector (official math) | 4.1 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_agent_rep1_CVE-2026-42459.md) | | |
 
 | **CVE-2026-42459** — agent, rep 2 | estimated | published |
 |---|---|---|
 | AV — Attack Vector | N | N |
 | AC — Attack Complexity | L | L |
 | AT — Attack Requirements | N | N |
-| PR — Privileges Required | **H** | **N** |
+| PR — Privileges Required | **L** | **N** |
 | UI — User Interaction | N | N |
 | VC — Confidentiality Impact to the Vulnerable System | **L** | **H** |
-| VI — Integrity Impact to the Vulnerable System | N | N |
-| VA — Availability Impact to the Vulnerable System | N | N |
-| SC — Confidentiality Impact to the Subsequent System | **L** | **N** |
+| VI — Integrity Impact to the Vulnerable System | **L** | **N** |
+| VA — Availability Impact to the Vulnerable System | **L** | **N** |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
 | SI — Integrity Impact to the Subsequent System | N | N |
 | SA — Availability Impact to the Subsequent System | N | N |
-| base score — declared / from vector (official math) | 3.1 / **5.1** | 7.7 |
+| base score — declared / from vector (official math) | 5.1 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_agent_rep2_CVE-2026-42459.md) | | |
 
 | **CVE-2026-42459** — agent, rep 3 | estimated | published |
 |---|---|---|
@@ -59,26 +61,29 @@
 | AT — Attack Requirements | N | N |
 | PR — Privileges Required | **L** | **N** |
 | UI — User Interaction | N | N |
-| VC — Confidentiality Impact to the Vulnerable System | **L** | **H** |
+| VC — Confidentiality Impact to the Vulnerable System | **N** | **H** |
 | VI — Integrity Impact to the Vulnerable System | N | N |
 | VA — Availability Impact to the Vulnerable System | **L** | **N** |
 | SC — Confidentiality Impact to the Subsequent System | N | N |
 | SI — Integrity Impact to the Subsequent System | N | N |
 | SA — Availability Impact to the Subsequent System | N | N |
-| base score — declared / from vector (official math) | 5.1 / **5.3** | 7.7 |
+| base score — declared / from vector (official math) | 2.0 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_agent_rep3_CVE-2026-42459.md) | | |
 
 <a id="unmatched-findings"></a>
 ### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)
 
 | # | group | details | score (from vector) | declared | function | task | role | rep | vector |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f1.md) | 6.9 | 4.1 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 2 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f1.md) | 5.3 | 4.0 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
-| 3 | — | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f2.md) | 5.3 | 4.0 | `ThreeLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
-| 4 | — | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f3.md) | 5.3 | 4.0 | `HandleSubscribe, HandleModify` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 5 | — | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f2.md) | 5.1 | 3.1 | `TwoLayerPathHandlerFunc, ThreeLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
-| 6 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f1.md) | 5.1 | 2.2 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
-| 7 | — | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f2.md) | 5.1 | 3.1 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 1 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f1.md) | 7.1 | 6.2 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| 2 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f1.md) | 7.1 | 4.1 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| 3 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f1.md) | 5.3 | 3.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N` |
+| 4 | — | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f2.md) | 5.3 | 3.3 | `HandleSubscribe, HandleModify, HandleSubscribeToSharedData, HandleModifyForSharedData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 5 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f3.md) | 5.3 | 3.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 6 | — | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f2.md) | 5.3 | 4.1 | `HandleSubscribe, HandleModify (and similar)` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 7 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f2.md) | 5.3 | 2.0 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 8 | — | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f3.md) | 5.3 | 3.3 | `OneLayerPathHandlerFunc, TwoLayerPathHandlerFunc, ThreeLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 9 | — | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f3.md) | 2.3 | 4.3 | `OneLayerPathHandlerFunc, TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:H/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
 
 **Legend**
 
@@ -102,7 +107,7 @@ _Diagnostic roll-up, useful for a global read once you've checked the detail abo
 
 | role | estimates | matched | missed CVEs | unmatched findings | avg band vs published (0-3) | avg band vs B (0-3) | avg exploitability (0-5) | avg impact (0-3) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | 3/3 | 3 | 0 | 7 | 0.33 | 0.00 | 4.00 | 1.33 |
+| agent | 3/3 | 3 | 0 | 9 | 0.33 | 0.00 | 4.00 | 0.67 |
 
 **Legend**
 
@@ -118,7 +123,7 @@ _Diagnostic roll-up, useful for a global read once you've checked the detail abo
 
 | role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg subseq. distance (0-1) | avg Hamming (0-8) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | 1.40 | 3.53 | 0.00 | 0.17 | 0.28 | 0.06 | 2.67 |
+| agent | 1.57 | 3.40 | 0.00 | 0.10 | 0.44 | 0.11 | 3.33 |
 
 **Legend**
 
@@ -176,72 +181,76 @@ _Diagnostic roll-up, useful for a global read once you've checked the detail abo
 #### Truly inconsistent reasoning (1)
 
 **agent — task8_vuln_udm_full**
-> The third reasoning identifies an additional 'Information Leakage' vulnerability not mentioned in the others, and the three reasonings disagree on the specific location and nature of the routing/parameter logic error (comparing TwoLayer vs ThreeLayer and strings.Contains vs manual slice manipulation).
+> The three reasonings differ on their fourth key claim: the first identifies an inconsistent parameter handling error in HandleGetTraceData, the second identifies a routing logic error using strings.Contains, and the third identifies both of these issues but presents them as distinct points.
 
 **rep 1:**
 
-1. **Improper Input Validation (Missing SUPI Validation):**
-   - **Location:** `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`.
-   - **Pattern:** These functions retrieve the `supi` parameter from the URL path (`c.Params.ByName("supi")`) but fail to call `validator.IsValidSupi(supi)` before passing it to the processor. In contrast, `HandleGetAmData` correctly implements this check.
-   - **Impact:** While the SBI is protected by mTLS/OAuth2, an authorized but compromised NF (or a malicious internal actor) could send malformed SUPIs. This could lead to unexpected behavior in the `Processor` layer, potential database query errors, or logic bypasses if the processor assumes the input is already validated.
-   - **Fix:** Add the `validator.IsValidSupi(supi)` check at the beginning of each handler.
+1.  **Missing Input Validation (SUPI/UEID):**
+    *   **Location:** `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, `HandleModifyForSharedData`.
+    *   **Pattern:** These handlers extract `supi` or `ueId` from `c.Params.ByName()` but fail to call `validator.IsValidSupi()` or `validator.IsValidGpsi()` before passing the value to the `Processor` layer.
+    *   **Impact:** While the SBI is protected by mTLS/OAuth2, allowing unvalidated identifiers into the business logic can lead to unexpected behavior in the database layer (e.g., querying for malformed keys) or potential injection if the downstream processor does not sanitize inputs.
+    *   **Fix:** Implement the same validation check used in `HandleGetAmData` or `HandleUnsubscribe`.
 
-2. **Unsafe JSON Unmarshaling (Potential Denial of Service):**
-   - **Location:** `getPlmnIDStruct`.
-   - **Pattern:** The code takes a string directly from a query parameter (`plmn-id`) and passes it to `json.Unmarshal([]byte(plmnIDJson), plmnIDStruct)`.
-   - **Impact:** Query parameters can be manipulated to send very large or deeply nested JSON strings. Since `json.Unmarshal` is used on raw user input without length constraints, this could lead to excessive memory consumption or CPU spikes (DoS), affecting the availability of the UDM.
-   - **Fix:** Implement a maximum length check for the `plmn-id` query parameter before attempting to unmarshal it.
+2.  **Unsafe JSON Unmarshaling of Query Parameters:**
+    *   **Location:** `getPlmnIDStruct`
+    *   **Pattern:** The code takes a string directly from a URL query parameter (`plmn-id`) and passes it to `json.Unmarshal([]byte(plmnIDJson), plmnIDStruct)`.
+    *   **Impact:** This is a highly unusual pattern. Query parameters are typically key-value pairs, not JSON blobs. If an attacker can bypass the API gateway or if an internal NF is compromised, they can send specially crafted JSON strings. While Go's `json.Unmarshal` is generally safe from memory corruption, this pattern is prone to "JSON injection" or logic errors if the `PlmnId` model allows unexpected fields.
+    *   **Fix:** Use standard query parameter parsing (e.g., `?mcc=xxx&mnc=yyy`) instead of embedding JSON in a URL parameter.
 
-3. **Inconsistent Parameter Handling (Logic Error/Potential Bypass):**
-   - **Location:** `TwoLayerPathHandlerFunc` and `ThreeLayerPathHandlerFunc`.
-   - **Pattern:** The code manually manipulates `c.Params` (e.g., `c.Params = append(c.Params, ...)` or `c.Params = tmpParams`).
-   - **Impact:** Manually overriding the Gin context parameters is error-prone. If the routing logic in `OneLayerPathHandlerFunc` or `TwoLayerPathHandlerFunc` incorrectly matches a pattern, it might pass an incorrect `ueId` or `subscriptionId` to the handler. This could lead to unauthorized data access or modification of the wrong subscription if the `Processor` relies solely on these parameters.
-   - **Fix:** Use a structured routing system (Gin's native router) instead of custom "Layer" handler functions that manually parse and re-assign parameters.
+3.  **Information Leakage via Error Messages:**
+    *   **Location:** `HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, `HandleModifyForSharedData`
+    *   **Pattern:** The code returns `err.Error()` from `c.GetRawData()` or `openapi.Deserialize` directly in the `ProblemDetails.Detail` field sent back to the client.
+    *   **Impact:** Returning raw internal error strings can leak implementation details (e.g., library versions, internal structure names, or parsing logic) to a potentially malicious NF.
+    *   **Fix:** Use generic error messages for the client (e.g., "Invalid request body") and log the detailed error internally.
+
+4.  **Inconsistent Parameter Handling (Logic Error):**
+    *   **Location:** `HandleGetTraceData`
+    *   **Pattern:** `plmnID := c.Query("plmn-id")` is used here, whereas other "Get" handlers use the `getPlmnIDStruct` helper to parse a JSON object.
+    *   **Impact:** This creates a discrepancy in the API. If the UDM expects a JSON object for `plmn-id` (as per `getPlmnIDStruct`), `HandleGetTraceData` will receive the raw JSON string as the PLMN ID, likely causing the `Processor` to fail or look up the wrong data.
+    *   **Fix:** Use `getPlmnIDStruct` consistently across all handlers requiring PLMN ID.
 
 **rep 2:**
 
-1. **Improper Input Validation (Missing SUPI Validation):**
-   - **Location:** `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`.
-   - **Pattern:** These functions extract the `supi` parameter from the URL path (`c.Params.ByName("supi")`) but fail to call `validator.IsValidSupi(supi)` before passing it to the `Processor` layer. In contrast, `HandleGetAmData` correctly implements this check.
-   - **Impact:** While the SBI is protected by mTLS/OAuth2, an authenticated but compromised NF (or a malicious internal actor) could send malformed SUPIs. This could lead to unexpected behavior in the database layer, potential injection attacks if the processor doesn't sanitize inputs, or logic errors in subscriber data retrieval.
-   - **Fix:** Add the `validator.IsValidSupi(supi)` check at the beginning of each handler that accepts a SUPI.
+1. **Missing Input Validation (SUPI/UEID):** In several handlers, the `supi` or `ueId` parameter is extracted from the URL but never validated before being passed to the processor. Specifically, `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, and `HandleGetNssai` lack the `validator.IsValidSupi(supi)` check present in `HandleGetAmData`.
+   - **Impact:** While the processor might handle it, allowing malformed identifiers into the business logic can lead to unexpected behavior, potential injection into backend database queries (depending on the processor implementation), or DoS via malformed strings.
+   - **Fix:** Apply `validator.IsValidSupi(supi)` or `validator.IsValidGpsi(ueId)` consistently across all handlers using these parameters.
 
-2. **Unsafe JSON Unmarshaling from Query Parameters:**
-   - **Location:** `getPlmnIDStruct`
-   - **Pattern:** The code takes a raw string from a URL query parameter (`plmn-id`) and passes it directly into `json.Unmarshal([]byte(plmnIDJson), plmnIDStruct)`.
-   - **Impact:** This is a highly unusual pattern. Query parameters are typically key-value pairs, not JSON blobs. If an attacker can control the `plmn-id` parameter, they can provide complex JSON structures. While Go's `json.Unmarshal` is generally safe from memory corruption, this pattern can be used for "JSON injection" or causing resource exhaustion (DoS) if the parser is hit with deeply nested objects or extremely large strings, potentially crashing the UDM instance.
-   - **Fix:** Change the `plmn-id` parameter to a standard format (e.g., `mcc,mnc`) or use a dedicated POST body for complex objects. If JSON must be used in a query, implement strict length limits on the input string before unmarshaling.
+2. **Unsafe JSON Unmarshaling of Query Parameters:** The function `getPlmnIDStruct` takes a query parameter `plmn-id` and passes it directly to `json.Unmarshal`.
+   - **Impact:** Query parameters are typically plain strings. Expecting a JSON object in a query string is non-standard and dangerous. A malicious NF could send a large or deeply nested JSON payload in the URL, potentially leading to CPU/Memory exhaustion (DoS) during unmarshaling.
+   - **Fix:** Use standard query parameter parsing (e.g., `c.Query("mcc")` and `c.Query("mnc")`) instead of requiring a JSON string inside a URL parameter.
 
-3. **Logic Error / Path Routing Ambiguity:**
-   - **Location:** `OneLayerPathHandlerFunc` and `TwoLayerPathHandlerFunc`
-   - **Pattern:** The routing logic uses `strings.Contains(route.Pattern, supi)` to match routes.
-   - **Impact:** `strings.Contains` is too permissive. If a `supi` value contains a substring that matches another route pattern, it may trigger the wrong handler. Furthermore, the manual manipulation of `c.Params` (e.g., `c.Params = append(...)` in `TwoLayerPathHandlerFunc`) is error-prone and can lead to parameter pollution or incorrect data being passed to the business logic.
-   - **Fix:** Use a proper router (like Gin's built-in group routing) instead of manual string matching and parameter overriding.
+3. **Information Exposure via Error Messages:** In `HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, and `HandleModifyForSharedData`, the code returns `err.Error()` from `c.GetRawData()` or `openapi.Deserialize` directly to the client in the `ProblemDetails.Detail` field.
+   - **Impact:** This can leak internal system details, library versions, or memory addresses to a calling NF, aiding an attacker in reconnaissance.
+   - **Fix:** Use generic error messages for the client (e.g., "Invalid request body") and log the specific error internally.
+
+4. **Logic Error in Route Matching (Path Traversal/Collision):** The `OneLayerPathHandlerFunc` and `TwoLayerPathHandlerFunc` use `strings.Contains(route.Pattern, supi)` to match routes.
+   - **Impact:** This is highly fragile. If a `supi` contains a substring that matches another route pattern, the wrong handler may be invoked. For example, if a SUPI was somehow named "shared-data", it could collide with the shared data routes.
+   - **Fix:** Use a proper router (like Gin's built-in tree router) instead of manual string matching and loop-based dispatching.
 
 **rep 3:**
 
-1. **Improper Input Validation (Missing SUPI Validation):**
+1. **Missing Input Validation (SUPI/UEID):** 
    - **Location:** `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`.
-   - **Pattern:** These functions extract the `supi` parameter from the URL path (`c.Params.ByName("supi")`) but fail to call `validator.IsValidSupi(supi)` before passing it to the `Processor()`. In contrast, `HandleGetAmData` correctly performs this check.
-   - **Impact:** While the SBI is protected by mTLS/OAuth2, an authorized but compromised NF (or a malicious internal actor) could send malformed SUPIs to the UDM. This could lead to unexpected behavior in the backend processor, potential database query errors, or logic bypasses if the processor assumes the input is already validated.
-   - **Fix:** Implement `if !validator.IsValidSupi(supi) { ... return }` at the start of each handler that accepts a SUPI.
+   - **Pattern:** These handlers extract the `supi` parameter from the URL path (`c.Params.ByName("supi")`) but fail to call `validator.IsValidSupi(supi)` before passing it to the processor. In contrast, `HandleGetAmData` and `HandleUnsubscribe` correctly implement this check.
+   - **Impact:** While the SBI is protected by mTLS/OAuth2, allowing malformed SUPIs to reach the processor can lead to unexpected behavior in the database layer or downstream NFs, potentially causing Denial of Service (DoS) via malformed queries or logic errors in the processor.
+   - **Fix:** Implement `if !validator.IsValidSupi(supi) { ... return }` at the start of each handler.
 
-2. **Unsafe JSON Unmarshaling (Potential DoS/Resource Exhaustion):**
+2. **Unsafe JSON Unmarshaling of Query Parameters:**
    - **Location:** `getPlmnIDStruct`
-   - **Pattern:** The code takes a string directly from a query parameter (`plmn-id`) and passes it to `json.Unmarshal([]byte(plmnIDJson), plmnIDStruct)`.
-   - **Impact:** Query parameters have size limits, but `json.Unmarshal` on untrusted input without size constraints or schema validation can be used for "JSON bombs" or resource exhaustion if the input is crafted to be deeply nested or extremely large (though limited by the HTTP server's max header/query size).
-   - **Fix:** Validate the length of the `plmn-id` string before unmarshaling and ensure the `models.PlmnId` struct has strict bounds.
+   - **Pattern:** The code takes a string directly from a URL query parameter (`plmn-id`) and passes it to `json.Unmarshal([]byte(plmnIDJson), plmnIDStruct)`.
+   - **Impact:** This is a dangerous pattern. An attacker (or a compromised NF) could send extremely large or deeply nested JSON strings in the query parameter. Since `json.Unmarshal` in Go can be CPU/memory intensive, this could lead to a Resource Exhaustion DoS.
+   - **Fix:** Validate the length of the `plmn-id` string before unmarshaling and use a decoder with a limit.
 
-3. **Logic Error / Parameter Mismanagement (Incorrect Param Mapping):**
-   - **Location:** `ThreeLayerPathHandlerFunc`
-   - **Pattern:** In the `sdm-subscriptions` block for `http.MethodDelete` and `http.MethodPatch`, the code manually overwrites `c.Params` with a new slice: `tmpParams = append(tmpParams, ...); c.Params = tmpParams`.
-   - **Impact:** This is a dangerous pattern in Gin. Overwriting the `Params` slice can lead to the loss of other important routing parameters or cause unexpected behavior in middleware that relies on the original parameter set.
-   - **Fix:** Use `c.Set("ueId", ...)` and `c.Set("subscriptionId", ...)` to pass values to the handler, or modify the route definition to use named parameters that match the handler's expectations.
+3. **Inconsistent Parameter Handling (Logic Error):**
+   - **Location:** `HandleGetTraceData`
+   - **Pattern:** `plmnID := c.Query("plmn-id")`.
+   - **Impact:** Unlike other handlers (e.g., `HandleGetAmData`), this handler does not use `getPlmnIDStruct`. It treats `plmn-id` as a raw string instead of a JSON object. This creates a logic mismatch between the API specification (which expects a JSON object for PLMN ID) and the implementation, leading to functional failures or incorrect data retrieval.
+   - **Fix:** Use `s.getPlmnIDStruct(c.Request.URL.Query())` to maintain consistency with the 3GPP specification.
 
-4. **Information Leakage (Verbose Error Messages):**
-   - **Location:** `HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, `HandleModifyForSharedData`.
-   - **Pattern:** The code returns `err.Error()` directly in the `ProblemDetails.Detail` field when `c.GetRawData()` or `openapi.Deserialize` fails.
-   - **Impact:** Returning raw Go error messages to the caller can leak internal implementation details, library versions, or memory addresses, aiding an attacker in reconnaissance.
-   - **Fix:** Use generic error messages for the client (e.g., "Invalid request body") and log the detailed error internally.
+4. **Potential Path Traversal/Logic Bypass in Custom Router:**
+   - **Location:** `OneLayerPathHandlerFunc`, `TwoLayerPathHandlerFunc`, `ThreeLayerPathHandlerFunc`.
+   - **Pattern:** The use of `strings.Contains(route.Pattern, supi)` to match routes.
+   - **Impact:** `strings.Contains` is not a strict equality check. If a `supi` parameter contains a substring that matches another route's pattern, the wrong handler might be triggered. While the risk is lowered by the structure of the patterns, using `Contains` for routing is a fragile and unsafe pattern that can lead to unexpected API behavior.
+   - **Fix:** Use exact matching or a proper regex-based router instead of `strings.Contains`.
 
 

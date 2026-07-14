@@ -10,7 +10,7 @@
 
 The following is the **complete** Go source file `api_communication.go` from the **AMF** Network Function of a free5GC 5G core implementation. It is an SBI (Service-Based Interface) HTTP handler using the Gin framework.
 
-Perform a **security code review** of the entire file. Identify all security vulnerabilities, logic errors, and unsafe coding patterns present in the code.
+Perform a **security code review** of the entire file. Read it in full, function by function, before deciding what to report — do not select preventively or stop after finding the first few issues. Identify all security vulnerabilities, logic errors, and unsafe coding patterns present in the code; there is no limit on how many findings you may report, including minor ones or ones that recur with small variations across similar handlers.
 
 ```go
 package sbi

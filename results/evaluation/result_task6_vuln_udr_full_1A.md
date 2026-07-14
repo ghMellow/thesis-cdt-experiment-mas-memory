@@ -1,7 +1,7 @@
 # 1A — task6_vuln_udr_full
 
 > **Run(s) in this report:**
-> - `agent`: 20260712T142416Z
+> - `agent`: 20260713T174027Z
 
 <a id="toc"></a>
 **Contents**
@@ -27,15 +27,48 @@
 | AV — Attack Vector | N | N |
 | AC — Attack Complexity | L | L |
 | AT — Attack Requirements | N | N |
-| PR — Privileges Required | **H** | **N** |
+| PR — Privileges Required | **L** | **N** |
 | UI — User Interaction | N | N |
 | VC — Confidentiality Impact to the Vulnerable System | N | N |
 | VI — Integrity Impact to the Vulnerable System | **H** | **L** |
 | VA — Availability Impact to the Vulnerable System | N | N |
 | SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | **H** | **N** |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 4.8 / **8.3** | 6.9 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_agent_rep1_CVE-2026-40249.md) | | |
+
+| **CVE-2026-40249** — agent, rep 2 | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **L** | **N** |
+| VI — Integrity Impact to the Vulnerable System | **H** | **L** |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
 | SI — Integrity Impact to the Subsequent System | N | N |
 | SA — Availability Impact to the Subsequent System | N | N |
-| base score — declared / from vector (official math) | 4.5 / **6.9** | 6.9 |
+| base score — declared / from vector (official math) | 5.1 / **7.1** | 6.9 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_agent_rep2_CVE-2026-40249.md) | | |
+
+| **CVE-2026-40245** — agent, rep 2 | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **N** | **H** |
+| VI — Integrity Impact to the Vulnerable System | N | N |
+| VA — Availability Impact to the Vulnerable System | **H** | **N** |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.3 / **7.1** | 8.7 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_agent_rep2_CVE-2026-40245.md) | | |
 
 | **CVE-2026-40249** — agent, rep 3 | estimated | published |
 |---|---|---|
@@ -48,25 +81,42 @@
 | VI — Integrity Impact to the Vulnerable System | **H** | **L** |
 | VA — Availability Impact to the Vulnerable System | N | N |
 | SC — Confidentiality Impact to the Subsequent System | N | N |
-| SI — Integrity Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | **H** | **N** |
 | SA — Availability Impact to the Subsequent System | N | N |
-| base score — declared / from vector (official math) | 5.3 / **7.1** | 6.9 |
+| base score — declared / from vector (official math) | 6.8 / **8.3** | 6.9 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_agent_rep3_CVE-2026-40249.md) | | |
+
+| **CVE-2026-40245** — agent, rep 3 | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **N** | **H** |
+| VI — Integrity Impact to the Vulnerable System | N | N |
+| VA — Availability Impact to the Vulnerable System | **L** | **N** |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | **L** | **N** |
+| base score — declared / from vector (official math) | 4.0 / **5.3** | 8.7 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_agent_rep3_CVE-2026-40245.md) | | |
 
 <a id="unmatched-findings"></a>
 ### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)
 
 | # | group | details | score (from vector) | declared | function | task | role | rep | vector |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep3_f1.md) | 8.7 | 7.1 | `HandleCreateSdmSubscriptions` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N` |
-| 2 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep2_f1.md) | 8.6 | 7.1 | `HandleCreateSdmSubscriptions` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N` |
-| 3 | — | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep2_f2.md) | 7.1 | 5.3 | `HandlePolicyDataUesUeIdSmDataGet, HandleQuerySmData` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 4 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep3_f2.md) | 7.1 | 5.3 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 5 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep1_f1.md) | 6.9 | 4.5 | `HandleCreateSdmSubscriptions` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N` |
-| 6 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep1_f2.md) | 6.9 | 4.1 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 7 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep2_f3.md) | 5.3 | 4.0 | `HandleCreateEeSubscriptions, HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N` |
-| 8 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep2_f4.md) | 5.3 | 4.0 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 9 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep3_f3.md) | 5.3 | 3.1 | `HandleCreateEeSubscriptions, HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
-| 10 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep1_f3.md) | 5.1 | 2.7 | `HandleCreateEeSubscriptions, HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 1 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep1_f1.md) | 8.3 | 4.8 | `HandleCreateSmfContextNon3gpp` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:H/VA:N/SC:N/SI:H/SA:N` |
+| 2 | — | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep3_f1.md) | 8.3 | 6.5 | `Multiple handlers using c.GetRawData()` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H` |
+| 3 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep1_f2.md) | 7.1 | 4.8 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| 4 | a | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep1_f3.md) | 5.3 | 2.0 | `HandleCreateEeSubscriptions, HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N` |
+| 5 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep1_f4.md) | 5.3 | 2.0 | `HandlePolicyDataUesUeIdSmDataGet, HandleQuerySmData` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 6 | a | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep2_f1.md) | 5.3 | 3.0 | `HandleCreateEeSubscriptions, HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N` |
+| 7 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep2_f2.md) | 5.3 | 3.3 | `HandlePolicyDataUesUeIdSmDataGet, HandleQuerySmData` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 8 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep2_f3.md) | 5.3 | 3.3 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 9 | a | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep3_f2.md) | 5.3 | 4.0 | `HandleCreateEeSubscriptions, HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N` |
+| 10 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_agent_rep3_f3.md) | 5.3 | 4.0 | `HandleCreateSmfContextNon3gpp` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N` |
 
 **Legend**
 
@@ -90,7 +140,7 @@ _Diagnostic roll-up, useful for a global read once you've checked the detail abo
 
 | role | estimates | matched | missed CVEs | unmatched findings | avg band vs published (0-3) | avg band vs B (0-3) | avg exploitability (0-5) | avg impact (0-3) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | 3/3 | 2 | 16 | 10 | 1.00 | 1.00 | 4.00 | 2.00 |
+| agent | 3/3 | 5 | 13 | 10 | 1.00 | 1.00 | 4.00 | 1.50 |
 
 **Legend**
 
@@ -106,7 +156,7 @@ _Diagnostic roll-up, useful for a global read once you've checked the detail abo
 
 | role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg subseq. distance (0-1) | avg Hamming (0-8) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | 2.10 | 0.10 | 3.00 | 0.15 | 0.17 | 0.00 | 2.00 |
+| agent | 2.27 | 1.57 | 1.67 | 0.10 | 0.33 | 0.19 | 2.50 |
 
 **Legend**
 
@@ -145,7 +195,7 @@ _Diagnostic roll-up, useful for a global read once you've checked the detail abo
 
 | role | accuracy | avg_confidence | brier_score | avg_attempts | avg_textual_norm |
 | --- | --- | --- | --- | --- | --- |
-| agent | 0.0% | 0.950 | 0.9042 | 3.00 | 0.481 |
+| agent | 0.0% | 0.983 | 0.9675 | 3.00 | 0.519 |
 
 **Legend**
 
@@ -165,9 +215,9 @@ _Diagnostic roll-up, useful for a global read once you've checked the detail abo
 
 | role | task_id | rep | attempts | confidence | score/delta |
 | --- | --- | --- | --- | --- | --- |
-| agent | task6_vuln_udr_full | 1 | 3 | 0.900 | 4.0 |
+| agent | task6_vuln_udr_full | 1 | 3 | 1.000 | 4.0 |
 | agent | task6_vuln_udr_full | 2 | 3 | 1.000 | 5.0 |
-| agent | task6_vuln_udr_full | 3 | 3 | 0.950 | 4.0 |
+| agent | task6_vuln_udr_full | 3 | 3 | 0.950 | 5.0 |
 
 **Legend**
 
@@ -194,52 +244,78 @@ _Diagnostic roll-up, useful for a global read once you've checked the detail abo
 #### Truly inconsistent reasoning (1)
 
 **agent — task6_vuln_udr_full**
-> The three reasonings differ in their identification of vulnerabilities: the second reasoning identifies a DoS via unbounded JSON unmarshaling in `HandlePolicyDataUesUeIdSmDataGet` and `HandleQuerySmData`, which is absent in the first and third, and the first and third reasonings identify an improper deserialization issue that the second one ignores.
+> The three passages identify different sets of vulnerabilities: the first focuses on resource exhaustion via over-fetching and unsafe JSON unmarshaling, the second highlights a missing return statement causing potential panics and NoSQL injection, and the third identifies a DoS risk due to unbounded request bodies via GetRawData.
 
 **rep 1:**
 
-1. **Improper Deserialization (Nil Pointer/Logic Error)**: In `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`, the variable `policyDataSubscription` is declared as a value (`var policyDataSubscription models.PolicyDataSubscription`). It is then passed to `openapi.Deserialize(policyDataSubscription, ...)` without the address-of operator (`&`). In Go, passing a value to a function expecting an interface for deserialization (which typically requires a pointer to modify the underlying object) results in the object remaining empty. The `Processor` then receives a zero-valued struct, leading to data loss or corrupted database entries.
+1. **Incorrect Pointer Usage in Deserialization (Logic Error/Data Loss)**:
+   - **Location**: `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`.
+   - **Pattern**: The code calls `openapi.Deserialize(policyDataSubscription, reqBody, "application/json")`. In Go, `policyDataSubscription` is a struct passed by value. The `Deserialize` function requires a pointer to populate the object.
+   - **Impact**: The variable remains empty (zero-valued). The UDR will store empty subscription objects in the database. This causes a functional Denial of Service (DoS) for policy notifications as the intended configuration is lost.
+   - **Fix**: Pass the address of the variable: `openapi.Deserialize(&policyDataSubscription, reqBody, "application/json")`.
 
-2. **Logic Error (Incorrect Collection Mapping)**: In `HandleCreateSdmSubscriptions`, the `collName` is hardcoded as `"subscriptionData.contextData.amfNon3gppAccess"`. This is a critical logic error as the handler is specifically for SDM (Subscription Data Management) subscriptions. Storing this data in the AMF Non-3GPP access collection will cause the data to be misplaced, making it unreachable by the correct query handlers and potentially corrupting AMF-specific records.
+2. **Ineffective Input Validation (Regex Bypass)**:
+   - **Location**: `HandleCreateEeSubscriptions` and `HandleQueryeesubscriptions`.
+   - **Pattern**: The regex `^(imsi-[0-9]{5,15}|nai-.+|msisdn-[0-9]{5,15}|extid-[^@]+@[^@]+|gci-.+|gli-.+|.+)$` contains a trailing `.+` alternative.
+   - **Impact**: The `.+` matches any non-empty string, rendering all previous strict patterns useless. This allows malformed `ueId` values to enter the system. While mTLS protects the interface, this can lead to data corruption or crashes in downstream NFs that expect strict 3GPP formats.
+   - **Fix**: Remove the `.+` alternative from the regular expression.
 
-3. **Ineffective Input Validation (Regex Bypass)**: In `HandleCreateEeSubscriptions` and `HandleQueryeesubscriptions`, the regex used to validate `ueId` is `^(imsi-[0-9]{5,15}|nai-.+|msisdn-[0-9]{5,15}|extid-[^@]+@[^@]+|gci-.+|gli-.+|.+)$`. The inclusion of `.+` as the final alternative makes the entire regex match any string of length 1 or more. This renders the specific 3GPP format validations useless, allowing arbitrary strings to be processed as `ueId`.
+3. **Silent Failure in Parameter Parsing (Data Integrity)**:
+   - **Location**: `HandleCreateSmfContextNon3gpp`.
+   - **Pattern**: `pduSessionId, err := strconv.ParseInt(c.Param("pduSessionId"), 10, 64)` is called, but the error is only logged as a warning (`logger.DataRepoLog.Warnln(err)`), and the function continues.
+   - **Impact**: If the `pduSessionId` is not a valid integer, it defaults to `0`. The UDR will store the SMF context under ID 0, potentially overwriting other sessions or creating an invalid state, leading to PDU session failures for the UE.
+   - **Fix**: Return a `400 Bad Request` response if `strconv.ParseInt` fails.
 
-4. **Potential NoSQL Query Manipulation/DoS**: In `HandleApplicationDataInfluenceDataGet`, parameters such as `influence-Ids`, `dnns`, and `supis` are taken from the query string, split by commas, and passed directly into a `$in` operator in a MongoDB filter. While the driver prevents traditional injection, the lack of length limits on the resulting slices allows a malicious NF to send thousands of IDs in a single request, potentially causing high CPU/Memory usage on the MongoDB instance (Resource Exhaustion/DoS).
+4. **Unsafe JSON Unmarshaling of Query Parameters**:
+   - **Location**: `HandlePolicyDataUesUeIdSmDataGet` and `HandleQuerySmData`.
+   - **Pattern**: Raw strings from URL queries (`sNssaiQuery`) are passed directly to `json.Unmarshal([]byte(sNssaiQuery), &sNssai)`.
+   - **Impact**: This bypasses standard API validation. While the impact is limited by the struct definition, it is a fragile pattern that can lead to unexpected behavior or internal server errors if the query string contains malformed JSON.
+   - **Fix**: Use a dedicated parser or validate the string format before attempting to unmarshal.
+
+5. **Potential Resource Exhaustion (Over-fetching)**:
+   - **Location**: `HandleApplicationDataInfluenceDataGet`.
+   - **Pattern**: Query parameters (e.g., `influence-Ids`, `dnns`) are split by commas and used directly in MongoDB `$in` operators without size limits.
+   - **Impact**: An authorized NF could send an extremely large list of IDs, causing the UDR to perform massive database queries, leading to high memory consumption and potential Denial of Service (DoS) of the UDR.
+   - **Fix**: Implement a maximum limit on the number of elements allowed in the comma-separated query parameters.
 
 **rep 2:**
 
-1. **Logic Error (Incorrect Collection Mapping)**:
-   - **Location**: `HandleCreateSdmSubscriptions`
-   - **Pattern**: The handler explicitly sets `collName := "subscriptionData.contextData.amfNon3gppAccess"`.
-   - **Impact**: This is a severe logic error. Data intended for SDM subscriptions is stored in the AMF Non-3GPP access collection. This results in data corruption and loss of data integrity, as the UDR will fail to retrieve SDM subscriptions via the correct query paths, and the AMF context collection will be polluted with unrelated data.
-   - **Fix**: Change `collName` to the correct SDM subscription collection path (e.g., `subscriptionData.sdmSubscriptions`).
+1. **Logic Error: Pass-by-Value Deserialization (Data Loss)**
+   - **Location**: `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`.
+   - **Pattern**: The code calls `openapi.Deserialize(policyDataSubscription, reqBody, "application/json")`. In Go, structs are passed by value. The `Deserialize` function cannot modify the original `policyDataSubscription` variable because it receives a copy.
+   - **Impact**: The `Processor` receives a zero-valued `PolicyDataSubscription` object. This leads to the creation or update of database records with empty data, causing a loss of integrity for the policy notification system.
+   - **Fix**: Pass a pointer to the struct: `openapi.Deserialize(&policyDataSubscription, reqBody, "application/json")`.
 
-2. **Improper Input Validation (Regex Bypass)**:
-   - **Location**: `HandleCreateEeSubscriptions` and `HandleQueryeesubscriptions`
-   - **Pattern**: The regex `^(imsi-[0-9]{5,15}|nai-.+|msisdn-[0-9]{5,15}|extid-[^@]+@[^@]+|gci-.+|gli-.+|.+)$` contains a trailing `.+` alternative.
-   - **Impact**: The `.+` matches any string of length 1 or more, rendering all previous specific format checks (IMSI, MSISDN, etc.) irrelevant. This allows any arbitrary string to be accepted as a `ueId`. While mTLS restricts the attacker to a compromised NF, this allows for database pollution and potential exploitation of downstream NFs that expect strictly formatted 3GPP identifiers.
-   - **Fix**: Remove the `.+` alternative from the regular expression to enforce strict validation.
+2. **Logic Error: Missing Return after Error Response (Potential Panic/DoS)**
+   - **Location**: `HandleApplicationDataInfluenceDataSubsToNotifyGet`.
+   - **Pattern**: When `openapi.Deserialize` fails for the `snssai` query parameter, the code calls `c.JSON(http.StatusBadRequest, problemDetails)` but does not `return`.
+   - **Impact**: Execution continues to `s.Processor().ApplicationDataInfluenceDataSubsToNotifyGetProcedure`. Since the deserialization failed, the `snssai` pointer remains `nil` or partially initialized. If the processor attempts to dereference this pointer, the UDR will panic, leading to a Denial of Service (DoS).
+   - **Fix**: Add a `return` statement immediately after the `c.JSON` call.
 
-3. **Denial of Service (Unbounded JSON Unmarshaling)**:
-   - **Location**: `HandlePolicyDataUesUeIdSmDataGet` and `HandleQuerySmData`
-   - **Pattern**: Query parameters `snssai` and `single-nssai` are passed directly to `json.Unmarshal` without length validation.
-   - **Impact**: A compromised NF can send an extremely large or deeply nested JSON string in the URL. This can lead to excessive memory consumption or CPU exhaustion (algorithmic complexity attack) during unmarshaling, causing a Denial of Service (DoS) of the UDR.
-   - **Fix**: Implement a strict maximum length limit on the query parameter string before attempting to unmarshal it.
+3. **Improper Input Validation: Trivial Regex Bypass**
+   - **Location**: `HandleCreateEeSubscriptions` and `HandleQueryeesubscriptions`.
+   - **Pattern**: The regex `^(imsi-[0-9]{5,15}|nai-.+|msisdn-[0-9]{5,15}|extid-[^@]+@[^@]+|gci-.+|gli-.+|.+)$` contains a final alternative `.+`.
+   - **Impact**: The `.+` matches any string of length 1 or more, effectively nullifying all previous strict patterns. This allows any arbitrary string to be accepted as a `ueId`. While SBI is protected by mTLS, this allows an authorized NF to inject unexpected data formats into the database, potentially causing crashes or logic errors in other NFs that consume this data.
+   - **Fix**: Remove the `.+` alternative from the regular expression.
 
-4. **NoSQL Injection / Query Manipulation**:
-   - **Location**: `HandleApplicationDataInfluenceDataGet`
-   - **Pattern**: Query parameters (`influence-Ids`, `dnns`, `internal-Group-Id`, `supis`) are split by commas and inserted directly into `bson.M` filters using `$in` and `$or`.
-   - **Impact**: Although the MongoDB Go driver prevents classic string-concatenation injection, the lack of value validation allows a compromised NF to perform "Query Manipulation." By providing unexpected values, an attacker can broaden the query scope to retrieve influence data for UEs or groups they should not have access to, violating the principle of least privilege.
-   - **Fix**: Validate that each element resulting from the `strings.Split` operation conforms to the expected 3GPP format before adding it to the BSON filter.
+4. **Unsafe JSON Unmarshaling of Query Parameters**
+   - **Location**: `HandlePolicyDataUesUeIdSmDataGet` and `HandleQuerySmData`.
+   - **Pattern**: The code uses `json.Unmarshal([]byte(sNssaiQuery), &sNssai)` on raw query parameters and only logs a warning on failure.
+   - **Impact**: If a malformed JSON string is provided, the code proceeds with a zero-valued `sNssai` object. This leads to inconsistent state where a request intended to filter by a specific S-NSSAI instead filters by "empty", potentially returning more data than intended or causing logic errors in the processor.
+   - **Fix**: Return a `400 Bad Request` if `json.Unmarshal` fails.
+
+5. **NoSQL Injection Risk (Filter Manipulation)**
+   - **Location**: `HandleApplicationDataInfluenceDataGet`.
+   - **Pattern**: Query parameters (e.g., `influence-Ids`, `dnns`) are split by commas and passed directly into `bson.M{"$in": ...}` filters.
+   - **Impact**: There is no validation of the individual elements within the split arrays. An attacker (via a compromised NF) can provide arbitrary strings. While `$in` prevents some types of injection, the lack of format validation allows for unauthorized data discovery by guessing IDs or exploiting potential vulnerabilities in the MongoDB driver's handling of specific string patterns.
+   - **Fix**: Validate each element of the split arrays against a strict regex/format before adding them to the BSON filter.
 
 **rep 3:**
 
-1. **Logic Error (Incorrect Collection Mapping)**: In `HandleCreateSdmSubscriptions`, the `collName` is explicitly set to `"subscriptionData.contextData.amfNon3gppAccess"`. This is a critical mapping error. SDM subscriptions should be stored in their own dedicated collection. By writing to the AMF Non-3GPP access collection, the UDR will corrupt AMF context data and store SDM data in the wrong location, leading to functional failure of both the SDM and AMF context services.
-
-2. **Improper Deserialization (Pass-by-Value)**: In `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`, the code calls `openapi.Deserialize(policyDataSubscription, reqBody, "application/json")`. In Go, `policyDataSubscription` is a struct passed by value. The `Deserialize` function cannot populate the original variable. As a result, the processor receives an empty/zero-initialized struct, leading to the creation or update of empty records in the database.
-
-3. **Input Validation Bypass (Permissive Regex)**: In `HandleCreateEeSubscriptions` and `HandleQueryeesubscriptions`, the regular expression used to validate `ueId` is `^(imsi-[0-9]{5,15}|nai-.+|msisdn-[0-9]{5,15}|extid-[^@]+@[^@]+|gci-.+|gli-.+|.+)$`. The final alternative `.+` matches any character one or more times. This effectively nullifies all previous specific 3GPP format constraints, allowing any arbitrary string to be accepted as a valid `ueId`.
-
-4. **Potential Denial of Service (Resource Exhaustion)**: In `HandleApplicationDataInfluenceDataGet`, the code takes query parameters (e.g., `influence-Ids`, `dnns`) and performs `strings.Split(param[0], ",")` without limiting the number of elements. A malicious or malfunctioning NF could send a very large comma-separated list, leading to high memory consumption and potentially crashing the UDR process via an OOM (Out of Memory) event or causing a database performance collapse due to an oversized `$in` query.
+1. **Logic Error (Pass-by-Value Deserialization):** In `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`, the variable `policyDataSubscription` is passed to `openapi.Deserialize` as a value rather than a pointer. In Go, this means the deserializer cannot populate the variable. The subsequent call to the `Processor` will pass an empty/zero-valued object, leading to data loss or corrupted state in the UDR.
+2. **Denial of Service (Unbounded Request Body):** Multiple handlers (e.g., `HandleAmfContext3gpp`, `HandleCreateAmfContext3gpp`, `HandleCreateAuthenticationStatus`, etc.) use `c.GetRawData()`. This Gin method reads the entire request body into a byte slice without a size limit. A compromised NF or an attacker with network access to the SBI could send an extremely large payload, causing the UDR to crash due to Out-Of-Memory (OOM) exhaustion.
+3. **Ineffective Input Validation (Regex Bypass):** In `HandleCreateEeSubscriptions` and `HandleQueryeesubscriptions`, the regex `^(imsi-[0-9]{5,15}|nai-.+|msisdn-[0-9]{5,15}|extid-[^@]+@[^@]+|gci-.+|gli-.+|.+)$` contains a trailing `.+` alternative. This effectively makes the regex match any non-empty string, rendering the specific 3GPP format constraints (like IMSI length) useless.
+4. **Logic Error (Non-halting Execution after Error):** In `HandleApplicationDataInfluenceDataSubsToNotifyGet`, when `openapi.Deserialize` fails for the `snssai` parameter, the code sends a `400 Bad Request` response but fails to `return`. The function continues to execute and calls `s.Processor().ApplicationDataInfluenceDataSubsToNotifyGetProcedure`, which may lead to null pointer dereferences or incorrect data retrieval.
+5. **Logic Error (Improper Error Handling):** In `HandleCreateSmfContextNon3gpp`, the `pduSessionId` is parsed using `strconv.ParseInt`. If an error occurs, it is logged as a warning, but the function continues. The `pduSessionId` will default to `0`, which is a valid integer but likely an incorrect identifier, leading to data being stored under the wrong session ID.
 
 

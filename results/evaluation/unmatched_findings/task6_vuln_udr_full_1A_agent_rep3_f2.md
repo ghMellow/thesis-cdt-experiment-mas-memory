@@ -2,29 +2,27 @@
 
 | field | value |
 | --- | --- |
-| function | `HandleApplicationDataInfluenceDataGet` |
-| vector (estimated) | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| score declared | 5.3 |
-| score computed (official CVSS 4.0 math) | 7.1 |
-| group (recurs across reps) | ≠ |
+| function | `HandleCreateEeSubscriptions, HandleQueryeesubscriptions` |
+| vector (estimated) | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N` |
+| score declared | 4.0 |
+| score computed (official CVSS 4.0 math) | 5.3 |
+| group (recurs across reps) | a |
 
 ## Agent narrative for this repetition
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleApplicationDataInfluenceDataGet` are **bolded** below to help locate the relevant passage._
+_Shared across every finding reported in the same repetition — occurrences of `HandleCreateEeSubscriptions, HandleQueryeesubscriptions` are **bolded** below to help locate the relevant passage._
 
 **Answer:**
 
-The UDR implementation contains a critical logic error where SDM subscriptions are written to the AMF context collection, causing data corruption. Additionally, several handlers fail to use pointers during JSON deserialization, resulting in empty data being processed, and a permissive regex bypasses 3GPP identity validation.
+The UDR implementation contains critical logic errors where objects are passed by value to deserializers, causing data loss, and fails to halt execution after returning error responses. It is vulnerable to memory-exhaustion DoS via unbounded request bodies and contains ineffective regex patterns that bypass 3GPP identifier constraints.
 
 **Reasoning:**
 
-1. **Logic Error (Incorrect Collection Mapping)**: In `HandleCreateSdmSubscriptions`, the `collName` is explicitly set to `"subscriptionData.contextData.amfNon3gppAccess"`. This is a critical mapping error. SDM subscriptions should be stored in their own dedicated collection. By writing to the AMF Non-3GPP access collection, the UDR will corrupt AMF context data and store SDM data in the wrong location, leading to functional failure of both the SDM and AMF context services.
-
-2. **Improper Deserialization (Pass-by-Value)**: In `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`, the code calls `openapi.Deserialize(policyDataSubscription, reqBody, "application/json")`. In Go, `policyDataSubscription` is a struct passed by value. The `Deserialize` function cannot populate the original variable. As a result, the processor receives an empty/zero-initialized struct, leading to the creation or update of empty records in the database.
-
-3. **Input Validation Bypass (Permissive Regex)**: In `HandleCreateEeSubscriptions` and `HandleQueryeesubscriptions`, the regular expression used to validate `ueId` is `^(imsi-[0-9]{5,15}|nai-.+|msisdn-[0-9]{5,15}|extid-[^@]+@[^@]+|gci-.+|gli-.+|.+)$`. The final alternative `.+` matches any character one or more times. This effectively nullifies all previous specific 3GPP format constraints, allowing any arbitrary string to be accepted as a valid `ueId`.
-
-4. **Potential Denial of Service (Resource Exhaustion)**: In **`HandleApplicationDataInfluenceDataGet`**, the code takes query parameters (e.g., `influence-Ids`, `dnns`) and performs `strings.Split(param[0], ",")` without limiting the number of elements. A malicious or malfunctioning NF could send a very large comma-separated list, leading to high memory consumption and potentially crashing the UDR process via an OOM (Out of Memory) event or causing a database performance collapse due to an oversized `$in` query.
+1. **Logic Error (Pass-by-Value Deserialization):** In `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`, the variable `policyDataSubscription` is passed to `openapi.Deserialize` as a value rather than a pointer. In Go, this means the deserializer cannot populate the variable. The subsequent call to the `Processor` will pass an empty/zero-valued object, leading to data loss or corrupted state in the UDR.
+2. **Denial of Service (Unbounded Request Body):** Multiple handlers (e.g., `HandleAmfContext3gpp`, `HandleCreateAmfContext3gpp`, `HandleCreateAuthenticationStatus`, etc.) use `c.GetRawData()`. This Gin method reads the entire request body into a byte slice without a size limit. A compromised NF or an attacker with network access to the SBI could send an extremely large payload, causing the UDR to crash due to Out-Of-Memory (OOM) exhaustion.
+3. **Ineffective Input Validation (Regex Bypass):** In `HandleCreateEeSubscriptions` and `HandleQueryeesubscriptions`, the regex `^(imsi-[0-9]{5,15}|nai-.+|msisdn-[0-9]{5,15}|extid-[^@]+@[^@]+|gci-.+|gli-.+|.+)$` contains a trailing `.+` alternative. This effectively makes the regex match any non-empty string, rendering the specific 3GPP format constraints (like IMSI length) useless.
+4. **Logic Error (Non-halting Execution after Error):** In `HandleApplicationDataInfluenceDataSubsToNotifyGet`, when `openapi.Deserialize` fails for the `snssai` parameter, the code sends a `400 Bad Request` response but fails to `return`. The function continues to execute and calls `s.Processor().ApplicationDataInfluenceDataSubsToNotifyGetProcedure`, which may lead to null pointer dereferences or incorrect data retrieval.
+5. **Logic Error (Improper Error Handling):** In `HandleCreateSmfContextNon3gpp`, the `pduSessionId` is parsed using `strconv.ParseInt`. If an error occurs, it is logged as a warning, but the function continues. The `pduSessionId` will default to `0`, which is a valid integer but likely an incorrect identifier, leading to data being stored under the wrong session ID.
 
 ---
-_Source: `results/task6_vuln_udr_full/1A/agent/*.json`, run_id `20260712T142416Z`, repetition 3._
+_Source: `results/task6_vuln_udr_full/1A/agent/*.json`, run_id `20260713T174027Z`, repetition 3._
