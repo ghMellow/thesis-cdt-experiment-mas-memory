@@ -357,6 +357,11 @@ def aggregate_detection_metrics(evals: List[Dict[str, Any]]) -> Dict[str, Any]:
         len(e.get("matched", [])) / e["n_target_cves"] for e in with_targets
     ]
 
+    # M3 — alerts per TP: every finding the reviewer has to read (matched +
+    # unmatched) for each true positive actually surfaced. Undefined when
+    # nothing was ever matched (no TP to divide by).
+    alerts_per_tp = (tp + fp) / tp if tp else None
+
     return {
         "n_reps": len(evals),
         "n_reps_with_targets": len(with_targets),
@@ -367,6 +372,7 @@ def aggregate_detection_metrics(evals: List[Dict[str, Any]]) -> Dict[str, Any]:
         "fn": fn,
         "precision": precision,
         "recall": recall,
+        "alerts_per_tp": alerts_per_tp,
         "f1": f1,
     }
 

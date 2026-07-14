@@ -515,12 +515,13 @@ def _build_cvss_section(
 
 
 def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
-    """M1 (detection per CVE) + M2 (precision/recall/F1), pass@1 vs pass@k
-    (docs/sgv_protocol/00_proposta_relatore.md §5.1, 07_metriche_M_S_2026-07-14.md).
-    pass@1 = first attempt only (as if there were no retry loop at all);
-    pass@k = after every retry (SGV + rubric), same data as `cvss_eval` above.
-    The gap between the two is the retry loop's actual effect on detection —
-    the empirical question the proposal leaves open in §4's observation."""
+    """M1 (detection per CVE) + M2 (precision/recall/F1) + M3 (alerts per TP),
+    pass@1 vs pass@k (docs/sgv_protocol/00_proposta_relatore.md §5.1,
+    07_metriche_M_S_2026-07-14.md). pass@1 = first attempt only (as if there
+    were no retry loop at all); pass@k = after every retry (SGV + rubric),
+    same data as `cvss_eval` above. The gap between the two is the retry
+    loop's actual effect on detection — the empirical question the proposal
+    leaves open in §4's observation."""
     from utils.cvss_eval import aggregate_detection_metrics
 
     def _role_evals(key: str):
@@ -535,10 +536,10 @@ def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> 
 
     lines = [
         '<a id="detection-metrics"></a>',
-        "### Detection (M1, M2 — pass@1 vs pass@k)",
+        "### Detection (M1, M2, M3 — pass@1 vs pass@k)",
         "",
-        "| role | pass | detection rate | avg coverage | TP | FP | FN | precision | recall | F1 |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+        "| role | pass | detection rate | avg coverage | TP | FP | FN | precision | recall | F1 | alerts/TP |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     pass1_by_role = dict(_role_evals("cvss_eval_pass1"))
     passk_by_role = dict(_role_evals("cvss_eval"))
@@ -551,7 +552,7 @@ def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> 
                 f"| {role} | {label} | {_fmt_ratio(m['detection_rate'])} | "
                 f"{_fmt_ratio(m['avg_coverage'])} | {m['tp']} | {m['fp']} | {m['fn']} | "
                 f"{_fmt_ratio(m['precision'])} | {_fmt_ratio(m['recall'])} | "
-                f"{_fmt_ratio(m['f1'])} |"
+                f"{_fmt_ratio(m['f1'])} | {_fmt(m['alerts_per_tp'], 1)} |"
             )
     lines += [
         "",
@@ -567,9 +568,12 @@ def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> 
         "same numbers as the `matched`/`missed CVEs`/`unmatched findings` counts above.",
         "- `detection rate` = share of repetitions (with at least one target CVE) where "
         "≥1 CVE was matched. `avg coverage` = mean matched/target CVEs per repetition.",
+        "- `alerts/TP` (M3) = (TP+FP)/TP — how many findings a reviewer has to read for "
+        "every true positive actually surfaced; lower is better (less noise per real "
+        "vulnerability). `n/a` when TP = 0 (nothing to divide by).",
         "- A pass@k row with higher recall (or F1) than its pass@1 row is the retry loop "
-        "actually finding more; if precision drops at the same time, the extra findings "
-        "came at a cost — read the two together, not recall alone.",
+        "actually finding more; if precision drops (or alerts/TP rises) at the same "
+        "time, the extra findings came at a cost — read them together, not recall alone.",
         "",
     ]
     return lines
@@ -1216,7 +1220,7 @@ def _build_experiment_report(
     if '<a id="unmatched-findings"></a>' in cvss_lines:
         toc.append("- [Unmatched findings](#unmatched-findings)")
     if '<a id="detection-metrics"></a>' in cvss_lines:
-        toc.append("- [Detection (M1, M2 — pass@1 vs pass@k)](#detection-metrics)")
+        toc.append("- [Detection (M1, M2, M3 — pass@1 vs pass@k)](#detection-metrics)")
     if '<a id="aggregate-metrics"></a>' in cvss_lines:
         toc.append("- [Aggregate metrics (across repetitions)](#aggregate-metrics)")
         toc.append("  - [Estimates vs ground truth](#estimates-vs-gt)")

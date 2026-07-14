@@ -2,6 +2,14 @@
 
 ---
 
+## 2026-07-14 — Metrica M3 (alert per TP)  [sessione: 2e99bcd7]
+
+**Intent:** "vedo i results di una vecchia run la pushiamo oppure continuami a implementare M3 oppure ?" — chiesto se pushare i risultati o proseguire; per convenzione di progetto (results/ non si committa salvo richiesta esplicita) ho proposto tre opzioni via AskUserQuestion, l'utente ha scelto di continuare con M3 e lasciare results/ invariata
+**Esito/Problemi:** aggiunto `alerts_per_tp` = (TP+FP)/TP a `aggregate_detection_metrics` in `utils/cvss_eval.py` (sottoprodotto diretto di M2, nessuna nuova aggregazione); colonna `alerts/TP` nella tabella pass@1/pass@k del report. Verificato rigenerando i report sui dati esistenti: su `task6_vuln_udr_full` 3.2 alert per TP sia a pass@1 che pass@k — il retry aumenta TP e FP in proporzione simile, carico di revisione per vulnerabilità trovata invariato nonostante il recall salga
+**Lesson learned:** M3 conferma l'ipotesi di progettazione (era atteso "sottoprodotto quasi gratis di M2") — nessuna sorpresa, utile comunque per completezza del capitolo detection
+
+---
+
 ## 2026-07-14 — Metriche M1/M2 (detection pass@1 vs pass@k)  [sessione: 2e99bcd7]
 
 **Intent:** "altre cose discusse in SVG da implementare? la fase dei M e S inisiamo da una di quelle?" → dopo spiegazione di M1-M5/S1-S3 e mia proposta di iniziare da M1+M2 (dati già disponibili, nessuna nuova run), l'utente ha chiesto di stilare prima un file di sintesi e poi implementare tutto tranne M4, partendo da M1+M2
