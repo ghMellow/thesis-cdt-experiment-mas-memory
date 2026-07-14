@@ -2,6 +2,15 @@
 
 ---
 
+## 2026-07-14 — Metriche M1/M2 (detection pass@1 vs pass@k)  [sessione: 2e99bcd7]
+
+**Intent:** "altre cose discusse in SVG da implementare? la fase dei M e S inisiamo da una di quelle?" → dopo spiegazione di M1-M5/S1-S3 e mia proposta di iniziare da M1+M2 (dati già disponibili, nessuna nuova run), l'utente ha chiesto di stilare prima un file di sintesi e poi implementare tutto tranne M4, partendo da M1+M2
+**Divergenze:** nessuna — il piano proposto (tutte le metriche tranne M4, ordine M1+M2 → M3 → S1-S3 → M5) è stato accettato as-is, incluse le due variazioni proposte (stratificazione pass@1/pass@k per canale di retry SGV-vs-rubrica; incrocio M2×Blocco C)
+**Decisioni:** confermato esplicitamente di lasciare M4 (delta SAST) fuori per assenza di un tool SAST nel progetto — non dimenticata, rimandata
+**Esito/Problemi:** creato `docs/sgv_protocol/07_metriche_M_S_2026-07-14.md` (stato as-is/da-fare, variazioni, decisione). Implementato M1 (detection/coverage per CVE) + M2 (precision/recall/F1 pass@1 vs pass@k): `utils/cvss_eval.py::aggregate_detection_metrics` (TP=CVE matched, FN=CVE mancate, FP=finding non matched); nuovo campo `cvss_eval_pass1` (stessa valutazione ma su `history[0].cvss_estimate` invece dell'ultimo tentativo), calcolato sia live in `_save_result` sia retroattivamente in `recompute_saved_results`; nuova sezione report `_build_detection_metrics_section` in `utils/evaluation_utils.py`. Verificato con `python -m utils.cvss_eval` sui risultati esistenti, nessun errore: su `task6_vuln_udr_full` il recall sale da 22.2% (pass@1) a 33.3% (pass@k) con precision quasi invariata — primo caso empirico di guadagno di detection dal retry senza costo apprezzabile in falsi positivi
+
+---
+
 ## 2026-07-14 — Prima implementazione SGV G1–G4  [sessione: 2e99bcd7]
 
 **Intent:** "ok allora direi di iniziare implementando i G0 a G4" (dopo aver chiesto una spiegazione dettagliata di G2/G3/G4 e come implementarli)

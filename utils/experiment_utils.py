@@ -363,11 +363,18 @@ def _save_result(state: ExperimentState) -> ExperimentState:
 
     # Blocco B: deterministic CVSS evaluation on vuln tasks (never affects verdict).
     cvss_eval = None
+    cvss_eval_pass1 = None
     if config.CVSS_ESTIMATE_ENABLED and is_cvss_task(state["task_id"], state["task_type"]):
         try:
             cvss_eval = evaluate_cvss_estimate(
                 state["task_id"], state["final_answer"].get("cvss_estimate")
             )
+            # M1/M2 pass@1 (docs/sgv_protocol/07_metriche_M_S_2026-07-14.md):
+            # same evaluation against the first attempt's estimate, so the
+            # report can compare detection before vs. after the retry loop.
+            history = state.get("history") or []
+            first_estimate = history[0].get("cvss_estimate") if history else None
+            cvss_eval_pass1 = evaluate_cvss_estimate(state["task_id"], first_estimate)
         except Exception:
             logger.exception("CVSS evaluation failed for %s — recorded as null", state["task_id"])
 
@@ -392,6 +399,7 @@ def _save_result(state: ExperimentState) -> ExperimentState:
         "judge_score": state.get("judge_score", {}),
         # --- CVSS (Blocco B, deterministic — separate from judge_score) ---
         "cvss_eval": cvss_eval,
+        "cvss_eval_pass1": cvss_eval_pass1,
         # --- resources ---
         "tokens": {
             "agent_in": state.get("agent_tokens_in") or None,

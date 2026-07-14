@@ -328,6 +328,49 @@ def evaluate_cvss_estimate(task_id: str, estimate: Optional[Dict[str, Any]]) -> 
     }
 
 
+def aggregate_detection_metrics(evals: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """M1 (detection per CVE) + M2 (precision/recall/F1) over a list of
+    `evaluate_cvss_estimate` results — the caller picks which attempt each
+    eval came from (pass@1: first history entry: pass@k: the final one,
+    already stored as `cvss_eval`), this function only aggregates.
+
+    Unit of analysis is the CVE (docs/sgv_protocol/00_proposta_relatore.md
+    §2/§5.1): TP = matched CVEs, FN = missed CVEs, FP = findings that paired
+    to no candidate CVE (`unmatched` — includes genuine extra vulnerabilities
+    with no catalogued CVE, not only false positives; see Blocco B legend).
+    """
+    with_targets = [e for e in evals if e.get("n_target_cves")]
+    tp = sum(len(e.get("matched", [])) for e in evals)
+    fn = sum(len(e.get("missed_cves", [])) for e in evals)
+    fp = sum(e.get("unmatched_findings", 0) for e in evals)
+
+    precision = tp / (tp + fp) if (tp + fp) else None
+    recall = tp / (tp + fn) if (tp + fn) else None
+    f1 = (
+        2 * precision * recall / (precision + recall)
+        if precision is not None and recall is not None and (precision + recall) > 0
+        else None
+    )
+
+    detected = sum(1 for e in with_targets if len(e.get("matched", [])) > 0)
+    coverage_ratios = [
+        len(e.get("matched", [])) / e["n_target_cves"] for e in with_targets
+    ]
+
+    return {
+        "n_reps": len(evals),
+        "n_reps_with_targets": len(with_targets),
+        "detection_rate": detected / len(with_targets) if with_targets else None,
+        "avg_coverage": sum(coverage_ratios) / len(coverage_ratios) if coverage_ratios else None,
+        "tp": tp,
+        "fp": fp,
+        "fn": fn,
+        "precision": precision,
+        "recall": recall,
+        "f1": f1,
+    }
+
+
 def recompute_saved_results(results_path: Optional[str] = None) -> int:
     """Recompute `cvss_eval` in-place on every saved repetition — the agent's
     estimate lives in `final_answer.cvss_estimate`, so new evaluation logic
@@ -349,6 +392,19 @@ def recompute_saved_results(results_path: Optional[str] = None) -> int:
             new_eval = evaluate_cvss_estimate(task_id, estimate)
             if new_eval is not None and new_eval != rep.get("cvss_eval"):
                 rep["cvss_eval"] = new_eval
+                changed = True
+
+            # M1/M2 pass@1: same evaluation, but against the *first* attempt's
+            # estimate (history[0]) instead of the final one — lets the report
+            # compare detection before vs. after the retry loop (docs/sgv_protocol/
+            # 07_metriche_M_S_2026-07-14.md).
+            history = rep.get("history")
+            first_estimate = (
+                history[0].get("cvss_estimate") if isinstance(history, list) and history else None
+            )
+            new_eval_pass1 = evaluate_cvss_estimate(task_id, first_estimate)
+            if new_eval_pass1 is not None and new_eval_pass1 != rep.get("cvss_eval_pass1"):
+                rep["cvss_eval_pass1"] = new_eval_pass1
                 changed = True
         if changed:
             result_file.write_text(json.dumps(data, indent=2, ensure_ascii=True))

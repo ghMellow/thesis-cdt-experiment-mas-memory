@@ -419,6 +419,7 @@ def _build_cvss_section(
     lines = ['<a id="cvss-estimate"></a>', "## CVSS estimate (Blocco B, deterministic)", ""]
     lines += _build_cvss_vector_detail(roles, experiment_id, results_path)
     lines += _build_cvss_unmatched(roles, experiment_id, results_path)
+    lines += _build_detection_metrics_section(roles)
 
     lines += [
         '<a id="aggregate-metrics"></a>',
@@ -508,6 +509,67 @@ def _build_cvss_section(
         "three fields (older/legacy runs may lack them, shown as `n/a`).",
         "- Hamming counts plainly differing fields among the 8 vulnerable-system metrics "
         "(n/a = older runs, recompute with `python -m utils.cvss_eval`).",
+        "",
+    ]
+    return lines
+
+
+def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
+    """M1 (detection per CVE) + M2 (precision/recall/F1), pass@1 vs pass@k
+    (docs/sgv_protocol/00_proposta_relatore.md §5.1, 07_metriche_M_S_2026-07-14.md).
+    pass@1 = first attempt only (as if there were no retry loop at all);
+    pass@k = after every retry (SGV + rubric), same data as `cvss_eval` above.
+    The gap between the two is the retry loop's actual effect on detection —
+    the empirical question the proposal leaves open in §4's observation."""
+    from utils.cvss_eval import aggregate_detection_metrics
+
+    def _role_evals(key: str):
+        for role, payloads in sorted(roles.items()):
+            evals = [p[key] for p in payloads if isinstance(p.get(key), dict)]
+            if evals:
+                yield role, evals
+
+    pass1_present = any(True for _ in _role_evals("cvss_eval_pass1"))
+    if not pass1_present:
+        return []
+
+    lines = [
+        '<a id="detection-metrics"></a>',
+        "### Detection (M1, M2 — pass@1 vs pass@k)",
+        "",
+        "| role | pass | detection rate | avg coverage | TP | FP | FN | precision | recall | F1 |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    pass1_by_role = dict(_role_evals("cvss_eval_pass1"))
+    passk_by_role = dict(_role_evals("cvss_eval"))
+    for role in sorted(set(pass1_by_role) | set(passk_by_role)):
+        for label, evals in (("pass@1", pass1_by_role.get(role)), ("pass@k", passk_by_role.get(role))):
+            if not evals:
+                continue
+            m = aggregate_detection_metrics(evals)
+            lines.append(
+                f"| {role} | {label} | {_fmt_ratio(m['detection_rate'])} | "
+                f"{_fmt_ratio(m['avg_coverage'])} | {m['tp']} | {m['fp']} | {m['fn']} | "
+                f"{_fmt_ratio(m['precision'])} | {_fmt_ratio(m['recall'])} | "
+                f"{_fmt_ratio(m['f1'])} |"
+            )
+    lines += [
+        "",
+        "**Legend**",
+        "",
+        "- Unit of analysis is the CVE (docs/sgv_protocol/00_proposta_relatore.md §2): "
+        "TP = matched CVEs, FN = missed CVEs, FP = findings that paired to no candidate "
+        "CVE (includes genuine extra vulnerabilities with no catalogued CVE, not only "
+        "false positives — see the unmatched-findings legend above).",
+        "- `pass@1` = evaluated against the agent's *first* attempt only, as if the "
+        "SGV/rubric retry loop didn't exist.",
+        "- `pass@k` = evaluated against the final accepted answer, after every retry — "
+        "same numbers as the `matched`/`missed CVEs`/`unmatched findings` counts above.",
+        "- `detection rate` = share of repetitions (with at least one target CVE) where "
+        "≥1 CVE was matched. `avg coverage` = mean matched/target CVEs per repetition.",
+        "- A pass@k row with higher recall (or F1) than its pass@1 row is the retry loop "
+        "actually finding more; if precision drops at the same time, the extra findings "
+        "came at a cost — read the two together, not recall alone.",
         "",
     ]
     return lines
@@ -1153,6 +1215,8 @@ def _build_experiment_report(
         toc.append("- [Vector detail (estimated vs. published)](#vector-detail)")
     if '<a id="unmatched-findings"></a>' in cvss_lines:
         toc.append("- [Unmatched findings](#unmatched-findings)")
+    if '<a id="detection-metrics"></a>' in cvss_lines:
+        toc.append("- [Detection (M1, M2 — pass@1 vs pass@k)](#detection-metrics)")
     if '<a id="aggregate-metrics"></a>' in cvss_lines:
         toc.append("- [Aggregate metrics (across repetitions)](#aggregate-metrics)")
         toc.append("  - [Estimates vs ground truth](#estimates-vs-gt)")
