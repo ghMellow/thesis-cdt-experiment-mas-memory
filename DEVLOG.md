@@ -2,6 +2,16 @@
 
 ---
 
+## 2026-07-14 — Centralizzazione prompt + prompt visibile nei finding detail  [sessione: 95b680ae]
+
+**Intent:** *"tutti i prompt dati usati per costruire il prompt passato all LLM sono sparsi nel progetto. Direi di centralizzarli in modo da poter condividere quel file"* — poi, dopo aver visto il primo tentativo: *"non ho capito perchè hai spostato anche il codice? non bastava spostare le variabili e poi nei file richiamarle?"*
+**Divergenze:** primo tentativo di centralizzazione ha spostato in `agents/prompts.py` non solo le variabili di testo ma anche le funzioni che le assemblano con dati runtime (`inject_cvss_instructions`, `build_judge_prompt`, `build_retry_task_content`) — scope più ampio di quanto chiesto.
+**Decisioni:** l'utente ha corretto esplicitamente — solo le variabili/template testuali puri vanno centralizzati in `agents/prompts.py` (con una docstring che mappa l'ordine di assemblaggio); le funzioni che le combinano restano dove stavano (`utils/cvss_utils.py`, `utils/experiment_utils.py`). Ripristinato. Per `docs/tasks/*.md` (20 file col template di output duplicato): **nessuna modifica**, solo un commento in `utils/task_utils.py` che rimanda ad `agents/prompts.py` — l'utente ha rifiutato di toccare quei file.
+**Esito/Problemi:** in parallelo, su richiesta dell'utente, aggiunto il prompt esatto (system+user, incluso l'addendum di retry) come sezione collassabile `<details>` in tutti i file di dettaglio matched/unmatched — il campo vive in `history[-1]`, non in `final_answer` (quella vista è filtrata a 4 chiavi in `_save_result`, riga 344). Bug trovato e corretto da solo (non dall'utente): un fence markdown ` ``` ` semplice si chiudeva in anticipo perché il prompt contiene già blocchi ` ```go `/` ```md ` annidati — servita una fence dinamica (`_fence_for`, backtick più lunghi del run più lungo nel testo). Verificato con un run live isolato su task5 (experiment-id dedicato, pulito dopo) prima di pushare: pipeline completa (agent, judge, CVSS eval, report) senza errori.
+**Lesson learned:** quando l'utente dice "centralizza le variabili", intende letteralmente le variabili — non estendere lo scope a "già che ci sono sposto anche la logica che le usa" senza chiedere prima. Verificare sempre con un run reale (non solo import-check) dopo un refactor che tocca il path di generazione dei prompt, perché un errore di rendering markdown (fence non bilanciata) non viene intercettato da un semplice `import` riuscito.
+
+---
+
 ## 2026-07-14 — Reasoning detail anche per i finding matched  [sessione: 95b680ae]
 
 **Intent:** discussione con collega su come rispondere a due dubbi sul report CVSS (task5-9): perché mancano CVE nell'UDR, e come esporre il ragionamento del modello quando sbaglia i campi CVSS. Durante la ricostruzione del contesto l'utente nota: *"il ragionamento c'è per gli unmatched, manca per i matched con gt! aggiungi un campo lì"*
