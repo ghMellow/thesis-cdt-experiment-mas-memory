@@ -80,3 +80,17 @@ CVSS_SCORE_BANDS = [(0.5, 3), (1.5, 2), (3.0, 1)]
 # default, to test whether missing system context explains the systematic
 # impact-scoring failure (F2). Set False to reproduce run 1 (no hint).
 CVSS_CONTEXT_HINT_ENABLED = True
+
+# ── SGV: Syntactic Grounding Verifier (proposta relatore, doc docs/sgv_protocol/) ──
+# Filtro deterministico in-loop, senza accesso alla ground truth: valuta la
+# fondatezza formale del report (non la correttezza della vulnerabilità) e
+# guida il retry al posto/accanto al giudice LLM. Gate condiviso prima dello
+# split rubrica/CVSS — vedi docs/sgv_protocol/05_dove_va_sgv.html.
+SGV_ENABLED = True
+# G3 (groundedness dello snippet) richiede un campo aggiuntivo nel report
+# dell'agente (non esiste oggi: solo function/vector/score). Il flag rende
+# opzionale questa estensione additiva del formato di output.
+SGV_SNIPPET_ENABLED = True
+# Soglia di similarità Jaccard sui token per il fallback di G3 quando lo
+# snippet non combacia per substring esatto (differenze di whitespace/formato).
+SGV_SNIPPET_JACCARD_THRESHOLD = 0.8

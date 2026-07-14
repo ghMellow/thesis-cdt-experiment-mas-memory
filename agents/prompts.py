@@ -62,7 +62,11 @@ corrupted given this baseline.
 
 # Legend gives the full value space per metric (never the ground-truth values).
 # Kept in sync with `_meta.legenda_metriche` in the normalized CVE dataset.
-CVSS_PROMPT_BLOCK = """
+#
+# Split in header/footer + finding-line pieces so utils/cvss_utils.py can
+# splice in the optional `snippet` line (SGV G3, config.SGV_SNIPPET_ENABLED)
+# without duplicating the surrounding instructions.
+CVSS_PROMPT_BLOCK_HEADER = """
 
 ---
 
@@ -70,12 +74,22 @@ CVSS_PROMPT_BLOCK = """
 
 For each vulnerability reported in your Answer, also estimate its CVSS 4.0 base
 metrics. Add this exact section to your response, between Reasoning and Confidence,
-repeating the three lines below for each finding:
+repeating the {n} lines below for each finding:
 
 ### CVSS Estimate
+"""
+
+CVSS_PROMPT_FINDING_LINES_BASE = """\
 - function: <name of the Go function containing the issue>
 - vector: CVSS:4.0/AV:_/AC:_/AT:_/PR:_/UI:_/VC:_/VI:_/VA:_/SC:_/SI:_/SA:_
-- score: <your estimated CVSS 4.0 base score, 0.0-10.0>
+- score: <your estimated CVSS 4.0 base score, 0.0-10.0>"""
+
+CVSS_PROMPT_FINDING_LINE_SNIPPET = (
+    "- snippet: <one exact line of code, copied verbatim from the source above, "
+    "that supports this finding>"
+)
+
+CVSS_PROMPT_BLOCK_FOOTER = """
 
 Replace each `_` in the vector with one of the allowed values:
 

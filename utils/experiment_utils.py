@@ -29,6 +29,7 @@ from config import (
 from utils.task_utils import _load_task
 from utils.cvss_eval import evaluate_cvss_estimate
 from utils.cvss_utils import is_cvss_task
+from utils.sgv import run_sgv
 
 
 def _fetch_model_context_window(model: str, base_url: str) -> Optional[int]:
@@ -149,6 +150,8 @@ class ExperimentState(TypedDict, total=False):
     finished_at: str
     elapsed_seconds: float
     start_perf: float
+    sgv_passed: bool
+    sgv_feedback: Optional[str]
 
 
 @contextmanager
@@ -185,12 +188,14 @@ def _format_previous_answer(answer: Any) -> str:
     return str(answer)
 
 
-def build_retry_task_content(task_content: str, history: list) -> str:
+def build_retry_task_content(
+    task_content: str, history: list, sgv_feedback: Optional[str] = None
+) -> str:
     last = history[-1]
     prev_reasoning = last.get("reasoning", "")
     prev_answer = _format_previous_answer(last.get("answer", ""))
     prev_confidence = last.get("confidence", "")
-    return (
+    content = (
         f"{task_content}\n\n"
         "---\n"
         "Note: you already attempted this task. Review your previous attempt below, "
@@ -201,8 +206,17 @@ def build_retry_task_content(task_content: str, history: list) -> str:
         f"{prev_reasoning}\n\n"
         "### Previous Confidence\n"
         f"{prev_confidence}\n\n"
-        "Please reason again from scratch and follow the response format in the task."
     )
+    if sgv_feedback:
+        # SGV (docs/sgv_protocol/): purely formal feedback, never states which
+        # function is actually vulnerable — only what is malformed/ungrounded.
+        content += (
+            "### Formal Issues Found In Your CVSS Estimate (fix these — this is "
+            "NOT about whether the code is vulnerable, only about the report's form)\n"
+            f"{sgv_feedback}\n\n"
+        )
+    content += "Please reason again from scratch and follow the response format in the task."
+    return content
 
 
 def _run_agent(state: ExperimentState) -> ExperimentState:
@@ -210,7 +224,7 @@ def _run_agent(state: ExperimentState) -> ExperimentState:
     system_prompt = SYSTEM_PROMPTS[role]
     history = state.get("history", [])
     task_content = (
-        build_retry_task_content(state["task_content"], history)
+        build_retry_task_content(state["task_content"], history, state.get("sgv_feedback"))
         if history
         else state["task_content"]
     )
@@ -243,6 +257,37 @@ def _run_agent(state: ExperimentState) -> ExperimentState:
         }
     )
     return state
+
+
+def _check_sgv(state: ExperimentState) -> ExperimentState:
+    """SGV gate (docs/sgv_protocol/): deterministic, no ground truth, applied
+    once per finding before the rubric/CVSS branches split. Only runs on
+    security-review tasks that carry a CVSS Estimate; a no-op otherwise."""
+    if not (getattr(config, "SGV_ENABLED", False) and is_cvss_task(state["task_id"], state["task_type"])):
+        state.update({"sgv_passed": True, "sgv_feedback": None})
+        return state
+
+    cvss_estimate = state["final_answer"].get("cvss_estimate")
+    result = run_sgv(state["task_content"], cvss_estimate)
+    state.update({"sgv_passed": result["passed"], "sgv_feedback": result["feedback"]})
+
+    if state.get("history"):
+        state["history"][-1]["sgv_eval"] = result
+
+    if not result["passed"]:
+        logger.info("SGV check failed (formal, no GT): %s", result["feedback"])
+    return state
+
+
+def _route_after_sgv(state: ExperimentState) -> str:
+    if not state.get("sgv_passed", True) and state["attempts"] < MAX_RETRIES:
+        logger.info(
+            "SGV verdict=fail → retry attempt %d/%d (formal reason, independent of rubric)",
+            state["attempts"] + 1,
+            MAX_RETRIES,
+        )
+        return "retry"
+    return "check_answer"
 
 
 def _check_answer(state: ExperimentState) -> ExperimentState:
@@ -412,12 +457,16 @@ def _build_graph() -> Any:
     graph = StateGraph(ExperimentState)
     graph.add_node("load_task", _load_task)
     graph.add_node("run_agent", _run_agent)
+    graph.add_node("check_sgv", _check_sgv)
     graph.add_node("check_answer", _check_answer)
     graph.add_node("save_result", _save_result)
 
     graph.set_entry_point("load_task")
     graph.add_edge("load_task", "run_agent")
-    graph.add_edge("run_agent", "check_answer")
+    graph.add_edge("run_agent", "check_sgv")
+    graph.add_conditional_edges(
+        "check_sgv", _route_after_sgv, {"retry": "run_agent", "check_answer": "check_answer"}
+    )
     graph.add_conditional_edges(
         "check_answer", _route_after_check, {"retry": "run_agent", "save": "save_result"}
     )

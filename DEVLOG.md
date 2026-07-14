@@ -2,6 +2,34 @@
 
 ---
 
+## 2026-07-14 — Prima implementazione SGV G1–G4  [sessione: 2e99bcd7]
+
+**Intent:** "ok allora direi di iniziare implementando i G0 a G4" (dopo aver chiesto una spiegazione dettagliata di G2/G3/G4 e come implementarli)
+**Divergenze:** G3 (groundedness dello snippet) richiede nello schema un campo `snippet` che oggi non esiste (solo `function`/`vector`/`score`) — l'ho segnalato prima di procedere invece di aggiungerlo silenziosamente, dato il precedente sulla sensibilità del formato di output
+**Decisioni:** l'utente ha messo in dubbio il valore di G3 stesso ("avendo la funzione già sappiamo... forse non sai se dentro quella funzione sta inventando o meno?") — chiarito che G2 verifica solo l'esistenza del simbolo, G3 verifica che il dettaglio citato a supporto non sia allucinato: sono complementari, non ridondanti. Chiesto poi se ci fosse un modo di verificarlo senza LLM: risposta onesta, no — senza un'evidenza testuale citata (snippet o riferimento a riga) verificare "questo è vero" è per costruzione un giudizio semantico, fuori dal perimetro dell'SGV. L'utente ha scelto di **rendere lo snippet opzionale via flag** (`config.SGV_SNIPPET_ENABLED`, default `True`) invece di ometterlo o renderlo obbligatorio
+**Esito/Problemi:** implementati `utils/sgv.py` (G1 schema, G2 simboli su F non su V della GT — distinto da `_match_finding`, G3 opzionale substring+Jaccard, G4 riusa `_parse_vector`/`SEVERITY_ORDER`), nuovo campo prompt `snippet` (riga singola, verbatim) in `agents/prompts.py`/`utils/cvss_utils.py`, nodo `check_sgv` nel grafo LangGraph (`utils/experiment_utils.py`) tra `run_agent` e `check_answer`, con retry indipendente dalla rubrica e feedback puramente formale iniettato in `build_retry_task_content`. Testato manualmente (5 casi: valido, funzione inesistente, vettore invalido, snippet inventato, parsing fallito) — tutti i verdetti corretti. Documentato in `docs/sgv_protocol/06_implementazione_2026-07-14.md`
+**Lesson learned:** quando un controllo tocca il formato di output già oggetto di una correzione precedente dell'utente, va segnalato esplicitamente prima di implementare, non deciso unilateralmente — anche se la soluzione (flag opzionale) sembra ovvia col senno di poi
+
+---
+
+## 2026-07-14 — Chiarimento meccanica retry SGV + decisione su finding non conformi  [sessione: 2e99bcd7]
+
+**Intent:** "ma il retry come funziona di preciso?... come funzionano sti filtri statici sgv?" — chiesto dopo aver visto la slide 3 implementazione
+**Divergenze:** ho segnalato spontaneamente una discrepanza tra il comportamento implementato e la lettera della proposta del relatore (§4.5: "i finding non conformi al termine dei tentativi vengono scartati") — nell'implementazione attuale nulla viene scartato, si salva comunque tutto con `sgv_eval` come marcatore
+**Decisioni:** ho chiesto se implementare lo scarto; l'utente ha **rifiutato**, motivando "se lo scartiamo come facciamo a documentare/migliorare? conviene tenerlo e poi capire dopo che fare" — la soglia Jaccard di G3 non è ancora calibrata, scartare ora rischierebbe di perdere finding buoni per falsi positivi del filtro senza nemmeno poterlo osservare nei dati. Comportamento attuale (nessuno scarto, tutto salvato e marcato) confermato come corretto per questa fase, nessuna modifica al codice necessaria
+**Lesson learned:** in fase di calibrazione di un filtro nuovo, preferire "osserva e marca" a "filtra silenziosamente" — lo scarto va introdotto solo dopo aver validato le soglie su dati reali, altrimenti si perde la possibilità di correggere il filtro stesso
+
+---
+
+## 2026-07-14 — Slide SGV: correzione formato output e separazione rami  [sessione: 2e99bcd7]
+
+**Intent:** rivedere `docs/sgv_protocol/05_dove_va_sgv.html` (2 slide su dove si inserisce l'SGV nel flusso) dopo la mia prima bozza
+**Divergenze:** avevo proposto (a) che l'agente cambiasse formato di output emettendo un'unica lista JSON di finding strutturati invece di markdown libero + blocco CVSS separato, e (b) di unificare a valle Ramo A (rubrica) e Ramo B (CVSS) in un "Judge downstream" unico
+**Decisioni:** l'utente ha **respinto entrambe**. (a) l'output dell'agente resta markdown come oggi: il parsing esistente (`utils/cvss_utils.py::extract_cvss_estimate`) verso JSON è già di per sé un controllo di bontà (fallimento = segnale di modello "svarionato"), quindi è già G1 di fatto, non serve un nuovo schema. (b) Ramo A e Ramo B restano **separati** a valle: servono a pubblici diversi (rubrica → chi lavora sul lato LLM/reasoning, CVSS → esperti di sicurezza), tenerli distinti permette di estrarre/modificare l'uno senza toccare l'altro; l'unificazione resta un'opzione facoltativa a valle nel JSON, non un requisito di design. Confermato invece il punto centrale: un solo gate SGV condiviso prima dello split, non uno per ramo
+**Esito/Problemi:** riscritta la slide 2 dell'HTML con il flusso corretto (agente invariato → parsing esistente → SGV condiviso → split in due rami separati → JSON con campi indipendenti)
+
+---
+
 ## 2026-07-14 — Centralizzazione prompt + prompt visibile nei finding detail  [sessione: 95b680ae]
 
 **Intent:** *"tutti i prompt dati usati per costruire il prompt passato all LLM sono sparsi nel progetto. Direi di centralizzarli in modo da poter condividere quel file"* — poi, dopo aver visto il primo tentativo: *"non ho capito perchè hai spostato anche il codice? non bastava spostare le variabili e poi nei file richiamarle?"*

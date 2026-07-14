@@ -17,7 +17,13 @@ import re
 from typing import Any, Dict, List, Optional
 
 import config
-from agents.prompts import CVSS_PROMPT_BLOCK, NF_CONTEXT_HINT
+from agents.prompts import (
+    CVSS_PROMPT_BLOCK_HEADER,
+    CVSS_PROMPT_BLOCK_FOOTER,
+    CVSS_PROMPT_FINDING_LINES_BASE,
+    CVSS_PROMPT_FINDING_LINE_SNIPPET,
+    NF_CONTEXT_HINT,
+)
 
 
 def is_cvss_task(task_id: str, task_type: str) -> bool:
@@ -25,12 +31,24 @@ def is_cvss_task(task_id: str, task_type: str) -> bool:
     return task_type == "textual" and "vuln" in task_id
 
 
+def build_cvss_prompt_block() -> str:
+    """Assemble the CVSS Estimate prompt block, splicing in the optional
+    `snippet` line (SGV G3) when config.SGV_SNIPPET_ENABLED is set."""
+    snippet_enabled = getattr(config, "SGV_SNIPPET_ENABLED", False)
+    lines = CVSS_PROMPT_FINDING_LINES_BASE
+    n = "three"
+    if snippet_enabled:
+        lines = f"{lines}\n{CVSS_PROMPT_FINDING_LINE_SNIPPET}"
+        n = "four"
+    return CVSS_PROMPT_BLOCK_HEADER.format(n=n) + lines + CVSS_PROMPT_BLOCK_FOOTER
+
+
 def inject_cvss_instructions(task_content: str) -> str:
     hint = NF_CONTEXT_HINT if getattr(config, "CVSS_CONTEXT_HINT_ENABLED", False) else ""
-    return task_content + hint + CVSS_PROMPT_BLOCK
+    return task_content + hint + build_cvss_prompt_block()
 
 
-_KV_LINE_RE = re.compile(r"^[-*\s]*(function|vector|score)\s*:\s*(.+)$", re.IGNORECASE)
+_KV_LINE_RE = re.compile(r"^[-*\s]*(function|vector|score|snippet)\s*:\s*(.+)$", re.IGNORECASE)
 
 
 def _parse_markdown_findings(text: str) -> List[Dict[str, Any]]:

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGV — dove si inserisce nel flusso (stato attuale vs proposta)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='32' height='32' rx='8' fill='%237a5018'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='14' fill='white' font-family='monospace'%3ESGV%3C/text%3E%3C/svg%3E">
+    <style>
+        :root {
+            --bg: #ffffff; --text: #1c1a17; --surface: #ffffff; --surface2: #f2f2f2; --surface3: #e6e6e6;
+            --border: rgba(0,0,0,0.09); --border-strong: rgba(0,0,0,0.16);
+            --purple: #7a5018; --purple-dark: #4e3210; --purple-light: #b8843a;
+            --purple-dim: rgba(122,80,24,0.11); --purple-faint: rgba(122,80,24,0.05);
+            --green: #1a5faf; --green-bg: rgba(26,95,175,0.05); --green-border: rgba(26,95,175,0.22);
+            --red: #8b2020; --red-bg: rgba(139,32,32,0.05); --red-border: rgba(139,32,32,0.22);
+            --amber: #b8843a; --amber-bg: rgba(184,132,58,0.07); --amber-border: rgba(184,132,58,0.28);
+            --blue: #1a5faf; --blue-bg: rgba(26,95,175,0.05); --blue-border: rgba(26,95,175,0.22);
+            --teal: #2e7d32; --teal-bg: rgba(46,125,50,0.06); --teal-border: rgba(46,125,50,0.25);
+            --mono: 'IBM Plex Mono', monospace; --serif: 'Playfair Display', Georgia, serif;
+            --sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --radius: 10px; --radius-sm: 6px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); overflow: hidden; }
+        code { font-family: var(--mono); font-size: 0.82em; background: rgba(122,80,24,0.09); color: var(--purple); padding: 1px 6px; border-radius: 3px; border: 1px solid rgba(122,80,24,0.18); }
+        .deck { width: 100vw; height: 100vh; position: relative; }
+        section {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            justify-content: center; align-items: flex-start; padding: 46px 66px;
+            opacity: 0; transform: translateY(12px);
+            transition: opacity 0.38s cubic-bezier(0.4,0,0.2,1), transform 0.38s cubic-bezier(0.4,0,0.2,1);
+            pointer-events: none; overflow-y: auto;
+        }
+        section.active { opacity: 1; transform: none; pointer-events: auto; z-index: 1; }
+        .eyebrow { font-size: 10px; font-weight: 600; color: var(--purple); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 10px; }
+        h2 { font-family: var(--serif); font-size: clamp(20px, 2.3vw, 30px); font-weight: 700; line-height: 1.2; margin-bottom: 14px; }
+        .subtitle { font-size: 13.5px; color: #78706e; font-weight: 400; line-height: 1.6; max-width: 980px; margin-bottom: 12px; }
+        .flow-wrap { width: 100%; max-width: 1180px; display: flex; justify-content: center; }
+        .flow-wrap svg { width: 100%; height: auto; max-height: 56vh; }
+        .callout { border-radius: var(--radius-sm); padding: 12px 16px; font-size: 13px; font-weight: 500; max-width: 1100px; width: 100%; margin-top: 10px; line-height: 1.55; }
+        .callout.purple { background: var(--purple-faint); border: 1px solid var(--purple-dim); color: var(--purple-dark); }
+        .callout.red { background: var(--red-bg); border: 1px solid var(--red-border); color: #B91C1C; }
+        .callout.teal { background: var(--teal-bg); border: 1px solid var(--teal-border); color: #1b5e20; }
+        .callout.amber { background: var(--amber-bg); border: 1px solid var(--amber-border); color: #92400E; }
+        .nav-bar { position: fixed; bottom: 22px; right: 30px; display: flex; align-items: center; gap: 10px; z-index: 100; }
+        .nav-btn { width: 32px; height: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #78706e; box-shadow: var(--shadow-sm); font-size: 13px; }
+        .nav-btn:hover { border-color: var(--purple); color: var(--purple); background: var(--purple-faint); }
+        .slide-count { font-size: 11px; font-weight: 500; color: #78706e; font-family: var(--mono); }
+        .slide-count span { color: var(--purple); }
+        .progress { position: fixed; bottom: 0; left: 0; height: 2px; background: linear-gradient(to right, var(--purple-light), var(--purple)); transition: width 0.38s ease; z-index: 100; }
+    </style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+<!-- 01 · STATO ATTUALE -->
+<section id="s01" class="active">
+    <div class="eyebrow">SGV &middot; Livello 0 &middot; Stato attuale</div>
+    <h2>Come parlano oggi i pezzi: .md &rarr; LLM &rarr; py &rarr; JSON</h2>
+    <p class="subtitle">Stesso schema della slide 3 di <code>architettura_flusso_v2_cvss.html</code>, ma con il formato di ogni passaggio esplicito e i controlli deterministici <strong>gi&agrave; esistenti</strong> evidenziati. Nessun filtro esiste oggi prima dello split A/B: il retry dipende solo dal verdetto del Ramo A.</p>
+    <div class="flow-wrap">
+        <svg viewBox="0 0 1180 440" xmlns="http://www.w3.org/2000/svg" font-family="'Inter',sans-serif">
+          <defs>
+            <marker id="a1" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#7a5018"/></marker>
+            <marker id="b1" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#1a5faf"/></marker>
+            <marker id="g1" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#2e7d32"/></marker>
+            <marker id="r1" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#8b2020"/></marker>
+          </defs>
+
+          <!-- TASK .md -->
+          <rect x="14" y="150" width="130" height="130" rx="10" fill="#fff" stroke="#7a5018" stroke-width="1.5"/>
+          <text x="79" y="178" text-anchor="middle" font-size="10.5" fill="#7a5018" font-weight="700" letter-spacing="1">TASK</text>
+          <text x="79" y="198" text-anchor="middle" font-size="10" fill="#1c1a17" font-family="'IBM Plex Mono',monospace">.md</text>
+          <text x="79" y="222" text-anchor="middle" font-size="9" fill="#78706e">docs/tasks/</text>
+          <text x="79" y="235" text-anchor="middle" font-size="9" fill="#78706e">*.md</text>
+          <text x="79" y="258" text-anchor="middle" font-size="9" fill="#78706e">codice Go +</text>
+          <text x="79" y="270" text-anchor="middle" font-size="9" fill="#78706e">scenario</text>
+          <line x1="144" y1="215" x2="176" y2="215" stroke="#7a5018" stroke-width="1.6" marker-end="url(#a1)"/>
+
+          <!-- AGENTE LLM -->
+          <rect x="181" y="130" width="185" height="170" rx="10" fill="rgba(122,80,24,0.06)" stroke="#7a5018" stroke-width="1.5"/>
+          <text x="273" y="156" text-anchor="middle" font-size="10.5" fill="#7a5018" font-weight="700" letter-spacing="1">AGENTE LLM</text>
+          <text x="273" y="176" text-anchor="middle" font-size="9" fill="#78706e" font-family="'IBM Plex Mono',monospace">py: agents/*.py</text>
+          <text x="273" y="200" text-anchor="middle" font-size="10" fill="#1c1a17">1 chiamata &rarr;</text>
+          <text x="273" y="216" text-anchor="middle" font-size="10" fill="#1c1a17">markdown libero</text>
+          <text x="273" y="232" text-anchor="middle" font-size="9.5" fill="#1c1a17">(Answer/Reasoning)</text>
+          <text x="273" y="252" text-anchor="middle" font-size="9.5" fill="#1c1a17">+ blocco</text>
+          <text x="273" y="266" text-anchor="middle" font-size="9.5" fill="#1c1a17">### CVSS Estimate</text>
+          <text x="273" y="286" text-anchor="middle" font-size="8.5" fill="#78706e">(function/vector/score)</text>
+
+          <!-- split -->
+          <path d="M366 190 Q410 190 430 130" fill="none" stroke="#1a5faf" stroke-width="1.6" marker-end="url(#b1)"/>
+          <path d="M366 250 Q410 250 430 320" fill="none" stroke="#2e7d32" stroke-width="1.6" marker-end="url(#g1)"/>
+          <text x="400" y="150" font-size="9.5" fill="#1a5faf" font-weight="600">testo libero</text>
+          <text x="392" y="300" font-size="9.5" fill="#2e7d32" font-weight="600">finding strutturati</text>
+
+          <!-- retry: Ramo A -> Agente (il pezzo che mancava) -->
+          <path d="M480 18 Q480 6 380 6 L273 6 Q271 6 271 128" fill="none" stroke="#8b2020" stroke-width="1.4" stroke-dasharray="5,3" marker-end="url(#r1)"/>
+          <text x="375" y="14" text-anchor="middle" font-size="8.3" fill="#8b2020" font-weight="600">wrong &rarr; retry cieco (nessun feedback reiniettato)</text>
+
+          <!-- RAMO A -->
+          <rect x="435" y="18" width="260" height="150" rx="10" fill="#fff" stroke="#1a5faf" stroke-width="1.5"/>
+          <text x="565" y="42" text-anchor="middle" font-size="10.5" fill="#1a5faf" font-weight="700" letter-spacing="1">RAMO A &middot; GIUDICE LLM</text>
+          <text x="565" y="60" text-anchor="middle" font-size="9" fill="#78706e" font-family="'IBM Plex Mono',monospace">py: agents/judge_agent.py</text>
+          <text x="565" y="80" text-anchor="middle" font-size="10" fill="#1c1a17">input: <tspan font-weight="600">testo libero</tspan></text>
+          <text x="565" y="96" text-anchor="middle" font-size="9.5" fill="#78706e">(nessun oggetto finding, rubrica olistica)</text>
+          <text x="565" y="116" text-anchor="middle" font-size="10" fill="#1c1a17">output: verdict / judge_score</text>
+          <text x="565" y="136" text-anchor="middle" font-size="9.5" fill="#8b2020" font-weight="600">unico trigger di retry oggi</text>
+          <text x="565" y="154" text-anchor="middle" font-size="8.5" fill="#78706e">nessun controllo prima di qui</text>
+
+          <!-- RAMO B -->
+          <rect x="435" y="230" width="290" height="200" rx="10" fill="rgba(46,125,50,0.05)" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="580" y="253" text-anchor="middle" font-size="10.5" fill="#2e7d32" font-weight="700" letter-spacing="1">RAMO B &middot; SCRIPT PYTHON</text>
+          <text x="580" y="271" text-anchor="middle" font-size="9" fill="#78706e" font-family="'IBM Plex Mono',monospace">py: utils/cvss_eval.py</text>
+          <rect x="450" y="280" width="260" height="42" rx="6" fill="#fff" stroke="#2e7d32" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="580" y="296" text-anchor="middle" font-size="9" fill="#1c1a17" font-weight="600">_match_finding()</text>
+          <text x="580" y="310" text-anchor="middle" font-size="8.3" fill="#78706e">match sostringa function&harr;GT &middot; GT-dependent, solo downstream</text>
+          <rect x="450" y="328" width="260" height="42" rx="6" fill="#fff" stroke="#2e7d32" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="580" y="344" text-anchor="middle" font-size="9" fill="#1c1a17" font-weight="600">_parse_vector / compute_base_score()</text>
+          <text x="580" y="358" text-anchor="middle" font-size="8.3" fill="#78706e">parsing + FIRST math &middot; GT-independent &rarr; riusabile per G4</text>
+          <text x="580" y="386" text-anchor="middle" font-size="9.5" fill="#1c1a17">output: cvss_eval (matched/missed)</text>
+          <text x="580" y="402" text-anchor="middle" font-size="9" fill="#78706e">mai il verdetto, mai il retry</text>
+
+          <!-- merge to json -->
+          <path d="M695 90 Q760 90 780 190" fill="none" stroke="#1a5faf" stroke-width="1.6" marker-end="url(#b1)"/>
+          <path d="M725 340 Q770 340 780 260" fill="none" stroke="#2e7d32" stroke-width="1.6" marker-end="url(#g1)"/>
+          <rect x="785" y="170" width="140" height="110" rx="10" fill="rgba(26,95,175,0.06)" stroke="#1a5faf" stroke-width="1.5"/>
+          <text x="855" y="196" text-anchor="middle" font-size="10.5" fill="#1a5faf" font-weight="700" letter-spacing="1">JSON</text>
+          <text x="855" y="216" text-anchor="middle" font-size="9" fill="#1c1a17">verdict &middot; judge_score</text>
+          <text x="855" y="232" text-anchor="middle" font-size="9" fill="#1c1a17">cvss_eval</text>
+          <text x="855" y="252" text-anchor="middle" font-size="8.3" fill="#78706e" font-family="'IBM Plex Mono',monospace">results/&hellip;.json</text>
+
+          <!-- big question box -->
+          <rect x="960" y="60" width="205" height="330" rx="10" fill="rgba(184,132,58,0.08)" stroke="#b8843a" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <text x="1062" y="86" text-anchor="middle" font-size="10" fill="#92400E" font-weight="700" letter-spacing="1">DOMANDA APERTA</text>
+          <text x="1062" y="112" text-anchor="middle" font-size="9.5" fill="#1c1a17" font-weight="600">Dove va l'SGV?</text>
+          <text x="985" y="136" font-size="9" fill="#1c1a17">Un filtro per ramo</text>
+          <text x="985" y="150" font-size="9" fill="#1c1a17">(A + B separati)?</text>
+          <text x="985" y="174" font-size="9" fill="#1c1a17">Uno solo sull'output</text>
+          <text x="985" y="188" font-size="9" fill="#1c1a17">unico dell'agente?</text>
+          <text x="985" y="212" font-size="9" fill="#1c1a17">Un misto: check comuni</text>
+          <text x="985" y="226" font-size="9" fill="#1c1a17">subito, poi split se serve?</text>
+          <line x1="978" y1="240" x2="1148" y2="240" stroke="#b8843a" stroke-width="1" stroke-dasharray="2,3"/>
+          <text x="985" y="260" font-size="8.7" fill="#78706e">G1-G4 leggono function+</text>
+          <text x="985" y="273" font-size="8.7" fill="#78706e">snippet+vector: oggetto che</text>
+          <text x="985" y="286" font-size="8.7" fill="#78706e">oggi esiste solo nel Ramo B.</text>
+          <text x="985" y="306" font-size="8.7" fill="#78706e">Il Ramo A giudica testo</text>
+          <text x="985" y="319" font-size="8.7" fill="#78706e">libero, non un finding</text>
+          <text x="985" y="332" font-size="8.7" fill="#78706e">strutturato &mdash; risposta</text>
+          <text x="985" y="345" font-size="8.7" fill="#78706e">nella slide successiva &rarr;</text>
+        </svg>
+    </div>
+    <div class="callout red">
+        <strong>Il vincolo che decide tutto:</strong> G1-G4 dell'SGV operano su un <em>oggetto finding strutturato</em> (function, snippet, vettore). Oggi quell'oggetto esiste solo nel Ramo B (<code>cvss_estimate.findings</code>); il Ramo A valuta testo libero con una rubrica olistica, non finding singoli. Quindi la domanda "un filtro per ramo o uno solo?" si risolve guardando <em>cosa</em> viene filtrato, non <em>chi</em> consuma il risultato.
+    </div>
+</section>
+
+<!-- 02 · PROPOSTA -->
+<section id="s02">
+    <div class="eyebrow">SGV &middot; Livello 0 &middot; Proposta (Claude)</div>
+    <h2>Un solo gate condiviso prima dello split, poi i due rami restano separati</h2>
+    <p class="subtitle">Risposta alla domanda della slide precedente: <strong>un solo filtro condiviso</strong>, non uno per ramo &mdash; perch&eacute; G1-G4 controllano lo stesso oggetto (il finding), non il ramo che lo user&agrave; dopo. <strong>Nessun cambio di formato</strong>: l'agente risponde come oggi (markdown libero + blocco <code>### CVSS Estimate</code>); il parsing MD&rarr;JSON gi&agrave; esistente <em>&egrave; gi&agrave;</em> un controllo di bont&agrave; (fallisce se il modello ha "svarionato"). A valle, Ramo A e Ramo B <strong>restano separati</strong> come oggi: servono a pubblici diversi, unificarli resta un'opzione facoltativa nel JSON finale, non un requisito.</p>
+    <div class="flow-wrap">
+        <svg viewBox="0 0 1180 440" xmlns="http://www.w3.org/2000/svg" font-family="'Inter',sans-serif">
+          <defs>
+            <marker id="a2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#7a5018"/></marker>
+            <marker id="b2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#1a5faf"/></marker>
+            <marker id="g2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#2e7d32"/></marker>
+            <marker id="r2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#8b2020"/></marker>
+          </defs>
+
+          <!-- TASK -->
+          <rect x="6" y="165" width="95" height="100" rx="10" fill="#fff" stroke="#7a5018" stroke-width="1.5"/>
+          <text x="53" y="192" text-anchor="middle" font-size="10" fill="#7a5018" font-weight="700" letter-spacing="1">TASK</text>
+          <text x="53" y="209" text-anchor="middle" font-size="8.5" fill="#1c1a17" font-family="'IBM Plex Mono',monospace">.md</text>
+          <text x="53" y="232" text-anchor="middle" font-size="8.3" fill="#78706e">codice Go</text>
+          <text x="53" y="244" text-anchor="middle" font-size="8.3" fill="#78706e">+ scenario</text>
+          <line x1="101" y1="215" x2="126" y2="215" stroke="#7a5018" stroke-width="1.6" marker-end="url(#a2)"/>
+
+          <!-- AGENTE LLM (invariato) -->
+          <rect x="131" y="140" width="145" height="150" rx="10" fill="rgba(122,80,24,0.06)" stroke="#7a5018" stroke-width="1.5"/>
+          <text x="203" y="162" text-anchor="middle" font-size="10" fill="#7a5018" font-weight="700" letter-spacing="1">AGENTE LLM</text>
+          <text x="203" y="180" text-anchor="middle" font-size="8" fill="#78706e" font-family="'IBM Plex Mono',monospace">invariato</text>
+          <text x="203" y="200" text-anchor="middle" font-size="8.7" fill="#1c1a17">markdown libero</text>
+          <text x="203" y="214" text-anchor="middle" font-size="8.7" fill="#1c1a17">(Answer/Reasoning)</text>
+          <text x="203" y="232" text-anchor="middle" font-size="8.3" fill="#1c1a17">+ blocco</text>
+          <text x="203" y="245" text-anchor="middle" font-size="8.3" fill="#1c1a17">### CVSS Estimate</text>
+          <text x="203" y="266" text-anchor="middle" font-size="7.8" fill="#1b5e20" font-weight="600">stesso output di oggi,</text>
+          <text x="203" y="277" text-anchor="middle" font-size="7.8" fill="#1b5e20" font-weight="600">nessun cambio richiesto</text>
+          <line x1="276" y1="215" x2="300" y2="215" stroke="#7a5018" stroke-width="1.6" marker-end="url(#a2)"/>
+
+          <!-- PARSING esistente -->
+          <rect x="305" y="150" width="150" height="130" rx="10" fill="#fff" stroke="#7a5018" stroke-width="1.3" stroke-dasharray="4,3"/>
+          <text x="380" y="170" text-anchor="middle" font-size="9.5" fill="#7a5018" font-weight="700" letter-spacing="0.5">PARSING &middot; GI&Agrave; ESISTE</text>
+          <text x="380" y="186" text-anchor="middle" font-size="7.6" fill="#78706e" font-family="'IBM Plex Mono',monospace">utils/cvss_utils.py</text>
+          <text x="380" y="197" text-anchor="middle" font-size="7.6" fill="#78706e" font-family="'IBM Plex Mono',monospace">extract_cvss_estimate()</text>
+          <text x="380" y="216" text-anchor="middle" font-size="8.3" fill="#1c1a17">MD &rarr; JSON</text>
+          <text x="380" y="230" text-anchor="middle" font-size="8.3" fill="#1c1a17">(findings: function/</text>
+          <text x="380" y="242" text-anchor="middle" font-size="8.3" fill="#1c1a17">vector/score)</text>
+          <text x="380" y="262" text-anchor="middle" font-size="7.6" fill="#8b2020" font-weight="600">parse fallito = G1</text>
+          <text x="380" y="273" text-anchor="middle" font-size="7.6" fill="#8b2020" font-weight="600">(gi&agrave; un segnale di bont&agrave;)</text>
+          <line x1="455" y1="215" x2="478" y2="215" stroke="#7a5018" stroke-width="1.6" marker-end="url(#a2)"/>
+
+          <!-- SGV -->
+          <rect x="483" y="110" width="205" height="215" rx="10" fill="rgba(184,132,58,0.08)" stroke="#b8843a" stroke-width="2"/>
+          <text x="585" y="133" text-anchor="middle" font-size="10.5" fill="#92400E" font-weight="700" letter-spacing="1">SGV &middot; NUOVO</text>
+          <text x="585" y="149" text-anchor="middle" font-size="8" fill="#78706e" font-family="'IBM Plex Mono',monospace">py puro, zero LLM, no GT</text>
+          <text x="585" y="169" text-anchor="middle" font-size="9" fill="#1c1a17">G1 conferma parsing</text>
+          <text x="585" y="183" text-anchor="middle" font-size="9" fill="#1c1a17">G2 simboli &middot; G3 snippet</text>
+          <text x="585" y="197" text-anchor="middle" font-size="9" fill="#1c1a17">G4 vettore CVSS valido</text>
+          <text x="585" y="216" text-anchor="middle" font-size="8" fill="#78706e">un solo pass per finding,</text>
+          <text x="585" y="228" text-anchor="middle" font-size="8" fill="#78706e">condiviso &mdash; non uno per ramo</text>
+          <text x="585" y="250" text-anchor="middle" font-size="7.6" fill="#78706e">G2: indice funzioni dal</text>
+          <text x="585" y="262" text-anchor="middle" font-size="7.6" fill="#78706e">codice del task (non dalla GT)</text>
+          <text x="585" y="283" text-anchor="middle" font-size="7.6" fill="#78706e">G4: riusa _parse_vector /</text>
+          <text x="585" y="295" text-anchor="middle" font-size="7.6" fill="#78706e">compute_base_score esistenti</text>
+          <text x="585" y="314" text-anchor="middle" font-size="7.6" fill="#78706e">esce dal Ramo B di oggi &rarr;</text>
+
+          <!-- fail -> retry -->
+          <path d="M540 110 Q470 55 350 55 Q200 55 195 138" fill="none" stroke="#8b2020" stroke-width="1.4" stroke-dasharray="5,3" marker-end="url(#r2)"/>
+          <text x="360" y="42" text-anchor="middle" font-size="8.3" fill="#8b2020" font-weight="600">fail &rarr; feedback formale &rarr; retry</text>
+          <text x="360" y="68" text-anchor="middle" font-size="7.6" fill="#8b2020">(sostituisce il trigger di oggi)</text>
+
+          <!-- pass -> split A/B (restano separati) -->
+          <path d="M688 190 Q725 190 750 130" fill="none" stroke="#1a5faf" stroke-width="1.6" marker-end="url(#b2)"/>
+          <path d="M688 250 Q725 250 750 310" fill="none" stroke="#2e7d32" stroke-width="1.6" marker-end="url(#g2)"/>
+          <text x="715" y="145" text-anchor="middle" font-size="8" fill="#1a5faf" font-weight="600">pass</text>
+          <text x="705" y="300" text-anchor="middle" font-size="8" fill="#2e7d32" font-weight="600">pass</text>
+
+          <!-- RAMO A -->
+          <rect x="755" y="45" width="210" height="140" rx="10" fill="#fff" stroke="#1a5faf" stroke-width="1.5"/>
+          <text x="860" y="66" text-anchor="middle" font-size="9.5" fill="#1a5faf" font-weight="700" letter-spacing="1">RAMO A &middot; RUBRICA</text>
+          <text x="860" y="82" text-anchor="middle" font-size="8" fill="#78706e">analisi qualitativa del reasoning</text>
+          <text x="860" y="100" text-anchor="middle" font-size="8" fill="#1c1a17" font-weight="600">per chi lavora sul lato LLM</text>
+          <text x="860" y="120" text-anchor="middle" font-size="7.8" fill="#78706e">oggi: giudice LLM &middot; decisione</text>
+          <text x="860" y="132" text-anchor="middle" font-size="7.8" fill="#78706e">call 12: resta esperimento</text>
+          <text x="860" y="144" text-anchor="middle" font-size="7.8" fill="#78706e">storico di confronto</text>
+          <text x="860" y="164" text-anchor="middle" font-size="7.8" fill="#8b2020" font-weight="600">restano separati come oggi</text>
+
+          <!-- retry: Ramo A (rubrica) -> Agente, tenuto per ora -->
+          <path d="M800 45 Q800 22 500 22 L235 22 Q230 22 230 138" fill="none" stroke="#8b2020" stroke-width="1.4" stroke-dasharray="5,3" marker-end="url(#r2)"/>
+          <text x="500" y="14" text-anchor="middle" font-size="8" fill="#8b2020" font-weight="600">Ramo A: wrong &rarr; retry &middot; tenuto per ora</text>
+          <text x="500" y="35" text-anchor="middle" font-size="7.3" fill="#8b2020">(in futuro pu&ograve; variare o sparire &mdash; indipendente dal retry SGV)</text>
+
+          <!-- RAMO B -->
+          <rect x="755" y="280" width="210" height="150" rx="10" fill="rgba(46,125,50,0.05)" stroke="#2e7d32" stroke-width="1.5"/>
+          <text x="860" y="301" text-anchor="middle" font-size="9.5" fill="#2e7d32" font-weight="700" letter-spacing="1">RAMO B &middot; CVSS</text>
+          <text x="860" y="317" text-anchor="middle" font-size="8" fill="#78706e">severit&agrave; quantitativa</text>
+          <text x="860" y="335" text-anchor="middle" font-size="8" fill="#1c1a17" font-weight="600">per gli esperti di sicurezza</text>
+          <text x="860" y="355" text-anchor="middle" font-size="7.8" fill="#78706e">deterministico, invariato:</text>
+          <text x="860" y="367" text-anchor="middle" font-size="7.8" fill="#78706e" font-family="'IBM Plex Mono',monospace">utils/cvss_eval.py</text>
+          <text x="860" y="387" text-anchor="middle" font-size="7.8" fill="#8b2020" font-weight="600">resta separato come oggi</text>
+          <text x="860" y="404" text-anchor="middle" font-size="7.6" fill="#78706e">mai in loop, mai il verdetto</text>
+
+          <!-- JSON output, campi separati -->
+          <rect x="985" y="140" width="185" height="180" rx="10" fill="rgba(122,80,24,0.05)" stroke="#7a5018" stroke-width="1.3" stroke-dasharray="4,3"/>
+          <text x="1077" y="163" text-anchor="middle" font-size="9.5" fill="#7a5018" font-weight="700" letter-spacing="1">JSON &middot; campi separati</text>
+          <path d="M965 105 Q1000 105 1010 155" fill="none" stroke="#1a5faf" stroke-width="1.4" marker-end="url(#b2)"/>
+          <path d="M965 355 Q1000 355 1010 295" fill="none" stroke="#2e7d32" stroke-width="1.4" marker-end="url(#g2)"/>
+          <text x="1077" y="188" text-anchor="middle" font-size="7.6" fill="#1a5faf">verdict / judge_score</text>
+          <text x="1077" y="202" text-anchor="middle" font-size="7.3" fill="#78706e">(estraibile da solo)</text>
+          <text x="1077" y="228" text-anchor="middle" font-size="7.6" fill="#2e7d32">cvss_eval</text>
+          <text x="1077" y="242" text-anchor="middle" font-size="7.3" fill="#78706e">(estraibile da solo)</text>
+          <line x1="1000" y1="256" x2="1155" y2="256" stroke="#7a5018" stroke-width="1" stroke-dasharray="2,3"/>
+          <text x="1077" y="276" text-anchor="middle" font-size="7.3" fill="#78706e">unificarli dopo, nel JSON,</text>
+          <text x="1077" y="288" text-anchor="middle" font-size="7.3" fill="#78706e">resta un'opzione &mdash; non</text>
+          <text x="1077" y="300" text-anchor="middle" font-size="7.3" fill="#78706e">un vincolo del design</text>
+        </svg>
+    </div>
+    <div class="callout teal">
+        <strong>Risposta alla domanda architetturale:</strong> un solo filtro condiviso (non uno per ramo), applicato una volta per finding prima di qualsiasi split. Nessun cambio di formato in ingresso: il parsing MD&rarr;JSON gi&agrave; esistente resta il primo controllo di bont&agrave; (G1). A valle, Ramo A (rubrica, per l'analisi qualitativa) e Ramo B (CVSS, per la severit&agrave;) restano <strong>separati come oggi</strong> &mdash; servono a pubblici diversi e tenerli distinti permette di estrarre o modificare l'uno senza toccare l'altro. Un'eventuale unificazione resta possibile a valle, nel JSON, ma non &egrave; un requisito del design.
+    </div>
+    <div class="callout red">
+        <strong>Due retry indipendenti, per ora entrambi attivi:</strong> l'SGV boccia sulla forma (simboli, snippet, vettore) prima dello split; il Ramo A (rubrica) pu&ograve; ancora bocciare <em>dopo</em>, sulla qualit&agrave; del ragionamento, esattamente come oggi. Sono due gate diversi con criteri diversi &mdash; si tiene questo secondo retry per ora; se in futuro si decidesse di ridurlo o eliminarlo (Esperimento A che diventa puramente storico), &egrave; una scelta successiva, non presa qui.
+    </div>
+</section>
+
+<!-- 03 · IMPLEMENTAZIONE -->
+<section id="s03">
+    <div class="eyebrow">SGV &middot; Livello 0 &middot; Implementato (2026-07-14)</div>
+    <h2>G1, G2, G4 sempre attivi &middot; G3 opzionale, deciso all'origine nel prompt</h2>
+    <p class="subtitle">Codice reale in <code>utils/sgv.py</code>, nodo <code>check_sgv</code> nel grafo LangGraph (<code>utils/experiment_utils.py</code>). "Opzionale" per G3 non significa un controllo saltato a valle su un dato gi&agrave; presente: il flag <code>config.SGV_SNIPPET_ENABLED</code> decide <strong>gi&agrave; nel prompt</strong> se chiedere o meno la riga <code>snippet</code> &mdash; se &egrave; <code>False</code> quella riga non viene richiesta e G3 non ha nulla da verificare.</p>
+    <div class="flow-wrap">
+        <svg viewBox="0 0 1180 440" xmlns="http://www.w3.org/2000/svg" font-family="'Inter',sans-serif">
+          <defs>
+            <marker id="a3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#7a5018"/></marker>
+            <marker id="b3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#1a5faf"/></marker>
+            <marker id="r3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#8b2020"/></marker>
+            <marker id="am3" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#b8843a"/></marker>
+          </defs>
+
+          <!-- TASK -->
+          <rect x="6" y="170" width="85" height="90" rx="10" fill="#fff" stroke="#7a5018" stroke-width="1.5"/>
+          <text x="48" y="195" text-anchor="middle" font-size="9.5" fill="#7a5018" font-weight="700" letter-spacing="1">TASK</text>
+          <text x="48" y="212" text-anchor="middle" font-size="8" fill="#1c1a17" font-family="'IBM Plex Mono',monospace">.md</text>
+          <text x="48" y="232" text-anchor="middle" font-size="7.8" fill="#78706e">codice Go</text>
+          <text x="48" y="244" text-anchor="middle" font-size="7.8" fill="#78706e">+ scenario</text>
+          <line x1="91" y1="215" x2="112" y2="215" stroke="#7a5018" stroke-width="1.6" marker-end="url(#a3)"/>
+
+          <!-- AGENTE LLM -->
+          <rect x="117" y="120" width="165" height="190" rx="10" fill="rgba(122,80,24,0.06)" stroke="#7a5018" stroke-width="1.5"/>
+          <text x="199" y="141" text-anchor="middle" font-size="9.5" fill="#7a5018" font-weight="700" letter-spacing="1">AGENTE LLM</text>
+          <text x="199" y="157" text-anchor="middle" font-size="7.5" fill="#78706e" font-family="'IBM Plex Mono',monospace">agents/prompts.py</text>
+          <text x="199" y="176" text-anchor="middle" font-size="8" fill="#1c1a17">Answer/Reasoning</text>
+          <text x="199" y="189" text-anchor="middle" font-size="8" fill="#1c1a17">+ ### CVSS Estimate:</text>
+          <text x="199" y="204" text-anchor="middle" font-size="7.6" fill="#1c1a17">function / vector / score</text>
+          <rect x="130" y="212" width="139" height="42" rx="6" fill="rgba(184,132,58,0.1)" stroke="#b8843a" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="199" y="228" text-anchor="middle" font-size="7.3" fill="#92400E" font-weight="600">+ snippet</text>
+          <text x="199" y="240" text-anchor="middle" font-size="6.8" fill="#92400E">richiesto solo se</text>
+          <text x="199" y="250" text-anchor="middle" font-size="6.8" fill="#92400E">SGV_SNIPPET_ENABLED=True</text>
+          <text x="199" y="270" text-anchor="middle" font-size="7.3" fill="#78706e">(default: True &rarr; riga</text>
+          <text x="199" y="282" text-anchor="middle" font-size="7.3" fill="#78706e">chiesta gi&agrave; nel prompt)</text>
+          <text x="199" y="298" text-anchor="middle" font-size="7" fill="#1b5e20" font-weight="600">stesso output di prima + 1 riga</text>
+          <line x1="282" y1="215" x2="303" y2="215" stroke="#7a5018" stroke-width="1.6" marker-end="url(#a3)"/>
+
+          <!-- PARSING esistente -->
+          <rect x="308" y="145" width="130" height="140" rx="10" fill="#fff" stroke="#7a5018" stroke-width="1.3" stroke-dasharray="4,3"/>
+          <text x="373" y="166" text-anchor="middle" font-size="8.7" fill="#7a5018" font-weight="700">PARSING &middot; ESISTE</text>
+          <text x="373" y="182" text-anchor="middle" font-size="7.2" fill="#78706e" font-family="'IBM Plex Mono',monospace">cvss_utils.py</text>
+          <text x="373" y="193" text-anchor="middle" font-size="7.2" fill="#78706e" font-family="'IBM Plex Mono',monospace">extract_cvss_estimate()</text>
+          <text x="373" y="212" text-anchor="middle" font-size="7.8" fill="#1c1a17">_KV_LINE_RE esteso</text>
+          <text x="373" y="224" text-anchor="middle" font-size="7.8" fill="#1c1a17">a "snippet" (2026-07-14)</text>
+          <text x="373" y="246" text-anchor="middle" font-size="7.2" fill="#78706e">MD &rarr; {findings: [...]}</text>
+          <text x="373" y="262" text-anchor="middle" font-size="7" fill="#8b2020" font-weight="600">_raw = parse fallito</text>
+          <text x="373" y="273" text-anchor="middle" font-size="7" fill="#8b2020" font-weight="600">(input di G1)</text>
+          <line x1="438" y1="215" x2="460" y2="215" stroke="#7a5018" stroke-width="1.6" marker-end="url(#a3)"/>
+
+          <!-- SGV outer -->
+          <rect x="465" y="55" width="450" height="345" rx="10" fill="rgba(184,132,58,0.05)" stroke="#b8843a" stroke-width="2"/>
+          <text x="690" y="78" text-anchor="middle" font-size="10.5" fill="#92400E" font-weight="700" letter-spacing="1">SGV &middot; utils/sgv.py</text>
+          <text x="690" y="94" text-anchor="middle" font-size="7.6" fill="#78706e" font-family="'IBM Plex Mono',monospace">run_sgv() &middot; py puro, zero LLM, no GT</text>
+
+          <!-- G1 -->
+          <rect x="480" y="108" width="205" height="68" rx="8" fill="#fff" stroke="#2e7d32" stroke-width="1.4"/>
+          <text x="582" y="126" text-anchor="middle" font-size="8.7" fill="#2e7d32" font-weight="700">G1 &middot; schema</text>
+          <text x="582" y="140" text-anchor="middle" font-size="7.2" fill="#78706e" font-family="'IBM Plex Mono',monospace">g1_schema_check()</text>
+          <text x="582" y="155" text-anchor="middle" font-size="7.2" fill="#1c1a17">precondizione &middot; sempre attivo</text>
+          <text x="582" y="167" text-anchor="middle" font-size="6.8" fill="#78706e">campi obbligatori presenti</text>
+
+          <!-- G2 -->
+          <rect x="480" y="184" width="205" height="82" rx="8" fill="#fff" stroke="#2e7d32" stroke-width="1.4"/>
+          <text x="582" y="202" text-anchor="middle" font-size="8.7" fill="#2e7d32" font-weight="700">G2 &middot; simboli</text>
+          <text x="582" y="216" text-anchor="middle" font-size="7.2" fill="#78706e" font-family="'IBM Plex Mono',monospace">g2_symbol_check()</text>
+          <text x="582" y="230" text-anchor="middle" font-size="6.9" fill="#1c1a17">confronto esatto su F</text>
+          <text x="582" y="242" text-anchor="middle" font-size="6.8" fill="#78706e">(estratto mostrato all'agente,</text>
+          <text x="582" y="253" text-anchor="middle" font-size="6.8" fill="#78706e">NON su V &middot; diverso da</text>
+          <text x="582" y="264" text-anchor="middle" font-size="6.8" fill="#78706e" font-family="'IBM Plex Mono',monospace">_match_finding() di cvss_eval.py</text>
+
+          <!-- G4 -->
+          <rect x="480" y="274" width="205" height="112" rx="8" fill="#fff" stroke="#2e7d32" stroke-width="1.4"/>
+          <text x="582" y="292" text-anchor="middle" font-size="8.7" fill="#2e7d32" font-weight="700">G4 &middot; vettore CVSS</text>
+          <text x="582" y="306" text-anchor="middle" font-size="7.2" fill="#78706e" font-family="'IBM Plex Mono',monospace">g4_vector_check()</text>
+          <text x="582" y="321" text-anchor="middle" font-size="6.9" fill="#1c1a17">riusa _parse_vector() +</text>
+          <text x="582" y="333" text-anchor="middle" font-size="6.9" fill="#1c1a17">SEVERITY_ORDER esistenti</text>
+          <text x="582" y="348" text-anchor="middle" font-size="6.8" fill="#78706e">stesso codice della misurazione</text>
+          <text x="582" y="359" text-anchor="middle" font-size="6.8" fill="#78706e">a valle, qui usato come gate</text>
+          <text x="582" y="374" text-anchor="middle" font-size="6.8" fill="#1c1a17" font-weight="600">sempre attivo</text>
+
+          <!-- G3 (optional, tall, dashed) -->
+          <rect x="695" y="108" width="205" height="278" rx="8" fill="rgba(184,132,58,0.09)" stroke="#b8843a" stroke-width="1.6" stroke-dasharray="6,4"/>
+          <text x="797" y="128" text-anchor="middle" font-size="8.7" fill="#92400E" font-weight="700">G3 &middot; groundedness snippet</text>
+          <text x="797" y="143" text-anchor="middle" font-size="7.2" fill="#78706e" font-family="'IBM Plex Mono',monospace">g3_groundedness_check()</text>
+          <rect x="710" y="152" width="175" height="46" rx="6" fill="#fff" stroke="#b8843a" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="797" y="168" text-anchor="middle" font-size="7.4" fill="#92400E" font-weight="700">OPZIONALE</text>
+          <text x="797" y="181" text-anchor="middle" font-size="6.8" fill="#1c1a17" font-family="'IBM Plex Mono',monospace">SGV_SNIPPET_ENABLED</text>
+          <text x="797" y="192" text-anchor="middle" font-size="6.8" fill="#1c1a17">default: True</text>
+          <text x="797" y="216" text-anchor="middle" font-size="7" fill="#1c1a17">1&deg; substring esatto</text>
+          <text x="797" y="228" text-anchor="middle" font-size="7" fill="#1c1a17">(whitespace-normalizzato)</text>
+          <text x="797" y="246" text-anchor="middle" font-size="7" fill="#1c1a17">2&deg; fallback Jaccard sui</text>
+          <text x="797" y="258" text-anchor="middle" font-size="7" fill="#1c1a17">token, soglia 0.8</text>
+          <line x1="710" y1="272" x2="885" y2="272" stroke="#b8843a" stroke-width="1" stroke-dasharray="2,3"/>
+          <text x="797" y="290" text-anchor="middle" font-size="6.8" fill="#8b2020" font-weight="600">se flag=False:</text>
+          <text x="797" y="302" text-anchor="middle" font-size="6.6" fill="#78706e">non si chiede la riga nel</text>
+          <text x="797" y="313" text-anchor="middle" font-size="6.6" fill="#78706e">prompt (slide, box AGENTE)</text>
+          <text x="797" y="326" text-anchor="middle" font-size="6.6" fill="#78706e">&rarr; G3 non gira: nessun</text>
+          <text x="797" y="337" text-anchor="middle" font-size="6.6" fill="#78706e">dato da controllare, non</text>
+          <text x="797" y="348" text-anchor="middle" font-size="6.6" fill="#78706e">un controllo saltato su</text>
+          <text x="797" y="359" text-anchor="middle" font-size="6.6" fill="#78706e">un dato gi&agrave; presente</text>
+          <text x="797" y="374" text-anchor="middle" font-size="6.8" fill="#1c1a17" font-weight="600">flag deciso a monte, nel prompt</text>
+
+          <!-- fail -> retry -->
+          <path d="M540 55 Q400 30 300 30 Q210 30 200 118" fill="none" stroke="#8b2020" stroke-width="1.4" stroke-dasharray="5,3" marker-end="url(#r3)"/>
+          <text x="370" y="20" text-anchor="middle" font-size="7.8" fill="#8b2020" font-weight="600">fail (una qualsiasi delle G attive) &rarr; feedback formale &rarr; retry</text>
+          <text x="370" y="42" text-anchor="middle" font-size="7" fill="#8b2020">run_sgv() costruisce il messaggio, mai quale funzione &egrave; vulnerabile</text>
+
+          <!-- pass -> continua -->
+          <path d="M915 227 Q950 227 965 227" fill="none" stroke="#1a5faf" stroke-width="1.6" marker-end="url(#b3)"/>
+          <rect x="970" y="185" width="200" height="90" rx="10" fill="rgba(26,95,175,0.06)" stroke="#1a5faf" stroke-width="1.5"/>
+          <text x="1070" y="206" text-anchor="middle" font-size="8.7" fill="#1a5faf" font-weight="700" letter-spacing="0.5">check_sgv &rarr; check_answer</text>
+          <text x="1070" y="222" text-anchor="middle" font-size="7.2" fill="#78706e" font-family="'IBM Plex Mono',monospace">experiment_utils.py</text>
+          <text x="1070" y="240" text-anchor="middle" font-size="7.4" fill="#1c1a17">pass &rarr; prosegue verso</text>
+          <text x="1070" y="252" text-anchor="middle" font-size="7.4" fill="#1c1a17">Ramo A / Ramo B (slide 2)</text>
+          <text x="1070" y="266" text-anchor="middle" font-size="6.8" fill="#78706e">retry SGV e retry rubrica:</text>
+        </svg>
+    </div>
+    <div class="callout amber">
+        <strong>"Opzionale" &egrave; deciso all'origine, non a valle:</strong> <code>config.SGV_SNIPPET_ENABLED</code> (default <code>True</code>) decide se il prompt chiede o meno la riga <code>snippet</code>. Se <code>False</code>, l'output dell'agente resta esattamente a 3 righe (function/vector/score) come prima di questa implementazione, e G3 non viene eseguito &mdash; non perch&eacute; ignori un dato presente, ma perch&eacute; quel dato non &egrave; mai stato richiesto. G1, G2, G4 non dipendono da nessun flag: girano sempre sui task CVSS quando <code>config.SGV_ENABLED=True</code>.
+    </div>
+    <div class="callout teal">
+        <strong>Testato manualmente</strong> (non ancora su una run reale): 5 casi &mdash; finding valido, funzione inesistente (G2 &rarr; fail), vettore CVSS malformato (G4 &rarr; fail), snippet inventato (G3 &rarr; fail), parsing MD totalmente fallito (G1 &rarr; fail) &mdash; tutti i verdetti corretti. Dettagli e decisioni in <code>docs/sgv_protocol/06_implementazione_2026-07-14.md</code>.
+    </div>
+</section>
+
+</div>
+
+<div class="nav-bar">
+    <button class="nav-btn" id="btn-prev" title="Precedente (&#8592;)">&#8592;</button>
+    <div class="slide-count"><span id="cur">1</span> / <span id="tot">2</span></div>
+    <button class="nav-btn" id="btn-next" title="Successiva (&#8594;)">&#8594;</button>
+</div>
+<div class="progress" id="progress" style="width:50%"></div>
+
+<script>
+    const slides = Array.from(document.querySelectorAll('.deck section'));
+    const total = slides.length;
+    let cur = 0;
+    document.getElementById('tot').textContent = total;
+    function goto(n) {
+        slides[cur].classList.remove('active');
+        cur = ((n % total) + total) % total;
+        slides[cur].classList.add('active');
+        document.getElementById('cur').textContent = cur + 1;
+        document.getElementById('progress').style.width = ((cur + 1) / total * 100) + '%';
+    }
+    document.getElementById('btn-next').addEventListener('click', () => goto(cur + 1));
+    document.getElementById('btn-prev').addEventListener('click', () => goto(cur - 1));
+    document.addEventListener('keydown', e => {
+        if (['ArrowRight', 'ArrowDown', ' '].includes(e.key)) { e.preventDefault(); goto(cur + 1); }
+        else if (['ArrowLeft', 'ArrowUp'].includes(e.key)) { e.preventDefault(); goto(cur - 1); }
+    });
+    let tx = 0;
+    document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - tx;
+        if (Math.abs(dx) > 45) goto(dx < 0 ? cur + 1 : cur - 1);
+    }, { passive: true });
+</script>
+</body>
+</html>

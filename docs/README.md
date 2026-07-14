@@ -49,7 +49,7 @@ Riproduzione della scoperta spontanea della regex `|.+` (GHSA-6gxq-gpr8-xgjp) in
 
 ## 🧪 Protocollo SGV — proposta in discussione
 
-Proposta del relatore (2026-07-13): sostituire il retry guidato da LLM-judge con un verificatore sintattico deterministico (Syntactic Grounding Verifier), per eliminare leakage semantico e non-riproducibilità dal loop in-loop. **Non ancora implementata** — solo discussione.
+Proposta del relatore (2026-07-13): sostituire il retry guidato da LLM-judge con un verificatore sintattico deterministico (Syntactic Grounding Verifier), per eliminare leakage semantico e non-riproducibilità dal loop in-loop. **G1–G4 implementati** (`utils/sgv.py`, 2026-07-14) — vedi doc 06.
 
 | Documento | Contenuto |
 |-----------|-----------|
@@ -58,6 +58,8 @@ Proposta del relatore (2026-07-13): sostituire il retry guidato da LLM-judge con
 | [sgv_protocol/02_discussione_team_2026-07-13.md](sgv_protocol/02_discussione_team_2026-07-13.md) | Reazioni del team (Andrea, Raffaele): rischio "cecità semantica" dell'SGV, proposta G5 (Semantic CWE Match via SAST), rigidità del matching e mitigazione AST, decisione di sequenza esperimenti (SAST solo dal terzo) |
 | [sgv_protocol/03_valutazione_claude_2026-07-13.md](sgv_protocol/03_valutazione_claude_2026-07-13.md) | Valutazione critica delle reazioni del team — tensione tra G5 e la metrica M4 (Delta SAST), portata della proposta AST sulla definizione di ground truth, problema aperto: cosa occupa il secondo esperimento della sequenza |
 | [sgv_protocol/04_call12_2026-07-14.md](sgv_protocol/04_call12_2026-07-14.md) | Dodicesima call: via libera esplicita a implementare l'SGV, precedente deterministico già esistente (`_match_finding`), ipotesi rubrica ancorata a CWE invece che a CVE, sequenza di lavoro (SGV → rubrica → formato output), piano operativo per iniziare l'implementazione |
+| [sgv_protocol/05_dove_va_sgv.html](sgv_protocol/05_dove_va_sgv.html) | Presentazione (3 slide): (1) stato attuale del flusso per formato con i controlli deterministici già esistenti; (2) proposta — un solo gate SGV condiviso prima dello split, Ramo A/B separati a valle; (3) **implementazione reale** — G1/G2/G4 sempre attivi, G3 opzionale via `config.SGV_SNIPPET_ENABLED` deciso a monte nel prompt |
+| [sgv_protocol/06_implementazione_2026-07-14.md](sgv_protocol/06_implementazione_2026-07-14.md) | **Prima implementazione G1–G4** (`utils/sgv.py`): cosa fa ogni controllo, scelte prese (campo `snippet` opzionale via flag, `_match_finding` non riusata per G2, gate condiviso, retry indipendente dalla rubrica), cosa resta aperto (calibrazione soglia Jaccard, prima run di prova) |
 
 ## 📎 Supporto
 
