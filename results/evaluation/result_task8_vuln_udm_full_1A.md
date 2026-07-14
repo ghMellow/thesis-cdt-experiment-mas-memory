@@ -1,0 +1,341 @@
+# 1A — task8_vuln_udm_full
+
+> **Run(s) in this report:**
+> - `agent`: 20260714T152535Z
+
+<a id="toc"></a>
+**Contents**
+
+- [SGV — Syntactic Grounding Verifier](#sgv)
+- [Vector detail (estimated vs. published)](#vector-detail)
+- [Unmatched findings](#unmatched-findings)
+- [Detection (M1, M2, M3 — pass@1 vs pass@k)](#detection-metrics)
+- [Severity (S1, S2, S3)](#severity-metrics)
+- [Aggregate metrics (across repetitions)](#aggregate-metrics)
+  - [Estimates vs ground truth](#estimates-vs-gt)
+  - [Official CVSS 4.0 math](#official-cvss-math)
+- [Rubric evaluation](#rubric-evaluation)
+  - [Summary](#rubric-summary)
+  - [Scores by role](#rubric-scores)
+  - [Cost (M5)](#cost-metrics)
+  - [Anomalies](#rubric-anomalies)
+
+<a id="sgv"></a>
+## SGV — Syntactic Grounding Verifier (Blocco C, deterministic, no ground truth)
+
+| metric | value |
+| --- | --- |
+| repetitions with at least one SGV retry | 0 |
+| repetitions where SGV never passed (scored downstream anyway) | 0 |
+
+<a id="cvss-estimate"></a>
+## CVSS estimate (Blocco B, deterministic)
+
+<a id="vector-detail"></a>
+### Vector detail (estimated vs. published)
+
+| **CVE-2026-42459** — agent, rep 1 | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **L** | **H** |
+| VI — Integrity Impact to the Vulnerable System | N | N |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | **L** | **N** |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.3 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_agent_rep1_CVE-2026-42459.md) | | |
+
+| **CVE-2026-42459** — agent, rep 2 | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **L** | **H** |
+| VI — Integrity Impact to the Vulnerable System | **L** | **N** |
+| VA — Availability Impact to the Vulnerable System | **L** | **N** |
+| SC — Confidentiality Impact to the Subsequent System | **L** | **N** |
+| SI — Integrity Impact to the Subsequent System | **L** | **N** |
+| SA — Availability Impact to the Subsequent System | **L** | **N** |
+| base score — declared / from vector (official math) | 5.1 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_agent_rep2_CVE-2026-42459.md) | | |
+
+| **CVE-2026-42459** — agent, rep 3 | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **L** | **H** |
+| VI — Integrity Impact to the Vulnerable System | N | N |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.3 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_agent_rep3_CVE-2026-42459.md) | | |
+
+<a id="unmatched-findings"></a>
+### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)
+
+| # | group | details | score (from vector) | declared | function | task | role | rep | vector |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f1.md) | 8.3 | 7.1 | `HandleSubscribeToSharedData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H` |
+| 2 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f2.md) | 8.3 | 7.1 | `HandleSubscribe` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H` |
+| 3 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f3.md) | 8.3 | 7.1 | `HandleModify` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H` |
+| 4 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f1.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:L/SI:N/SA:N` |
+| 5 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f2.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:L/SI:N/SA:N` |
+| 6 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f3.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:L/SI:N/SA:N` |
+| 7 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f4.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:L/SI:N/SA:N` |
+| 8 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f5.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:L/SI:N/SA:N` |
+| 9 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f6.md) | 5.3 | 5.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 10 | b | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f7.md) | 5.3 | 5.3 | `HandleSubscribeToSharedData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 11 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f8.md) | 5.3 | 5.3 | `HandleSubscribe` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 12 | d | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f9.md) | 5.3 | 5.3 | `HandleModify` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 13 | e | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f10.md) | 5.3 | 5.3 | `HandleModifyForSharedData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 14 | — | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f11.md) | 5.3 | 5.3 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:L/SI:L/SA:N` |
+| 15 | — | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep1_f12.md) | 5.3 | 5.3 | `ThreeLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:L/SI:L/SA:N` |
+| 16 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f4.md) | 5.3 | 5.1 | `HandleGetSupi` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:L/SI:L/SA:L` |
+| 17 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f5.md) | 5.3 | 5.1 | `HandleGetNssai` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:L/SI:L/SA:L` |
+| 18 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f6.md) | 5.3 | 5.1 | `HandleGetSmData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:L/SI:L/SA:L` |
+| 19 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f7.md) | 5.3 | 5.1 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:L/SI:L/SA:L` |
+| 20 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f8.md) | 5.3 | 5.1 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:L/SI:L/SA:L` |
+| 21 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f9.md) | 5.3 | 5.1 | `HandleSubscribe` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:L/SI:L/SA:L` |
+| 22 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f10.md) | 5.3 | 5.1 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:L/SI:N/SA:L` |
+| 23 | — | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep2_f11.md) | 5.3 | 5.1 | `OneLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:L/SI:L/SA:L` |
+| 24 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f1.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 25 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f2.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 26 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f3.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 27 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f4.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 28 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f5.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 29 | b | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f6.md) | 5.3 | 5.3 | `HandleSubscribeToSharedData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 30 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f7.md) | 5.3 | 5.3 | `HandleSubscribe` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 31 | d | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f8.md) | 5.3 | 5.3 | `HandleModify` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 32 | e | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f9.md) | 5.3 | 5.3 | `HandleModifyForSharedData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 33 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f10.md) | 5.3 | 5.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 34 | — | [detail](unmatched_findings/task8_vuln_udm_full_1A_agent_rep3_f11.md) | 5.3 | 5.3 | `HandleUnsubscribeForSharedData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+
+**Legend**
+
+- One row per finding the agent reported that matched no ground-truth CVE — either a false positive, or a genuine extra vulnerability with no catalogued CVE. Never counted against the evaluation (design choice: this is the practical use case, findings worth a human's triage).
+- `group` = a letter (a, b, c…) means same-letter rows are the same finding re-reported across repetitions (same function; identical vector, or an LLM-confirmed equivalent one). `≠` means the function recurred with a different vector and the LLM was asked and judged it a genuinely different finding, not a re-estimate. `—` means the function was seen only once — nothing to compare, no LLM call made. Grouping never removes or merges rows, it only labels them.
+- `score (from vector)` = the recomputed score, official CVSS 4.0 math — sort key, most severe first.
+- `declared` = the score the agent stated directly; diagnostic only (see note above, not produced from the vector).
+- `function` = the Go function the agent pointed to as the vulnerability's location.
+- `task` / `role` = which task and role produced this finding.
+- `rep` = repetition index (1-based) — which run of that task/role produced this finding.
+- `vector` = the full CVSS 4.0 vector string the agent estimated.
+- `details` = link to a self-contained file with this finding's structured data plus the agent's full narrative for that repetition (function name bolded for quick scanning) — everything needed to review it without opening the raw JSON.
+
+<a id="detection-metrics"></a>
+### Detection (M1, M2, M3 — pass@1 vs pass@k)
+
+| role | pass | detection rate | avg coverage | TP | FP | FN | precision | recall | F1 | alerts/TP |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| agent | pass@1 | 100.0% | 100.0% | 3 | 21 | 0 | 12.5% | 100.0% | 22.2% | 8.0 |
+| agent | pass@k | 100.0% | 100.0% | 3 | 34 | 0 | 8.1% | 100.0% | 15.0% | 12.3 |
+
+**Legend**
+
+- Unit of analysis is the CVE (docs/sgv_protocol/00_proposta_relatore.md §2): TP = matched CVEs, FN = missed CVEs, FP = findings that paired to no candidate CVE (includes genuine extra vulnerabilities with no catalogued CVE, not only false positives — see the unmatched-findings legend above).
+- `pass@1` = evaluated against the agent's *first* attempt only, as if the SGV/rubric retry loop didn't exist.
+- `pass@k` = evaluated against the final accepted answer, after every retry — same numbers as the `matched`/`missed CVEs`/`unmatched findings` counts above.
+- `detection rate` = share of repetitions (with at least one target CVE) where ≥1 CVE was matched. `avg coverage` = mean matched/target CVEs per repetition.
+- `alerts/TP` (M3) = (TP+FP)/TP — how many findings a reviewer has to read for every true positive actually surfaced; lower is better (less noise per real vulnerability). `n/a` when TP = 0 (nothing to divide by).
+- A pass@k row with higher recall (or F1) than its pass@1 row is the retry loop actually finding more; if precision drops (or alerts/TP rises) at the same time, the extra findings came at a cost — read them together, not recall alone.
+
+<a id="severity-metrics"></a>
+### Severity (S1, S2, S3 — computed on TP only)
+
+| role | n (TP) | S1 exact match | S3 baseline exact match |
+| --- | --- | --- | --- |
+| agent | 3 | 0.0% | 100.0% |
+
+#### S2 — per-metric accuracy (agent vs. baseline), ordinal distance
+
+| role | metric | n | accuracy | baseline accuracy | avg ordinal distance |
+| --- | --- | --- | --- | --- | --- |
+| agent | AV | 3 | 100.0% | 100.0% | 0.00 |
+| agent | AC | 3 | 100.0% | 100.0% | 0.00 |
+| agent | AT | 3 | 100.0% | 100.0% | 0.00 |
+| agent | PR | 3 | 0.0% | 100.0% | 0.50 |
+| agent | UI | 3 | 100.0% | 100.0% | 0.00 |
+| agent | VC | 3 | 0.0% | 100.0% | 0.50 |
+| agent | VI | 3 | 66.7% | 100.0% | 0.17 |
+| agent | VA | 3 | 66.7% | 100.0% | 0.17 |
+| agent | SC | 3 | 33.3% | 100.0% | 0.33 |
+| agent | SI | 3 | 66.7% | 100.0% | 0.17 |
+| agent | SA | 3 | 66.7% | 100.0% | 0.17 |
+
+**Legend**
+
+- Computed only on matched findings (TP) — unmatched findings and missed CVEs carry no severity comparison, per the proposal (§5.2).
+- `S1 exact match` = share of TP findings whose *entire* estimated vector (8 base metrics, 11 when SC/SI/SA were emitted) matches the published one field for field.
+- `S3 baseline` = a null model that always guesses the modal vector among this task's target CVEs — read S1/accuracy as a margin **above** this, not in absolute terms. On tasks with a single target CVE the baseline degenerates to 100% by construction (the modal vector of one CVE is that CVE's own vector) — real property of the dataset, not a bug; the margin is only informative when a task has several target CVEs with differing vectors.
+- `avg ordinal distance` (0-1, 0 = identical, 1 = opposite ends of the scale) — severity-aware: a None→High miss is penalized more than a None→Low one.
+
+<a id="aggregate-metrics"></a>
+### Aggregate metrics (across repetitions)
+
+_Diagnostic roll-up, useful for a global read once you've checked the detail above isn't spitting nonsense — not the first thing to read._
+
+<a id="estimates-vs-gt"></a>
+#### Estimates vs ground truth
+
+| role | estimates | matched | missed CVEs | unmatched findings | avg band vs published (0-3) | avg band vs B (0-3) | avg exploitability (0-5) | avg impact (0-3) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| agent | 3/3 | 3 | 0 | 34 | 1.00 | 0.00 | 4.00 | 1.33 |
+
+**Legend**
+
+- `estimates` = X/Y — X = repetitions where the agent emitted *at least one* CVSS finding block; Y = total repetitions evaluated for this task. **This is block presence, not correctness** — it says nothing about how many vulnerabilities were actually found or matched (see `matched`/`missed CVEs` below for that).
+- `matched` = total findings, summed across all repetitions, successfully paired to a ground-truth CVE (by comparing the function name the agent reported to that CVE's known handler function).
+- `missed CVEs` = total ground-truth CVEs, summed across all repetitions, that no finding in that repetition matched — i.e. vulnerabilities the agent failed to surface at all.
+- `unmatched findings` = total findings, summed across all repetitions, that matched no ground-truth CVE — either a false positive, or a genuine extra vulnerability with no catalogued CVE (ranked for triage in the table further down).
+- ⚠️ **The remaining four columns are diagnostic only, not the headline metric**: `avg band vs published` / `avg band vs B` score how close the *declared* score is to the reference (0 = far, 3 = exact band), and `avg exploitability` (0-5) / `avg impact` (0-3) count binary field matches on the estimated vector. The declared score is produced independently of the vector the agent also emits and carries no official rigor of its own (F17: systematically lower than what the vector is actually worth). These four columns exist only for comparability with runs 1-3.
+- The metrics that actually count — recomputed from the vector with the official CVSS 4.0 algorithm — are in the table below.
+
+<a id="official-cvss-math"></a>
+#### Official CVSS 4.0 math (score recomputed from the estimated vector) — the reference metrics
+
+| role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg subseq. distance (0-1) | avg Hamming (0-8) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| agent | 0.07 | 3.40 | 0.00 | 0.10 | 0.28 | 0.22 | 2.67 |
+
+**Legend**
+
+- The estimated vector is rescored with the official FIRST CVSS 4.0 algorithm (macrovector + lookup table, `cvss` library).
+- `coherence Δ` = |score declared by the agent − score its own vector actually produces| (the two outputs are independent, nothing forces them to agree).
+- `computed Δ vs B` compares the recomputed score against the ground-truth pure base score — a vector distance in official score space.
+- Severity distances are ordinal and normalized per metric group (0 = identical vector, 1 = every field at the opposite end of its scale).
+- The subsequent-system triad SC/SI/SA is part of the required vector; its distance is scored only when the agent's estimate actually includes all three fields (older/legacy runs may lack them, shown as `n/a`).
+- Hamming counts plainly differing fields among the 8 vulnerable-system metrics (n/a = older runs, recompute with `python -m utils.cvss_eval`).
+
+
+---
+
+<a id="rubric-evaluation"></a>
+## Rubric evaluation (Blocco A, LLM judge)
+
+<a id="rubric-summary"></a>
+### Summary
+
+| metric | value |
+| --- | --- |
+| total results | 3 |
+| correct | 0 (0.0%) |
+| wrong | 3 |
+| retried (attempts > 1) | 3 |
+| truly inconsistent tasks | 1 |
+| surface-only differences (semantically equiv.) | 0 |
+
+**Legend**
+
+- `truly inconsistent` = LLM confirmed different conclusions across repetitions.
+- `surface-only` = string-different but semantically equivalent (paraphrases, same logic).
+
+<a id="rubric-scores"></a>
+### Scores by role
+
+| role | accuracy | avg_confidence | brier_score | avg_attempts | avg_textual_norm |
+| --- | --- | --- | --- | --- | --- |
+| agent | 0.0% | 0.917 | 0.8408 | 3.00 | 0.667 |
+
+**Legend**
+
+| metric | scope | meaning |
+| --- | --- | --- |
+| `accuracy` | all | share of repetitions with verdict = correct |
+| `avg_confidence` | all | mean self-reported confidence (0–1) |
+| `brier_score` | all | mean((confidence − is\_correct)²) — calibration error; 0 = perfect, 0.5 = poor; note: depends on both accuracy AND confidence (e.g., 100% accuracy + 50% confidence = 0.25) |
+| `avg_attempts` | all | mean LLM call attempts per repetition (>1 means retry was triggered) |
+| `avg_math_delta` | math | mean \|answer − ground\_truth\| on math tasks — lower = more precise |
+| `avg_textual_norm` | textual | mean normalized judge score (0–1) — higher = better rubric coverage |
+
+<a id="cost-metrics"></a>
+### Cost (M5)
+
+| role | n | avg elapsed (s) | avg agent tokens in | avg agent tokens out | avg judge tokens in | avg judge tokens out |
+| --- | --- | --- | --- | --- | --- | --- |
+| agent | 3 | 99.5 | n/a | n/a | n/a | n/a |
+
+**Legend**
+
+- `n` = repetitions included, across every task type (not restricted to CVSS tasks).
+- `avg elapsed` = wall-clock seconds per repetition, start to save — includes every attempt when a retry (SGV or rubric) was triggered.
+- Token columns = mean prompt/completion tokens the backend reported for the agent and judge calls; `n/a` when the backend didn't report them (seen on hosted Ollama Cloud runs in this project — the field is requested but not always populated, unlike local Ollama which reports it reliably).
+
+<a id="rubric-anomalies"></a>
+### Anomalies
+
+#### Wrong verdicts (3)
+
+| role | task_id | rep | attempts | confidence | score/delta |
+| --- | --- | --- | --- | --- | --- |
+| agent | task8_vuln_udm_full | 1 | 3 | 0.900 | 6.0 |
+| agent | task8_vuln_udm_full | 2 | 3 | 0.950 | 6.0 |
+| agent | task8_vuln_udm_full | 3 | 3 | 0.900 | 6.0 |
+
+**Legend**
+
+- `rep` = repetition index (1-based).
+- `attempts` = total LLM calls (all failed).
+- `confidence` = agent self-reported confidence on the final answer.
+- `score/delta` = normalized rubric score (textual) or |answer − ground_truth| (math).
+
+#### Retries triggered (3)
+
+| role | task_id | rep | attempts | final_verdict |
+| --- | --- | --- | --- | --- |
+| agent | task8_vuln_udm_full | 1 | 3 | wrong |
+| agent | task8_vuln_udm_full | 2 | 3 | wrong |
+| agent | task8_vuln_udm_full | 3 | 3 | wrong |
+
+**Legend**
+
+- Each row is one repetition.
+- `rep` = repetition index (1-based).
+- `attempts` = LLM calls within that repetition (2 means wrong on attempt 1, correct on attempt 2).
+- `final_verdict` = outcome after all attempts.
+
+#### Truly inconsistent reasoning (1)
+
+**agent — task8_vuln_udm_full**
+> The three passages identify different sets of vulnerabilities: the first mentions unsafe context parameter manipulation and specific error message exposure, the second highlights a DoS via unbounded request bodies and a routing logic error, and the third discusses missing subscription ID validation and a specific PLMN-ID parsing logic error.
+
+**rep 1:**
+
+1. **Missing Input Validation (SUPI/UEID):** In a 5G Core, the SUPI (Subscription Permanent Identifier) is a sensitive and strictly formatted identifier. While `HandleGetAmData` performs validation via `validator.IsValidSupi(supi)`, several other handlers that retrieve `supi` or `ueId` from the path parameters omit this check. Specifically, `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, and `HandleGetUeContextInSmfData` pass the raw path parameter directly to the processor. This can lead to downstream logic errors or potential injection vulnerabilities in the database layer if the processor assumes the input is already validated.
+
+2. **Improper JSON Unmarshaling of Query Parameters:** The function `getPlmnIDStruct` takes a string from the `plmn-id` query parameter and passes it directly to `json.Unmarshal`. Query parameters are typically key-value pairs; expecting a JSON-encoded string within a query parameter is non-standard and risky. This pattern allows an attacker to send arbitrarily complex JSON structures, which can be used to trigger resource exhaustion (CPU/Memory) during parsing or cause unexpected behavior if the `models.PlmnId` struct has complex types.
+
+3. **Information Exposure via Error Messages:** In handlers like `HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, and `HandleModifyForSharedData`, the code returns `err.Error()` directly to the client in the `ProblemDetails` response. This exposes internal system details, such as specific Go library errors or deserialization failure reasons. Even within a protected SBI (mTLS/OAuth2), this provides reconnaissance data to a compromised peer NF, violating the principle of least privilege.
+
+4. **Unsafe Context Parameter Manipulation:** In `TwoLayerPathHandlerFunc` and `ThreeLayerPathHandlerFunc`, the code manually modifies the `c.Params` slice (e.g., `c.Params = append(...)` or `c.Params = tmpParams`). This is a dangerous pattern in the Gin framework. Manually overwriting the parameters slice can lead to unpredictable routing behavior or logic errors where the wrong identifier is associated with a request, potentially leading to unauthorized data modification or access if the framework's internal state becomes inconsistent.
+
+**rep 2:**
+
+1. **Missing Input Validation (SUPI/UEID)**: The UDM is responsible for managing subscriber data. Several handlers extract the `supi` or `ueId` from the URL path but fail to validate them using `validator.IsValidSupi()` or `validator.IsValidGpsi()`. While `HandleGetAmData` and `HandleUnsubscribe` perform these checks, handlers such as `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, and `HandleSubscribe` do not. In a 5G core, although SBI is protected by mTLS, a compromised NF could send malformed identifiers to trigger backend crashes, database errors, or unexpected behavior in the `Processor` layer.
+
+2. **Denial of Service (DoS) via Unbounded Request Body**: The functions `HandleSubscribeToSharedData`, `HandleSubscribe`, and `HandleModify` use `c.GetRawData()`. This Gin method reads the entire request body into memory without any size limit. A malicious or compromised NF could send a massive payload, leading to memory exhaustion (Out-of-Memory) and crashing the UDM, impacting the availability of the entire 5G core's subscriber management.
+
+3. **Unsafe JSON Unmarshaling from Query Parameters**: The `getPlmnIDStruct` function attempts to `json.Unmarshal` a string directly from a URL query parameter (`plmn-id`). This is a highly unusual pattern for SBI (which typically uses standard query parameters or JSON bodies). This allows an attacker to pass complex JSON structures within a URL, potentially leading to resource exhaustion or unexpected parsing behavior.
+
+4. **Logic Error in Path Routing (OneLayerPathHandlerFunc)**: The `OneLayerPathHandlerFunc` uses `strings.Contains(route.Pattern, supi)` to match routes. Since `supi` is a user-controlled path parameter, if a user provides a `supi` that is a substring of another route's pattern (e.g., "shared-data"), it may trigger the wrong handler or lead to unpredictable routing behavior, potentially bypassing intended logic.
+
+**rep 3:**
+
+1. **Missing Input Validation (SUPI/UEID)**: Several handlers extract `supi` or `ueId` from the path and pass them directly to the processor without validation. Specifically, `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, `HandleGetNssai`, and `HandleGetSmData` do not call `validator.IsValidSupi()`. In a 5G core, while NFs are authenticated via mTLS, a compromised NF could send malformed identifiers to cause unexpected behavior or crashes in the downstream data processing layer.
+2. **Logic Error in PLMN-ID Parsing**: In `HandleGetTraceData`, the code uses `plmnID := c.Query("plmn-id")`. In other handlers (e.g., `HandleGetAmData`), `plmn-id` is expected to be a JSON object parsed via `getPlmnIDStruct` to extract MCC and MNC. By taking the raw query string, the processor receives the raw JSON string (e.g., `{"mcc":"001","mnc":"01"}`) instead of the concatenated identifier, leading to failed lookups.
+3. **Information Exposure via Error Messages**: In `HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, and `HandleModifyForSharedData`, the code returns `err.Error()` directly in the `ProblemDetails` response. This leaks internal system details (e.g., deserialization errors, Go package names) to the calling NF.
+4. **Unsafe JSON Unmarshaling from Query String**: The `getPlmnIDStruct` function performs `json.Unmarshal` on a value directly from a URL query parameter. While the request size is limited, this pattern is fragile and can be abused to trigger resource consumption or panics if the target struct is complex or the input is maliciously crafted.
+5. **Missing Validation for Subscription IDs**: In `HandleUnsubscribeForSharedData`, `HandleUnsubscribe`, and `HandleModify`, the `subscriptionId` is taken from the path and passed to the processor without any validation or sanitization.
+
+

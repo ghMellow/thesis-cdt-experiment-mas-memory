@@ -1,0 +1,106 @@
+{
+  "agent/task5_vuln_pcf/252425eb61a39de5": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same two critical issues: the overly permissive CORS configuration (specifically the combination of wildcard origins and allowed credentials) and the logic error of calling router.Use() inside a request handler leading to a memory leak."
+  },
+  "agent/task6_vuln_udr_full/f5858983bdccb09b": {
+    "equivalent": false,
+    "explanation": "The three reasonings identify different sets of vulnerabilities: the first includes an unsafe unmarshaling issue, the second includes a DoS via string splitting, and the third includes an improper error handling issue in HandleCreateSmfContextNon3gpp, while they disagree on the nature of the ueId validation vulnerability."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlecreatesdmsubscriptions/10ae362fb72b2372": {
+    "equivalent": false,
+    "explanation": "The two reasonings provide different CVSS vectors with conflicting values for Privileges Required (PR), Confidentiality (VC), and Scope (SC)."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handleapplicationdatainfluencedataget/8831c7968a4da98d": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ significantly in their impact metrics (VC, VA, SC, SA)."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlecreateeesubscriptions/2710dce679fd5e90": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in Privilege Required (PR:H vs PR:L) and Scope Impact (SI:L vs SI:N)."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlequeryeesubscriptions/4dae1a59533b7bd4": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the Privileges Required (PR:H vs PR:L) and Confidentiality/Integrity impact (VC:L/VI:N vs VC:N/VI:L) metrics."
+  },
+  "agent/task7_vuln_amf_full/5133c9c6bca84e8d": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same core vulnerabilities: information exposure through error messages, improper input validation/handling of the Content-Type header (specifically the risk of uninitialized requests in HTTPUEContextTransfer), and inconsistent context state management leading to potential type assertion panics."
+  },
+  "unmatched/task7_vuln_amf_full/agent/httpcreateuecontext/b12ef1a32cfd906a": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their Confidentiality and Availability impact ratings (VC:L/VA:N vs VC:N/VA:H)."
+  },
+  "unmatched/task7_vuln_amf_full/agent/httpn1n2messagetransfer/9dc3f0d4c75626f3": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the confidentiality (VC:L vs VC:N) and availability (VA:N vs VA:H) impact metrics."
+  },
+  "agent/task8_vuln_udm_full/15424075aec30250": {
+    "equivalent": false,
+    "explanation": "The three passages identify different sets of vulnerabilities: the first mentions unsafe context parameter manipulation and specific error message exposure, the second highlights a DoS via unbounded request bodies and a routing logic error, and the third discusses missing subscription ID validation and a specific PLMN-ID parsing logic error."
+  },
+  "unmatched/task8_vuln_udm_full/agent/handlesubscribetoshareddata/31dbc300da0c37c4": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ significantly in their impact ratings for confidentiality, availability, and the subsequent overall score."
+  },
+  "unmatched/task8_vuln_udm_full/agent/handlesubscribe/6b513ee499b86355": {
+    "equivalent": false,
+    "explanation": "The three passages provide different CVSS vectors with varying impact scores for confidentiality, integrity, and availability."
+  },
+  "unmatched/task8_vuln_udm_full/agent/handlemodify/8f7f395c05bc5c7c": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their Confidentiality, Availability, and Subsequent Availability metrics."
+  },
+  "unmatched/task8_vuln_udm_full/agent/handlegetsupi/4e510d96b4fd2ed1": {
+    "equivalent": false,
+    "explanation": "The three reasonings provide different CVSS vectors with varying values for Integrity and Availability impact (VI, VA, SI, SA)."
+  },
+  "unmatched/task8_vuln_udm_full/agent/handlegetnssai/9a2dc393e52625e7": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their impact metrics, specifically regarding the levels of Integrity (VI, SI) and Availability (VA, SA) affected."
+  },
+  "unmatched/task8_vuln_udm_full/agent/handlegetsmdata/f07dcbb4736339f1": {
+    "equivalent": false,
+    "explanation": "The reasoning passages provide different CVSS vectors with varying impact scores for integrity, availability, and scope."
+  },
+  "unmatched/task8_vuln_udm_full/agent/handlegettracedata/8fb780aa9cc3189b": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their impact metrics for confidentiality, integrity, and availability."
+  },
+  "unmatched/task8_vuln_udm_full/agent/handlegetuecontextinsmfdata/801d92b8b434a5c7": {
+    "equivalent": false,
+    "explanation": "The passages provide different CVSS vectors, specifically differing in the impact levels for Integrity (VI, SI) and Availability (VA, SA)."
+  },
+  "unmatched/task8_vuln_udm_full/agent/getplmnidstruct/67d4aa9e1d3df1e7": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their confidentiality and availability impacts: the first lists VC:L/VA:L/SC:L/SA:L, while the second lists VC:N/VA:L/SC:N/SA:N."
+  },
+  "agent/task9_vuln_cross/12ce5a2c175a5a8e": {
+    "equivalent": true,
+    "explanation": "All three reasonings identify the same set of core vulnerabilities: inconsistent SUPI/UEID validation across UDM, PCF, and UDR; permissive CORS in PCF; a missing default switch case and context type mismatch in AMF; and a missing return statement and ineffective regex in UDR."
+  },
+  "unmatched/task9_vuln_cross/agent/handlequeryamfcontext3gpp/84a61d5567001d14": {
+    "equivalent": false,
+    "explanation": "The reasoning passages provide three different CVSS vectors with conflicting values for Privileges Required (PR), Confidentiality (VC), Integrity (VI), and Scope (SC)."
+  },
+  "unmatched/task9_vuln_cross/agent/handleapplicationdatainfluencedatasubstonotifysubscriptioniddelete/4e6fa6ffc7a00364": {
+    "equivalent": false,
+    "explanation": "The reasoning passages provide different CVSS vectors, specifically differing in Privilege Required (PR) and impact levels (VI, VA, SI, SA)."
+  },
+  "unmatched/task9_vuln_cross/agent/httpuecontexttransfer/bed3c2b8ae7f6741": {
+    "equivalent": false,
+    "explanation": "The reasoning passages provide different CVSS vectors, specifically differing in Privileges Required (PR), Confidentiality (VI), and Availability (VA) scores."
+  },
+  "unmatched/task9_vuln_cross/agent/setcorsheader/6892564e475429e7": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the User Interaction (UI) metric: one specifies 'N' (None) and the other specifies 'P' (Required)."
+  },
+  "unmatched/task9_vuln_cross/agent/handlegetsmfselectdata/38c6249df89b6634": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the Privileges Required (PR) metric: one specifies High (PR:H) and the other specifies Low (PR:L)."
+  },
+  "unmatched/task9_vuln_cross/agent/handlecreateeesubscriptions/517812119c34f096": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the Privileges Required (PR) and Confidentiality/Scope (VC/SC) metrics."
+  }
+}

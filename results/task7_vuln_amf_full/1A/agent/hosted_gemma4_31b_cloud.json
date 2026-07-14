@@ -1,0 +1,1082 @@
+{
+  "task_id": "task7_vuln_amf_full",
+  "task_type": "textual",
+  "experiment_id": "1A",
+  "agent_role": "agent",
+  "model": "gemma4:31b-cloud",
+  "judge_model": "gemma4:31b-cloud",
+  "temperature": 0.3,
+  "is_hosted": true,
+  "task_path": "docs/tasks/task7_vuln_amf_full.md",
+  "sol_path": "docs/tasks/task7_vuln_amf_full_sol.md",
+  "repetitions": [
+    {
+      "repetition": 1,
+      "run_id": "20260714T152535Z",
+      "started_at": "2026-07-14T15:32:13.383085+00:00",
+      "finished_at": "2026-07-14T15:32:30.535452+00:00",
+      "elapsed_seconds": 17.15235925000161,
+      "attempts": 1,
+      "history": [
+        {
+          "answer": "The AMF SBI implementation contains multiple vulnerabilities including **Information Exposure** via raw error messages and **Potential Denial of Service (DoS)** due to unsafe slice indexing of HTTP headers and missing default error handling in content-type switches. Additionally, inconsistent type assignment to the Gin context (`c.Set`) likely leads to runtime panics.",
+          "reasoning": "The code review of `api_communication.go` reveals several critical security and stability issues:\n\n1.  **Information Exposure via Error Messages**: Across multiple handlers (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`), the code returns `err.Error()` directly to the client in the `ProblemDetails` response. In a production 5G core, this can leak internal system paths, library versions, or memory state, aiding an attacker in reconnaissance.\n2.  **Unsafe Slice Access (Index Out of Bounds)**: In `HTTPCreateUEContext`, `HTTPUEContextTransfer`, and `HTTPN1N2MessageTransfer`, the code performs `strings.Split(contentType, \";\")` and immediately accesses `str[0]`. If the `Content-Type` header is missing or empty, `strings.Split` returns a slice with one empty string, but if the header is completely absent, the logic might behave unexpectedly or panic depending on the Gin version's header handling. More importantly, it lacks validation that the slice contains the expected elements before access.\n3.  **Improper Input Validation (Missing Content-Type Check)**: In `HTTPUEContextTransfer`, the `switch` statement handles `applicationjson` and `multipartrelate`, but the `default` case is empty. If an unsupported content type is provided, `err` remains `nil` (or its previous state), and the code proceeds to call `s.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)` with an uninitialized or partially initialized request object, leading to potential `nil pointer dereferences` or logic errors in the processor.\n4.  **Inconsistent Context State Management**: The use of `c.Set(sbi.IN_PB_DETAILS_CTX_STR, ...)` is inconsistent. In some functions, it sets a string (`problemDetail.Cause`), in others a struct (`problemDetail`), and in others a status text. This will likely cause a type assertion panic in the middleware or processor that retrieves this value from the Gin context.",
+          "confidence": 0.9,
+          "cvss_estimate": {
+            "findings": [
+              {
+                "function": "HTTPAMFStatusChangeSubscribeModify",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "Detail: err.Error(),"
+              },
+              {
+                "function": "HTTPCreateUEContext",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "switch str[0] {"
+              },
+              {
+                "function": "HTTPUEContextTransfer",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "switch str[0] {"
+              },
+              {
+                "function": "HTTPN1N2MessageTransfer",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "switch str[0] {"
+              },
+              {
+                "function": "HTTPUEContextTransfer",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "case multipartrelate:"
+              }
+            ]
+          },
+          "elapsed_seconds": 8.12,
+          "tokens_in": null,
+          "tokens_out": null,
+          "prompt_system": "\nYou are a 5G network engineer experienced in core network analysis and code review.\nReply ONLY in Markdown using the response format in the task. No extra text before or after.\n",
+          "prompt_user": "# Task \u2014 Security Code Review: AMF (complete file)\n\n**ID:** task7_vuln_amf_full\n**Tipo:** textual\n**Difficolt\u00e0:** alta\n\n---\n\n## Scenario\n\nThe following is the **complete** Go source file `api_communication.go` from the **AMF** Network Function of a free5GC 5G core implementation. It is an SBI (Service-Based Interface) HTTP handler using the Gin framework.\n\nPerform a **security code review** of the entire file. Read it in full, function by function, before deciding what to report \u2014 do not select preventively or stop after finding the first few issues. Identify all security vulnerabilities, logic errors, and unsafe coding patterns present in the code; there is no limit on how many findings you may report, including minor ones or ones that recur with small variations across similar handlers.\n\n```go\npackage sbi\n\nimport (\n\t\"fmt\"\n\t\"net/http\"\n\t\"strings\"\n\n\t\"github.com/gin-gonic/gin\"\n\n\t\"github.com/free5gc/amf/internal/logger\"\n\t\"github.com/free5gc/openapi\"\n\t\"github.com/free5gc/openapi/models\"\n\t\"github.com/free5gc/util/metrics/sbi\"\n)\n\nfunc Index(c *gin.Context) {\n\tc.String(http.StatusOK, \"Hello World!\")\n}\n\nfunc (s *Server) getCommunicationRoutes() []Route {\n\treturn []Route{\n\t\t{\n\t\t\tMethod:  http.MethodGet,\n\t\t\tPattern: \"/\",\n\t\t\tAPIFunc: func(c *gin.Context) {\n\t\t\t\tc.String(http.StatusOK, \"Hello World!\")\n\t\t\t},\n\t\t},\n\t\t{\n\t\t\tName:    \"AMFStatusChangeSubscribeModfy\",\n\t\t\tMethod:  http.MethodPut,\n\t\t\tPattern: \"/subscriptions/:subscriptionId\",\n\t\t\tAPIFunc: s.HTTPAMFStatusChangeSubscribeModify,\n\t\t},\n\t\t{\n\t\t\tName:    \"AMFStatusChangeUnSubscribe\",\n\t\t\tMethod:  http.MethodDelete,\n\t\t\tPattern: \"/subscriptions/:subscriptionId\",\n\t\t\tAPIFunc: s.HTTPAMFStatusChangeUnSubscribe,\n\t\t},\n\t\t{\n\t\t\tName:    \"CreateUEContext\",\n\t\t\tMethod:  http.MethodPut,\n\t\t\tPattern: \"/ue-contexts/:ueContextId\",\n\t\t\tAPIFunc: s.HTTPCreateUEContext,\n\t\t},\n\t\t{\n\t\t\tName:    \"EBIAssignment\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/assign-ebi\",\n\t\t\tAPIFunc: s.HTTPEBIAssignment,\n\t\t},\n\t\t{\n\t\t\tName:    \"RegistrationStatusUpdate\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/transfer-update\",\n\t\t\tAPIFunc: s.HTTPRegistrationStatusUpdate,\n\t\t},\n\t\t{\n\t\t\tName:    \"ReleaseUEContext\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/release\",\n\t\t\tAPIFunc: s.HTTPReleaseUEContext,\n\t\t},\n\t\t{\n\t\t\tName:    \"UEContextTransfer\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/transfer\",\n\t\t\tAPIFunc: s.HTTPUEContextTransfer,\n\t\t},\n\t\t{\n\t\t\tName:    \"RelocateUEContext\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/relocate\",\n\t\t\tAPIFunc: s.HTTPRelocateUEContext,\n\t\t},\n\t\t{\n\t\t\tName:    \"CancelRelocateUEContext\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/cancel-relocate\",\n\t\t\tAPIFunc: s.HTTPCancelRelocateUEContext,\n\t\t},\n\t\t{\n\t\t\tName:    \"N1N2MessageUnSubscribe\",\n\t\t\tMethod:  http.MethodDelete,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/n1-n2-messages/subscriptions/:subscriptionId\",\n\t\t\tAPIFunc: s.HTTPN1N2MessageUnSubscribe,\n\t\t},\n\t\t{\n\t\t\tName:    \"N1N2MessageTransfer\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/n1-n2-messages\",\n\t\t\tAPIFunc: s.HTTPN1N2MessageTransfer,\n\t\t},\n\t\t{\n\t\t\tName:    \"N1N2MessageTransferStatus\",\n\t\t\tMethod:  http.MethodGet,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/n1-n2-messages/:n1N2MessageId\",\n\t\t\tAPIFunc: s.HTTPN1N2MessageTransferStatus,\n\t\t},\n\t\t{\n\t\t\tName:    \"N1N2MessageSubscribe\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/n1-n2-messages/subscriptions\",\n\t\t\tAPIFunc: s.HTTPN1N2MessageSubscribe,\n\t\t},\n\t\t{\n\t\t\tName:    \"NonUeN2InfoUnSubscribe\",\n\t\t\tMethod:  http.MethodDelete,\n\t\t\tPattern: \"/non-ue-n2-messages/subscriptions/:n2NotifySubscriptionId\",\n\t\t\tAPIFunc: s.HTTPNonUeN2InfoUnSubscribe,\n\t\t},\n\t\t{\n\t\t\tName:    \"NonUeN2MessageTransfer\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/non-ue-n2-messages/transfer\",\n\t\t\tAPIFunc: s.HTTPNonUeN2MessageTransfer,\n\t\t},\n\t\t{\n\t\t\tName:    \"NonUeN2InfoSubscribe\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/non-ue-n2-messages/subscriptions\",\n\t\t\tAPIFunc: s.HTTPNonUeN2InfoSubscribe,\n\t\t},\n\t\t{\n\t\t\tName:    \"AMFStatusChangeSubscribe\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/subscriptions\",\n\t\t\tAPIFunc: s.HTTPAMFStatusChangeSubscribe,\n\t\t},\n\t}\n}\n\n// AMFStatusChangeSubscribeModify - Namf_Communication AMF Status Change Subscribe Modify service Operation\nfunc (s *Server) HTTPAMFStatusChangeSubscribeModify(c *gin.Context) {\n\tvar subscriptionData models.AmfCommunicationSubscriptionData\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\terr = openapi.Deserialize(&subscriptionData, requestBody, applicationjson)\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleAMFStatusChangeSubscribeModify(c, subscriptionData)\n}\n\n// AMFStatusChangeUnSubscribe - Namf_Communication AMF Status Change UnSubscribe service Operation\nfunc (s *Server) HTTPAMFStatusChangeUnSubscribe(c *gin.Context) {\n\ts.Processor().HandleAMFStatusChangeUnSubscribeRequest(c)\n}\n\nfunc (s *Server) HTTPCreateUEContext(c *gin.Context) {\n\tvar createUeContextRequest models.CreateUeContextRequest\n\tcreateUeContextRequest.JsonData = new(models.UeContextCreateData)\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\tcontentType := c.GetHeader(\"Content-Type\")\n\tstr := strings.Split(contentType, \";\")\n\tswitch str[0] {\n\tcase applicationjson:\n\t\terr = openapi.Deserialize(createUeContextRequest.JsonData, requestBody, contentType)\n\tcase multipartrelate:\n\t\terr = openapi.Deserialize(&createUeContextRequest, requestBody, contentType)\n\tdefault:\n\t\terr = fmt.Errorf(\"wrong content type\")\n\t}\n\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText((http.StatusBadRequest)))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleCreateUEContextRequest(c, createUeContextRequest)\n}\n\n// EBIAssignment - Namf_Communication EBI Assignment service Operation\nfunc (s *Server) HTTPEBIAssignment(c *gin.Context) {\n\tvar assignEbiData models.AssignEbiData\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\terr = openapi.Deserialize(&assignEbiData, requestBody, applicationjson)\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleAssignEbiDataRequest(c, assignEbiData)\n}\n\n// RegistrationStatusUpdate - Namf_Communication RegistrationStatusUpdate service Operation\nfunc (s *Server) HTTPRegistrationStatusUpdate(c *gin.Context) {\n\tvar ueRegStatusUpdateReqData models.UeRegStatusUpdateReqData\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\terr = openapi.Deserialize(&ueRegStatusUpdateReqData, requestBody, applicationjson)\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleRegistrationStatusUpdateRequest(c, ueRegStatusUpdateReqData)\n}\n\n// ReleaseUEContext - Namf_Communication ReleaseUEContext service Operation\nfunc (s *Server) HTTPReleaseUEContext(c *gin.Context) {\n\tvar ueContextRelease models.UeContextRelease\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\terr = openapi.Deserialize(&ueContextRelease, requestBody, applicationjson)\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleReleaseUEContextRequest(c, ueContextRelease)\n}\n\n// UEContextTransfer - Namf_Communication UEContextTransfer service Operation\nfunc (s *Server) HTTPUEContextTransfer(c *gin.Context) {\n\tvar ueContextTransferRequest models.UeContextTransferRequest\n\tueContextTransferRequest.JsonData = new(models.UeContextTransferReqData)\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\tcontentType := c.GetHeader(\"Content-Type\")\n\tstr := strings.Split(contentType, \";\")\n\tswitch str[0] {\n\tcase applicationjson:\n\t\terr = openapi.Deserialize(ueContextTransferRequest.JsonData, requestBody, contentType)\n\tcase multipartrelate:\n\t\terr = openapi.Deserialize(&ueContextTransferRequest, requestBody, contentType)\n\t}\n\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)\n}\n\nfunc (s *Server) HTTPRelocateUEContext(c *gin.Context) {\n\tc.JSON(http.StatusNotImplemented, gin.H{})\n}\n\nfunc (s *Server) HTTPCancelRelocateUEContext(c *gin.Context) {\n\tc.JSON(http.StatusNotImplemented, gin.H{})\n}\n\nfunc (s *Server) HTTPN1N2MessageUnSubscribe(c *gin.Context) {\n\ts.Processor().HandleN1N2MessageUnSubscribeRequest(c)\n}\n\nfunc (s *Server) HTTPN1N2MessageTransfer(c *gin.Context) {\n\tvar n1n2MessageTransferRequest models.N1N2MessageTransferRequest\n\tn1n2MessageTransferRequest.JsonData = new(models.N1N2MessageTransferReqData)\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\tcontentType := c.GetHeader(\"Content-Type\")\n\tstr := strings.Split(contentType, \";\")\n\tswitch str[0] {\n\tcase applicationjson:\n\t\terr = fmt.Errorf(\"N1 and N2 datas are both Empty in N1N2MessgeTransfer\")\n\tcase multipartrelate:\n\t\terr = openapi.Deserialize(&n1n2MessageTransferRequest, requestBody, contentType)\n\tdefault:\n\t\terr = fmt.Errorf(\"wrong content type\")\n\t}\n\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleN1N2MessageTransferRequest(c, n1n2MessageTransferRequest)\n}\n\nfunc (s *Server) HTTPN1N2MessageTransferStatus(c *gin.Context) {\n\ts.Processor().HandleN1N2MessageTransferStatusRequest(c)\n}\n\nfunc (s *Server) HTTPN1N2MessageSubscribe(c *gin.Context) {\n\tvar ueN1N2InfoSubscriptionCreateData models.UeN1N2InfoSubscriptionCreateData\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\terr = openapi.Deserialize(&ueN1N2InfoSubscriptionCreateData, requestBody, applicationjson)\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleN1N2MessageSubscribeRequest(c, ueN1N2InfoSubscriptionCreateData)\n}\n\nfunc (s *Server) HTTPNonUeN2InfoUnSubscribe(c *gin.Context) {\n\tlogger.CommLog.Warnf(\"Handle Non Ue N2 Info UnSubscribe is not implemented.\")\n\tc.JSON(http.StatusNotImplemented, gin.H{})\n}\n\nfunc (s *Server) HTTPNonUeN2MessageTransfer(c *gin.Context) {\n\tlogger.CommLog.Warnf(\"Handle Non Ue N2 Message Transfer is not implemented.\")\n\tc.JSON(http.StatusNotImplemented, gin.H{})\n}\n\nfunc (s *Server) HTTPNonUeN2InfoSubscribe(c *gin.Context) {\n\tlogger.CommLog.Warnf(\"Handle Non Ue N2 Info Subscribe is not implemented.\")\n\tc.JSON(http.StatusNotImplemented, gin.H{})\n}\n\nfunc (s *Server) HTTPAMFStatusChangeSubscribe(c *gin.Context) {\n\tvar subscriptionData models.AmfCommunicationSubscriptionData\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\terr = openapi.Deserialize(&subscriptionData, requestBody, applicationjson)\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleAMFStatusChangeSubscribeRequest(c, subscriptionData)\n}\n```\n\n---\n\n## Question\n\nIdentify all security vulnerabilities or logic errors present in this file. For each finding:\n\n1. Name the vulnerability class or error type\n2. Identify the exact function(s) where the issue occurs and describe the specific code pattern\n3. Explain the security impact in the context of the AMF in a 5G core network\n4. Propose a correct fix\n\n---\n\n## Agent Instructions\n\nReply ONLY in Markdown using this template:\n\n```md\n### Reasoning\nDetailed analysis for each finding: class, location, impact, fix\n\n### Answer\nBrief summary of main findings (1-3 sentences)\n\n### Confidence\n0.0\n```\n\n\n**System context:** the code under review is a Network Function (NF) inside a 5G core network (free5GC architecture). In a standard 5G core deployment, the Service-Based Interface (SBI) between NFs runs behind mutual TLS and OAuth2 authorization by default. Use this when judging the *impact* (confidentiality/integrity/availability) of a vulnerability: do not assume a bug automatically exposes data \u2014 consider what is actually reachable or corrupted given this baseline.\n\n\n---\n\n## CVSS Estimate (required)\n\nFor each vulnerability reported in your Answer, also estimate its CVSS 4.0 base\nmetrics. Add this exact section to your response, between Reasoning and Confidence,\nrepeating the four lines below for each finding. Each finding names exactly ONE\nfunction: if the same vulnerability affects several functions, repeat the whole\nblock once per affected function (same vector/score, one `function:` line each)\ninstead of listing multiple function names in a single line.\n\n### CVSS Estimate\n- function: <name of the Go function containing the issue>\n- vector: CVSS:4.0/AV:_/AC:_/AT:_/PR:_/UI:_/VC:_/VI:_/VA:_/SC:_/SI:_/SA:_\n- score: <your estimated CVSS 4.0 base score, 0.0-10.0>\n- snippet: <one exact line of code, copied verbatim from the source above, that supports this finding>\n\nReplace each `_` in the vector with one of the allowed values:\n\n- AV Attack Vector: N (Network), A (Adjacent), L (Local), P (Physical)\n- AC Attack Complexity: L (Low), H (High)\n- AT Attack Requirements: N (None), P (Present)\n- PR Privileges Required: N (None), L (Low), H (High)\n- UI User Interaction: N (None), P (Passive), A (Active)\n- VC / VI / VA Confidentiality / Integrity / Availability impact on the\n  vulnerable system: H (High), L (Low), N (None)\n- SC / SI / SA Confidentiality / Integrity / Availability impact on\n  subsequent systems (other components reachable from the vulnerable one):\n  H (High), L (Low), N (None)\n",
+          "sgv_eval": {
+            "passed": true,
+            "per_finding": [
+              {
+                "function": "HTTPAMFStatusChangeSubscribeModify",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HTTPCreateUEContext",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HTTPUEContextTransfer",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HTTPN1N2MessageTransfer",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HTTPUEContextTransfer",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              }
+            ],
+            "feedback": null
+          },
+          "judge_score": {
+            "missing_default_score": 4.0,
+            "inconsistent_context_set_score": 3.0,
+            "impact_assessment_score": 2.0,
+            "total_score": 9.0,
+            "feedback": "The agent correctly identified all three key technical issues required by the rubric:\n1. **Missing Default Case**: It specifically identified `HTTPUEContextTransfer`, noted that `err` remains `nil` for unknown Content-Types, and explained that the processor is called with uninitialized data.\n2. **Inconsistent Context Set**: It identified that `c.Set` is used inconsistently (passing the `ProblemDetails` struct vs. a string/cause) and correctly predicted that this would lead to type assertion panics in the middleware.\n3. **Impact Assessment**: The agent correctly linked these issues to the AMF context, mentioning potential nil pointer dereferences (panics) in the processor and runtime panics in the middleware.",
+            "judge_elapsed_seconds": 9.03,
+            "normalized_score": 1.0
+          },
+          "verdict": "correct"
+        }
+      ],
+      "final_answer": {
+        "answer": "The AMF SBI implementation contains multiple vulnerabilities including **Information Exposure** via raw error messages and **Potential Denial of Service (DoS)** due to unsafe slice indexing of HTTP headers and missing default error handling in content-type switches. Additionally, inconsistent type assignment to the Gin context (`c.Set`) likely leads to runtime panics.",
+        "reasoning": "The code review of `api_communication.go` reveals several critical security and stability issues:\n\n1.  **Information Exposure via Error Messages**: Across multiple handlers (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`), the code returns `err.Error()` directly to the client in the `ProblemDetails` response. In a production 5G core, this can leak internal system paths, library versions, or memory state, aiding an attacker in reconnaissance.\n2.  **Unsafe Slice Access (Index Out of Bounds)**: In `HTTPCreateUEContext`, `HTTPUEContextTransfer`, and `HTTPN1N2MessageTransfer`, the code performs `strings.Split(contentType, \";\")` and immediately accesses `str[0]`. If the `Content-Type` header is missing or empty, `strings.Split` returns a slice with one empty string, but if the header is completely absent, the logic might behave unexpectedly or panic depending on the Gin version's header handling. More importantly, it lacks validation that the slice contains the expected elements before access.\n3.  **Improper Input Validation (Missing Content-Type Check)**: In `HTTPUEContextTransfer`, the `switch` statement handles `applicationjson` and `multipartrelate`, but the `default` case is empty. If an unsupported content type is provided, `err` remains `nil` (or its previous state), and the code proceeds to call `s.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)` with an uninitialized or partially initialized request object, leading to potential `nil pointer dereferences` or logic errors in the processor.\n4.  **Inconsistent Context State Management**: The use of `c.Set(sbi.IN_PB_DETAILS_CTX_STR, ...)` is inconsistent. In some functions, it sets a string (`problemDetail.Cause`), in others a struct (`problemDetail`), and in others a status text. This will likely cause a type assertion panic in the middleware or processor that retrieves this value from the Gin context.",
+        "confidence": 0.9,
+        "cvss_estimate": {
+          "findings": [
+            {
+              "function": "HTTPAMFStatusChangeSubscribeModify",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "Detail: err.Error(),"
+            },
+            {
+              "function": "HTTPCreateUEContext",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "switch str[0] {"
+            },
+            {
+              "function": "HTTPUEContextTransfer",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "switch str[0] {"
+            },
+            {
+              "function": "HTTPN1N2MessageTransfer",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "switch str[0] {"
+            },
+            {
+              "function": "HTTPUEContextTransfer",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "case multipartrelate:"
+            }
+          ]
+        }
+      },
+      "verdict": "correct",
+      "judge_score": {
+        "missing_default_score": 4.0,
+        "inconsistent_context_set_score": 3.0,
+        "impact_assessment_score": 2.0,
+        "total_score": 9.0,
+        "feedback": "The agent correctly identified all three key technical issues required by the rubric:\n1. **Missing Default Case**: It specifically identified `HTTPUEContextTransfer`, noted that `err` remains `nil` for unknown Content-Types, and explained that the processor is called with uninitialized data.\n2. **Inconsistent Context Set**: It identified that `c.Set` is used inconsistently (passing the `ProblemDetails` struct vs. a string/cause) and correctly predicted that this would lead to type assertion panics in the middleware.\n3. **Impact Assessment**: The agent correctly linked these issues to the AMF context, mentioning potential nil pointer dereferences (panics) in the processor and runtime panics in the middleware.",
+        "judge_elapsed_seconds": 9.03,
+        "normalized_score": 1.0
+      },
+      "cvss_eval": {
+        "estimate_provided": true,
+        "n_findings": 5,
+        "n_target_cves": 1,
+        "matched": [
+          {
+            "cve_id": "CVE-2026-41136",
+            "function": "HTTPUEContextTransfer",
+            "estimated_score": 5.3,
+            "published_score": 5.5,
+            "published_score_type": "BT",
+            "score_band_vs_published": 3,
+            "score_band_vs_B": 1,
+            "exploitability_match": 4,
+            "impact_match": 1,
+            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N/E:P",
+            "exploitability_distance": 0.1,
+            "impact_distance": 0.5,
+            "subsequent_match": 3,
+            "subsequent_distance": 0.0,
+            "hamming_distance": 3,
+            "computed_score_B": 7.1,
+            "computed_delta_vs_B": 0.2,
+            "score_band_computed_vs_B": 3,
+            "score_coherence_delta": 1.8
+          }
+        ],
+        "missed_cves": [],
+        "unmatched_findings": 4,
+        "unmatched": [
+          {
+            "function": "HTTPCreateUEContext",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+            "computed_score_B": 7.1
+          },
+          {
+            "function": "HTTPN1N2MessageTransfer",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+            "computed_score_B": 7.1
+          },
+          {
+            "function": "HTTPUEContextTransfer",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+            "computed_score_B": 7.1
+          },
+          {
+            "function": "HTTPAMFStatusChangeSubscribeModify",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          }
+        ],
+        "aggregates": {
+          "avg_score_band_vs_published": 3.0,
+          "avg_score_band_vs_B": 1.0,
+          "avg_exploitability_match": 4.0,
+          "avg_impact_match": 1.0,
+          "avg_score_coherence_delta": 1.8,
+          "avg_computed_delta_vs_B": 0.2,
+          "avg_score_band_computed_vs_B": 3.0,
+          "avg_exploitability_distance": 0.1,
+          "avg_impact_distance": 0.5,
+          "avg_subsequent_match": 3.0,
+          "avg_subsequent_distance": 0.0,
+          "avg_hamming_distance": 3.0
+        }
+      },
+      "tokens": {
+        "agent_in": null,
+        "agent_out": null,
+        "judge_in": null,
+        "judge_out": null
+      },
+      "cvss_eval_pass1": {
+        "estimate_provided": true,
+        "n_findings": 5,
+        "n_target_cves": 1,
+        "matched": [
+          {
+            "cve_id": "CVE-2026-41136",
+            "function": "HTTPUEContextTransfer",
+            "estimated_score": 5.3,
+            "published_score": 5.5,
+            "published_score_type": "BT",
+            "score_band_vs_published": 3,
+            "score_band_vs_B": 1,
+            "exploitability_match": 4,
+            "impact_match": 1,
+            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N/E:P",
+            "exploitability_distance": 0.1,
+            "impact_distance": 0.5,
+            "subsequent_match": 3,
+            "subsequent_distance": 0.0,
+            "hamming_distance": 3,
+            "computed_score_B": 7.1,
+            "computed_delta_vs_B": 0.2,
+            "score_band_computed_vs_B": 3,
+            "score_coherence_delta": 1.8
+          }
+        ],
+        "missed_cves": [],
+        "unmatched_findings": 4,
+        "unmatched": [
+          {
+            "function": "HTTPCreateUEContext",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+            "computed_score_B": 7.1
+          },
+          {
+            "function": "HTTPN1N2MessageTransfer",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+            "computed_score_B": 7.1
+          },
+          {
+            "function": "HTTPUEContextTransfer",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+            "computed_score_B": 7.1
+          },
+          {
+            "function": "HTTPAMFStatusChangeSubscribeModify",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          }
+        ],
+        "aggregates": {
+          "avg_score_band_vs_published": 3.0,
+          "avg_score_band_vs_B": 1.0,
+          "avg_exploitability_match": 4.0,
+          "avg_impact_match": 1.0,
+          "avg_score_coherence_delta": 1.8,
+          "avg_computed_delta_vs_B": 0.2,
+          "avg_score_band_computed_vs_B": 3.0,
+          "avg_exploitability_distance": 0.1,
+          "avg_impact_distance": 0.5,
+          "avg_subsequent_match": 3.0,
+          "avg_subsequent_distance": 0.0,
+          "avg_hamming_distance": 3.0
+        }
+      }
+    },
+    {
+      "repetition": 2,
+      "run_id": "20260714T152535Z",
+      "started_at": "2026-07-14T15:32:30.539064+00:00",
+      "finished_at": "2026-07-14T15:32:46.632777+00:00",
+      "elapsed_seconds": 16.09370195795782,
+      "attempts": 1,
+      "history": [
+        {
+          "answer": "The AMF SBI implementation suffers from unbounded memory allocation via `GetRawData()`, information leakage through verbose error responses, and inconsistent type handling in the request context. Additionally, fragile `Content-Type` parsing in UE context handlers can lead to the processing of uninitialized data.",
+          "reasoning": "1. **Improper Input Validation (Content-Type Handling):** In `HTTPCreateUEContext`, `HTTPUEContextTransfer`, and `HTTPN1N2MessageTransfer`, the code splits the `Content-Type` header by `;` and accesses `str[0]`. If a request is sent without a `Content-Type` header, `c.GetHeader(\"Content-Type\")` returns an empty string, `strings.Split` returns a slice with one empty element, and `str[0]` is accessed. While this doesn't crash in Go, the logic is fragile. More importantly, in `HTTPUEContextTransfer`, if the `Content-Type` is neither `applicationjson` nor `multipartrelate`, the `err` variable remains `nil` (from the previous `GetRawData` check), and the code proceeds to call `s.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)` with an uninitialized/empty request object. This can lead to Null Pointer Dereferences or logic errors in the processor.\n\n2. **Information Exposure through Error Messages:** Across almost all handlers (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, etc.), the code concatenates `err.Error()` into the `ProblemDetails` response sent back to the client. In a 5G SBI context, leaking internal system errors, deserialization failures, or stack-trace-like information can help an attacker map the internal memory structure or library versions of the NF.\n\n3. **Potential Denial of Service (Unbounded Request Body):** The use of `c.GetRawData()` across all handlers reads the entire request body into memory without any size limit. An attacker (or a compromised NF) could send an extremely large payload, leading to memory exhaustion (OOM) of the AMF process, crashing the core network's mobility management capability.\n\n4. **Inconsistent Context State Management:** In `HTTPCreateUEContext` and `HTTPEBIAssignment`, the code calls `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)`. `problemDetail` here is a `models.ProblemDetails` struct. However, in `HTTPAMFStatusChangeSubscribeModify`, it calls `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)`, which is a string. This inconsistency in the type stored in the Gin context can cause panic/crash in downstream middleware or logging components that expect a specific type when retrieving this value.",
+          "confidence": 0.9,
+          "cvss_estimate": {
+            "findings": [
+              {
+                "function": "HTTPCreateUEContext",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "requestBody, err := c.GetRawData()"
+              },
+              {
+                "function": "HTTPUEContextTransfer",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "requestBody, err := c.GetRawData()"
+              },
+              {
+                "function": "HTTPN1N2MessageTransfer",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "requestBody, err := c.GetRawData()"
+              },
+              {
+                "function": "HTTPAMFStatusChangeSubscribeModify",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 2.3,
+                "snippet": "Detail: err.Error(),"
+              },
+              {
+                "function": "HTTPCreateUEContext",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 2.3,
+                "snippet": "Detail: problemDetail,"
+              }
+            ]
+          },
+          "elapsed_seconds": 13.58,
+          "tokens_in": null,
+          "tokens_out": null,
+          "prompt_system": "\nYou are a 5G network engineer experienced in core network analysis and code review.\nReply ONLY in Markdown using the response format in the task. No extra text before or after.\n",
+          "prompt_user": "# Task \u2014 Security Code Review: AMF (complete file)\n\n**ID:** task7_vuln_amf_full\n**Tipo:** textual\n**Difficolt\u00e0:** alta\n\n---\n\n## Scenario\n\nThe following is the **complete** Go source file `api_communication.go` from the **AMF** Network Function of a free5GC 5G core implementation. It is an SBI (Service-Based Interface) HTTP handler using the Gin framework.\n\nPerform a **security code review** of the entire file. Read it in full, function by function, before deciding what to report \u2014 do not select preventively or stop after finding the first few issues. Identify all security vulnerabilities, logic errors, and unsafe coding patterns present in the code; there is no limit on how many findings you may report, including minor ones or ones that recur with small variations across similar handlers.\n\n```go\npackage sbi\n\nimport (\n\t\"fmt\"\n\t\"net/http\"\n\t\"strings\"\n\n\t\"github.com/gin-gonic/gin\"\n\n\t\"github.com/free5gc/amf/internal/logger\"\n\t\"github.com/free5gc/openapi\"\n\t\"github.com/free5gc/openapi/models\"\n\t\"github.com/free5gc/util/metrics/sbi\"\n)\n\nfunc Index(c *gin.Context) {\n\tc.String(http.StatusOK, \"Hello World!\")\n}\n\nfunc (s *Server) getCommunicationRoutes() []Route {\n\treturn []Route{\n\t\t{\n\t\t\tMethod:  http.MethodGet,\n\t\t\tPattern: \"/\",\n\t\t\tAPIFunc: func(c *gin.Context) {\n\t\t\t\tc.String(http.StatusOK, \"Hello World!\")\n\t\t\t},\n\t\t},\n\t\t{\n\t\t\tName:    \"AMFStatusChangeSubscribeModfy\",\n\t\t\tMethod:  http.MethodPut,\n\t\t\tPattern: \"/subscriptions/:subscriptionId\",\n\t\t\tAPIFunc: s.HTTPAMFStatusChangeSubscribeModify,\n\t\t},\n\t\t{\n\t\t\tName:    \"AMFStatusChangeUnSubscribe\",\n\t\t\tMethod:  http.MethodDelete,\n\t\t\tPattern: \"/subscriptions/:subscriptionId\",\n\t\t\tAPIFunc: s.HTTPAMFStatusChangeUnSubscribe,\n\t\t},\n\t\t{\n\t\t\tName:    \"CreateUEContext\",\n\t\t\tMethod:  http.MethodPut,\n\t\t\tPattern: \"/ue-contexts/:ueContextId\",\n\t\t\tAPIFunc: s.HTTPCreateUEContext,\n\t\t},\n\t\t{\n\t\t\tName:    \"EBIAssignment\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/assign-ebi\",\n\t\t\tAPIFunc: s.HTTPEBIAssignment,\n\t\t},\n\t\t{\n\t\t\tName:    \"RegistrationStatusUpdate\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/transfer-update\",\n\t\t\tAPIFunc: s.HTTPRegistrationStatusUpdate,\n\t\t},\n\t\t{\n\t\t\tName:    \"ReleaseUEContext\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/release\",\n\t\t\tAPIFunc: s.HTTPReleaseUEContext,\n\t\t},\n\t\t{\n\t\t\tName:    \"UEContextTransfer\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/transfer\",\n\t\t\tAPIFunc: s.HTTPUEContextTransfer,\n\t\t},\n\t\t{\n\t\t\tName:    \"RelocateUEContext\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/relocate\",\n\t\t\tAPIFunc: s.HTTPRelocateUEContext,\n\t\t},\n\t\t{\n\t\t\tName:    \"CancelRelocateUEContext\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/cancel-relocate\",\n\t\t\tAPIFunc: s.HTTPCancelRelocateUEContext,\n\t\t},\n\t\t{\n\t\t\tName:    \"N1N2MessageUnSubscribe\",\n\t\t\tMethod:  http.MethodDelete,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/n1-n2-messages/subscriptions/:subscriptionId\",\n\t\t\tAPIFunc: s.HTTPN1N2MessageUnSubscribe,\n\t\t},\n\t\t{\n\t\t\tName:    \"N1N2MessageTransfer\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/n1-n2-messages\",\n\t\t\tAPIFunc: s.HTTPN1N2MessageTransfer,\n\t\t},\n\t\t{\n\t\t\tName:    \"N1N2MessageTransferStatus\",\n\t\t\tMethod:  http.MethodGet,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/n1-n2-messages/:n1N2MessageId\",\n\t\t\tAPIFunc: s.HTTPN1N2MessageTransferStatus,\n\t\t},\n\t\t{\n\t\t\tName:    \"N1N2MessageSubscribe\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/n1-n2-messages/subscriptions\",\n\t\t\tAPIFunc: s.HTTPN1N2MessageSubscribe,\n\t\t},\n\t\t{\n\t\t\tName:    \"NonUeN2InfoUnSubscribe\",\n\t\t\tMethod:  http.MethodDelete,\n\t\t\tPattern: \"/non-ue-n2-messages/subscriptions/:n2NotifySubscriptionId\",\n\t\t\tAPIFunc: s.HTTPNonUeN2InfoUnSubscribe,\n\t\t},\n\t\t{\n\t\t\tName:    \"NonUeN2MessageTransfer\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/non-ue-n2-messages/transfer\",\n\t\t\tAPIFunc: s.HTTPNonUeN2MessageTransfer,\n\t\t},\n\t\t{\n\t\t\tName:    \"NonUeN2InfoSubscribe\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/non-ue-n2-messages/subscriptions\",\n\t\t\tAPIFunc: s.HTTPNonUeN2InfoSubscribe,\n\t\t},\n\t\t{\n\t\t\tName:    \"AMFStatusChangeSubscribe\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/subscriptions\",\n\t\t\tAPIFunc: s.HTTPAMFStatusChangeSubscribe,\n\t\t},\n\t}\n}\n\n// AMFStatusChangeSubscribeModify - Namf_Communication AMF Status Change Subscribe Modify service Operation\nfunc (s *Server) HTTPAMFStatusChangeSubscribeModify(c *gin.Context) {\n\tvar subscriptionData models.AmfCommunicationSubscriptionData\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\terr = openapi.Deserialize(&subscriptionData, requestBody, applicationjson)\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleAMFStatusChangeSubscribeModify(c, subscriptionData)\n}\n\n// AMFStatusChangeUnSubscribe - Namf_Communication AMF Status Change UnSubscribe service Operation\nfunc (s *Server) HTTPAMFStatusChangeUnSubscribe(c *gin.Context) {\n\ts.Processor().HandleAMFStatusChangeUnSubscribeRequest(c)\n}\n\nfunc (s *Server) HTTPCreateUEContext(c *gin.Context) {\n\tvar createUeContextRequest models.CreateUeContextRequest\n\tcreateUeContextRequest.JsonData = new(models.UeContextCreateData)\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\tcontentType := c.GetHeader(\"Content-Type\")\n\tstr := strings.Split(contentType, \";\")\n\tswitch str[0] {\n\tcase applicationjson:\n\t\terr = openapi.Deserialize(createUeContextRequest.JsonData, requestBody, contentType)\n\tcase multipartrelate:\n\t\terr = openapi.Deserialize(&createUeContextRequest, requestBody, contentType)\n\tdefault:\n\t\terr = fmt.Errorf(\"wrong content type\")\n\t}\n\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText((http.StatusBadRequest)))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleCreateUEContextRequest(c, createUeContextRequest)\n}\n\n// EBIAssignment - Namf_Communication EBI Assignment service Operation\nfunc (s *Server) HTTPEBIAssignment(c *gin.Context) {\n\tvar assignEbiData models.AssignEbiData\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\terr = openapi.Deserialize(&assignEbiData, requestBody, applicationjson)\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleAssignEbiDataRequest(c, assignEbiData)\n}\n\n// RegistrationStatusUpdate - Namf_Communication RegistrationStatusUpdate service Operation\nfunc (s *Server) HTTPRegistrationStatusUpdate(c *gin.Context) {\n\tvar ueRegStatusUpdateReqData models.UeRegStatusUpdateReqData\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\terr = openapi.Deserialize(&ueRegStatusUpdateReqData, requestBody, applicationjson)\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleRegistrationStatusUpdateRequest(c, ueRegStatusUpdateReqData)\n}\n\n// ReleaseUEContext - Namf_Communication ReleaseUEContext service Operation\nfunc (s *Server) HTTPReleaseUEContext(c *gin.Context) {\n\tvar ueContextRelease models.UeContextRelease\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\terr = openapi.Deserialize(&ueContextRelease, requestBody, applicationjson)\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleReleaseUEContextRequest(c, ueContextRelease)\n}\n\n// UEContextTransfer - Namf_Communication UEContextTransfer service Operation\nfunc (s *Server) HTTPUEContextTransfer(c *gin.Context) {\n\tvar ueContextTransferRequest models.UeContextTransferRequest\n\tueContextTransferRequest.JsonData = new(models.UeContextTransferReqData)\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\tcontentType := c.GetHeader(\"Content-Type\")\n\tstr := strings.Split(contentType, \";\")\n\tswitch str[0] {\n\tcase applicationjson:\n\t\terr = openapi.Deserialize(ueContextTransferRequest.JsonData, requestBody, contentType)\n\tcase multipartrelate:\n\t\terr = openapi.Deserialize(&ueContextTransferRequest, requestBody, contentType)\n\t}\n\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)\n}\n\nfunc (s *Server) HTTPRelocateUEContext(c *gin.Context) {\n\tc.JSON(http.StatusNotImplemented, gin.H{})\n}\n\nfunc (s *Server) HTTPCancelRelocateUEContext(c *gin.Context) {\n\tc.JSON(http.StatusNotImplemented, gin.H{})\n}\n\nfunc (s *Server) HTTPN1N2MessageUnSubscribe(c *gin.Context) {\n\ts.Processor().HandleN1N2MessageUnSubscribeRequest(c)\n}\n\nfunc (s *Server) HTTPN1N2MessageTransfer(c *gin.Context) {\n\tvar n1n2MessageTransferRequest models.N1N2MessageTransferRequest\n\tn1n2MessageTransferRequest.JsonData = new(models.N1N2MessageTransferReqData)\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\tcontentType := c.GetHeader(\"Content-Type\")\n\tstr := strings.Split(contentType, \";\")\n\tswitch str[0] {\n\tcase applicationjson:\n\t\terr = fmt.Errorf(\"N1 and N2 datas are both Empty in N1N2MessgeTransfer\")\n\tcase multipartrelate:\n\t\terr = openapi.Deserialize(&n1n2MessageTransferRequest, requestBody, contentType)\n\tdefault:\n\t\terr = fmt.Errorf(\"wrong content type\")\n\t}\n\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleN1N2MessageTransferRequest(c, n1n2MessageTransferRequest)\n}\n\nfunc (s *Server) HTTPN1N2MessageTransferStatus(c *gin.Context) {\n\ts.Processor().HandleN1N2MessageTransferStatusRequest(c)\n}\n\nfunc (s *Server) HTTPN1N2MessageSubscribe(c *gin.Context) {\n\tvar ueN1N2InfoSubscriptionCreateData models.UeN1N2InfoSubscriptionCreateData\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\terr = openapi.Deserialize(&ueN1N2InfoSubscriptionCreateData, requestBody, applicationjson)\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleN1N2MessageSubscribeRequest(c, ueN1N2InfoSubscriptionCreateData)\n}\n\nfunc (s *Server) HTTPNonUeN2InfoUnSubscribe(c *gin.Context) {\n\tlogger.CommLog.Warnf(\"Handle Non Ue N2 Info UnSubscribe is not implemented.\")\n\tc.JSON(http.StatusNotImplemented, gin.H{})\n}\n\nfunc (s *Server) HTTPNonUeN2MessageTransfer(c *gin.Context) {\n\tlogger.CommLog.Warnf(\"Handle Non Ue N2 Message Transfer is not implemented.\")\n\tc.JSON(http.StatusNotImplemented, gin.H{})\n}\n\nfunc (s *Server) HTTPNonUeN2InfoSubscribe(c *gin.Context) {\n\tlogger.CommLog.Warnf(\"Handle Non Ue N2 Info Subscribe is not implemented.\")\n\tc.JSON(http.StatusNotImplemented, gin.H{})\n}\n\nfunc (s *Server) HTTPAMFStatusChangeSubscribe(c *gin.Context) {\n\tvar subscriptionData models.AmfCommunicationSubscriptionData\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\terr = openapi.Deserialize(&subscriptionData, requestBody, applicationjson)\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleAMFStatusChangeSubscribeRequest(c, subscriptionData)\n}\n```\n\n---\n\n## Question\n\nIdentify all security vulnerabilities or logic errors present in this file. For each finding:\n\n1. Name the vulnerability class or error type\n2. Identify the exact function(s) where the issue occurs and describe the specific code pattern\n3. Explain the security impact in the context of the AMF in a 5G core network\n4. Propose a correct fix\n\n---\n\n## Agent Instructions\n\nReply ONLY in Markdown using this template:\n\n```md\n### Reasoning\nDetailed analysis for each finding: class, location, impact, fix\n\n### Answer\nBrief summary of main findings (1-3 sentences)\n\n### Confidence\n0.0\n```\n\n\n**System context:** the code under review is a Network Function (NF) inside a 5G core network (free5GC architecture). In a standard 5G core deployment, the Service-Based Interface (SBI) between NFs runs behind mutual TLS and OAuth2 authorization by default. Use this when judging the *impact* (confidentiality/integrity/availability) of a vulnerability: do not assume a bug automatically exposes data \u2014 consider what is actually reachable or corrupted given this baseline.\n\n\n---\n\n## CVSS Estimate (required)\n\nFor each vulnerability reported in your Answer, also estimate its CVSS 4.0 base\nmetrics. Add this exact section to your response, between Reasoning and Confidence,\nrepeating the four lines below for each finding. Each finding names exactly ONE\nfunction: if the same vulnerability affects several functions, repeat the whole\nblock once per affected function (same vector/score, one `function:` line each)\ninstead of listing multiple function names in a single line.\n\n### CVSS Estimate\n- function: <name of the Go function containing the issue>\n- vector: CVSS:4.0/AV:_/AC:_/AT:_/PR:_/UI:_/VC:_/VI:_/VA:_/SC:_/SI:_/SA:_\n- score: <your estimated CVSS 4.0 base score, 0.0-10.0>\n- snippet: <one exact line of code, copied verbatim from the source above, that supports this finding>\n\nReplace each `_` in the vector with one of the allowed values:\n\n- AV Attack Vector: N (Network), A (Adjacent), L (Local), P (Physical)\n- AC Attack Complexity: L (Low), H (High)\n- AT Attack Requirements: N (None), P (Present)\n- PR Privileges Required: N (None), L (Low), H (High)\n- UI User Interaction: N (None), P (Passive), A (Active)\n- VC / VI / VA Confidentiality / Integrity / Availability impact on the\n  vulnerable system: H (High), L (Low), N (None)\n- SC / SI / SA Confidentiality / Integrity / Availability impact on\n  subsequent systems (other components reachable from the vulnerable one):\n  H (High), L (Low), N (None)\n",
+          "sgv_eval": {
+            "passed": true,
+            "per_finding": [
+              {
+                "function": "HTTPCreateUEContext",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HTTPUEContextTransfer",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HTTPN1N2MessageTransfer",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HTTPAMFStatusChangeSubscribeModify",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HTTPCreateUEContext",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              }
+            ],
+            "feedback": null
+          },
+          "judge_score": {
+            "missing_default_score": 4.0,
+            "inconsistent_context_set_score": 3.0,
+            "impact_assessment_score": 2.0,
+            "feedback": "The agent correctly identified all three key technical issues required by the rubric:\n1. **Missing Default Case:** It specifically identified that `HTTPUEContextTransfer` lacks a default case in the `Content-Type` switch, explaining that `err` remains `nil` and the processor is called with uninitialized data.\n2. **Inconsistent Context Set:** It correctly identified that some handlers pass the `ProblemDetails` struct while others pass the `.Cause` string to `c.Set`, and explicitly noted the risk of panics in downstream middleware/logging.\n3. **Impact Assessment:** The agent provided AMF-specific context, mentioning the risk of Null Pointer Dereferences in the processor and the impact on the core network's mobility management.",
+            "judge_elapsed_seconds": 2.5,
+            "total_score": 9.0,
+            "normalized_score": 1.0
+          },
+          "verdict": "correct"
+        }
+      ],
+      "final_answer": {
+        "answer": "The AMF SBI implementation suffers from unbounded memory allocation via `GetRawData()`, information leakage through verbose error responses, and inconsistent type handling in the request context. Additionally, fragile `Content-Type` parsing in UE context handlers can lead to the processing of uninitialized data.",
+        "reasoning": "1. **Improper Input Validation (Content-Type Handling):** In `HTTPCreateUEContext`, `HTTPUEContextTransfer`, and `HTTPN1N2MessageTransfer`, the code splits the `Content-Type` header by `;` and accesses `str[0]`. If a request is sent without a `Content-Type` header, `c.GetHeader(\"Content-Type\")` returns an empty string, `strings.Split` returns a slice with one empty element, and `str[0]` is accessed. While this doesn't crash in Go, the logic is fragile. More importantly, in `HTTPUEContextTransfer`, if the `Content-Type` is neither `applicationjson` nor `multipartrelate`, the `err` variable remains `nil` (from the previous `GetRawData` check), and the code proceeds to call `s.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)` with an uninitialized/empty request object. This can lead to Null Pointer Dereferences or logic errors in the processor.\n\n2. **Information Exposure through Error Messages:** Across almost all handlers (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, etc.), the code concatenates `err.Error()` into the `ProblemDetails` response sent back to the client. In a 5G SBI context, leaking internal system errors, deserialization failures, or stack-trace-like information can help an attacker map the internal memory structure or library versions of the NF.\n\n3. **Potential Denial of Service (Unbounded Request Body):** The use of `c.GetRawData()` across all handlers reads the entire request body into memory without any size limit. An attacker (or a compromised NF) could send an extremely large payload, leading to memory exhaustion (OOM) of the AMF process, crashing the core network's mobility management capability.\n\n4. **Inconsistent Context State Management:** In `HTTPCreateUEContext` and `HTTPEBIAssignment`, the code calls `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)`. `problemDetail` here is a `models.ProblemDetails` struct. However, in `HTTPAMFStatusChangeSubscribeModify`, it calls `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)`, which is a string. This inconsistency in the type stored in the Gin context can cause panic/crash in downstream middleware or logging components that expect a specific type when retrieving this value.",
+        "confidence": 0.9,
+        "cvss_estimate": {
+          "findings": [
+            {
+              "function": "HTTPCreateUEContext",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "requestBody, err := c.GetRawData()"
+            },
+            {
+              "function": "HTTPUEContextTransfer",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "requestBody, err := c.GetRawData()"
+            },
+            {
+              "function": "HTTPN1N2MessageTransfer",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "requestBody, err := c.GetRawData()"
+            },
+            {
+              "function": "HTTPAMFStatusChangeSubscribeModify",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 2.3,
+              "snippet": "Detail: err.Error(),"
+            },
+            {
+              "function": "HTTPCreateUEContext",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 2.3,
+              "snippet": "Detail: problemDetail,"
+            }
+          ]
+        }
+      },
+      "verdict": "correct",
+      "judge_score": {
+        "missing_default_score": 4.0,
+        "inconsistent_context_set_score": 3.0,
+        "impact_assessment_score": 2.0,
+        "feedback": "The agent correctly identified all three key technical issues required by the rubric:\n1. **Missing Default Case:** It specifically identified that `HTTPUEContextTransfer` lacks a default case in the `Content-Type` switch, explaining that `err` remains `nil` and the processor is called with uninitialized data.\n2. **Inconsistent Context Set:** It correctly identified that some handlers pass the `ProblemDetails` struct while others pass the `.Cause` string to `c.Set`, and explicitly noted the risk of panics in downstream middleware/logging.\n3. **Impact Assessment:** The agent provided AMF-specific context, mentioning the risk of Null Pointer Dereferences in the processor and the impact on the core network's mobility management.",
+        "judge_elapsed_seconds": 2.5,
+        "total_score": 9.0,
+        "normalized_score": 1.0
+      },
+      "cvss_eval": {
+        "estimate_provided": true,
+        "n_findings": 5,
+        "n_target_cves": 1,
+        "matched": [
+          {
+            "cve_id": "CVE-2026-41136",
+            "function": "HTTPUEContextTransfer",
+            "estimated_score": 5.3,
+            "published_score": 5.5,
+            "published_score_type": "BT",
+            "score_band_vs_published": 3,
+            "score_band_vs_B": 1,
+            "exploitability_match": 4,
+            "impact_match": 1,
+            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N/E:P",
+            "exploitability_distance": 0.1,
+            "impact_distance": 0.5,
+            "subsequent_match": 3,
+            "subsequent_distance": 0.0,
+            "hamming_distance": 3,
+            "computed_score_B": 7.1,
+            "computed_delta_vs_B": 0.2,
+            "score_band_computed_vs_B": 3,
+            "score_coherence_delta": 1.8
+          }
+        ],
+        "missed_cves": [],
+        "unmatched_findings": 4,
+        "unmatched": [
+          {
+            "function": "HTTPCreateUEContext",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+            "computed_score_B": 7.1
+          },
+          {
+            "function": "HTTPN1N2MessageTransfer",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+            "computed_score_B": 7.1
+          },
+          {
+            "function": "HTTPAMFStatusChangeSubscribeModify",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HTTPCreateUEContext",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          }
+        ],
+        "aggregates": {
+          "avg_score_band_vs_published": 3.0,
+          "avg_score_band_vs_B": 1.0,
+          "avg_exploitability_match": 4.0,
+          "avg_impact_match": 1.0,
+          "avg_score_coherence_delta": 1.8,
+          "avg_computed_delta_vs_B": 0.2,
+          "avg_score_band_computed_vs_B": 3.0,
+          "avg_exploitability_distance": 0.1,
+          "avg_impact_distance": 0.5,
+          "avg_subsequent_match": 3.0,
+          "avg_subsequent_distance": 0.0,
+          "avg_hamming_distance": 3.0
+        }
+      },
+      "tokens": {
+        "agent_in": null,
+        "agent_out": null,
+        "judge_in": null,
+        "judge_out": null
+      },
+      "cvss_eval_pass1": {
+        "estimate_provided": true,
+        "n_findings": 5,
+        "n_target_cves": 1,
+        "matched": [
+          {
+            "cve_id": "CVE-2026-41136",
+            "function": "HTTPUEContextTransfer",
+            "estimated_score": 5.3,
+            "published_score": 5.5,
+            "published_score_type": "BT",
+            "score_band_vs_published": 3,
+            "score_band_vs_B": 1,
+            "exploitability_match": 4,
+            "impact_match": 1,
+            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N/E:P",
+            "exploitability_distance": 0.1,
+            "impact_distance": 0.5,
+            "subsequent_match": 3,
+            "subsequent_distance": 0.0,
+            "hamming_distance": 3,
+            "computed_score_B": 7.1,
+            "computed_delta_vs_B": 0.2,
+            "score_band_computed_vs_B": 3,
+            "score_coherence_delta": 1.8
+          }
+        ],
+        "missed_cves": [],
+        "unmatched_findings": 4,
+        "unmatched": [
+          {
+            "function": "HTTPCreateUEContext",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+            "computed_score_B": 7.1
+          },
+          {
+            "function": "HTTPN1N2MessageTransfer",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+            "computed_score_B": 7.1
+          },
+          {
+            "function": "HTTPAMFStatusChangeSubscribeModify",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HTTPCreateUEContext",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          }
+        ],
+        "aggregates": {
+          "avg_score_band_vs_published": 3.0,
+          "avg_score_band_vs_B": 1.0,
+          "avg_exploitability_match": 4.0,
+          "avg_impact_match": 1.0,
+          "avg_score_coherence_delta": 1.8,
+          "avg_computed_delta_vs_B": 0.2,
+          "avg_score_band_computed_vs_B": 3.0,
+          "avg_exploitability_distance": 0.1,
+          "avg_impact_distance": 0.5,
+          "avg_subsequent_match": 3.0,
+          "avg_subsequent_distance": 0.0,
+          "avg_hamming_distance": 3.0
+        }
+      }
+    },
+    {
+      "repetition": 3,
+      "run_id": "20260714T152535Z",
+      "started_at": "2026-07-14T15:32:46.636919+00:00",
+      "finished_at": "2026-07-14T15:33:06.815192+00:00",
+      "elapsed_seconds": 20.17825500003528,
+      "attempts": 1,
+      "history": [
+        {
+          "answer": "The code exhibits systemic information leakage through verbose error responses and fragile HTTP header handling. Specifically, the `HTTPUEContextTransfer` handler fails to handle unsupported content types, allowing uninitialized data to reach the business logic processor. Additionally, inconsistent types are being stored in the Gin context, which may lead to runtime panics.",
+          "reasoning": "1. **Information Exposure via Error Messages**: In multiple handlers (`HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`), the code returns `err.Error()` or a concatenated string `reqbody + err.Error()` directly to the client in the `ProblemDetails` response. While the SBI is typically protected by mTLS, leaking internal deserialization errors or system failure details can provide an attacker with insights into the internal data structures and library versions (e.g., `openapi` package internals), facilitating further targeted attacks.\n\n2. **Improper Input Validation (Content-Type Handling)**: In `HTTPCreateUEContext`, `HTTPUEContextTransfer`, and `HTTPN1N2MessageTransfer`, the code performs `strings.Split(contentType, \";\")` and accesses `str[0]` without checking if the `Content-Type` header is present or if the split resulted in at least one element. If the header is missing, `c.GetHeader` returns an empty string, and `strings.Split` returns a slice containing one empty string. While this doesn't cause a panic here, it leads to a \"wrong content type\" error. More critically, in `HTTPUEContextTransfer`, the `default` case in the switch is missing, meaning if an unsupported content type is provided, `err` remains `nil` (from the previous `GetRawData` check), and the code proceeds to call `s.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)` with an uninitialized/empty request object, potentially causing a Null Pointer Dereference or logic error in the processor.\n\n3. **Inconsistent Context State Management**: In `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, and `HTTPUEContextTransfer`, the code calls `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)`. In other functions like `HTTPAMFStatusChangeSubscribeModify`, it calls `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)`. Passing the entire `ProblemDetails` struct into a context variable expected to be a string (based on the naming convention `_STR`) can lead to type assertion panics or corrupted logs in the middleware/processor that consumes this context.",
+          "confidence": 0.95,
+          "cvss_estimate": {
+            "findings": [
+              {
+                "function": "HTTPAMFStatusChangeSubscribeModify",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 2.3,
+                "snippet": "Detail: err.Error(),"
+              },
+              {
+                "function": "HTTPCreateUEContext",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 2.3,
+                "snippet": "Detail: problemDetail,"
+              },
+              {
+                "function": "HTTPEBIAssignment",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 2.3,
+                "snippet": "Detail: problemDetail,"
+              },
+              {
+                "function": "HTTPRegistrationStatusUpdate",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 2.3,
+                "snippet": "Detail: problemDetail,"
+              },
+              {
+                "function": "HTTPReleaseUEContext",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 2.3,
+                "snippet": "Detail: problemDetail,"
+              },
+              {
+                "function": "HTTPUEContextTransfer",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "s.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)"
+              },
+              {
+                "function": "HTTPN1N2MessageTransfer",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 2.3,
+                "snippet": "Detail: problemDetail,"
+              },
+              {
+                "function": "HTTPN1N2MessageSubscribe",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 2.3,
+                "snippet": "Detail: err.Error(),"
+              },
+              {
+                "function": "HTTPAMFStatusChangeSubscribe",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 2.3,
+                "snippet": "Detail: err.Error(),"
+              }
+            ]
+          },
+          "elapsed_seconds": 17.04,
+          "tokens_in": null,
+          "tokens_out": null,
+          "prompt_system": "\nYou are a 5G network engineer experienced in core network analysis and code review.\nReply ONLY in Markdown using the response format in the task. No extra text before or after.\n",
+          "prompt_user": "# Task \u2014 Security Code Review: AMF (complete file)\n\n**ID:** task7_vuln_amf_full\n**Tipo:** textual\n**Difficolt\u00e0:** alta\n\n---\n\n## Scenario\n\nThe following is the **complete** Go source file `api_communication.go` from the **AMF** Network Function of a free5GC 5G core implementation. It is an SBI (Service-Based Interface) HTTP handler using the Gin framework.\n\nPerform a **security code review** of the entire file. Read it in full, function by function, before deciding what to report \u2014 do not select preventively or stop after finding the first few issues. Identify all security vulnerabilities, logic errors, and unsafe coding patterns present in the code; there is no limit on how many findings you may report, including minor ones or ones that recur with small variations across similar handlers.\n\n```go\npackage sbi\n\nimport (\n\t\"fmt\"\n\t\"net/http\"\n\t\"strings\"\n\n\t\"github.com/gin-gonic/gin\"\n\n\t\"github.com/free5gc/amf/internal/logger\"\n\t\"github.com/free5gc/openapi\"\n\t\"github.com/free5gc/openapi/models\"\n\t\"github.com/free5gc/util/metrics/sbi\"\n)\n\nfunc Index(c *gin.Context) {\n\tc.String(http.StatusOK, \"Hello World!\")\n}\n\nfunc (s *Server) getCommunicationRoutes() []Route {\n\treturn []Route{\n\t\t{\n\t\t\tMethod:  http.MethodGet,\n\t\t\tPattern: \"/\",\n\t\t\tAPIFunc: func(c *gin.Context) {\n\t\t\t\tc.String(http.StatusOK, \"Hello World!\")\n\t\t\t},\n\t\t},\n\t\t{\n\t\t\tName:    \"AMFStatusChangeSubscribeModfy\",\n\t\t\tMethod:  http.MethodPut,\n\t\t\tPattern: \"/subscriptions/:subscriptionId\",\n\t\t\tAPIFunc: s.HTTPAMFStatusChangeSubscribeModify,\n\t\t},\n\t\t{\n\t\t\tName:    \"AMFStatusChangeUnSubscribe\",\n\t\t\tMethod:  http.MethodDelete,\n\t\t\tPattern: \"/subscriptions/:subscriptionId\",\n\t\t\tAPIFunc: s.HTTPAMFStatusChangeUnSubscribe,\n\t\t},\n\t\t{\n\t\t\tName:    \"CreateUEContext\",\n\t\t\tMethod:  http.MethodPut,\n\t\t\tPattern: \"/ue-contexts/:ueContextId\",\n\t\t\tAPIFunc: s.HTTPCreateUEContext,\n\t\t},\n\t\t{\n\t\t\tName:    \"EBIAssignment\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/assign-ebi\",\n\t\t\tAPIFunc: s.HTTPEBIAssignment,\n\t\t},\n\t\t{\n\t\t\tName:    \"RegistrationStatusUpdate\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/transfer-update\",\n\t\t\tAPIFunc: s.HTTPRegistrationStatusUpdate,\n\t\t},\n\t\t{\n\t\t\tName:    \"ReleaseUEContext\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/release\",\n\t\t\tAPIFunc: s.HTTPReleaseUEContext,\n\t\t},\n\t\t{\n\t\t\tName:    \"UEContextTransfer\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/transfer\",\n\t\t\tAPIFunc: s.HTTPUEContextTransfer,\n\t\t},\n\t\t{\n\t\t\tName:    \"RelocateUEContext\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/relocate\",\n\t\t\tAPIFunc: s.HTTPRelocateUEContext,\n\t\t},\n\t\t{\n\t\t\tName:    \"CancelRelocateUEContext\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/cancel-relocate\",\n\t\t\tAPIFunc: s.HTTPCancelRelocateUEContext,\n\t\t},\n\t\t{\n\t\t\tName:    \"N1N2MessageUnSubscribe\",\n\t\t\tMethod:  http.MethodDelete,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/n1-n2-messages/subscriptions/:subscriptionId\",\n\t\t\tAPIFunc: s.HTTPN1N2MessageUnSubscribe,\n\t\t},\n\t\t{\n\t\t\tName:    \"N1N2MessageTransfer\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/n1-n2-messages\",\n\t\t\tAPIFunc: s.HTTPN1N2MessageTransfer,\n\t\t},\n\t\t{\n\t\t\tName:    \"N1N2MessageTransferStatus\",\n\t\t\tMethod:  http.MethodGet,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/n1-n2-messages/:n1N2MessageId\",\n\t\t\tAPIFunc: s.HTTPN1N2MessageTransferStatus,\n\t\t},\n\t\t{\n\t\t\tName:    \"N1N2MessageSubscribe\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/ue-contexts/:ueContextId/n1-n2-messages/subscriptions\",\n\t\t\tAPIFunc: s.HTTPN1N2MessageSubscribe,\n\t\t},\n\t\t{\n\t\t\tName:    \"NonUeN2InfoUnSubscribe\",\n\t\t\tMethod:  http.MethodDelete,\n\t\t\tPattern: \"/non-ue-n2-messages/subscriptions/:n2NotifySubscriptionId\",\n\t\t\tAPIFunc: s.HTTPNonUeN2InfoUnSubscribe,\n\t\t},\n\t\t{\n\t\t\tName:    \"NonUeN2MessageTransfer\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/non-ue-n2-messages/transfer\",\n\t\t\tAPIFunc: s.HTTPNonUeN2MessageTransfer,\n\t\t},\n\t\t{\n\t\t\tName:    \"NonUeN2InfoSubscribe\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/non-ue-n2-messages/subscriptions\",\n\t\t\tAPIFunc: s.HTTPNonUeN2InfoSubscribe,\n\t\t},\n\t\t{\n\t\t\tName:    \"AMFStatusChangeSubscribe\",\n\t\t\tMethod:  http.MethodPost,\n\t\t\tPattern: \"/subscriptions\",\n\t\t\tAPIFunc: s.HTTPAMFStatusChangeSubscribe,\n\t\t},\n\t}\n}\n\n// AMFStatusChangeSubscribeModify - Namf_Communication AMF Status Change Subscribe Modify service Operation\nfunc (s *Server) HTTPAMFStatusChangeSubscribeModify(c *gin.Context) {\n\tvar subscriptionData models.AmfCommunicationSubscriptionData\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\terr = openapi.Deserialize(&subscriptionData, requestBody, applicationjson)\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleAMFStatusChangeSubscribeModify(c, subscriptionData)\n}\n\n// AMFStatusChangeUnSubscribe - Namf_Communication AMF Status Change UnSubscribe service Operation\nfunc (s *Server) HTTPAMFStatusChangeUnSubscribe(c *gin.Context) {\n\ts.Processor().HandleAMFStatusChangeUnSubscribeRequest(c)\n}\n\nfunc (s *Server) HTTPCreateUEContext(c *gin.Context) {\n\tvar createUeContextRequest models.CreateUeContextRequest\n\tcreateUeContextRequest.JsonData = new(models.UeContextCreateData)\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\tcontentType := c.GetHeader(\"Content-Type\")\n\tstr := strings.Split(contentType, \";\")\n\tswitch str[0] {\n\tcase applicationjson:\n\t\terr = openapi.Deserialize(createUeContextRequest.JsonData, requestBody, contentType)\n\tcase multipartrelate:\n\t\terr = openapi.Deserialize(&createUeContextRequest, requestBody, contentType)\n\tdefault:\n\t\terr = fmt.Errorf(\"wrong content type\")\n\t}\n\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText((http.StatusBadRequest)))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleCreateUEContextRequest(c, createUeContextRequest)\n}\n\n// EBIAssignment - Namf_Communication EBI Assignment service Operation\nfunc (s *Server) HTTPEBIAssignment(c *gin.Context) {\n\tvar assignEbiData models.AssignEbiData\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\terr = openapi.Deserialize(&assignEbiData, requestBody, applicationjson)\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleAssignEbiDataRequest(c, assignEbiData)\n}\n\n// RegistrationStatusUpdate - Namf_Communication RegistrationStatusUpdate service Operation\nfunc (s *Server) HTTPRegistrationStatusUpdate(c *gin.Context) {\n\tvar ueRegStatusUpdateReqData models.UeRegStatusUpdateReqData\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\terr = openapi.Deserialize(&ueRegStatusUpdateReqData, requestBody, applicationjson)\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleRegistrationStatusUpdateRequest(c, ueRegStatusUpdateReqData)\n}\n\n// ReleaseUEContext - Namf_Communication ReleaseUEContext service Operation\nfunc (s *Server) HTTPReleaseUEContext(c *gin.Context) {\n\tvar ueContextRelease models.UeContextRelease\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\terr = openapi.Deserialize(&ueContextRelease, requestBody, applicationjson)\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleReleaseUEContextRequest(c, ueContextRelease)\n}\n\n// UEContextTransfer - Namf_Communication UEContextTransfer service Operation\nfunc (s *Server) HTTPUEContextTransfer(c *gin.Context) {\n\tvar ueContextTransferRequest models.UeContextTransferRequest\n\tueContextTransferRequest.JsonData = new(models.UeContextTransferReqData)\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\tcontentType := c.GetHeader(\"Content-Type\")\n\tstr := strings.Split(contentType, \";\")\n\tswitch str[0] {\n\tcase applicationjson:\n\t\terr = openapi.Deserialize(ueContextTransferRequest.JsonData, requestBody, contentType)\n\tcase multipartrelate:\n\t\terr = openapi.Deserialize(&ueContextTransferRequest, requestBody, contentType)\n\t}\n\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)\n}\n\nfunc (s *Server) HTTPRelocateUEContext(c *gin.Context) {\n\tc.JSON(http.StatusNotImplemented, gin.H{})\n}\n\nfunc (s *Server) HTTPCancelRelocateUEContext(c *gin.Context) {\n\tc.JSON(http.StatusNotImplemented, gin.H{})\n}\n\nfunc (s *Server) HTTPN1N2MessageUnSubscribe(c *gin.Context) {\n\ts.Processor().HandleN1N2MessageUnSubscribeRequest(c)\n}\n\nfunc (s *Server) HTTPN1N2MessageTransfer(c *gin.Context) {\n\tvar n1n2MessageTransferRequest models.N1N2MessageTransferRequest\n\tn1n2MessageTransferRequest.JsonData = new(models.N1N2MessageTransferReqData)\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\tcontentType := c.GetHeader(\"Content-Type\")\n\tstr := strings.Split(contentType, \";\")\n\tswitch str[0] {\n\tcase applicationjson:\n\t\terr = fmt.Errorf(\"N1 and N2 datas are both Empty in N1N2MessgeTransfer\")\n\tcase multipartrelate:\n\t\terr = openapi.Deserialize(&n1n2MessageTransferRequest, requestBody, contentType)\n\tdefault:\n\t\terr = fmt.Errorf(\"wrong content type\")\n\t}\n\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleN1N2MessageTransferRequest(c, n1n2MessageTransferRequest)\n}\n\nfunc (s *Server) HTTPN1N2MessageTransferStatus(c *gin.Context) {\n\ts.Processor().HandleN1N2MessageTransferStatusRequest(c)\n}\n\nfunc (s *Server) HTTPN1N2MessageSubscribe(c *gin.Context) {\n\tvar ueN1N2InfoSubscriptionCreateData models.UeN1N2InfoSubscriptionCreateData\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\terr = openapi.Deserialize(&ueN1N2InfoSubscriptionCreateData, requestBody, applicationjson)\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleN1N2MessageSubscribeRequest(c, ueN1N2InfoSubscriptionCreateData)\n}\n\nfunc (s *Server) HTTPNonUeN2InfoUnSubscribe(c *gin.Context) {\n\tlogger.CommLog.Warnf(\"Handle Non Ue N2 Info UnSubscribe is not implemented.\")\n\tc.JSON(http.StatusNotImplemented, gin.H{})\n}\n\nfunc (s *Server) HTTPNonUeN2MessageTransfer(c *gin.Context) {\n\tlogger.CommLog.Warnf(\"Handle Non Ue N2 Message Transfer is not implemented.\")\n\tc.JSON(http.StatusNotImplemented, gin.H{})\n}\n\nfunc (s *Server) HTTPNonUeN2InfoSubscribe(c *gin.Context) {\n\tlogger.CommLog.Warnf(\"Handle Non Ue N2 Info Subscribe is not implemented.\")\n\tc.JSON(http.StatusNotImplemented, gin.H{})\n}\n\nfunc (s *Server) HTTPAMFStatusChangeSubscribe(c *gin.Context) {\n\tvar subscriptionData models.AmfCommunicationSubscriptionData\n\n\trequestBody, err := c.GetRawData()\n\tif err != nil {\n\t\tlogger.CommLog.Errorf(\"Get Request Body error: %+v\", err)\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"System failure\",\n\t\t\tStatus: http.StatusInternalServerError,\n\t\t\tDetail: err.Error(),\n\t\t\tCause:  \"SYSTEM_FAILURE\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)\n\t\tc.JSON(http.StatusInternalServerError, problemDetail)\n\t\treturn\n\t}\n\n\terr = openapi.Deserialize(&subscriptionData, requestBody, applicationjson)\n\tif err != nil {\n\t\tproblemDetail := reqbody + err.Error()\n\t\trsp := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: problemDetail,\n\t\t}\n\t\tlogger.CommLog.Errorln(problemDetail)\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(http.StatusBadRequest))\n\t\tc.JSON(http.StatusBadRequest, rsp)\n\t\treturn\n\t}\n\ts.Processor().HandleAMFStatusChangeSubscribeRequest(c, subscriptionData)\n}\n```\n\n---\n\n## Question\n\nIdentify all security vulnerabilities or logic errors present in this file. For each finding:\n\n1. Name the vulnerability class or error type\n2. Identify the exact function(s) where the issue occurs and describe the specific code pattern\n3. Explain the security impact in the context of the AMF in a 5G core network\n4. Propose a correct fix\n\n---\n\n## Agent Instructions\n\nReply ONLY in Markdown using this template:\n\n```md\n### Reasoning\nDetailed analysis for each finding: class, location, impact, fix\n\n### Answer\nBrief summary of main findings (1-3 sentences)\n\n### Confidence\n0.0\n```\n\n\n**System context:** the code under review is a Network Function (NF) inside a 5G core network (free5GC architecture). In a standard 5G core deployment, the Service-Based Interface (SBI) between NFs runs behind mutual TLS and OAuth2 authorization by default. Use this when judging the *impact* (confidentiality/integrity/availability) of a vulnerability: do not assume a bug automatically exposes data \u2014 consider what is actually reachable or corrupted given this baseline.\n\n\n---\n\n## CVSS Estimate (required)\n\nFor each vulnerability reported in your Answer, also estimate its CVSS 4.0 base\nmetrics. Add this exact section to your response, between Reasoning and Confidence,\nrepeating the four lines below for each finding. Each finding names exactly ONE\nfunction: if the same vulnerability affects several functions, repeat the whole\nblock once per affected function (same vector/score, one `function:` line each)\ninstead of listing multiple function names in a single line.\n\n### CVSS Estimate\n- function: <name of the Go function containing the issue>\n- vector: CVSS:4.0/AV:_/AC:_/AT:_/PR:_/UI:_/VC:_/VI:_/VA:_/SC:_/SI:_/SA:_\n- score: <your estimated CVSS 4.0 base score, 0.0-10.0>\n- snippet: <one exact line of code, copied verbatim from the source above, that supports this finding>\n\nReplace each `_` in the vector with one of the allowed values:\n\n- AV Attack Vector: N (Network), A (Adjacent), L (Local), P (Physical)\n- AC Attack Complexity: L (Low), H (High)\n- AT Attack Requirements: N (None), P (Present)\n- PR Privileges Required: N (None), L (Low), H (High)\n- UI User Interaction: N (None), P (Passive), A (Active)\n- VC / VI / VA Confidentiality / Integrity / Availability impact on the\n  vulnerable system: H (High), L (Low), N (None)\n- SC / SI / SA Confidentiality / Integrity / Availability impact on\n  subsequent systems (other components reachable from the vulnerable one):\n  H (High), L (Low), N (None)\n",
+          "sgv_eval": {
+            "passed": true,
+            "per_finding": [
+              {
+                "function": "HTTPAMFStatusChangeSubscribeModify",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HTTPCreateUEContext",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HTTPEBIAssignment",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HTTPRegistrationStatusUpdate",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HTTPReleaseUEContext",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HTTPUEContextTransfer",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HTTPN1N2MessageTransfer",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HTTPN1N2MessageSubscribe",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HTTPAMFStatusChangeSubscribe",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              }
+            ],
+            "feedback": null
+          },
+          "judge_score": {
+            "missing_default_score": 4.0,
+            "inconsistent_context_set_score": 3.0,
+            "impact_assessment_score": 2.0,
+            "total_score": 9.0,
+            "feedback": "The agent correctly identified all three critical issues defined in the rubric:\n1. **Missing Default Case**: It specifically pinpointed `HTTPUEContextTransfer`, explained that `err` remains `nil` for unknown Content-Types, and correctly identified that this leads to the processor being called with uninitialized request data.\n2. **Inconsistent Context Set**: It identified that several handlers pass the full `ProblemDetails` struct to `c.Set` while others pass `.Cause`, and correctly noted the risk of type assertion panics/mismatches in the consuming middleware.\n3. **Impact Assessment**: The agent provided a high-quality impact assessment within the AMF context, mentioning potential Null Pointer Dereferences (panics) in the processor due to uninitialized UE context transfer and runtime panics in the middleware.",
+            "judge_elapsed_seconds": 3.12,
+            "normalized_score": 1.0
+          },
+          "verdict": "correct"
+        }
+      ],
+      "final_answer": {
+        "answer": "The code exhibits systemic information leakage through verbose error responses and fragile HTTP header handling. Specifically, the `HTTPUEContextTransfer` handler fails to handle unsupported content types, allowing uninitialized data to reach the business logic processor. Additionally, inconsistent types are being stored in the Gin context, which may lead to runtime panics.",
+        "reasoning": "1. **Information Exposure via Error Messages**: In multiple handlers (`HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`), the code returns `err.Error()` or a concatenated string `reqbody + err.Error()` directly to the client in the `ProblemDetails` response. While the SBI is typically protected by mTLS, leaking internal deserialization errors or system failure details can provide an attacker with insights into the internal data structures and library versions (e.g., `openapi` package internals), facilitating further targeted attacks.\n\n2. **Improper Input Validation (Content-Type Handling)**: In `HTTPCreateUEContext`, `HTTPUEContextTransfer`, and `HTTPN1N2MessageTransfer`, the code performs `strings.Split(contentType, \";\")` and accesses `str[0]` without checking if the `Content-Type` header is present or if the split resulted in at least one element. If the header is missing, `c.GetHeader` returns an empty string, and `strings.Split` returns a slice containing one empty string. While this doesn't cause a panic here, it leads to a \"wrong content type\" error. More critically, in `HTTPUEContextTransfer`, the `default` case in the switch is missing, meaning if an unsupported content type is provided, `err` remains `nil` (from the previous `GetRawData` check), and the code proceeds to call `s.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)` with an uninitialized/empty request object, potentially causing a Null Pointer Dereference or logic error in the processor.\n\n3. **Inconsistent Context State Management**: In `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, and `HTTPUEContextTransfer`, the code calls `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)`. In other functions like `HTTPAMFStatusChangeSubscribeModify`, it calls `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)`. Passing the entire `ProblemDetails` struct into a context variable expected to be a string (based on the naming convention `_STR`) can lead to type assertion panics or corrupted logs in the middleware/processor that consumes this context.",
+        "confidence": 0.95,
+        "cvss_estimate": {
+          "findings": [
+            {
+              "function": "HTTPAMFStatusChangeSubscribeModify",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 2.3,
+              "snippet": "Detail: err.Error(),"
+            },
+            {
+              "function": "HTTPCreateUEContext",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 2.3,
+              "snippet": "Detail: problemDetail,"
+            },
+            {
+              "function": "HTTPEBIAssignment",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 2.3,
+              "snippet": "Detail: problemDetail,"
+            },
+            {
+              "function": "HTTPRegistrationStatusUpdate",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 2.3,
+              "snippet": "Detail: problemDetail,"
+            },
+            {
+              "function": "HTTPReleaseUEContext",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 2.3,
+              "snippet": "Detail: problemDetail,"
+            },
+            {
+              "function": "HTTPUEContextTransfer",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "s.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)"
+            },
+            {
+              "function": "HTTPN1N2MessageTransfer",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 2.3,
+              "snippet": "Detail: problemDetail,"
+            },
+            {
+              "function": "HTTPN1N2MessageSubscribe",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 2.3,
+              "snippet": "Detail: err.Error(),"
+            },
+            {
+              "function": "HTTPAMFStatusChangeSubscribe",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 2.3,
+              "snippet": "Detail: err.Error(),"
+            }
+          ]
+        }
+      },
+      "verdict": "correct",
+      "judge_score": {
+        "missing_default_score": 4.0,
+        "inconsistent_context_set_score": 3.0,
+        "impact_assessment_score": 2.0,
+        "total_score": 9.0,
+        "feedback": "The agent correctly identified all three critical issues defined in the rubric:\n1. **Missing Default Case**: It specifically pinpointed `HTTPUEContextTransfer`, explained that `err` remains `nil` for unknown Content-Types, and correctly identified that this leads to the processor being called with uninitialized request data.\n2. **Inconsistent Context Set**: It identified that several handlers pass the full `ProblemDetails` struct to `c.Set` while others pass `.Cause`, and correctly noted the risk of type assertion panics/mismatches in the consuming middleware.\n3. **Impact Assessment**: The agent provided a high-quality impact assessment within the AMF context, mentioning potential Null Pointer Dereferences (panics) in the processor due to uninitialized UE context transfer and runtime panics in the middleware.",
+        "judge_elapsed_seconds": 3.12,
+        "normalized_score": 1.0
+      },
+      "cvss_eval": {
+        "estimate_provided": true,
+        "n_findings": 9,
+        "n_target_cves": 1,
+        "matched": [
+          {
+            "cve_id": "CVE-2026-41136",
+            "function": "HTTPUEContextTransfer",
+            "estimated_score": 5.3,
+            "published_score": 5.5,
+            "published_score_type": "BT",
+            "score_band_vs_published": 3,
+            "score_band_vs_B": 1,
+            "exploitability_match": 4,
+            "impact_match": 1,
+            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N",
+            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N/E:P",
+            "exploitability_distance": 0.1,
+            "impact_distance": 0.333,
+            "subsequent_match": 3,
+            "subsequent_distance": 0.0,
+            "hamming_distance": 3,
+            "computed_score_B": 5.3,
+            "computed_delta_vs_B": 1.6,
+            "score_band_computed_vs_B": 1,
+            "score_coherence_delta": 0.0
+          }
+        ],
+        "missed_cves": [],
+        "unmatched_findings": 8,
+        "unmatched": [
+          {
+            "function": "HTTPAMFStatusChangeSubscribeModify",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HTTPCreateUEContext",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HTTPEBIAssignment",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HTTPRegistrationStatusUpdate",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HTTPReleaseUEContext",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HTTPN1N2MessageTransfer",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HTTPN1N2MessageSubscribe",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HTTPAMFStatusChangeSubscribe",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          }
+        ],
+        "aggregates": {
+          "avg_score_band_vs_published": 3.0,
+          "avg_score_band_vs_B": 1.0,
+          "avg_exploitability_match": 4.0,
+          "avg_impact_match": 1.0,
+          "avg_score_coherence_delta": 0.0,
+          "avg_computed_delta_vs_B": 1.6,
+          "avg_score_band_computed_vs_B": 1.0,
+          "avg_exploitability_distance": 0.1,
+          "avg_impact_distance": 0.333,
+          "avg_subsequent_match": 3.0,
+          "avg_subsequent_distance": 0.0,
+          "avg_hamming_distance": 3.0
+        }
+      },
+      "tokens": {
+        "agent_in": null,
+        "agent_out": null,
+        "judge_in": null,
+        "judge_out": null
+      },
+      "cvss_eval_pass1": {
+        "estimate_provided": true,
+        "n_findings": 9,
+        "n_target_cves": 1,
+        "matched": [
+          {
+            "cve_id": "CVE-2026-41136",
+            "function": "HTTPUEContextTransfer",
+            "estimated_score": 5.3,
+            "published_score": 5.5,
+            "published_score_type": "BT",
+            "score_band_vs_published": 3,
+            "score_band_vs_B": 1,
+            "exploitability_match": 4,
+            "impact_match": 1,
+            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N",
+            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N/E:P",
+            "exploitability_distance": 0.1,
+            "impact_distance": 0.333,
+            "subsequent_match": 3,
+            "subsequent_distance": 0.0,
+            "hamming_distance": 3,
+            "computed_score_B": 5.3,
+            "computed_delta_vs_B": 1.6,
+            "score_band_computed_vs_B": 1,
+            "score_coherence_delta": 0.0
+          }
+        ],
+        "missed_cves": [],
+        "unmatched_findings": 8,
+        "unmatched": [
+          {
+            "function": "HTTPAMFStatusChangeSubscribeModify",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HTTPCreateUEContext",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HTTPEBIAssignment",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HTTPRegistrationStatusUpdate",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HTTPReleaseUEContext",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HTTPN1N2MessageTransfer",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HTTPN1N2MessageSubscribe",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HTTPAMFStatusChangeSubscribe",
+            "declared_score": 2.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          }
+        ],
+        "aggregates": {
+          "avg_score_band_vs_published": 3.0,
+          "avg_score_band_vs_B": 1.0,
+          "avg_exploitability_match": 4.0,
+          "avg_impact_match": 1.0,
+          "avg_score_coherence_delta": 0.0,
+          "avg_computed_delta_vs_B": 1.6,
+          "avg_score_band_computed_vs_B": 1.0,
+          "avg_exploitability_distance": 0.1,
+          "avg_impact_distance": 0.333,
+          "avg_subsequent_match": 3.0,
+          "avg_subsequent_distance": 0.0,
+          "avg_hamming_distance": 3.0
+        }
+      }
+    }
+  ]
+}
