@@ -318,6 +318,79 @@ def _build_scores_table(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
     return lines
 
 
+def _build_sgv_section(all_payloads: List[Dict[str, Any]]) -> List[str]:
+    """SGV (docs/sgv_protocol/): deterministic in-loop gate, no ground truth,
+    reported separately from the rubric retries below. Current design choice
+    (2026-07-14, see doc 06): a finding that never passes G1-G4 within
+    MAX_RETRIES is NOT discarded — it's still scored downstream. This
+    section is how that gets surfaced instead of silently disappearing into
+    the raw JSON's per-attempt `sgv_eval`."""
+    per_rep = []
+    for p in all_payloads:
+        sgv_events = [h.get("sgv_eval") for h in (p.get("history") or []) if h.get("sgv_eval") is not None]
+        if not sgv_events:
+            continue
+        n_fail_attempts = sum(1 for e in sgv_events if not e.get("passed", True))
+        per_rep.append((p, n_fail_attempts, sgv_events[-1]))
+
+    if not per_rep:
+        return []
+
+    triggered = [(p, n, final) for p, n, final in per_rep if n > 0]
+    still_failing = [(p, n, final) for p, n, final in triggered if not final.get("passed", True)]
+
+    lines = [
+        '<a id="sgv"></a>',
+        "## SGV — Syntactic Grounding Verifier (Blocco C, deterministic, no ground truth)",
+        "",
+        "| metric | value |",
+        "| --- | --- |",
+        f"| repetitions with at least one SGV retry | {len(triggered)} |",
+        f"| repetitions where SGV never passed (scored downstream anyway) | {len(still_failing)} |",
+        "",
+    ]
+
+    if still_failing:
+        lines += [f"#### Let through despite failing G1–G4 ({len(still_failing)})", ""]
+        lines += [
+            "| role | task_id | rep | attempts | failing finding | checks |",
+            "| --- | --- | --- | --- | --- | --- |",
+        ]
+        for p, n, final in still_failing:
+            for pf in final.get("per_finding", []):
+                if pf.get("passed", True):
+                    continue
+                bad = "; ".join(f"{k}: {v}" for k, v in pf.get("checks", {}).items() if v != "ok")
+                lines.append(
+                    f"| {p['_role']} | {p.get('task_id')} | {p.get('repetition')} | "
+                    f"{p.get('attempts')} | `{pf.get('function')}` | {bad} |"
+                )
+        lines += [
+            "",
+            "**Legend**",
+            "",
+            "- These findings failed G1–G4 on every attempt up to `MAX_RETRIES` and were still passed on to the rubric judge and the CVSS matching above — the SGV never discards, it only flags (design choice, see `docs/sgv_protocol/06_implementazione_2026-07-14.md`).",
+            "- `checks` = which G1–G4 check failed on the last attempt, and why.",
+            "",
+        ]
+
+    resolved = [(p, n, final) for p, n, final in triggered if final.get("passed", True)]
+    if resolved:
+        lines += [f"#### Retries resolved by the agent ({len(resolved)})", ""]
+        lines += [
+            "| role | task_id | rep | attempts | fixed on attempt |",
+            "| --- | --- | --- | --- | --- |",
+        ]
+        for p, n, final in resolved:
+            lines.append(
+                f"| {p['_role']} | {p.get('task_id')} | {p.get('repetition')} | "
+                f"{p.get('attempts')} | {p.get('attempts')} |"
+            )
+        lines.append("")
+
+    return lines
+
+
 def _build_cvss_section(
     roles: Dict[str, List[Dict[str, Any]]], experiment_id: str, results_path: str
 ) -> List[str]:
@@ -1070,9 +1143,12 @@ def _build_experiment_report(
     # reader calibrates on "is this agent talking sense" from the detail
     # first, then uses the aggregates for a global summary — not the other
     # way around (2026-07-13 feedback).
+    sgv_lines = _build_sgv_section(all_payloads)
     cvss_lines = _build_cvss_section(filtered_roles, experiment_id, results_path)
 
     toc = ['<a id="toc"></a>', "**Contents**", ""]
+    if sgv_lines:
+        toc.append("- [SGV — Syntactic Grounding Verifier](#sgv)")
     if '<a id="vector-detail"></a>' in cvss_lines:
         toc.append("- [Vector detail (estimated vs. published)](#vector-detail)")
     if '<a id="unmatched-findings"></a>' in cvss_lines:
@@ -1089,6 +1165,7 @@ def _build_experiment_report(
     toc.append("")
     lines += toc
 
+    lines += sgv_lines
     lines += cvss_lines
     lines += ["", "---", ""]
     lines += ['<a id="rubric-evaluation"></a>', "## Rubric evaluation (Blocco A, LLM judge)", ""]
