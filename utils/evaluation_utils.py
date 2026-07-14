@@ -639,17 +639,16 @@ def _build_severity_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> L
     accepted answer, not a property of the retry loop."""
     from utils.cvss_eval import EXPLOITABILITY_METRICS, IMPACT_METRICS, SUBSEQUENT_METRICS, aggregate_severity_metrics
 
-    task_ids = {p.get("task_id") for payloads in roles.values() for p in payloads if p.get("task_id")}
-    if len(task_ids) != 1:
+    task_ids = sorted({p.get("task_id") for payloads in roles.values() for p in payloads if p.get("task_id")})
+    if not task_ids:
         return []
-    task_id = next(iter(task_ids))
 
     by_role = {}
     for role, payloads in sorted(roles.items()):
         evals = [p["cvss_eval"] for p in payloads if isinstance(p.get("cvss_eval"), dict)]
         if not evals:
             continue
-        agg = aggregate_severity_metrics(task_id, evals)
+        agg = aggregate_severity_metrics(task_ids, evals)
         if agg:
             by_role[role] = agg
     if not by_role:
@@ -693,12 +692,13 @@ def _build_severity_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> L
         "- `S1 exact match` = share of TP findings whose *entire* estimated vector "
         "(8 base metrics, 11 when SC/SI/SA were emitted) matches the published one field "
         "for field.",
-        "- `S3 baseline` = a null model that always guesses the modal vector among this "
-        "task's target CVEs — read S1/accuracy as a margin **above** this, not in "
-        "absolute terms. On tasks with a single target CVE the baseline degenerates to "
-        "100% by construction (the modal vector of one CVE is that CVE's own vector) — "
-        "real property of the dataset, not a bug; the margin is only informative when a "
-        "task has several target CVEs with differing vectors.",
+        "- `S3 baseline` = a null model that always guesses the modal vector among the "
+        "target CVEs in scope (one task, or every task pooled together) — read "
+        "S1/accuracy as a margin **above** this, not in absolute terms. With a single "
+        "target CVE in scope the baseline degenerates to 100% by construction (the modal "
+        "vector of one CVE is that CVE's own vector) — real property of the dataset, not "
+        "a bug; the margin is only informative with several target CVEs with differing "
+        "vectors in scope.",
         "- `avg ordinal distance` (0-1, 0 = identical, 1 = opposite ends of the scale) — "
         "severity-aware: a None→High miss is penalized more than a None→Low one.",
         "",
@@ -1441,6 +1441,30 @@ def _write_evaluation_reports(
         lines.append("")
         if not has_delta:
             lines.append("No accuracy difference between 1A and 1B.")
+
+        # Pooled M1-M3/S1-S3/M5 across every task the role ran, per experiment
+        # (docs/sgv_protocol/07_metriche_M_S_2026-07-14.md) — same section
+        # builders as the per-task reports, just fed the unfiltered roles dict
+        # for each experiment instead of one task's payloads. Per-task numbers
+        # are noisy with n=3 reps and few CVEs per task (e.g. S3 baseline
+        # degenerates to 100% on single-CVE tasks); pooling across all vuln
+        # tasks gives the statistically meaningful headline number.
+        for exp_id in ("1A", "1B"):
+            exp_roles = data.get(exp_id, {})
+            if task_filter is not None:
+                exp_roles = {
+                    role: [p for p in payloads if p.get("task_id") in task_filter]
+                    for role, payloads in exp_roles.items()
+                }
+            section_lines = (
+                _build_detection_metrics_section(exp_roles)
+                + _build_severity_metrics_section(exp_roles)
+                + _build_cost_metrics_section(exp_roles)
+            )
+            if section_lines:
+                lines += ["", f"## {exp_id} — pooled across all tasks", ""]
+                lines += section_lines
+
         (eval_dir / "comparison.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 

@@ -2,6 +2,16 @@
 
 ---
 
+## 2026-07-14 — Rollup pool-ato M1-M3/S1-S3/M5 in comparison.md  [sessione: 2e99bcd7]
+
+**Intent:** "le metriche M e S le abbiamo per ogni task, ha senso calcolarle anche a liv globale... o è già implementata?" — poi "vai esatto possiamo già usare quel file li comparison md no?"
+**Divergenze:** ho verificato che `comparison.md` già pool-a cross-task per ruolo (l'accuracy di riga oggi prende tutti i payload di un ruolo su tutti i task, non un task singolo) — quindi estenderlo con M/S/M5 non è un overload semantico ma coerente col significato già esistente del file; ho scelto di riusare 1:1 i tre section builder per-task (`_build_detection_metrics_section`, `_build_severity_metrics_section`, `_build_cost_metrics_section`) invece di scrivere una nuova aggregazione, perché già accettano un `roles` dict senza assumere un singolo task_id (tranne severity, che l'aveva)
+**Decisioni:** confermato da subito ("vai esatto"), nessuna opzione alternativa discussa
+**Esito/Problemi:** `aggregate_severity_metrics(task_id, ...)` in `utils/cvss_eval.py` richiedeva un singolo `task_id` per il baseline S3 (GT candidate CVEs); generalizzata ad accettare `Union[str, List[str]]` e a unire i candidati di tutti i task in scope. `_build_severity_metrics_section` non scarta più i multi-task. `comparison.md` ora ha due sezioni "1A/1B — pooled across all tasks" con Detection/Severity/Cost. Verificato su dati esistenti: nessuna nuova run, numeri per-task invariati (solo wording legenda S3 aggiornato per riflettere lo scope multi-task), pooled 1A mostra recall pass@1→pass@k 44.4%→55.6% e S3 baseline non degenere (0%) su tutti i vuln task insieme.
+**Lesson learned:** quando una funzione di aggregazione già accetta un `roles`/`evals` generico senza assumere per-task, il rollup globale è quasi gratis — l'unico vincolo reale era la baseline S3 (dataset property), risolto generalizzando la firma anziché duplicando la logica.
+
+---
+
 ## 2026-07-14 — M4 chiarita come domanda aperta per il gruppo  [sessione: 2e99bcd7]
 
 **Intent:** "io pensavo fosse M4 che avevamo balzato da fare dopo... ho sbagliato a scrivere M5" — l'utente intendeva M4, non M5 (già implementata nel turno precedente su richiesta letterale "M5?")

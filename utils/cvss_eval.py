@@ -35,7 +35,7 @@ import json
 import logging
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from cvss import CVSS4
 
@@ -402,16 +402,21 @@ def _modal_vector(vectors: List[Dict[str, str]]) -> Dict[str, str]:
     return modal
 
 
-def aggregate_severity_metrics(task_id: str, evals: List[Dict[str, Any]]) -> Dict[str, Any]:
+def aggregate_severity_metrics(task_ids: Union[str, List[str]], evals: List[Dict[str, Any]]) -> Dict[str, Any]:
     """S1 (exact vector match), S2 (per-metric accuracy + ordinal distance),
     S3 (baseline: a null model that always guesses the modal GT vector) —
     §5.2 of the proposal, computed only on TP (matched findings).
 
-    S3 needs the full set of GT vectors for this task's candidate CVEs (not
-    just the ones the agent matched) since the baseline is a property of the
-    dataset, not of what the agent happened to find — hence `task_id` here
-    rather than deriving everything from `evals`.
+    S3 needs the full set of GT vectors for the candidate CVEs of every task
+    in scope (not just the ones the agent matched) since the baseline is a
+    property of the dataset, not of what the agent happened to find — hence
+    `task_ids` here rather than deriving everything from `evals`. Accepts
+    either a single task_id (per-task report) or a list (pooled cross-task
+    rollup, e.g. comparison.md): the baseline is the modal vector over the
+    union of every task's candidate CVEs.
     """
+    if isinstance(task_ids, str):
+        task_ids = [task_ids]
     findings = [m for e in evals for m in e.get("matched", []) if "estimated_vector" in m]
     if not findings:
         return {}
@@ -442,7 +447,10 @@ def aggregate_severity_metrics(task_id: str, evals: List[Dict[str, Any]]) -> Dic
 
     published_vectors = [_parse_vector(f.get("published_vector") or "") for f in findings]
     candidate_vectors = [
-        cve["cvss"]["base_metrics"] for cve in _candidate_cves(task_id) if cve.get("cvss", {}).get("base_metrics")
+        cve["cvss"]["base_metrics"]
+        for task_id in task_ids
+        for cve in _candidate_cves(task_id)
+        if cve.get("cvss", {}).get("base_metrics")
     ]
     modal = _modal_vector(candidate_vectors or published_vectors)
 
