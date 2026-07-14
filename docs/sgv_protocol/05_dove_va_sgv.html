@@ -283,9 +283,9 @@
 
 <!-- 03 · IMPLEMENTAZIONE -->
 <section id="s03">
-    <div class="eyebrow">SGV &middot; Livello 0 &middot; Implementato (2026-07-14)</div>
-    <h2>G1, G2, G4 sempre attivi &middot; G3 opzionale, deciso all'origine nel prompt</h2>
-    <p class="subtitle">Codice reale in <code>utils/sgv.py</code>, nodo <code>check_sgv</code> nel grafo LangGraph (<code>utils/experiment_utils.py</code>). "Opzionale" per G3 non significa un controllo saltato a valle su un dato gi&agrave; presente: il flag <code>config.SGV_SNIPPET_ENABLED</code> decide <strong>gi&agrave; nel prompt</strong> se chiedere o meno la riga <code>snippet</code> &mdash; se &egrave; <code>False</code> quella riga non viene richiesta e G3 non ha nulla da verificare.</p>
+    <div class="eyebrow">SGV &middot; Livello 0 &middot; Implementato + prima run reale (2026-07-14)</div>
+    <h2>G1, G2, G4 sempre attivi &middot; G3 opzionale, corretto dopo la prima run</h2>
+    <p class="subtitle">Codice reale in <code>utils/sgv.py</code>, nodo <code>check_sgv</code> nel grafo LangGraph (<code>utils/experiment_utils.py</code>). "Opzionale" per G3 non significa un controllo saltato a valle su un dato gi&agrave; presente: il flag <code>config.SGV_SNIPPET_ENABLED</code> decide <strong>gi&agrave; nel prompt</strong> se chiedere o meno la riga <code>snippet</code> &mdash; se &egrave; <code>False</code> quella riga non viene richiesta e G3 non ha nulla da verificare. Due run reali (task5&ndash;9, 15 casi) hanno gi&agrave; trovato e corretto 2 bug &mdash; dettagli sotto.</p>
     <div class="flow-wrap">
         <svg viewBox="0 0 1180 440" xmlns="http://www.w3.org/2000/svg" font-family="'Inter',sans-serif">
           <defs>
@@ -304,19 +304,23 @@
           <line x1="91" y1="215" x2="112" y2="215" stroke="#7a5018" stroke-width="1.6" marker-end="url(#a3)"/>
 
           <!-- AGENTE LLM -->
-          <rect x="117" y="120" width="165" height="190" rx="10" fill="rgba(122,80,24,0.06)" stroke="#7a5018" stroke-width="1.5"/>
-          <text x="199" y="141" text-anchor="middle" font-size="9.5" fill="#7a5018" font-weight="700" letter-spacing="1">AGENTE LLM</text>
-          <text x="199" y="157" text-anchor="middle" font-size="7.5" fill="#78706e" font-family="'IBM Plex Mono',monospace">agents/prompts.py</text>
-          <text x="199" y="176" text-anchor="middle" font-size="8" fill="#1c1a17">Answer/Reasoning</text>
-          <text x="199" y="189" text-anchor="middle" font-size="8" fill="#1c1a17">+ ### CVSS Estimate:</text>
-          <text x="199" y="204" text-anchor="middle" font-size="7.6" fill="#1c1a17">function / vector / score</text>
-          <rect x="130" y="212" width="139" height="42" rx="6" fill="rgba(184,132,58,0.1)" stroke="#b8843a" stroke-width="1" stroke-dasharray="3,2"/>
-          <text x="199" y="228" text-anchor="middle" font-size="7.3" fill="#92400E" font-weight="600">+ snippet</text>
-          <text x="199" y="240" text-anchor="middle" font-size="6.8" fill="#92400E">richiesto solo se</text>
-          <text x="199" y="250" text-anchor="middle" font-size="6.8" fill="#92400E">SGV_SNIPPET_ENABLED=True</text>
-          <text x="199" y="270" text-anchor="middle" font-size="7.3" fill="#78706e">(default: True &rarr; riga</text>
-          <text x="199" y="282" text-anchor="middle" font-size="7.3" fill="#78706e">chiesta gi&agrave; nel prompt)</text>
-          <text x="199" y="298" text-anchor="middle" font-size="7" fill="#1b5e20" font-weight="600">stesso output di prima + 1 riga</text>
+          <rect x="117" y="105" width="165" height="215" rx="10" fill="rgba(122,80,24,0.06)" stroke="#7a5018" stroke-width="1.5"/>
+          <text x="199" y="124" text-anchor="middle" font-size="9.5" fill="#7a5018" font-weight="700" letter-spacing="1">AGENTE LLM</text>
+          <text x="199" y="139" text-anchor="middle" font-size="7.5" fill="#78706e" font-family="'IBM Plex Mono',monospace">agents/prompts.py</text>
+          <text x="199" y="157" text-anchor="middle" font-size="8" fill="#1c1a17">Answer/Reasoning</text>
+          <text x="199" y="170" text-anchor="middle" font-size="8" fill="#1c1a17">+ ### CVSS Estimate:</text>
+          <text x="199" y="184" text-anchor="middle" font-size="7.6" fill="#1c1a17">function / vector / score</text>
+          <rect x="130" y="191" width="139" height="40" rx="6" fill="rgba(184,132,58,0.1)" stroke="#b8843a" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="199" y="205" text-anchor="middle" font-size="7.3" fill="#92400E" font-weight="600">+ snippet</text>
+          <text x="199" y="216" text-anchor="middle" font-size="6.6" fill="#92400E">solo se SGV_SNIPPET_</text>
+          <text x="199" y="226" text-anchor="middle" font-size="6.6" fill="#92400E">ENABLED=True (default)</text>
+          <rect x="130" y="235" width="139" height="36" rx="6" fill="rgba(139,32,32,0.07)" stroke="#8b2020" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="199" y="248" text-anchor="middle" font-size="6.8" fill="#8b2020" font-weight="600">1 funzione per finding</text>
+          <text x="199" y="259" text-anchor="middle" font-size="6.5" fill="#8b2020">ripeti il blocco se ne</text>
+          <text x="199" y="268" text-anchor="middle" font-size="6.5" fill="#8b2020">coinvolge pi&ugrave; di una</text>
+          <text x="199" y="286" text-anchor="middle" font-size="6.8" fill="#78706e">fix 2026-07-14: prima run</text>
+          <text x="199" y="296" text-anchor="middle" font-size="6.8" fill="#78706e">aveva trovato un blob multi-nome</text>
+          <text x="199" y="308" text-anchor="middle" font-size="6.6" fill="#1b5e20" font-weight="600">resto invariato rispetto a prima</text>
           <line x1="282" y1="215" x2="303" y2="215" stroke="#7a5018" stroke-width="1.6" marker-end="url(#a3)"/>
 
           <!-- PARSING esistente -->
@@ -366,23 +370,25 @@
           <rect x="695" y="108" width="205" height="278" rx="8" fill="rgba(184,132,58,0.09)" stroke="#b8843a" stroke-width="1.6" stroke-dasharray="6,4"/>
           <text x="797" y="128" text-anchor="middle" font-size="8.7" fill="#92400E" font-weight="700">G3 &middot; groundedness snippet</text>
           <text x="797" y="143" text-anchor="middle" font-size="7.2" fill="#78706e" font-family="'IBM Plex Mono',monospace">g3_groundedness_check()</text>
-          <rect x="710" y="152" width="175" height="46" rx="6" fill="#fff" stroke="#b8843a" stroke-width="1" stroke-dasharray="3,2"/>
-          <text x="797" y="168" text-anchor="middle" font-size="7.4" fill="#92400E" font-weight="700">OPZIONALE</text>
-          <text x="797" y="181" text-anchor="middle" font-size="6.8" fill="#1c1a17" font-family="'IBM Plex Mono',monospace">SGV_SNIPPET_ENABLED</text>
-          <text x="797" y="192" text-anchor="middle" font-size="6.8" fill="#1c1a17">default: True</text>
-          <text x="797" y="216" text-anchor="middle" font-size="7" fill="#1c1a17">1&deg; substring esatto</text>
-          <text x="797" y="228" text-anchor="middle" font-size="7" fill="#1c1a17">(whitespace-normalizzato)</text>
-          <text x="797" y="246" text-anchor="middle" font-size="7" fill="#1c1a17">2&deg; fallback Jaccard sui</text>
-          <text x="797" y="258" text-anchor="middle" font-size="7" fill="#1c1a17">token, soglia 0.8</text>
-          <line x1="710" y1="272" x2="885" y2="272" stroke="#b8843a" stroke-width="1" stroke-dasharray="2,3"/>
-          <text x="797" y="290" text-anchor="middle" font-size="6.8" fill="#8b2020" font-weight="600">se flag=False:</text>
-          <text x="797" y="302" text-anchor="middle" font-size="6.6" fill="#78706e">non si chiede la riga nel</text>
-          <text x="797" y="313" text-anchor="middle" font-size="6.6" fill="#78706e">prompt (slide, box AGENTE)</text>
-          <text x="797" y="326" text-anchor="middle" font-size="6.6" fill="#78706e">&rarr; G3 non gira: nessun</text>
-          <text x="797" y="337" text-anchor="middle" font-size="6.6" fill="#78706e">dato da controllare, non</text>
-          <text x="797" y="348" text-anchor="middle" font-size="6.6" fill="#78706e">un controllo saltato su</text>
-          <text x="797" y="359" text-anchor="middle" font-size="6.6" fill="#78706e">un dato gi&agrave; presente</text>
-          <text x="797" y="374" text-anchor="middle" font-size="6.8" fill="#1c1a17" font-weight="600">flag deciso a monte, nel prompt</text>
+          <rect x="710" y="152" width="175" height="34" rx="6" fill="#fff" stroke="#b8843a" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="797" y="166" text-anchor="middle" font-size="7.4" fill="#92400E" font-weight="700">OPZIONALE</text>
+          <text x="797" y="178" text-anchor="middle" font-size="6.6" fill="#1c1a17" font-family="'IBM Plex Mono',monospace">SGV_SNIPPET_ENABLED, default True</text>
+          <text x="797" y="204" text-anchor="middle" font-size="6.9" fill="#1c1a17">1&deg; substring, spazi rimossi</text>
+          <text x="797" y="215" text-anchor="middle" font-size="6.9" fill="#1c1a17">attorno a punteggiatura</text>
+          <text x="797" y="226" text-anchor="middle" font-size="6.5" fill="#78706e" font-family="'IBM Plex Mono',monospace">_normalize_code()</text>
+          <text x="797" y="244" text-anchor="middle" font-size="6.9" fill="#1c1a17">2&deg; fallback Jaccard su</text>
+          <text x="797" y="255" text-anchor="middle" font-size="6.9" fill="#1c1a17">finestre di 1-3 righe</text>
+          <text x="797" y="266" text-anchor="middle" font-size="6.9" fill="#1c1a17">consecutive, soglia 0.8</text>
+          <text x="797" y="277" text-anchor="middle" font-size="6.5" fill="#78706e" font-family="'IBM Plex Mono',monospace">_windowed_jaccard()</text>
+          <rect x="710" y="286" width="175" height="46" rx="6" fill="rgba(139,32,32,0.07)" stroke="#8b2020" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="797" y="299" text-anchor="middle" font-size="6.7" fill="#8b2020" font-weight="700">fix 2026-07-14 (prima run)</text>
+          <text x="797" y="310" text-anchor="middle" font-size="6.3" fill="#8b2020">statement Go a capo su 2 righe:</text>
+          <text x="797" y="320" text-anchor="middle" font-size="6.3" fill="#8b2020">match riga-singola falso negativo</text>
+          <text x="797" y="330" text-anchor="middle" font-size="6.3" fill="#8b2020">&rarr; recuperato 1 match CVE reale</text>
+          <line x1="710" y1="340" x2="885" y2="340" stroke="#b8843a" stroke-width="1" stroke-dasharray="2,3"/>
+          <text x="797" y="353" text-anchor="middle" font-size="6.6" fill="#78706e">se flag=False: riga non chiesta</text>
+          <text x="797" y="364" text-anchor="middle" font-size="6.6" fill="#78706e">nel prompt &rarr; G3 non gira, nessun</text>
+          <text x="797" y="375" text-anchor="middle" font-size="6.6" fill="#78706e">dato da controllare (deciso a monte)</text>
 
           <!-- fail -> retry -->
           <path d="M540 55 Q400 30 300 30 Q210 30 200 118" fill="none" stroke="#8b2020" stroke-width="1.4" stroke-dasharray="5,3" marker-end="url(#r3)"/>
@@ -391,19 +397,23 @@
 
           <!-- pass -> continua -->
           <path d="M915 227 Q950 227 965 227" fill="none" stroke="#1a5faf" stroke-width="1.6" marker-end="url(#b3)"/>
-          <rect x="970" y="185" width="200" height="90" rx="10" fill="rgba(26,95,175,0.06)" stroke="#1a5faf" stroke-width="1.5"/>
-          <text x="1070" y="206" text-anchor="middle" font-size="8.7" fill="#1a5faf" font-weight="700" letter-spacing="0.5">check_sgv &rarr; check_answer</text>
-          <text x="1070" y="222" text-anchor="middle" font-size="7.2" fill="#78706e" font-family="'IBM Plex Mono',monospace">experiment_utils.py</text>
-          <text x="1070" y="240" text-anchor="middle" font-size="7.4" fill="#1c1a17">pass &rarr; prosegue verso</text>
-          <text x="1070" y="252" text-anchor="middle" font-size="7.4" fill="#1c1a17">Ramo A / Ramo B (slide 2)</text>
-          <text x="1070" y="266" text-anchor="middle" font-size="6.8" fill="#78706e">retry SGV e retry rubrica:</text>
+          <rect x="970" y="180" width="200" height="130" rx="10" fill="rgba(26,95,175,0.06)" stroke="#1a5faf" stroke-width="1.5"/>
+          <text x="1070" y="199" text-anchor="middle" font-size="8.7" fill="#1a5faf" font-weight="700" letter-spacing="0.5">check_sgv &rarr; check_answer</text>
+          <text x="1070" y="214" text-anchor="middle" font-size="7.2" fill="#78706e" font-family="'IBM Plex Mono',monospace">experiment_utils.py</text>
+          <text x="1070" y="231" text-anchor="middle" font-size="7.4" fill="#1c1a17">pass &rarr; prosegue verso</text>
+          <text x="1070" y="243" text-anchor="middle" font-size="7.4" fill="#1c1a17">Ramo A / Ramo B (slide 2)</text>
+          <text x="1070" y="259" text-anchor="middle" font-size="6.8" fill="#78706e">3&deg; fallito &rarr; passa comunque,</text>
+          <text x="1070" y="270" text-anchor="middle" font-size="6.8" fill="#78706e">niente scartato (scelta 2026-07-14)</text>
+          <line x1="985" y1="280" x2="1155" y2="280" stroke="#1a5faf" stroke-width="1" stroke-dasharray="2,3"/>
+          <text x="1070" y="293" text-anchor="middle" font-size="6.7" fill="#1a5faf" font-weight="600">ora visibile anche nel report</text>
+          <text x="1070" y="304" text-anchor="middle" font-size="6.5" fill="#78706e" font-family="'IBM Plex Mono',monospace">Blocco C, evaluation_utils.py</text>
         </svg>
     </div>
     <div class="callout amber">
         <strong>"Opzionale" &egrave; deciso all'origine, non a valle:</strong> <code>config.SGV_SNIPPET_ENABLED</code> (default <code>True</code>) decide se il prompt chiede o meno la riga <code>snippet</code>. Se <code>False</code>, l'output dell'agente resta esattamente a 3 righe (function/vector/score) come prima di questa implementazione, e G3 non viene eseguito &mdash; non perch&eacute; ignori un dato presente, ma perch&eacute; quel dato non &egrave; mai stato richiesto. G1, G2, G4 non dipendono da nessun flag: girano sempre sui task CVSS quando <code>config.SGV_ENABLED=True</code>.
     </div>
     <div class="callout teal">
-        <strong>Testato manualmente</strong> (non ancora su una run reale): 5 casi &mdash; finding valido, funzione inesistente (G2 &rarr; fail), vettore CVSS malformato (G4 &rarr; fail), snippet inventato (G3 &rarr; fail), parsing MD totalmente fallito (G1 &rarr; fail) &mdash; tutti i verdetti corretti. Dettagli e decisioni in <code>docs/sgv_protocol/06_implementazione_2026-07-14.md</code>.
+        <strong>Due run reali</strong> (task5&ndash;9, 1A, 15 casi ciascuna): la prima ha trovato 2 fallimenti su 15 &mdash; <strong>nessuna allucinazione del modello</strong>, entrambi bug del checker/prompt. G3: falso positivo su uno statement Go che il sorgente spezza su due righe fisiche (il caso &egrave; proprio il regex <code>|.+</code> dell'esperimento CVE "singolarit&agrave;", ricomparso qui). G2: il modello raggruppava correttamente pi&ugrave; funzioni collegate in un solo campo perch&eacute; il prompt non diceva cosa fare in quel caso. Corretti entrambi (vedi box a sinistra); la seconda run, con gli stessi 15 casi, non ha pi&ugrave; avuto retry SGV spuri, e il match CVSS bloccato dal falso positivo &egrave; stato recuperato. Dettagli in <code>docs/sgv_protocol/06_implementazione_2026-07-14.md</code>.
     </div>
 </section>
 
