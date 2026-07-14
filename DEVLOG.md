@@ -2,6 +2,15 @@
 
 ---
 
+## 2026-07-14 — M4 chiarita come domanda aperta per il gruppo  [sessione: 2e99bcd7]
+
+**Intent:** "io pensavo fosse M4 che avevamo balzato da fare dopo... ho sbagliato a scrivere M5" — l'utente intendeva M4, non M5 (già implementata nel turno precedente su richiesta letterale "M5?")
+**Divergenze:** ho proposto via `AskUserQuestion` tre opzioni per M4 (gosec, semgrep, resta rimandata) assumendo fosse una decisione tecnica risolvibile in sessione
+**Decisioni:** l'utente ha risposto con testo libero segnalando che l'aggiunta di un tool SAST è una nuova dipendenza di progetto (Poetry) e va **confermata con il resto del gruppo** prima di procedere — non implementata, nessuna azione presa oltre alla documentazione della domanda aperta in `docs/sgv_protocol/07_metriche_M_S_2026-07-14.md`
+**Lesson learned:** una scelta che introduce una dipendenza esterna condivisa (toolchain, non solo codice) supera l'autorità della sessione singola anche quando l'utente sembra dare il via libera a "procedere" — corretto fermarsi qui
+
+---
+
 ## 2026-07-14 — Metrica M5 (costo)  [sessione: 2e99bcd7]
 
 **Intent:** "implementa la metrica mancante (M5?)" — via libera a chiudere l'ultima metrica della proposta (M4 resta esplicitamente fuori)
