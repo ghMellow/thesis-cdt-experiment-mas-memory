@@ -66,11 +66,38 @@ def _normalize_whitespace(text: str) -> str:
     return re.sub(r"\s+", " ", text or "").strip()
 
 
+# Punctuation Go code wraps around freely when a statement spans multiple
+# physical lines (e.g. `MatchString(\n\t\t"...")`) — plain whitespace
+# collapse turns that newline into a stray space that a single-line citation
+# of the same code never has. Stripping space *adjacent to* punctuation
+# removes exactly that artifact without merging unrelated tokens together.
+_PUNCT_SPACE_RE = re.compile(r"\s*([(){}\[\],;])\s*")
+
+
+def _normalize_code(text: str) -> str:
+    collapsed = _normalize_whitespace(text)
+    return _PUNCT_SPACE_RE.sub(r"\1", collapsed)
+
+
 def _jaccard(a: str, b: str) -> float:
     ta, tb = set(a.split()), set(b.split())
     if not ta or not tb:
         return 0.0
     return len(ta & tb) / len(ta | tb)
+
+
+def _windowed_jaccard(snippet: str, source_text: str, max_window: int = 3) -> float:
+    """Best Jaccard similarity between the snippet and any window of up to
+    `max_window` consecutive source lines — catches statements the source
+    wraps across multiple physical lines, which a single-line comparison
+    (window=1) can't reconstruct."""
+    lines = [line for line in source_text.splitlines() if line.strip()]
+    best = 0.0
+    for window in range(1, max_window + 1):
+        for i in range(len(lines) - window + 1):
+            candidate = _normalize_code(" ".join(lines[i : i + window]))
+            best = max(best, _jaccard(snippet, candidate))
+    return best
 
 
 def g1_schema_check(
@@ -109,21 +136,20 @@ def g2_symbol_check(function_name: Any, source_functions: Set[str]) -> Tuple[boo
 def g3_groundedness_check(
     snippet: Any, source_text: str, threshold: float
 ) -> Tuple[bool, Optional[str]]:
-    """Snippet groundedness by exact substring, Jaccard fallback (§3.1, G3)."""
+    """Snippet groundedness (§3.1, G3), two deterministic levels:
+    1. exact substring, punctuation-space-normalized (a citation on one line
+       of a source statement that wraps across lines shouldn't fail on a
+       stray space);
+    2. Jaccard fallback over sliding windows of consecutive source lines
+       (not single lines — a multi-line statement has no single physical
+       line to match against)."""
     if not snippet or not str(snippet).strip():
         return False, "campo 'snippet' mancante o vuoto"
-    norm_snippet = _normalize_whitespace(str(snippet))
-    norm_source = _normalize_whitespace(source_text)
+    norm_snippet = _normalize_code(str(snippet))
+    norm_source = _normalize_code(source_text)
     if norm_snippet and norm_snippet in norm_source:
         return True, None
-    best = max(
-        (
-            _jaccard(norm_snippet, _normalize_whitespace(line))
-            for line in source_text.splitlines()
-            if line.strip()
-        ),
-        default=0.0,
-    )
+    best = _windowed_jaccard(norm_snippet, source_text)
     if best >= threshold:
         return True, None
     return False, (
