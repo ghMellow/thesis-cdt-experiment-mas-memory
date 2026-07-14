@@ -44,6 +44,10 @@ def _load_task(state: "ExperimentState") -> "ExperimentState":
     task_path = Path(state["task_path"])
     sol_path = Path(state["sol_path"])
 
+    # task_content below is read verbatim from docs/tasks/<task>.md and IS the
+    # prompt body sent to the agent (scenario + code + per-task output-format
+    # instructions) — see agents/prompts.py for where this fits in the full
+    # assembly order and for every other prompt-contributing piece.
     task_content = _read_text(task_path)
     sol_content = _read_text(sol_path)
     metadata = _parse_task_metadata(task_content)

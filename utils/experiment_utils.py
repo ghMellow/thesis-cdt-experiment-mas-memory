@@ -14,12 +14,11 @@ from langgraph.graph import END, StateGraph
 
 logger = logging.getLogger(__name__)
 
-from agents._llm_utils import _expected_score_fields
 from agents.agent_runner import run_agent
 from agents.judge_agent import run_judge_textual
 from agents.prompts import SYSTEM_PROMPTS
 import config
-from agents._llm_utils import resolve_model_config
+from agents._llm_utils import _expected_score_fields, resolve_model_config
 from utils.task_utils import _model_slug
 from config import (
     MAX_RETRIES,
@@ -50,7 +49,7 @@ def _fetch_model_context_window(model: str, base_url: str) -> Optional[int]:
     return None
 
 
-def _build_judge_prompt(rubric: Dict[str, Any]) -> str:
+def build_judge_prompt(rubric: Dict[str, Any]) -> str:
     """Generate a judge system prompt tailored to the task's rubric categories."""
     rubric_items = rubric.get("rubrica", {})
     total_max = rubric.get("total_max", 0)
@@ -63,7 +62,6 @@ def _build_judge_prompt(rubric: Dict[str, Any]) -> str:
             f"{k}={v}" for k, v in sorted(criteri.items(), key=lambda x: x[0], reverse=True)
         )
         criteria_lines.append(f"- {field} (0–{max_val}): {criteria_text}")
-
 
     criteria_block = "\n".join(criteria_lines)
     expected_fields = _expected_score_fields(rubric)
@@ -187,7 +185,7 @@ def _format_previous_answer(answer: Any) -> str:
     return str(answer)
 
 
-def _build_retry_task_content(task_content: str, history: list) -> str:
+def build_retry_task_content(task_content: str, history: list) -> str:
     last = history[-1]
     prev_reasoning = last.get("reasoning", "")
     prev_answer = _format_previous_answer(last.get("answer", ""))
@@ -212,7 +210,7 @@ def _run_agent(state: ExperimentState) -> ExperimentState:
     system_prompt = SYSTEM_PROMPTS[role]
     history = state.get("history", [])
     task_content = (
-        _build_retry_task_content(state["task_content"], history)
+        build_retry_task_content(state["task_content"], history)
         if history
         else state["task_content"]
     )
@@ -267,7 +265,7 @@ def _check_answer(state: ExperimentState) -> ExperimentState:
         task_content=state["task_content"],
         rubric=rubric,
         agent_response=state["final_answer"],
-        system_prompt=_build_judge_prompt(rubric),
+        system_prompt=build_judge_prompt(rubric),
         model=judge_model,
         temperature=config.TEMPERATURE,
         base_url=OLLAMA_BASE_URL,

@@ -1,7 +1,8 @@
 """CVSS estimate support for security-review tasks (experiment 2b, Blocco B).
 
 Adds a structured CVSS 4.0 estimate to the classifier output on `vuln` tasks:
-- `CVSS_PROMPT_BLOCK` is appended to the task content at load time
+- prompt text lives in `agents/prompts.py` (single source for prompt content,
+  see that file's docstring for the full assembly order)
 - `extract_cvss_estimate` parses the agent's `### CVSS Estimate` markdown
   section into the internal dict shape ({"findings": [...]})
 
@@ -16,53 +17,7 @@ import re
 from typing import Any, Dict, List, Optional
 
 import config
-
-# NF context hint (team discussion 2026-07-09, proposal by Lorenzo Cannella):
-# a human reviewer scores impact knowing the role of the NF inside the wider
-# system; the excerpt alone doesn't say it's free5GC or that SBI traffic runs
-# behind OAuth2/TLS by default. This is the minimal-cost variant, tested
-# before the more expensive option (passing the whole free5GC repo as context).
-NF_CONTEXT_HINT = """
-
-**System context:** the code under review is a Network Function (NF) inside \
-a 5G core network (free5GC architecture). In a standard 5G core deployment, \
-the Service-Based Interface (SBI) between NFs runs behind mutual TLS and \
-OAuth2 authorization by default. Use this when judging the *impact* \
-(confidentiality/integrity/availability) of a vulnerability: do not assume a \
-bug automatically exposes data — consider what is actually reachable or \
-corrupted given this baseline.
-"""
-
-# Legend gives the full value space per metric (never the ground-truth values).
-# Kept in sync with `_meta.legenda_metriche` in the normalized CVE dataset.
-CVSS_PROMPT_BLOCK = """
-
----
-
-## CVSS Estimate (required)
-
-For each vulnerability reported in your Answer, also estimate its CVSS 4.0 base
-metrics. Add this exact section to your response, between Reasoning and Confidence,
-repeating the three lines below for each finding:
-
-### CVSS Estimate
-- function: <name of the Go function containing the issue>
-- vector: CVSS:4.0/AV:_/AC:_/AT:_/PR:_/UI:_/VC:_/VI:_/VA:_/SC:_/SI:_/SA:_
-- score: <your estimated CVSS 4.0 base score, 0.0-10.0>
-
-Replace each `_` in the vector with one of the allowed values:
-
-- AV Attack Vector: N (Network), A (Adjacent), L (Local), P (Physical)
-- AC Attack Complexity: L (Low), H (High)
-- AT Attack Requirements: N (None), P (Present)
-- PR Privileges Required: N (None), L (Low), H (High)
-- UI User Interaction: N (None), P (Passive), A (Active)
-- VC / VI / VA Confidentiality / Integrity / Availability impact on the
-  vulnerable system: H (High), L (Low), N (None)
-- SC / SI / SA Confidentiality / Integrity / Availability impact on
-  subsequent systems (other components reachable from the vulnerable one):
-  H (High), L (Low), N (None)
-"""
+from agents.prompts import CVSS_PROMPT_BLOCK, NF_CONTEXT_HINT
 
 
 def is_cvss_task(task_id: str, task_type: str) -> bool:

@@ -16,6 +16,7 @@ from agents._llm_utils import (
     _start_spinner,
     build_llm,
 )
+from agents.prompts import SEMANTIC_CHECK_SYSTEM_PROMPT
 
 logger = logging.getLogger(__name__)
 
@@ -149,15 +150,9 @@ def run_semantic_equivalence_check(
     On any error returns {"equivalent": False, "explanation": "<error msg>"}.
     """
     llm = build_llm(model, 0, base_url, is_hosted, num_predict=256)
-    system = (
-        "You are a semantic equivalence checker. "
-        "Given multiple reasoning passages about the same task, decide if they are "
-        "semantically equivalent: same conclusion and same key claims, even if phrased differently. "
-        'Respond ONLY with a JSON object: {"equivalent": true|false, "explanation": "one sentence"}.'
-    )
     payload = {"task_id": task_id, "reasonings": reasonings}
     messages = [
-        SystemMessage(content=system),
+        SystemMessage(content=SEMANTIC_CHECK_SYSTEM_PROMPT),
         HumanMessage(content=json.dumps(payload, ensure_ascii=True)),
     ]
     logger.debug("Semantic equivalence check | task=%s model=%s", task_id, model)

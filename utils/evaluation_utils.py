@@ -591,6 +591,54 @@ def _assign_group_labels(cluster_ids: List[int]) -> Dict[int, str]:
     return labels
 
 
+def _final_answer_with_prompt(p: Dict[str, Any]) -> Dict[str, Any]:
+    """final_answer as saved on disk is a whitelisted view (answer/reasoning/
+    confidence/cvss_estimate only, utils/experiment_utils.py:_save_result:344)
+    — prompt_system/prompt_user live on the full history entry instead
+    (history is saved unfiltered). Merge them back in for display purposes."""
+    final_answer = dict(p.get("final_answer") or {})
+    history = p.get("history") or []
+    if history and isinstance(history[-1], dict):
+        last = history[-1]
+        for key in ("prompt_system", "prompt_user"):
+            if key in last:
+                final_answer[key] = last[key]
+    return final_answer
+
+
+def _fence_for(text: str) -> str:
+    """A backtick fence guaranteed not to be closed early by the content:
+    task prompts embed their own ```go / ```md fenced blocks (the source
+    excerpt, the output-format template), so a plain ``` fence gets closed
+    by the first one it contains. Use one backtick longer than the longest
+    run already in the text (minimum 3, per CommonMark)."""
+    runs = re.findall(r"`+", text)
+    longest = max((len(r) for r in runs), default=0)
+    return "`" * max(3, longest + 1)
+
+
+def _build_prompt_detail_block(final_answer: Dict[str, Any]) -> List[str]:
+    """Collapsible section with the exact prompt sent to the LLM for this
+    repetition (system + user, retry addendum included when present) —
+    saved verbatim in the raw JSON (`final_answer.prompt_system/prompt_user`,
+    utils/experiment_utils.py:_run_agent) but not otherwise visible outside
+    it. Useful to check what the model actually saw, e.g. when diagnosing
+    non-exhaustive analysis on long task_full files."""
+    prompt_system = str(final_answer.get("prompt_system") or "").strip()
+    prompt_user = str(final_answer.get("prompt_user") or "").strip()
+    if not prompt_system and not prompt_user:
+        return []
+    lines = ["<details>", "<summary>Prompt sent to the model (system + user)</summary>", ""]
+    if prompt_system:
+        fence = _fence_for(prompt_system)
+        lines += ["**System:**", "", fence, prompt_system, fence, ""]
+    if prompt_user:
+        fence = _fence_for(prompt_user)
+        lines += ["**User:**", "", fence, prompt_user, fence, ""]
+    lines += ["</details>", ""]
+    return lines
+
+
 def _write_unmatched_finding_file(
     path: Path,
     task_id: str,
@@ -630,6 +678,7 @@ def _write_unmatched_finding_file(
         lines += ["**Answer:**", "", answer, ""]
     if reasoning:
         lines += ["**Reasoning:**", "", reasoning, ""]
+    lines += _build_prompt_detail_block(final_answer)
     lines += [
         "---",
         f"_Source: `results/{task_id}/{experiment_id}/{role}/*.json`, run_id "
@@ -681,6 +730,7 @@ def _write_matched_finding_file(
         lines += ["**Answer:**", "", answer, ""]
     if reasoning:
         lines += ["**Reasoning:**", "", reasoning, ""]
+    lines += _build_prompt_detail_block(final_answer)
     lines += [
         "---",
         f"_Source: `results/{task_id}/{experiment_id}/{role}/*.json`, run_id "
@@ -712,7 +762,7 @@ def _build_cvss_unmatched(
             ce = p.get("cvss_eval")
             if not isinstance(ce, dict):
                 continue
-            final_answer = p.get("final_answer") or {}
+            final_answer = _final_answer_with_prompt(p)
             for u in ce.get("unmatched", []):
                 entries.append(
                     (role, p.get("task_id"), p.get("repetition"), p.get("run_id"), final_answer, u)
@@ -821,7 +871,7 @@ def _build_cvss_vector_detail(
                     continue
                 entries.append(
                     (role, p.get("task_id"), p.get("repetition"), p.get("run_id"),
-                     p.get("final_answer") or {}, m)
+                     _final_answer_with_prompt(p), m)
                 )
     if not entries:
         return []
