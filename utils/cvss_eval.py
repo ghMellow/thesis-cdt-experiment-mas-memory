@@ -217,6 +217,15 @@ def _evaluate_matched_pair(finding: Dict[str, Any], cve: Dict[str, Any]) -> Dict
             1 for m in REQUESTED_METRICS if est_metrics.get(m) != gt_metrics.get(m)
         )
 
+        # S1 (docs/sgv_protocol/00_proposta_relatore.md §5.2): exact match over
+        # every metric the agent actually emitted (8 base, 11 when the
+        # subsequent-system triad is present) — not padded, so older runs
+        # without SC/SI/SA are judged only on the 8 they emitted.
+        exact_scope = REQUESTED_METRICS + (
+            SUBSEQUENT_METRICS if all(m in est_metrics for m in SUBSEQUENT_METRICS) else []
+        )
+        result["exact_match"] = all(est_metrics.get(m) == gt_metrics.get(m) for m in exact_scope)
+
         # Official score recomputed from the estimated vector (FIRST 4.0 math).
         computed, padded = compute_base_score(est_metrics)
         if computed is not None:
@@ -374,6 +383,87 @@ def aggregate_detection_metrics(evals: List[Dict[str, Any]]) -> Dict[str, Any]:
         "recall": recall,
         "alerts_per_tp": alerts_per_tp,
         "f1": f1,
+    }
+
+
+def _modal_vector(vectors: List[Dict[str, str]]) -> Dict[str, str]:
+    """S3 null-model baseline: the most frequent value per metric across a
+    set of GT vectors (ties broken by first-seen order — irrelevant when a
+    task has a single target CVE, where the modal vector IS the GT vector by
+    construction and the baseline degenerates to 100%; that degeneracy is a
+    real property of the dataset, not a bug)."""
+    from collections import Counter
+
+    modal: Dict[str, str] = {}
+    for metric in REQUESTED_METRICS + SUBSEQUENT_METRICS:
+        values = [v[metric] for v in vectors if metric in v]
+        if values:
+            modal[metric] = Counter(values).most_common(1)[0][0]
+    return modal
+
+
+def aggregate_severity_metrics(task_id: str, evals: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """S1 (exact vector match), S2 (per-metric accuracy + ordinal distance),
+    S3 (baseline: a null model that always guesses the modal GT vector) —
+    §5.2 of the proposal, computed only on TP (matched findings).
+
+    S3 needs the full set of GT vectors for this task's candidate CVEs (not
+    just the ones the agent matched) since the baseline is a property of the
+    dataset, not of what the agent happened to find — hence `task_id` here
+    rather than deriving everything from `evals`.
+    """
+    findings = [m for e in evals for m in e.get("matched", []) if "estimated_vector" in m]
+    if not findings:
+        return {}
+
+    n = len(findings)
+    s1 = sum(1 for f in findings if f.get("exact_match")) / n
+
+    all_metrics = REQUESTED_METRICS + SUBSEQUENT_METRICS
+    per_metric: Dict[str, Dict[str, Any]] = {}
+    for metric in all_metrics:
+        pairs = []
+        for f in findings:
+            est = _parse_vector(f["estimated_vector"])
+            pub = _parse_vector(f.get("published_vector") or "")
+            if metric in est and metric in pub:
+                pairs.append((est[metric], pub[metric]))
+        if not pairs:
+            continue
+        order = SEVERITY_ORDER[metric]
+        per_metric[metric] = {
+            "n": len(pairs),
+            "accuracy": sum(1 for e, g in pairs if e == g) / len(pairs),
+            "avg_distance": sum(
+                abs(order.index(e) - order.index(g)) / (len(order) - 1)
+                for e, g in pairs if e in order and g in order
+            ) / len(pairs),
+        }
+
+    published_vectors = [_parse_vector(f.get("published_vector") or "") for f in findings]
+    candidate_vectors = [
+        cve["cvss"]["base_metrics"] for cve in _candidate_cves(task_id) if cve.get("cvss", {}).get("base_metrics")
+    ]
+    modal = _modal_vector(candidate_vectors or published_vectors)
+
+    baseline_exact = 0
+    for pv in published_vectors:
+        scope = [m for m in all_metrics if m in pv]
+        if scope and all(modal.get(m) == pv.get(m) for m in scope):
+            baseline_exact += 1
+    baseline_per_metric: Dict[str, float] = {}
+    for metric in all_metrics:
+        pairs = [pv[metric] for pv in published_vectors if metric in pv]
+        if pairs:
+            baseline_per_metric[metric] = sum(1 for g in pairs if modal.get(metric) == g) / len(pairs)
+
+    return {
+        "n": n,
+        "s1_exact_match": s1,
+        "per_metric": per_metric,
+        "modal_vector": modal,
+        "s3_baseline_exact_match": baseline_exact / n,
+        "s3_baseline_per_metric": baseline_per_metric,
     }
 
 

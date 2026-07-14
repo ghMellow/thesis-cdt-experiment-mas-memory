@@ -420,6 +420,7 @@ def _build_cvss_section(
     lines += _build_cvss_vector_detail(roles, experiment_id, results_path)
     lines += _build_cvss_unmatched(roles, experiment_id, results_path)
     lines += _build_detection_metrics_section(roles)
+    lines += _build_severity_metrics_section(roles)
 
     lines += [
         '<a id="aggregate-metrics"></a>',
@@ -574,6 +575,82 @@ def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> 
         "- A pass@k row with higher recall (or F1) than its pass@1 row is the retry loop "
         "actually finding more; if precision drops (or alerts/TP rises) at the same "
         "time, the extra findings came at a cost — read them together, not recall alone.",
+        "",
+    ]
+    return lines
+
+
+def _build_severity_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
+    """S1 (exact vector match) + S2 (per-metric accuracy/ordinal distance) +
+    S3 (baseline: null model always guessing the modal GT vector), computed
+    only on TP (matched findings) — docs/sgv_protocol/00_proposta_relatore.md
+    §5.2, 07_metriche_M_S_2026-07-14.md. Unlike M1/M2/M3 this isn't split
+    pass@1/pass@k: severity is a downstream measurement on the final
+    accepted answer, not a property of the retry loop."""
+    from utils.cvss_eval import EXPLOITABILITY_METRICS, IMPACT_METRICS, SUBSEQUENT_METRICS, aggregate_severity_metrics
+
+    task_ids = {p.get("task_id") for payloads in roles.values() for p in payloads if p.get("task_id")}
+    if len(task_ids) != 1:
+        return []
+    task_id = next(iter(task_ids))
+
+    by_role = {}
+    for role, payloads in sorted(roles.items()):
+        evals = [p["cvss_eval"] for p in payloads if isinstance(p.get("cvss_eval"), dict)]
+        if not evals:
+            continue
+        agg = aggregate_severity_metrics(task_id, evals)
+        if agg:
+            by_role[role] = agg
+    if not by_role:
+        return []
+
+    lines = [
+        '<a id="severity-metrics"></a>',
+        "### Severity (S1, S2, S3 — computed on TP only)",
+        "",
+        "| role | n (TP) | S1 exact match | S3 baseline exact match |",
+        "| --- | --- | --- | --- |",
+    ]
+    for role, agg in by_role.items():
+        lines.append(
+            f"| {role} | {agg['n']} | {_fmt_ratio(agg['s1_exact_match'])} | "
+            f"{_fmt_ratio(agg['s3_baseline_exact_match'])} |"
+        )
+
+    lines += ["", "#### S2 — per-metric accuracy (agent vs. baseline), ordinal distance", ""]
+    metrics = EXPLOITABILITY_METRICS + IMPACT_METRICS + SUBSEQUENT_METRICS
+    lines += [
+        "| role | metric | n | accuracy | baseline accuracy | avg ordinal distance |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for role, agg in by_role.items():
+        for metric in metrics:
+            pm = agg["per_metric"].get(metric)
+            if not pm:
+                continue
+            baseline_acc = agg["s3_baseline_per_metric"].get(metric)
+            lines.append(
+                f"| {role} | {metric} | {pm['n']} | {_fmt_ratio(pm['accuracy'])} | "
+                f"{_fmt_ratio(baseline_acc)} | {_fmt(pm['avg_distance'], 2)} |"
+            )
+    lines += [
+        "",
+        "**Legend**",
+        "",
+        "- Computed only on matched findings (TP) — unmatched findings and missed CVEs "
+        "carry no severity comparison, per the proposal (§5.2).",
+        "- `S1 exact match` = share of TP findings whose *entire* estimated vector "
+        "(8 base metrics, 11 when SC/SI/SA were emitted) matches the published one field "
+        "for field.",
+        "- `S3 baseline` = a null model that always guesses the modal vector among this "
+        "task's target CVEs — read S1/accuracy as a margin **above** this, not in "
+        "absolute terms. On tasks with a single target CVE the baseline degenerates to "
+        "100% by construction (the modal vector of one CVE is that CVE's own vector) — "
+        "real property of the dataset, not a bug; the margin is only informative when a "
+        "task has several target CVEs with differing vectors.",
+        "- `avg ordinal distance` (0-1, 0 = identical, 1 = opposite ends of the scale) — "
+        "severity-aware: a None→High miss is penalized more than a None→Low one.",
         "",
     ]
     return lines
@@ -1221,6 +1298,8 @@ def _build_experiment_report(
         toc.append("- [Unmatched findings](#unmatched-findings)")
     if '<a id="detection-metrics"></a>' in cvss_lines:
         toc.append("- [Detection (M1, M2, M3 — pass@1 vs pass@k)](#detection-metrics)")
+    if '<a id="severity-metrics"></a>' in cvss_lines:
+        toc.append("- [Severity (S1, S2, S3)](#severity-metrics)")
     if '<a id="aggregate-metrics"></a>' in cvss_lines:
         toc.append("- [Aggregate metrics (across repetitions)](#aggregate-metrics)")
         toc.append("  - [Estimates vs ground truth](#estimates-vs-gt)")

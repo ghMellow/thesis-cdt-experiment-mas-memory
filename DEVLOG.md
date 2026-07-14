@@ -2,6 +2,14 @@
 
 ---
 
+## 2026-07-14 — Metriche S1/S2/S3 (severity)  [sessione: 2e99bcd7]
+
+**Intent:** "vai con i S mentre per M5 no aspetta" — via libera esplicito su S1/S2/S3, M5 messo esplicitamente in pausa
+**Divergenze:** per S2 ho implementato l'accuratezza per singola metrica base (AV, AC, ... 11 campi) invece che solo per gruppo (exploitability/impact aggregati già esistenti in `_evaluate_matched_pair`) — più fedele alla lettera del §5.2 ("per ciascuna metrica base"), anche se più verboso nel report
+**Esito/Problemi:** aggiunto `exact_match` per finding in `_evaluate_matched_pair` (S1); `aggregate_severity_metrics(task_id, evals)` in `utils/cvss_eval.py` con S1 (% exact match sui TP), S2 (accuratezza + distanza ordinale per singola metrica), S3 (baseline: modello nullo sul vettore modale tra le CVE target del task, via `_candidate_cves` — non solo quelle matchate, la baseline è proprietà del dataset); nuova sezione report "Severity (S1, S2, S3)" in `utils/evaluation_utils.py`, non divisa pass@1/pass@k (la severity è misura downstream, non proprietà del retry loop, coerente col §5.2 che non menziona i tentativi). Verificato rigenerando i report: `task5_vuln_pcf` (1 CVE target) mostra baseline S3 = 100% per costruzione — caso degenere atteso, non bug; `task6_vuln_udr_full` (più CVE target eterogenee) mostra invece un confronto non degenere (S1 agente 0% vs baseline 0%, ma divergenze interpretabili per singola metrica, es. PR 0% vs 100%)
+
+---
+
 ## 2026-07-14 — Metrica M3 (alert per TP)  [sessione: 2e99bcd7]
 
 **Intent:** "vedo i results di una vecchia run la pushiamo oppure continuami a implementare M3 oppure ?" — chiesto se pushare i risultati o proseguire; per convenzione di progetto (results/ non si committa salvo richiesta esplicita) ho proposto tre opzioni via AskUserQuestion, l'utente ha scelto di continuare con M3 e lasciare results/ invariata
