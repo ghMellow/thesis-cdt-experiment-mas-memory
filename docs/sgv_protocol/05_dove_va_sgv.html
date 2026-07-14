@@ -417,6 +417,137 @@
     </div>
 </section>
 
+<!-- 04 · METRICHE M/S -->
+<section id="s04">
+    <div class="eyebrow">SGV &middot; Livello 0 &middot; Metriche M/S nel flusso globale (2026-07-14)</div>
+    <h2>Dove giocano M1-M3 e S1-S3: tutte a valle, sullo stesso JSON gi&agrave; salvato</h2>
+    <p class="subtitle">Le metriche non aggiungono nessun nodo al grafo LangGraph delle slide precedenti &mdash; l'SGV e i due retry restano esattamente come in slide 2/3. Vivono interamente in <code>utils/evaluation_utils.py</code>, a valle del JSON per ripetizione, e sono calcolabili <strong>retroattivamente</strong> sui risultati gi&agrave; salvati (<code>python -m utils.cvss_eval</code>) perch&eacute; i dati che servono &mdash; la stima CVSS di ogni tentativo, non solo dell'ultimo &mdash; erano gi&agrave; nello storico.</p>
+    <div class="flow-wrap">
+        <svg viewBox="0 0 1180 480" xmlns="http://www.w3.org/2000/svg" font-family="'Inter',sans-serif">
+          <defs>
+            <marker id="a4" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#7a5018"/></marker>
+            <marker id="b4" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#1a5faf"/></marker>
+            <marker id="g4" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#2e7d32"/></marker>
+            <marker id="am4" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#b8843a"/></marker>
+          </defs>
+
+          <!-- JSON per repetition (input) -->
+          <rect x="6" y="130" width="185" height="255" rx="10" fill="rgba(122,80,24,0.05)" stroke="#7a5018" stroke-width="1.5"/>
+          <text x="98" y="152" text-anchor="middle" font-size="9.5" fill="#7a5018" font-weight="700" letter-spacing="1">JSON &middot; per ripetizione</text>
+          <text x="98" y="167" text-anchor="middle" font-size="7.2" fill="#78706e" font-family="'IBM Plex Mono',monospace">results/&hellip;.json (gi&agrave; esiste)</text>
+          <rect x="18" y="178" width="161" height="70" rx="6" fill="#fff" stroke="#7a5018" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="98" y="193" text-anchor="middle" font-size="7.6" fill="#1c1a17" font-weight="600">history[ ]</text>
+          <text x="98" y="207" text-anchor="middle" font-size="6.8" fill="#78706e">1 entry per tentativo</text>
+          <text x="98" y="219" text-anchor="middle" font-size="6.8" fill="#78706e">cvss_estimate + sgv_eval</text>
+          <text x="98" y="233" text-anchor="middle" font-size="6.6" fill="#92400E" font-weight="600">history[0] = pass@1</text>
+          <text x="98" y="244" text-anchor="middle" font-size="6.6" fill="#92400E" font-weight="600">(nessun retry ancora avvenuto)</text>
+          <rect x="18" y="254" width="161" height="70" rx="6" fill="#fff" stroke="#7a5018" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="98" y="269" text-anchor="middle" font-size="7.6" fill="#1c1a17" font-weight="600">final_answer / verdict</text>
+          <text x="98" y="283" text-anchor="middle" font-size="6.8" fill="#78706e">history[-1], dopo tutti</text>
+          <text x="98" y="295" text-anchor="middle" font-size="6.8" fill="#78706e">i retry (SGV + rubrica)</text>
+          <text x="98" y="309" text-anchor="middle" font-size="6.6" fill="#1a5faf" font-weight="600">= pass@k, gi&agrave; usato oggi</text>
+          <text x="98" y="320" text-anchor="middle" font-size="6.6" fill="#1a5faf" font-weight="600">per cvss_eval esistente</text>
+          <text x="98" y="345" text-anchor="middle" font-size="7" fill="#78706e">nessun campo nuovo salvato</text>
+          <text x="98" y="357" text-anchor="middle" font-size="7" fill="#78706e">per ottenere pass@1: era</text>
+          <text x="98" y="369" text-anchor="middle" font-size="7" fill="#78706e">gi&agrave; tutto nello storico</text>
+          <line x1="191" y1="230" x2="215" y2="180" stroke="#7a5018" stroke-width="1.4" marker-end="url(#a4)"/>
+          <line x1="191" y1="290" x2="215" y2="330" stroke="#7a5018" stroke-width="1.4" marker-end="url(#a4)"/>
+
+          <!-- evaluate_cvss_estimate() applied twice -->
+          <rect x="220" y="150" width="175" height="65" rx="8" fill="#fff" stroke="#2e7d32" stroke-width="1.4"/>
+          <text x="307" y="168" text-anchor="middle" font-size="7.8" fill="#2e7d32" font-weight="700">evaluate_cvss_estimate()</text>
+          <text x="307" y="181" text-anchor="middle" font-size="6.8" fill="#78706e" font-family="'IBM Plex Mono',monospace">cvss_eval.py &middot; invariata</text>
+          <text x="307" y="195" text-anchor="middle" font-size="7" fill="#1c1a17">applicata su history[0]</text>
+          <text x="307" y="207" text-anchor="middle" font-size="6.8" fill="#92400E" font-weight="600">&rarr; cvss_eval_pass1 (nuovo)</text>
+
+          <rect x="220" y="300" width="175" height="65" rx="8" fill="#fff" stroke="#2e7d32" stroke-width="1.4"/>
+          <text x="307" y="318" text-anchor="middle" font-size="7.8" fill="#2e7d32" font-weight="700">evaluate_cvss_estimate()</text>
+          <text x="307" y="331" text-anchor="middle" font-size="6.8" fill="#78706e" font-family="'IBM Plex Mono',monospace">stessa funzione, stesso codice</text>
+          <text x="307" y="345" text-anchor="middle" font-size="7" fill="#1c1a17">applicata su final_answer</text>
+          <text x="307" y="357" text-anchor="middle" font-size="6.8" fill="#1a5faf" font-weight="600">&rarr; cvss_eval (gi&agrave; esisteva)</text>
+
+          <line x1="395" y1="182" x2="430" y2="220" stroke="#2e7d32" stroke-width="1.4" marker-end="url(#g4)"/>
+          <line x1="395" y1="332" x2="430" y2="260" stroke="#2e7d32" stroke-width="1.4" marker-end="url(#g4)"/>
+
+          <!-- M1/M2/M3 box -->
+          <rect x="435" y="185" width="270" height="215" rx="10" fill="rgba(46,125,50,0.06)" stroke="#2e7d32" stroke-width="2"/>
+          <text x="570" y="207" text-anchor="middle" font-size="9.5" fill="#2e7d32" font-weight="700" letter-spacing="1">M1 / M2 / M3 &middot; DETECTION</text>
+          <text x="570" y="222" text-anchor="middle" font-size="7" fill="#78706e" font-family="'IBM Plex Mono',monospace">aggregate_detection_metrics()</text>
+          <text x="570" y="240" text-anchor="middle" font-size="7.6" fill="#1c1a17">unit&agrave; = CVE (non finding)</text>
+          <text x="570" y="253" text-anchor="middle" font-size="7.2" fill="#78706e">TP = CVE matched &middot; FN = CVE mancate</text>
+          <text x="570" y="264" text-anchor="middle" font-size="7.2" fill="#78706e">FP = finding senza match</text>
+          <line x1="450" y1="274" x2="690" y2="274" stroke="#2e7d32" stroke-width="1" stroke-dasharray="2,3"/>
+          <text x="570" y="291" text-anchor="middle" font-size="7.4" fill="#1c1a17" font-weight="600">M1 detection rate + coverage</text>
+          <text x="570" y="306" text-anchor="middle" font-size="7.4" fill="#1c1a17" font-weight="600">M2 precision / recall / F1</text>
+          <text x="570" y="321" text-anchor="middle" font-size="7.4" fill="#1c1a17" font-weight="600">M3 alert per TP = (TP+FP)/TP</text>
+          <line x1="450" y1="331" x2="690" y2="331" stroke="#2e7d32" stroke-width="1" stroke-dasharray="2,3"/>
+          <text x="570" y="348" text-anchor="middle" font-size="6.9" fill="#92400E" font-weight="600">calcolate 2 volte: pass@1 e pass@k</text>
+          <text x="570" y="360" text-anchor="middle" font-size="6.7" fill="#78706e">la differenza = effetto reale del retry</text>
+          <text x="570" y="371" text-anchor="middle" font-size="6.7" fill="#78706e">loop sulla detection (domanda §4 proposta)</text>
+          <text x="570" y="388" text-anchor="middle" font-size="6.6" fill="#78706e">verificato: task6_udr_full recall 22.2%&rarr;33.3%</text>
+
+          <!-- S1/S2/S3 box, fed only by pass@k -->
+          <rect x="435" y="55" width="270" height="120" rx="10" fill="rgba(184,132,58,0.07)" stroke="#b8843a" stroke-width="2"/>
+          <text x="570" y="76" text-anchor="middle" font-size="9.5" fill="#92400E" font-weight="700" letter-spacing="1">S1 / S2 / S3 &middot; SEVERITY</text>
+          <text x="570" y="91" text-anchor="middle" font-size="7" fill="#78706e" font-family="'IBM Plex Mono',monospace">aggregate_severity_metrics()</text>
+          <text x="570" y="108" text-anchor="middle" font-size="7.4" fill="#1c1a17" font-weight="600">solo su TP (matched), solo pass@k</text>
+          <text x="570" y="122" text-anchor="middle" font-size="7" fill="#78706e">non divisa pass@1/pass@k &mdash; misura</text>
+          <text x="570" y="133" text-anchor="middle" font-size="7" fill="#78706e">downstream, non propriet&agrave; del retry</text>
+          <text x="570" y="150" text-anchor="middle" font-size="6.8" fill="#1c1a17">S1 exact match &middot; S2 per metrica (11)</text>
+          <text x="570" y="162" text-anchor="middle" font-size="6.8" fill="#1c1a17">S3 baseline: vettore modale tra le</text>
+          <line x1="395" y1="332" x2="450" y2="180" stroke="#b8843a" stroke-width="1.3" stroke-dasharray="4,3" marker-end="url(#am4)"/>
+
+          <!-- GT dataset feeding S3 baseline -->
+          <rect x="435" y="8" width="270" height="34" rx="6" fill="#fff" stroke="#b8843a" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="570" y="20" text-anchor="middle" font-size="6.6" fill="#78706e" font-family="'IBM Plex Mono',monospace">_candidate_cves(task_id) &middot; cve_metrics_normalized.json</text>
+          <text x="570" y="32" text-anchor="middle" font-size="6.6" fill="#78706e">CVE target del task (anche quelle mai trovate) &rarr; baseline S3</text>
+          <line x1="570" y1="42" x2="570" y2="53" stroke="#b8843a" stroke-width="1.3" stroke-dasharray="4,3" marker-end="url(#am4)"/>
+
+          <!-- report -->
+          <line x1="705" y1="115" x2="740" y2="150" stroke="#b8843a" stroke-width="1.5" marker-end="url(#am4)"/>
+          <line x1="705" y1="290" x2="740" y2="255" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#g4)"/>
+          <path d="M330 55 Q330 40 700 40" fill="none" stroke="#1a5faf" stroke-width="1.3" stroke-dasharray="4,3" marker-end="url(#b4)" opacity="0"/>
+
+          <rect x="745" y="110" width="200" height="255" rx="10" fill="rgba(122,80,24,0.04)" stroke="#7a5018" stroke-width="1.3" stroke-dasharray="4,3"/>
+          <text x="845" y="132" text-anchor="middle" font-size="9" fill="#7a5018" font-weight="700" letter-spacing="1">result_&lt;task&gt;_1A.md</text>
+          <text x="845" y="147" text-anchor="middle" font-size="6.8" fill="#78706e" font-family="'IBM Plex Mono',monospace">evaluation_utils.py &middot; rigenerato</text>
+          <text x="845" y="158" text-anchor="middle" font-size="6.8" fill="#78706e" font-family="'IBM Plex Mono',monospace">a ogni run o via recompute</text>
+          <rect x="758" y="168" width="174" height="36" rx="6" fill="#fff" stroke="#b8843a" stroke-width="1"/>
+          <text x="845" y="182" text-anchor="middle" font-size="7.2" fill="#92400E" font-weight="600">Blocco C &middot; SGV (slide 3)</text>
+          <text x="845" y="196" text-anchor="middle" font-size="6.6" fill="#78706e">retry non conformi, mai scartati</text>
+          <rect x="758" y="209" width="174" height="94" rx="6" fill="#fff" stroke="#2e7d32" stroke-width="1"/>
+          <text x="845" y="223" text-anchor="middle" font-size="7.2" fill="#2e7d32" font-weight="600">Blocco B &middot; CVSS</text>
+          <text x="845" y="236" text-anchor="middle" font-size="6.6" fill="#78706e">vector detail &middot; unmatched</text>
+          <text x="845" y="250" text-anchor="middle" font-size="6.8" fill="#1c1a17" font-weight="600">+ Detection M1/M2/M3 (nuovo)</text>
+          <text x="845" y="263" text-anchor="middle" font-size="6.8" fill="#1c1a17" font-weight="600">+ Severity S1/S2/S3 (nuovo)</text>
+          <text x="845" y="277" text-anchor="middle" font-size="6.6" fill="#78706e">aggregate metrics (legacy)</text>
+          <text x="845" y="291" text-anchor="middle" font-size="6.4" fill="#78706e">mai il verdetto, sempre a valle</text>
+          <rect x="758" y="313" width="174" height="42" rx="6" fill="#fff" stroke="#1a5faf" stroke-width="1"/>
+          <text x="845" y="327" text-anchor="middle" font-size="7.2" fill="#1a5faf" font-weight="600">Blocco A &middot; rubrica</text>
+          <text x="845" y="341" text-anchor="middle" font-size="6.6" fill="#78706e">summary &middot; scores &middot; anomalies</text>
+
+          <!-- M4/M5 pending note -->
+          <rect x="960" y="150" width="205" height="175" rx="10" fill="rgba(139,32,32,0.05)" stroke="#8b2020" stroke-width="1.4" stroke-dasharray="5,3"/>
+          <text x="1062" y="172" text-anchor="middle" font-size="9" fill="#8b2020" font-weight="700" letter-spacing="1">FUORI DA QUESTA SLIDE</text>
+          <text x="985" y="196" text-anchor="middle" font-size="7.6" fill="#1c1a17" font-weight="600">M4 &middot; delta vs SAST</text>
+          <text x="985" y="210" text-anchor="middle" font-size="7" fill="#78706e">rimandata: nessun tool SAST</text>
+          <text x="985" y="222" text-anchor="middle" font-size="7" fill="#78706e">nel progetto oggi</text>
+          <line x1="978" y1="236" x2="1148" y2="236" stroke="#8b2020" stroke-width="1" stroke-dasharray="2,3"/>
+          <text x="985" y="256" text-anchor="middle" font-size="7.6" fill="#1c1a17" font-weight="600">M5 &middot; costo (token/tempo)</text>
+          <text x="985" y="270" text-anchor="middle" font-size="7" fill="#78706e">gi&agrave; tracciato per ripetizione,</text>
+          <text x="985" y="282" text-anchor="middle" font-size="7" fill="#78706e">manca solo l'aggregazione</text>
+          <text x="985" y="294" text-anchor="middle" font-size="7" fill="#8b2020" font-weight="600">in pausa su richiesta esplicita</text>
+          <text x="985" y="308" text-anchor="middle" font-size="6.8" fill="#78706e">("per M5 no aspetta", 2026-07-14)</text>
+        </svg>
+    </div>
+    <div class="callout teal">
+        <strong>Nessun nodo nuovo nel grafo LangGraph:</strong> M1-M3 e S1-S3 non toccano <code>run_agent</code>/<code>check_sgv</code>/<code>check_answer</code> &mdash; leggono soltanto il JSON che il grafo gi&agrave; produce (<code>history[]</code> per i tentativi, <code>final_answer</code> per l'esito). Per questo sono state calcolate e verificate <strong>senza lanciare nessuna run nuova</strong>: <code>python -m utils.cvss_eval</code> le ha ricalcolate retroattivamente sui 15 casi della run 1A gi&agrave; salvata (task5&ndash;9), trovando sia il caso degenere atteso (task5, 1 sola CVE target &rarr; baseline S3 = 100% per costruzione) sia un caso non degenere e informativo (task6_udr_full, pi&ugrave; CVE target eterogenee &rarr; recall 22.2% pass@1 &rarr; 33.3% pass@k, con precisione quasi invariata).
+    </div>
+    <div class="callout red">
+        <strong>Cosa resta fuori, deliberatamente:</strong> M4 (confronto con un tool SAST) rimandata per assenza di un tool di riferimento nel progetto; M5 (costo) messa in pausa su richiesta esplicita dopo aver implementato M1-M3/S1-S3 &mdash; non dimenticate, solo non ancora nell'ordine di lavoro.
+    </div>
+</section>
+
 </div>
 
 <div class="nav-bar">

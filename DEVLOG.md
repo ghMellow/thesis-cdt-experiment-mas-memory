@@ -2,6 +2,13 @@
 
 ---
 
+## 2026-07-14 — Slide 4: M/S nel flusso globale  [sessione: 2e99bcd7]
+
+**Intent:** "genera una nuova slide dove mostri i nuovi blocchi dove giocano nel flusso arch globale" (su `docs/sgv_protocol/05_dove_va_sgv.html`)
+**Esito/Problemi:** aggiunta slide `s04` — mostra che M1-M3/S1-S3 non toccano il grafo LangGraph (nessun nodo nuovo): leggono solo il JSON già prodotto (`history[]` per i tentativi, `final_answer` per l'esito). Diagramma: `evaluate_cvss_estimate()` applicata due volte (su `history[0]` → `cvss_eval_pass1` nuovo, su `final_answer` → `cvss_eval` esistente) confluisce in M1/M2/M3 (detection, pass@1 vs pass@k); `cvss_eval` (solo TP) + `_candidate_cves` (dataset GT, per la baseline) confluiscono in S1/S2/S3 (severity, non divisa per tentativo). A destra: il report `.md` con Blocco C (SGV, invariato da slide 3) + Blocco B esteso con le nuove sottosezioni + Blocco A (rubrica, invariato). Box separato per M4 (rimandata) e M5 (in pausa esplicita). Verificato bilanciamento tag (`section`/`svg`/`div`: 4/4, 4/4, 19/19)
+
+---
+
 ## 2026-07-14 — Metriche S1/S2/S3 (severity)  [sessione: 2e99bcd7]
 
 **Intent:** "vai con i S mentre per M5 no aspetta" — via libera esplicito su S1/S2/S3, M5 messo esplicitamente in pausa
