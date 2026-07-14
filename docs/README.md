@@ -57,6 +57,7 @@ Proposta del relatore (2026-07-13): sostituire il retry guidato da LLM-judge con
 | [sgv_protocol/01_discussione_2026-07-13.md](sgv_protocol/01_discussione_2026-07-13.md) | Mappatura sull'architettura attuale — cosa è già allineato, cosa richiede refactor, rischi aperti, prossimi passi |
 | [sgv_protocol/02_discussione_team_2026-07-13.md](sgv_protocol/02_discussione_team_2026-07-13.md) | Reazioni del team (Andrea, Raffaele): rischio "cecità semantica" dell'SGV, proposta G5 (Semantic CWE Match via SAST), rigidità del matching e mitigazione AST, decisione di sequenza esperimenti (SAST solo dal terzo) |
 | [sgv_protocol/03_valutazione_claude_2026-07-13.md](sgv_protocol/03_valutazione_claude_2026-07-13.md) | Valutazione critica delle reazioni del team — tensione tra G5 e la metrica M4 (Delta SAST), portata della proposta AST sulla definizione di ground truth, problema aperto: cosa occupa il secondo esperimento della sequenza |
+| [sgv_protocol/04_call12_2026-07-14.md](sgv_protocol/04_call12_2026-07-14.md) | Dodicesima call: via libera esplicita a implementare l'SGV, precedente deterministico già esistente (`_match_finding`), ipotesi rubrica ancorata a CWE invece che a CVE, sequenza di lavoro (SGV → rubrica → formato output), piano operativo per iniziare l'implementazione |
 
 ## 📎 Supporto
 
