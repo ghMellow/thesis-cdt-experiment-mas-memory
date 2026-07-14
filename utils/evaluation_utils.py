@@ -318,6 +318,56 @@ def _build_scores_table(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
     return lines
 
 
+def _build_cost_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
+    """M5 — computational cost: tokens and wall-clock time per repetition
+    (docs/sgv_protocol/00_proposta_relatore.md §5.1, 07_metriche_M_S_2026-07-14.md).
+    Unlike M1-M3/S1-S3 this applies to every task type, not just CVSS ones —
+    every repetition is timed, and token-counted whenever the backend reports it."""
+
+    def _mean(values) -> Optional[float]:
+        vals = [v for v in values if isinstance(v, (int, float))]
+        return sum(vals) / len(vals) if vals else None
+
+    lines = [
+        '<a id="cost-metrics"></a>',
+        "### Cost (M5)",
+        "",
+        "| role | n | avg elapsed (s) | avg agent tokens in | avg agent tokens out | avg judge tokens in | avg judge tokens out |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    any_data = False
+    for role, payloads in sorted(roles.items()):
+        if not payloads:
+            continue
+        any_data = True
+        elapsed = _mean(p.get("elapsed_seconds") for p in payloads)
+        agent_in = _mean((p.get("tokens") or {}).get("agent_in") for p in payloads)
+        agent_out = _mean((p.get("tokens") or {}).get("agent_out") for p in payloads)
+        judge_in = _mean((p.get("tokens") or {}).get("judge_in") for p in payloads)
+        judge_out = _mean((p.get("tokens") or {}).get("judge_out") for p in payloads)
+        lines.append(
+            f"| {role} | {len(payloads)} | {_fmt(elapsed, 1)} | "
+            f"{_fmt(agent_in, 0)} | {_fmt(agent_out, 0)} | "
+            f"{_fmt(judge_in, 0)} | {_fmt(judge_out, 0)} |"
+        )
+    if not any_data:
+        return []
+    lines += [
+        "",
+        "**Legend**",
+        "",
+        "- `n` = repetitions included, across every task type (not restricted to CVSS tasks).",
+        "- `avg elapsed` = wall-clock seconds per repetition, start to save — includes every "
+        "attempt when a retry (SGV or rubric) was triggered.",
+        "- Token columns = mean prompt/completion tokens the backend reported for the agent "
+        "and judge calls; `n/a` when the backend didn't report them (seen on hosted Ollama "
+        "Cloud runs in this project — the field is requested but not always populated, unlike "
+        "local Ollama which reports it reliably).",
+        "",
+    ]
+    return lines
+
+
 def _build_sgv_section(all_payloads: List[Dict[str, Any]]) -> List[str]:
     """SGV (docs/sgv_protocol/): deterministic in-loop gate, no ground truth,
     reported separately from the rubric retries below. Current design choice
@@ -1307,6 +1357,9 @@ def _build_experiment_report(
     toc.append("- [Rubric evaluation](#rubric-evaluation)")
     toc.append("  - [Summary](#rubric-summary)")
     toc.append("  - [Scores by role](#rubric-scores)")
+    cost_lines = _build_cost_metrics_section(filtered_roles)
+    if cost_lines:
+        toc.append("  - [Cost (M5)](#cost-metrics)")
     if anomalies_section:
         toc.append("  - [Anomalies](#rubric-anomalies)")
     toc.append("")
@@ -1319,6 +1372,7 @@ def _build_experiment_report(
     lines += summary_section
     lines += _build_scores_table(filtered_roles)
     lines.append("")
+    lines += cost_lines
     lines += anomalies_section
     return "\n".join(lines) + "\n"
 

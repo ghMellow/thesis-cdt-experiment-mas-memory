@@ -2,6 +2,14 @@
 
 ---
 
+## 2026-07-14 — Metrica M5 (costo)  [sessione: 2e99bcd7]
+
+**Intent:** "implementa la metrica mancante (M5?)" — via libera a chiudere l'ultima metrica della proposta (M4 resta esplicitamente fuori)
+**Esito/Problemi:** `_build_cost_metrics_section` in `utils/evaluation_utils.py` — a differenza di M1-M3/S1-S3 non passa da `cvss_eval.py`: si applica a ogni tipo di task (math/textual/vuln), leggendo `elapsed_seconds`/`tokens` già salvati per ripetizione, nessun nuovo campo. Verificando sui dati reali è emerso che i token sono sistematicamente `None` sui run hosted (Ollama Cloud non riporta sempre `prompt_eval_count`/`eval_count`) — gestito mostrando `n/a` invece di un errore o zero fuorviante; `avg elapsed` resta sempre disponibile. Con questa si chiude l'intero capitolo M/S della proposta tranne M4
+**Lesson learned:** vale la pena controllare i dati reali prima di assumere che un campo "già tracciato" sia sempre popolato — qui sarebbe stato facile riportare 0 invece di n/a e falsare silenziosamente la lettura
+
+---
+
 ## 2026-07-14 — Slide 4: M/S nel flusso globale  [sessione: 2e99bcd7]
 
 **Intent:** "genera una nuova slide dove mostri i nuovi blocchi dove giocano nel flusso arch globale" (su `docs/sgv_protocol/05_dove_va_sgv.html`)

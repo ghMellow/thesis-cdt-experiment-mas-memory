@@ -420,7 +420,7 @@
 <!-- 04 · METRICHE M/S -->
 <section id="s04">
     <div class="eyebrow">SGV &middot; Livello 0 &middot; Metriche M/S nel flusso globale (2026-07-14)</div>
-    <h2>Dove giocano M1-M3 e S1-S3: tutte a valle, sullo stesso JSON gi&agrave; salvato</h2>
+    <h2>Dove giocano M1-M5 e S1-S3: tutte a valle, sullo stesso JSON gi&agrave; salvato</h2>
     <p class="subtitle">Le metriche non aggiungono nessun nodo al grafo LangGraph delle slide precedenti &mdash; l'SGV e i due retry restano esattamente come in slide 2/3. Vivono interamente in <code>utils/evaluation_utils.py</code>, a valle del JSON per ripetizione, e sono calcolabili <strong>retroattivamente</strong> sui risultati gi&agrave; salvati (<code>python -m utils.cvss_eval</code>) perch&eacute; i dati che servono &mdash; la stima CVSS di ogni tentativo, non solo dell'ultimo &mdash; erano gi&agrave; nello storico.</p>
     <div class="flow-wrap">
         <svg viewBox="0 0 1180 480" xmlns="http://www.w3.org/2000/svg" font-family="'Inter',sans-serif">
@@ -522,29 +522,28 @@
           <text x="845" y="263" text-anchor="middle" font-size="6.8" fill="#1c1a17" font-weight="600">+ Severity S1/S2/S3 (nuovo)</text>
           <text x="845" y="277" text-anchor="middle" font-size="6.6" fill="#78706e">aggregate metrics (legacy)</text>
           <text x="845" y="291" text-anchor="middle" font-size="6.4" fill="#78706e">mai il verdetto, sempre a valle</text>
-          <rect x="758" y="313" width="174" height="42" rx="6" fill="#fff" stroke="#1a5faf" stroke-width="1"/>
+          <rect x="758" y="313" width="174" height="72" rx="6" fill="#fff" stroke="#1a5faf" stroke-width="1"/>
           <text x="845" y="327" text-anchor="middle" font-size="7.2" fill="#1a5faf" font-weight="600">Blocco A &middot; rubrica</text>
           <text x="845" y="341" text-anchor="middle" font-size="6.6" fill="#78706e">summary &middot; scores &middot; anomalies</text>
+          <text x="845" y="355" text-anchor="middle" font-size="6.8" fill="#1c1a17" font-weight="600">+ Cost M5 (nuovo)</text>
+          <text x="845" y="368" text-anchor="middle" font-size="6.4" fill="#78706e">token/tempo, ogni task type</text>
+          <text x="845" y="379" text-anchor="middle" font-size="6.4" fill="#78706e">non solo CVSS &middot; non nel Blocco B</text>
 
-          <!-- M4/M5 pending note -->
-          <rect x="960" y="150" width="205" height="175" rx="10" fill="rgba(139,32,32,0.05)" stroke="#8b2020" stroke-width="1.4" stroke-dasharray="5,3"/>
+          <!-- M4 pending note -->
+          <rect x="960" y="150" width="205" height="110" rx="10" fill="rgba(139,32,32,0.05)" stroke="#8b2020" stroke-width="1.4" stroke-dasharray="5,3"/>
           <text x="1062" y="172" text-anchor="middle" font-size="9" fill="#8b2020" font-weight="700" letter-spacing="1">FUORI DA QUESTA SLIDE</text>
-          <text x="985" y="196" text-anchor="middle" font-size="7.6" fill="#1c1a17" font-weight="600">M4 &middot; delta vs SAST</text>
-          <text x="985" y="210" text-anchor="middle" font-size="7" fill="#78706e">rimandata: nessun tool SAST</text>
-          <text x="985" y="222" text-anchor="middle" font-size="7" fill="#78706e">nel progetto oggi</text>
-          <line x1="978" y1="236" x2="1148" y2="236" stroke="#8b2020" stroke-width="1" stroke-dasharray="2,3"/>
-          <text x="985" y="256" text-anchor="middle" font-size="7.6" fill="#1c1a17" font-weight="600">M5 &middot; costo (token/tempo)</text>
-          <text x="985" y="270" text-anchor="middle" font-size="7" fill="#78706e">gi&agrave; tracciato per ripetizione,</text>
-          <text x="985" y="282" text-anchor="middle" font-size="7" fill="#78706e">manca solo l'aggregazione</text>
-          <text x="985" y="294" text-anchor="middle" font-size="7" fill="#8b2020" font-weight="600">in pausa su richiesta esplicita</text>
-          <text x="985" y="308" text-anchor="middle" font-size="6.8" fill="#78706e">("per M5 no aspetta", 2026-07-14)</text>
+          <text x="1062" y="196" text-anchor="middle" font-size="7.6" fill="#1c1a17" font-weight="600">M4 &middot; delta vs SAST</text>
+          <text x="1062" y="210" text-anchor="middle" font-size="7" fill="#78706e">rimandata: nessun tool SAST</text>
+          <text x="1062" y="222" text-anchor="middle" font-size="7" fill="#78706e">nel progetto oggi</text>
+          <text x="1062" y="240" text-anchor="middle" font-size="6.6" fill="#78706e">unica metrica della proposta</text>
+          <text x="1062" y="251" text-anchor="middle" font-size="6.6" fill="#78706e">ancora non implementata</text>
         </svg>
     </div>
     <div class="callout teal">
-        <strong>Nessun nodo nuovo nel grafo LangGraph:</strong> M1-M3 e S1-S3 non toccano <code>run_agent</code>/<code>check_sgv</code>/<code>check_answer</code> &mdash; leggono soltanto il JSON che il grafo gi&agrave; produce (<code>history[]</code> per i tentativi, <code>final_answer</code> per l'esito). Per questo sono state calcolate e verificate <strong>senza lanciare nessuna run nuova</strong>: <code>python -m utils.cvss_eval</code> le ha ricalcolate retroattivamente sui 15 casi della run 1A gi&agrave; salvata (task5&ndash;9), trovando sia il caso degenere atteso (task5, 1 sola CVE target &rarr; baseline S3 = 100% per costruzione) sia un caso non degenere e informativo (task6_udr_full, pi&ugrave; CVE target eterogenee &rarr; recall 22.2% pass@1 &rarr; 33.3% pass@k, con precisione quasi invariata).
+        <strong>Nessun nodo nuovo nel grafo LangGraph:</strong> M1-M5 e S1-S3 non toccano <code>run_agent</code>/<code>check_sgv</code>/<code>check_answer</code> &mdash; leggono soltanto il JSON che il grafo gi&agrave; produce (<code>history[]</code> per i tentativi, <code>final_answer</code> per l'esito, <code>elapsed_seconds</code>/<code>tokens</code> per il costo). Per questo sono state calcolate e verificate <strong>senza lanciare nessuna run nuova</strong>: <code>python -m utils.cvss_eval</code> le ha ricalcolate retroattivamente sui 15 casi della run 1A gi&agrave; salvata (task5&ndash;9), trovando sia il caso degenere atteso (task5, 1 sola CVE target &rarr; baseline S3 = 100% per costruzione) sia un caso non degenere e informativo (task6_udr_full, pi&ugrave; CVE target eterogenee &rarr; recall 22.2% pass@1 &rarr; 33.3% pass@k, con precisione quasi invariata). M5 ha rivelato che sui run hosted (Ollama Cloud) i token risultano <code>n/a</code>: il backend non riporta sempre <code>prompt_eval_count</code>/<code>eval_count</code> &mdash; <code>avg elapsed</code> resta invece sempre disponibile.
     </div>
     <div class="callout red">
-        <strong>Cosa resta fuori, deliberatamente:</strong> M4 (confronto con un tool SAST) rimandata per assenza di un tool di riferimento nel progetto; M5 (costo) messa in pausa su richiesta esplicita dopo aver implementato M1-M3/S1-S3 &mdash; non dimenticate, solo non ancora nell'ordine di lavoro.
+        <strong>Cosa resta fuori, deliberatamente:</strong> M4 (confronto con un tool SAST) &egrave; l'unica metrica della proposta ancora non implementata &mdash; rimandata per assenza di un tool SAST di riferimento nel progetto, non dimenticata.
     </div>
 </section>
 
