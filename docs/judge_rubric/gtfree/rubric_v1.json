@@ -1,0 +1,30 @@
+{
+  "rubrica": {
+    "weakness_classification_score": {
+      "max": 3,
+      "criteri": {
+        "3": "Every finding clearly identifies a high-level weakness class that is plausible for the code evidence it cites. Reference vocabulary of high-level classes: improper input validation; improper access control; improper authentication; improper error/exception handling (including missing control-flow termination after an error response); improper resource control or consumption (DoS); exposure of sensitive information; insecure configuration (including CORS/security-header policy); injection/improper neutralization of inputs; incorrect calculation or logic error; concurrency/race condition",
+        "2": "Most findings identify a plausible high-level weakness class, but at least one finding has no discernible class or a class implausible for its evidence",
+        "1": "Only a minority of findings identify a plausible weakness class; the rest are vague claims with no classifiable weakness",
+        "0": "No finding identifies a plausible weakness class, or the report contains no classifiable findings at all"
+      }
+    },
+    "evidence_class_coherence_score": {
+      "max": 2,
+      "criteri": {
+        "2": "For every finding, the cited code element (function, snippet, or configuration) actually exhibits the typical signature of the declared weakness class (e.g. a validation-bypass claim cites a validation pattern or regex; a control-flow claim cites a response written without terminating the handler; a policy misconfiguration claim cites the relevant configuration or headers)",
+        "1": "The cited evidence matches the declared class for some findings, but for at least one finding the evidence shown is generic, missing, or does not exhibit the signature of the claimed class",
+        "0": "The cited evidence is incompatible with the declared classes, or no concrete code evidence is cited"
+      }
+    },
+    "class_severity_coherence_score": {
+      "max": 2,
+      "criteri": {
+        "2": "The described impact and the CVSS vector (when present) are consistent with the declared weakness class for every finding (e.g. a pure availability/DoS weakness does not claim high confidentiality impact; an information-exposure weakness does not claim high availability impact without justification), and findings do not contradict each other",
+        "1": "Impact and severity are mostly consistent with the declared classes, but at least one finding shows a mismatch between the class and the claimed impact or vector",
+        "0": "Impact claims or CVSS vectors systematically contradict the declared weakness classes, or severity is asserted with no connection to the weakness described"
+      }
+    }
+  },
+  "total_max": 7
+}

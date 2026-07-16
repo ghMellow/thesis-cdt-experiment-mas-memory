@@ -2,6 +2,14 @@
 
 ---
 
+## 2026-07-16 — judge_rubric: rubrica GT-free v1 testata nel banco C1/C2 (doc 10→11)  [sessione: e68b2265]
+
+**Intent:** "da discutere col gruppo non è necessario, abbiamo il via libera dobbiamo solo riportare. Quindi direi di procedere come hai detto e confrontare con l'esperimento fatto" — implementare la rubrica doc 05 e confrontarla con la baseline doc 09
+**Divergenze:** proposta AI accettata implicitamente: passo 2 (pilota probabilistico) fuso nel test della rubrica GT-free invece che eseguito sulla rubrica vecchia (K-sampling surrogato cloud; logprob rimandati a run locale); coverage deterministico corretto in corsa dopo dry-run: funzioni anche non esportate (setCorsHeader) e denominatore cappato a 6 (sui _full con ~100 funzioni il ratio assoluto era irraggiungibile)
+**Decisioni:** rubrica v1 salvata verbatim prima del giudizio (`gtfree/rubric_v1.json`); K=3 per confrontabilità con la baseline; giudice di sistema
+**Esito/Problemi:** **CGP crolla da +0.948 a +0.437**: 2/5 C2 promossi (task7 a pieni voti — claim di *assenza* non verificabile senza reference), saturazione totale sui 15 report reali (tutti 7/7, accordo M1-strict 9/12 vs 12/12) → v1 bocciata al suo stesso test di ammissione, con 3 meccanismi di rottura identificati (doc 11 §3: claim di assenza, scala satura, completezza senza GT)
+**Lesson learned:** il banco C1/C2 funziona da strumento di selezione: ha bocciato la v1 con diagnosi actionable in ~75 chiamate offline, senza toccare il loop né rilanciare gli agenti; l'asimmetria respinti/promossi (firma sintattica verificabile vs assenza non verificabile) è il criterio di progettazione per la v2
+
 ## 2026-07-16 — judge_rubric: esperimento calibrazione giudice eseguito (doc 08→09)  [sessione: e68b2265]
 
 **Intent:** "creare un file md da usare come impostazione dell'esperimento… come loop agentico dove tu feable 5 sei l'orchestratore e esegui le cose da fare in ordine usando te oppure un subagent (famiglia sonnet) se lo reputi adeguato" — file per riprendere il lavoro se finiscono i token

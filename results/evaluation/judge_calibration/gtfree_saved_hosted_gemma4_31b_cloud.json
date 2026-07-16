@@ -1,0 +1,242 @@
+[
+  {
+    "task_id": "task5_vuln_pcf",
+    "repetition": 1,
+    "gt_rubric_normalized": 1.0,
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 1,
+    "coverage_ratio": 0.333,
+    "normalized_combined": 0.889,
+    "llm_min": 7.0,
+    "llm_max": 7.0,
+    "m1_strict": true
+  },
+  {
+    "task_id": "task5_vuln_pcf",
+    "repetition": 2,
+    "gt_rubric_normalized": 0.889,
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 0.667,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0,
+    "m1_strict": true
+  },
+  {
+    "task_id": "task5_vuln_pcf",
+    "repetition": 3,
+    "gt_rubric_normalized": 0.778,
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 0.667,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0,
+    "m1_strict": true
+  },
+  {
+    "task_id": "task6_vuln_udr_full",
+    "repetition": 1,
+    "gt_rubric_normalized": 0.444,
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0,
+    "m1_strict": false
+  },
+  {
+    "task_id": "task6_vuln_udr_full",
+    "repetition": 2,
+    "gt_rubric_normalized": 0.0,
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0,
+    "m1_strict": false
+  },
+  {
+    "task_id": "task6_vuln_udr_full",
+    "repetition": 3,
+    "gt_rubric_normalized": 0.444,
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0,
+    "m1_strict": false
+  },
+  {
+    "task_id": "task7_vuln_amf_full",
+    "repetition": 1,
+    "gt_rubric_normalized": 1.0,
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0,
+    "m1_strict": true
+  },
+  {
+    "task_id": "task7_vuln_amf_full",
+    "repetition": 2,
+    "gt_rubric_normalized": 1.0,
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0,
+    "m1_strict": true
+  },
+  {
+    "task_id": "task7_vuln_amf_full",
+    "repetition": 3,
+    "gt_rubric_normalized": 1.0,
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0,
+    "m1_strict": true
+  },
+  {
+    "task_id": "task8_vuln_udm_full",
+    "repetition": 1,
+    "gt_rubric_normalized": 0.667,
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0,
+    "m1_strict": true
+  },
+  {
+    "task_id": "task8_vuln_udm_full",
+    "repetition": 2,
+    "gt_rubric_normalized": 0.667,
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0,
+    "m1_strict": true
+  },
+  {
+    "task_id": "task8_vuln_udm_full",
+    "repetition": 3,
+    "gt_rubric_normalized": 0.667,
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0,
+    "m1_strict": true
+  },
+  {
+    "task_id": "task9_vuln_cross",
+    "repetition": 1,
+    "gt_rubric_normalized": 1.0,
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0,
+    "m1_strict": null
+  },
+  {
+    "task_id": "task9_vuln_cross",
+    "repetition": 2,
+    "gt_rubric_normalized": 1.0,
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0,
+    "m1_strict": null
+  },
+  {
+    "task_id": "task9_vuln_cross",
+    "repetition": 3,
+    "gt_rubric_normalized": 1.0,
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0,
+    "m1_strict": null
+  }
+]

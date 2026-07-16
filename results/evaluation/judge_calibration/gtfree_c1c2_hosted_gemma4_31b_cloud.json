@@ -1,0 +1,220 @@
+[
+  {
+    "task_id": "task5_vuln_pcf",
+    "kind": "C1",
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 0.667,
+    "cited": [
+      "HTTPOAMGetAmPolicy",
+      "setCorsHeader"
+    ],
+    "n_exposed": 3,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0
+  },
+  {
+    "task_id": "task5_vuln_pcf",
+    "kind": "C2",
+    "llm_totals": [
+      2.0,
+      2.0,
+      2.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 0.667,
+    "cited": [
+      "HTTPOAMGetAmPolicy",
+      "setCorsHeader"
+    ],
+    "n_exposed": 3,
+    "normalized_combined": 0.444,
+    "llm_min": 2.0,
+    "llm_max": 2.0
+  },
+  {
+    "task_id": "task6_vuln_udr_full",
+    "kind": "C1",
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 0.833,
+    "cited": [
+      "HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete",
+      "HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdGet",
+      "HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdPut",
+      "HandleCreateEeSubscriptions",
+      "HandleQueryeesubscriptions"
+    ],
+    "n_exposed": 102,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0
+  },
+  {
+    "task_id": "task6_vuln_udr_full",
+    "kind": "C2",
+    "llm_totals": [
+      5.0,
+      5.0,
+      5.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 0.667,
+    "cited": [
+      "HandleAmfContext3gpp",
+      "HandleAmfContextNon3gpp",
+      "HandleCreateAmfContext3gpp",
+      "HandleCreateAmfContextNon3gpp"
+    ],
+    "n_exposed": 102,
+    "normalized_combined": 0.778,
+    "llm_min": 5.0,
+    "llm_max": 5.0
+  },
+  {
+    "task_id": "task7_vuln_amf_full",
+    "kind": "C1",
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "cited": [
+      "HTTPAMFStatusChangeSubscribe",
+      "HTTPAMFStatusChangeSubscribeModify",
+      "HTTPCreateUEContext",
+      "HTTPEBIAssignment",
+      "HTTPRegistrationStatusUpdate",
+      "HTTPReleaseUEContext",
+      "HTTPUEContextTransfer"
+    ],
+    "n_exposed": 19,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0
+  },
+  {
+    "task_id": "task7_vuln_amf_full",
+    "kind": "C2",
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 0.833,
+    "cited": [
+      "HTTPAMFStatusChangeSubscribe",
+      "HTTPAMFStatusChangeSubscribeModify",
+      "HTTPCreateUEContext",
+      "HTTPEBIAssignment",
+      "HTTPReleaseUEContext"
+    ],
+    "n_exposed": 19,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0
+  },
+  {
+    "task_id": "task8_vuln_udm_full",
+    "kind": "C1",
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "cited": [
+      "HandleGetAmData",
+      "HandleGetNssai",
+      "HandleGetSmData",
+      "HandleGetSmfSelectData",
+      "HandleGetSupi",
+      "HandleGetTraceData",
+      "HandleGetUeContextInSmfData",
+      "HandleUnsubscribe"
+    ],
+    "n_exposed": 43,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0
+  },
+  {
+    "task_id": "task8_vuln_udm_full",
+    "kind": "C2",
+    "llm_totals": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "coverage_score": 1,
+    "coverage_ratio": 0.5,
+    "cited": [
+      "HandleGetAmData",
+      "HandleGetSharedData",
+      "getSubscriberDataManagementRoutes"
+    ],
+    "n_exposed": 43,
+    "normalized_combined": 0.111,
+    "llm_min": 0.0,
+    "llm_max": 0.0
+  },
+  {
+    "task_id": "task9_vuln_cross",
+    "kind": "C1",
+    "llm_totals": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "cited": [
+      "HTTPAMFStatusChangeSubscribeModify",
+      "HTTPCreateUEContext",
+      "HTTPUEContextTransfer",
+      "HandleCreateEeSubscriptions",
+      "HandleGetAmData",
+      "HandleGetSmfSelectData",
+      "HandleQueryAmfContext3gpp",
+      "HandleUnsubscribe",
+      "setCorsHeader"
+    ],
+    "n_exposed": 13,
+    "normalized_combined": 1.0,
+    "llm_min": 7.0,
+    "llm_max": 7.0
+  },
+  {
+    "task_id": "task9_vuln_cross",
+    "kind": "C2",
+    "llm_totals": [
+      4.0,
+      4.0,
+      2.0
+    ],
+    "coverage_score": 1,
+    "coverage_ratio": 0.5,
+    "cited": [
+      "HTTPAMFStatusChangeSubscribeModify",
+      "HandleCreateEeSubscriptions",
+      "HandleGetAmData"
+    ],
+    "n_exposed": 13,
+    "normalized_combined": 0.481,
+    "llm_min": 2.0,
+    "llm_max": 4.0
+  }
+]
