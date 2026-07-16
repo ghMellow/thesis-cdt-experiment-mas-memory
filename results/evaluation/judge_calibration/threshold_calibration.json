@@ -1,0 +1,433 @@
+{
+  "rows": [
+    {
+      "task_id": "task5_vuln_pcf",
+      "experiment_id": "1A",
+      "model": "gemma4:31b-cloud",
+      "repetition": 1,
+      "normalized_score": 1.0,
+      "total_score": 9.0,
+      "verdict_saved": "correct",
+      "m1": true,
+      "m1_strict": true,
+      "n_matched": 1,
+      "n_missed": 0,
+      "source": "results/task5_vuln_pcf/1A/agent/hosted_gemma4_31b_cloud.json"
+    },
+    {
+      "task_id": "task5_vuln_pcf",
+      "experiment_id": "1A",
+      "model": "gemma4:31b-cloud",
+      "repetition": 2,
+      "normalized_score": 0.889,
+      "total_score": 8.0,
+      "verdict_saved": "correct",
+      "m1": true,
+      "m1_strict": true,
+      "n_matched": 1,
+      "n_missed": 0,
+      "source": "results/task5_vuln_pcf/1A/agent/hosted_gemma4_31b_cloud.json"
+    },
+    {
+      "task_id": "task5_vuln_pcf",
+      "experiment_id": "1A",
+      "model": "gemma4:31b-cloud",
+      "repetition": 3,
+      "normalized_score": 0.778,
+      "total_score": 7.0,
+      "verdict_saved": "correct",
+      "m1": true,
+      "m1_strict": true,
+      "n_matched": 1,
+      "n_missed": 0,
+      "source": "results/task5_vuln_pcf/1A/agent/hosted_gemma4_31b_cloud.json"
+    },
+    {
+      "task_id": "task6_vuln_udr_full",
+      "experiment_id": "1A",
+      "model": "gemma4:31b-cloud",
+      "repetition": 1,
+      "normalized_score": 0.444,
+      "total_score": 4.0,
+      "verdict_saved": "wrong",
+      "m1": true,
+      "m1_strict": false,
+      "n_matched": 2,
+      "n_missed": 4,
+      "source": "results/task6_vuln_udr_full/1A/agent/hosted_gemma4_31b_cloud.json"
+    },
+    {
+      "task_id": "task6_vuln_udr_full",
+      "experiment_id": "1A",
+      "model": "gemma4:31b-cloud",
+      "repetition": 2,
+      "normalized_score": 0.0,
+      "total_score": 0.0,
+      "verdict_saved": "wrong",
+      "m1": true,
+      "m1_strict": false,
+      "n_matched": 2,
+      "n_missed": 4,
+      "source": "results/task6_vuln_udr_full/1A/agent/hosted_gemma4_31b_cloud.json"
+    },
+    {
+      "task_id": "task6_vuln_udr_full",
+      "experiment_id": "1A",
+      "model": "gemma4:31b-cloud",
+      "repetition": 3,
+      "normalized_score": 0.444,
+      "total_score": 4.0,
+      "verdict_saved": "wrong",
+      "m1": true,
+      "m1_strict": false,
+      "n_matched": 2,
+      "n_missed": 4,
+      "source": "results/task6_vuln_udr_full/1A/agent/hosted_gemma4_31b_cloud.json"
+    },
+    {
+      "task_id": "task7_vuln_amf_full",
+      "experiment_id": "1A",
+      "model": "gemma4:31b-cloud",
+      "repetition": 1,
+      "normalized_score": 1.0,
+      "total_score": 9.0,
+      "verdict_saved": "correct",
+      "m1": true,
+      "m1_strict": true,
+      "n_matched": 1,
+      "n_missed": 0,
+      "source": "results/task7_vuln_amf_full/1A/agent/hosted_gemma4_31b_cloud.json"
+    },
+    {
+      "task_id": "task7_vuln_amf_full",
+      "experiment_id": "1A",
+      "model": "gemma4:31b-cloud",
+      "repetition": 2,
+      "normalized_score": 1.0,
+      "total_score": 9.0,
+      "verdict_saved": "correct",
+      "m1": true,
+      "m1_strict": true,
+      "n_matched": 1,
+      "n_missed": 0,
+      "source": "results/task7_vuln_amf_full/1A/agent/hosted_gemma4_31b_cloud.json"
+    },
+    {
+      "task_id": "task7_vuln_amf_full",
+      "experiment_id": "1A",
+      "model": "gemma4:31b-cloud",
+      "repetition": 3,
+      "normalized_score": 1.0,
+      "total_score": 9.0,
+      "verdict_saved": "correct",
+      "m1": true,
+      "m1_strict": true,
+      "n_matched": 1,
+      "n_missed": 0,
+      "source": "results/task7_vuln_amf_full/1A/agent/hosted_gemma4_31b_cloud.json"
+    },
+    {
+      "task_id": "task8_vuln_udm_full",
+      "experiment_id": "1A",
+      "model": "gemma4:31b-cloud",
+      "repetition": 1,
+      "normalized_score": 0.667,
+      "total_score": 6.0,
+      "verdict_saved": "wrong",
+      "m1": true,
+      "m1_strict": true,
+      "n_matched": 1,
+      "n_missed": 0,
+      "source": "results/task8_vuln_udm_full/1A/agent/hosted_gemma4_31b_cloud.json"
+    },
+    {
+      "task_id": "task8_vuln_udm_full",
+      "experiment_id": "1A",
+      "model": "gemma4:31b-cloud",
+      "repetition": 2,
+      "normalized_score": 0.667,
+      "total_score": 6.0,
+      "verdict_saved": "wrong",
+      "m1": true,
+      "m1_strict": true,
+      "n_matched": 1,
+      "n_missed": 0,
+      "source": "results/task8_vuln_udm_full/1A/agent/hosted_gemma4_31b_cloud.json"
+    },
+    {
+      "task_id": "task8_vuln_udm_full",
+      "experiment_id": "1A",
+      "model": "gemma4:31b-cloud",
+      "repetition": 3,
+      "normalized_score": 0.667,
+      "total_score": 6.0,
+      "verdict_saved": "wrong",
+      "m1": true,
+      "m1_strict": true,
+      "n_matched": 1,
+      "n_missed": 0,
+      "source": "results/task8_vuln_udm_full/1A/agent/hosted_gemma4_31b_cloud.json"
+    }
+  ],
+  "curve_m1_any": [
+    {
+      "threshold": 0.05,
+      "agreement": 0.9166666666666666,
+      "false_pass": 0,
+      "false_fail": 1
+    },
+    {
+      "threshold": 0.1,
+      "agreement": 0.9166666666666666,
+      "false_pass": 0,
+      "false_fail": 1
+    },
+    {
+      "threshold": 0.15,
+      "agreement": 0.9166666666666666,
+      "false_pass": 0,
+      "false_fail": 1
+    },
+    {
+      "threshold": 0.2,
+      "agreement": 0.9166666666666666,
+      "false_pass": 0,
+      "false_fail": 1
+    },
+    {
+      "threshold": 0.25,
+      "agreement": 0.9166666666666666,
+      "false_pass": 0,
+      "false_fail": 1
+    },
+    {
+      "threshold": 0.3,
+      "agreement": 0.9166666666666666,
+      "false_pass": 0,
+      "false_fail": 1
+    },
+    {
+      "threshold": 0.35,
+      "agreement": 0.9166666666666666,
+      "false_pass": 0,
+      "false_fail": 1
+    },
+    {
+      "threshold": 0.4,
+      "agreement": 0.9166666666666666,
+      "false_pass": 0,
+      "false_fail": 1
+    },
+    {
+      "threshold": 0.45,
+      "agreement": 0.75,
+      "false_pass": 0,
+      "false_fail": 3
+    },
+    {
+      "threshold": 0.5,
+      "agreement": 0.75,
+      "false_pass": 0,
+      "false_fail": 3
+    },
+    {
+      "threshold": 0.55,
+      "agreement": 0.75,
+      "false_pass": 0,
+      "false_fail": 3
+    },
+    {
+      "threshold": 0.6,
+      "agreement": 0.75,
+      "false_pass": 0,
+      "false_fail": 3
+    },
+    {
+      "threshold": 0.65,
+      "agreement": 0.75,
+      "false_pass": 0,
+      "false_fail": 3
+    },
+    {
+      "threshold": 0.7,
+      "agreement": 0.5,
+      "false_pass": 0,
+      "false_fail": 6
+    },
+    {
+      "threshold": 0.75,
+      "agreement": 0.5,
+      "false_pass": 0,
+      "false_fail": 6
+    },
+    {
+      "threshold": 0.8,
+      "agreement": 0.4166666666666667,
+      "false_pass": 0,
+      "false_fail": 7
+    },
+    {
+      "threshold": 0.85,
+      "agreement": 0.4166666666666667,
+      "false_pass": 0,
+      "false_fail": 7
+    },
+    {
+      "threshold": 0.9,
+      "agreement": 0.3333333333333333,
+      "false_pass": 0,
+      "false_fail": 8
+    },
+    {
+      "threshold": 0.95,
+      "agreement": 0.3333333333333333,
+      "false_pass": 0,
+      "false_fail": 8
+    },
+    {
+      "threshold": 1.0,
+      "agreement": 0.3333333333333333,
+      "false_pass": 0,
+      "false_fail": 8
+    }
+  ],
+  "curve_m1_strict": [
+    {
+      "threshold": 0.05,
+      "agreement": 0.8333333333333334,
+      "false_pass": 2,
+      "false_fail": 0
+    },
+    {
+      "threshold": 0.1,
+      "agreement": 0.8333333333333334,
+      "false_pass": 2,
+      "false_fail": 0
+    },
+    {
+      "threshold": 0.15,
+      "agreement": 0.8333333333333334,
+      "false_pass": 2,
+      "false_fail": 0
+    },
+    {
+      "threshold": 0.2,
+      "agreement": 0.8333333333333334,
+      "false_pass": 2,
+      "false_fail": 0
+    },
+    {
+      "threshold": 0.25,
+      "agreement": 0.8333333333333334,
+      "false_pass": 2,
+      "false_fail": 0
+    },
+    {
+      "threshold": 0.3,
+      "agreement": 0.8333333333333334,
+      "false_pass": 2,
+      "false_fail": 0
+    },
+    {
+      "threshold": 0.35,
+      "agreement": 0.8333333333333334,
+      "false_pass": 2,
+      "false_fail": 0
+    },
+    {
+      "threshold": 0.4,
+      "agreement": 0.8333333333333334,
+      "false_pass": 2,
+      "false_fail": 0
+    },
+    {
+      "threshold": 0.45,
+      "agreement": 1.0,
+      "false_pass": 0,
+      "false_fail": 0
+    },
+    {
+      "threshold": 0.5,
+      "agreement": 1.0,
+      "false_pass": 0,
+      "false_fail": 0
+    },
+    {
+      "threshold": 0.55,
+      "agreement": 1.0,
+      "false_pass": 0,
+      "false_fail": 0
+    },
+    {
+      "threshold": 0.6,
+      "agreement": 1.0,
+      "false_pass": 0,
+      "false_fail": 0
+    },
+    {
+      "threshold": 0.65,
+      "agreement": 1.0,
+      "false_pass": 0,
+      "false_fail": 0
+    },
+    {
+      "threshold": 0.7,
+      "agreement": 0.75,
+      "false_pass": 0,
+      "false_fail": 3
+    },
+    {
+      "threshold": 0.75,
+      "agreement": 0.75,
+      "false_pass": 0,
+      "false_fail": 3
+    },
+    {
+      "threshold": 0.8,
+      "agreement": 0.6666666666666666,
+      "false_pass": 0,
+      "false_fail": 4
+    },
+    {
+      "threshold": 0.85,
+      "agreement": 0.6666666666666666,
+      "false_pass": 0,
+      "false_fail": 4
+    },
+    {
+      "threshold": 0.9,
+      "agreement": 0.5833333333333334,
+      "false_pass": 0,
+      "false_fail": 5
+    },
+    {
+      "threshold": 0.95,
+      "agreement": 0.5833333333333334,
+      "false_pass": 0,
+      "false_fail": 5
+    },
+    {
+      "threshold": 1.0,
+      "agreement": 0.5833333333333334,
+      "false_pass": 0,
+      "false_fail": 5
+    }
+  ],
+  "plateau_m1_any": [
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.25,
+    0.3,
+    0.35,
+    0.4
+  ],
+  "plateau_m1_strict": [
+    0.45,
+    0.5,
+    0.55,
+    0.6,
+    0.65
+  ]
+}

@@ -2,6 +2,14 @@
 
 ---
 
+## 2026-07-16 — judge_rubric: esperimento calibrazione giudice eseguito (doc 08→09)  [sessione: e68b2265]
+
+**Intent:** "creare un file md da usare come impostazione dell'esperimento… come loop agentico dove tu feable 5 sei l'orchestratore e esegui le cose da fare in ordine usando te oppure un subagent (famiglia sonnet) se lo reputi adeguato" — file per riprendere il lavoro se finiscono i token
+**Divergenze:** aggiunto passo 1-bis (test C1/C2) alla sequenza confermata dall'utente; delegata a subagent sonnet solo la stesura dei 10 report C1/C2 (il resto inline); modello cross-family scelto dall'orchestratore: gpt-oss:20b (taglia ~gemma4:31b, famiglia diversa); task9 escluso dalla calibrazione (scoperto `n_target_cves=0` → M1 indefinito); il subagent ha deviato dalla rotazione letterale su task9-C2 (avrebbe prodotto un report vero) riattribuendo la classe CORS a funzioni AMF/UDR — deviazione verificata e approvata dall'orchestratore
+**Decisioni:** config `TEXTUAL_PASS_RATIO` NON cambiato (0.7→0.65 proposto, decisione di gruppo); risultati non committati (regola results/)
+**Esito/Problemi:** doc 08 (impostazione+checklist) e doc 09 (risultati); 3 script in `scripts/judge_calibration/`; soglia 0.7 boccia task8 con copertura CVE completa (plateau ottimale 0.45–0.65 vs M1-strict, accordo 1.00); gpt-oss:20b concorda con gemma (delta +0.074, nessun self-enhancement bias); CGP=+0.948, 0/15 C2 promossi. Problema risolto: gli script standalone devono fare `load_dotenv()` prima di importare config, altrimenti manca `OLLAMA_API_KEY`
+**Lesson learned:** il file-loop con tabella Stato ha retto: 3 lavori paralleli (2 bash background + 1 subagent) riagganciati senza perdita; il giudice con rubrica GT-derivata è severo e calibrato — la generosità del paper doc 06 è attesa solo togliendo la GT, e ora c'è la baseline per misurarla
+
 ## 2026-07-16 — judge_rubric: paper "Too Generous" integrale (doc 06) + discussione (doc 07)  [sessione: e68b2265]
 
 **Intent:** fornito il paper completo arXiv:2607.12885 in `judge_rubric/LLM_Judges_Reference_Answer_paper.md` — "non ho capito se lo hai letto tutto o solo in parte"
