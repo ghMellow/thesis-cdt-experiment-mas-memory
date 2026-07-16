@@ -67,9 +67,9 @@ Stesso banco: 10 report C1/C2 + 15 report reali, K=3, giudice di sistema, script
 | # | Passo | Stato |
 |---|-------|-------|
 | 0 | Proposta + bozza JSON (questo doc, `gtfree/rubric_v2_draft.json`) | ✅ 2026-07-16 |
-| 1 | Enumeratore superfici a rischio + verifica a secco su task5–9 | ☐ |
-| 2 | Estensione `run_gtfree_rubric.py` (rubrica da parametro, coverage v2, output motivazioni) | ☐ |
-| 3 | Run banco C1/C2 + report reali → confronto con doc 11 | ☐ |
-| 4 | Doc 13 risultati + README/status/DEVLOG | ☐ |
+| 1 | Enumeratore superfici a rischio + verifica a secco su task5–9 | ✅ 2026-07-16 — superficie = funzione con `*gin.Context` (task5: 2 incl. `setCorsHeader`, task6: 10, task7: 7, task8: 8, task9: 13); a secco: coverage v2 satura sui report reali (proxy, come previsto in §5) ma penalizza già 2 C2 (task8 0.33, task9 0.5) |
+| 2 | Estensione `run_gtfree_rubric.py` (rubrica da parametro, coverage v2, output motivazioni) | ✅ 2026-07-16 — flag `--rubric`, `--coverage surfaces`, `--motivations` (istruzione anti-generosità + feedback persistito nel JSON); output `gtfree_v2_*` |
+| 3 | Run banco C1/C2 + report reali → confronto con doc 11 | ✅ 2026-07-16 — **CGP +0.600** (v1: +0.437), **0/5 C2 promossi** (task7 C2 da 1.00 a 0.61: il giudice ha citato la contro-evidenza), 0/5 C1 bocciati; report reali ancora saturi 10/10, accordo M1-strict 9/12 |
+| 4 | Doc 13 risultati + README/status/DEVLOG | ✅ 2026-07-16 — verdetto: **ammissione parziale** (3/5 target ✅); la completezza è confermata strutturale — serve enumeratore esterno (G5/SAST), non un'altra rubrica |
 
 **Ripresa in sessione futura**: leggere questo doc + doc 11 (v1) + doc 09 (baseline); proseguire dal primo passo ☐.

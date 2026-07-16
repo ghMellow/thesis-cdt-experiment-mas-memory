@@ -1,0 +1,469 @@
+[
+  {
+    "task_id": "task5_vuln_pcf",
+    "repetition": 1,
+    "gt_rubric_normalized": 1.0,
+    "llm_totals": [
+      10.0,
+      10.0,
+      10.0
+    ],
+    "coverage_score": 1,
+    "coverage_ratio": 0.5,
+    "normalized_combined": 0.917,
+    "llm_min": 10.0,
+    "llm_max": 10.0,
+    "m1_strict": true,
+    "coverage_cited": [
+      "setCorsHeader"
+    ],
+    "judge_feedback": [
+      "The agent correctly identified the primary security vulnerability (CORS misconfiguration) and provided the exact lines of code exhibiting the flaw.\n\n- **presence_evidence_score**: The finding cites `AllowAllOrigins: true` and the wildcard header `*`, which are the textbook signatures of an overly permissive CORS policy.\n- **absence_claims_score**: The agent did not make any \"absence\" claims (e.g., \"missing authentication\"), so it receives a maximum score per the rubric.\n- **finding_granularity_score**: The agent isolated a single weakness class (CORS) with its own evidence and impact. While it mentioned a performance/memory leak in the \"Proposed Fix\" section, this was presented as a corrective action for the implementation of the fix rather than a separate bundled vulnerability finding.\n- **weakness_classification_score**: \"CORS Misconfiguration\" is a plausible and accurate classification for the evidence provided, aligning with \"insecure configuration\" in the reference vocabulary.\n- **severity_consistency_score**: The impact (unauthorized data extraction/CSRF) is consistent with the declared weakness class.\n\nNo findings failed the check.",
+      "The agent correctly identified the primary security vulnerability (CORS misconfiguration) and provided the exact lines of code exhibiting the flaw.\n\n- **presence_evidence_score**: The finding cites `AllowAllOrigins: true` and `Access-Control-Allow-Origin: \"*\"`, which are the definitive signatures of an overly permissive CORS policy.\n- **absence_claims_score**: The agent did not make any absence-type claims (e.g., \"missing authentication\"), which according to the rubric results in a maximum score.\n- **finding_granularity_score**: The agent isolated a single weakness (CORS) with its own evidence and impact.\n- **weakness_classification_score**: The classification \"CORS Misconfiguration\" is plausible and aligns with the provided reference vocabulary (\"insecure configuration\").\n- **severity_consistency_score**: The impact (unauthorized data extraction/CSRF) is consistent with the weakness class.\n\nNote: The agent also correctly identified a performance/stability bug (calling `router.Use` inside a handler), which demonstrates a high level of technical competence, although it was not the primary security focus. No findings failed the checks.",
+      "**Detailed Evaluation:**\n- **presence_evidence_score**: The agent correctly identified the CORS misconfiguration and cited the specific lines (`AllowAllOrigins: true` and `Access-Control-Allow-Origin: \"*\"`) that exhibit the signature of an overly permissive CORS policy.\n- **absence_claims_score**: The agent did not make any absence-type claims (e.g., claiming a missing auth check), which according to the rubric scores a 2.\n- **finding_granularity_score**: The agent isolated a single primary weakness (CORS misconfiguration). While it mentioned a performance/memory issue regarding the placement of `s.router.Use`, this was presented as part of the \"Proposed Fix\" rather than a separate finding, maintaining the granularity of the security report.\n- **weakness_classification_score**: The classification \"CORS Misconfiguration\" is plausible and aligns with the reference vocabulary (\"insecure configuration\").\n- **severity_consistency_score**: The impact (unauthorized data extraction/CSRF) is consistent with the declared weakness class.\n\n**Review for maximum score:**\nI checked for any bundled weaknesses or missing evidence. The agent focused on the most glaring security flaw. Although it could have potentially argued for \"improper access control\" regarding the `supi` parameter (lack of authorization check before calling the processor), the agent's focus on the explicit CORS misconfiguration is well-supported by the provided code. No findings failed the criteria."
+    ]
+  },
+  {
+    "task_id": "task5_vuln_pcf",
+    "repetition": 2,
+    "gt_rubric_normalized": 0.889,
+    "llm_totals": [
+      10.0,
+      10.0,
+      10.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 10.0,
+    "llm_max": 10.0,
+    "m1_strict": true,
+    "coverage_cited": [
+      "HTTPOAMGetAmPolicy",
+      "setCorsHeader"
+    ],
+    "judge_feedback": [
+      "The agent correctly identified the two primary issues in the provided code. \n\n- **Presence Evidence**: Both findings are well-supported. Finding 1 cites the `AllowAllOrigins: true` and `Access-Control-Allow-Origin: \"*\"` configurations. Finding 2 correctly identifies the use of `s.router.Use()` inside the `setCorsHeader` function, which is called within the request handler `HTTPOAMGetAmPolicy`.\n- **Absence Claims**: The agent did not make any \"missing control\" claims that were not grounded in the provided code paths; it focused on the presence of flawed logic.\n- **Granularity**: The agent separated the permissive policy (security configuration) from the middleware registration logic (resource consumption/DoS), which are distinct issues.\n- **Classification**: The classifications (\"CORS Misconfiguration\" and \"Inefficient/Incorrect Middleware Application\") align with \"insecure configuration\" and \"improper resource control or consumption (DoS)\" from the reference vocabulary.\n- **Severity Consistency**: The impact descriptions (unauthorized data retrieval for the CORS issue and server crash/DoS for the middleware issue) are consistent with the identified weaknesses.\n\nI looked for potential failures, such as whether the agent missed the lack of input validation on the `supi` parameter, but since the agent focused on the most critical architectural flaws and the rubric evaluates the quality of the findings provided rather than exhaustive coverage of every possible minor issue, the response is high quality.",
+      "The agent correctly identified the two primary issues in the provided code. \n\n- **Presence Evidence:** Both findings cite specific code elements that exhibit the claimed weakness. Finding 1 correctly identifies the `AllowAllOrigins: true` and `Access-Control-Allow-Origin: \"*\"` configuration. Finding 2 correctly identifies the call to `s.router.Use()` inside the `setCorsHeader` function, which is called within the request handler `HTTPOAMGetAmPolicy`.\n- **Absence Claims:** The agent did not make any absence-type claims (e.g., claiming a missing check), so it receives a maximum score.\n- **Granularity:** The agent isolated the permissive CORS policy (configuration) from the middleware registration logic (architectural/DoS), providing distinct evidence and impacts for each.\n- **Classification:** The findings are classified as \"CORS Misconfiguration\" and \"Inefficient/Incorrect Middleware Application\" (which maps to improper resource control/DoS), both of which are plausible and accurate.\n- **Severity Consistency:** The impact claims (unauthorized data retrieval for CORS and server crash/DoS for the middleware leak) are consistent with the identified weaknesses.",
+      "The agent correctly identified the two primary issues in the provided code. \n\n- **Presence Evidence**: Both findings are well-supported. Finding 1 cites the specific configuration `AllowAllOrigins: true` and the header `Access-Control-Allow-Origin: \"*\"`. Finding 2 correctly identifies the signature of a middleware registration (`s.router.Use`) occurring inside a request handler (`setCorsHeader` called by `HTTPOAMGetAmPolicy`), which is a classic pattern for a memory leak/DoS in Gin.\n- **Absence Claims**: The agent did not make any absence-type claims (e.g., \"missing authentication\"), so it scores 2 by default.\n- **Granularity**: The agent isolated the permissive policy (configuration) from the middleware registration logic (architectural/resource flaw), treating them as distinct issues.\n- **Classification**: The classifications \"CORS Misconfiguration\" (Insecure Configuration) and \"Inefficient/Incorrect Middleware Application\" (Improper Resource Control/DoS) are plausible and accurate.\n- **Severity Consistency**: The impact descriptions (unauthorized retrieval of policies for the first; server crash/PLMN disruption for the second) are consistent with the identified weaknesses."
+    ]
+  },
+  {
+    "task_id": "task5_vuln_pcf",
+    "repetition": 3,
+    "gt_rubric_normalized": 0.778,
+    "llm_totals": [
+      10.0,
+      10.0,
+      10.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 10.0,
+    "llm_max": 10.0,
+    "m1_strict": true,
+    "coverage_cited": [
+      "HTTPOAMGetAmPolicy",
+      "setCorsHeader"
+    ],
+    "judge_feedback": [
+      "The agent correctly identified the two primary issues in the provided code. \n\n1. **CORS Misconfiguration**: The agent correctly cited the `AllowAllOrigins: true` and `AllowCredentials: true` configuration in `setCorsHeader`, which is a classic signature of an insecure CORS policy.\n2. **Logic Error/DoS**: The agent correctly identified that `s.router.Use(...)` is called within a request handler (`HTTPOAMGetAmPolicy` -> `setCorsHeader`), which in the Gin framework results in the middleware being appended to the router's middleware chain on every request, leading to a memory leak and eventual DoS.\n\nAll findings were isolated, classified correctly (Insecure Configuration and Logic Error/DoS), and the impact was logically consistent with the vulnerabilities. No absence-type claims were made, so that score is maximum by default.",
+      "The agent correctly identified two distinct vulnerabilities. \n\n1. **CORS Misconfiguration**: This is a presence-type finding. The agent cited the specific configuration `AllowAllOrigins: true` and `AllowCredentials: true` in the `setCorsHeader` function, which is the classic signature of this weakness.\n2. **Logic Error/DoS**: This is a presence-type finding. The agent correctly identified that `s.router.Use(...)` (a middleware registration function) is being called inside a request handler (`HTTPOAMGetAmPolicy` -> `setCorsHeader`), which would cause the middleware stack to grow indefinitely with every request.\n\nThere were no absence-type findings (claims of missing controls), so that score is 2 by default. Each finding was isolated, correctly classified (Insecure Configuration and Logic Error/DoS), and the impact was consistent with the vulnerability. No findings failed the checks.",
+      "The agent correctly identified the two primary issues in the provided code. \n\n1. **CORS Misconfiguration**: The agent cited the specific configuration (`AllowAllOrigins: true` and `AllowCredentials: true`) and the manual header settings (`Access-Control-Allow-Origin: \"*\"`) which exhibit the signature of an insecure CORS policy.\n2. **Logic Error/DoS**: The agent correctly identified that `s.router.Use(...)` is called within the request handler `HTTPOAMGetAmPolicy` via `setCorsHeader`, which is a textbook signature of a resource leak/DoS in the Gin framework.\n\n- `presence_evidence_score`: All findings are backed by specific code references.\n- `absence_claims_score`: The agent did not make any absence-type claims (e.g., \"missing authentication\"), so it scores 2.\n- `finding_granularity_score`: The two issues (CORS and the middleware registration loop) are treated as distinct findings.\n- `weakness_classification_score`: The classifications (\"CORS misconfiguration\" and \"logic error\") are plausible and align with the provided vocabulary.\n- `severity_consistency_score`: The impact (CSRF/Data extraction for CORS and Memory Exhaustion for the logic error) is consistent with the weakness classes."
+    ]
+  },
+  {
+    "task_id": "task6_vuln_udr_full",
+    "repetition": 1,
+    "gt_rubric_normalized": 0.444,
+    "llm_totals": [
+      10.0,
+      10.0,
+      10.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 10.0,
+    "llm_max": 10.0,
+    "m1_strict": false,
+    "coverage_cited": [
+      "HandleApplicationDataInfluenceDataGet",
+      "HandleCreateEeSubscriptions",
+      "HandleCreateSdmSubscriptions",
+      "HandlePolicyDataSubsToNotifyPost",
+      "HandlePolicyDataSubsToNotifySubsIdPut",
+      "HandlePolicyDataUesUeIdSmDataGet",
+      "HandleQuerySmData",
+      "HandleQueryeesubscriptions"
+    ],
+    "judge_feedback": [
+      "The agent correctly identified a variety of vulnerabilities across the provided file. \n\n- **Presence Evidence**: All findings cite specific functions and code patterns. For example, the logic error in `HandleCreateSdmSubscriptions` correctly identifies the hardcoded `collName` as the source of the issue. The deserialization error in `HandlePolicyDataSubsToNotifyPost` correctly identifies the missing pointer (`&`). The regex bypass is accurately identified by pointing to the `.+` alternative in the pattern.\n- **Absence Claims**: The agent did not make \"absence\" claims (e.g., \"missing authorization check\") without grounding them in code paths; rather, it focused on existing flawed code.\n- **Granularity**: Each finding is isolated to a specific weakness class and evidence.\n- **Classification**: The classifications (Logic Error, Null Pointer/Deserialization, Ineffective Validation, Unsafe Unmarshaling, NoSQL Injection) are all plausible and align with the provided reference vocabulary.\n- **Severity Consistency**: The impacts described (data corruption, empty objects stored, validation bypass) are consistent with the identified weaknesses.\n\nI looked for any finding that might fail the evidence check, specifically the NoSQL injection claim, but since the agent correctly identified that the input is used within a `bson.M` filter using the `$in` operator, the claim that it allows probing/manipulation of the query logic is a plausible security concern in the context of MongoDB filters.",
+      "The agent provided a high-quality security review. \n\n- **presence_evidence_score**: All findings cite specific functions and code patterns that exhibit the claimed weakness. For example, the logic error in `HandleCreateSdmSubscriptions` correctly identifies the wrong collection name, and the deserialization error in `HandlePolicyDataSubsToNotifyPost` correctly identifies the missing pointer.\n- **absence_claims_score**: The agent did not make any \"absence\" claims (e.g., \"missing authorization check\"), focusing instead on \"presence\" of flaws. Therefore, it scores 2.\n- **finding_granularity_score**: Each finding is isolated to a specific weakness class and evidence.\n- **weakness_classification_score**: The classifications (Logic Error, Ineffective Input Validation, Unsafe Unmarshaling) are plausible and align with the provided reference vocabulary.\n- **severity_consistency_score**: The impacts described (data corruption, validation bypass, instability) are consistent with the identified weaknesses.\n\nNo findings failed the checks.",
+      "The agent provided a high-quality security review. \n\n- **presence_evidence_score**: All presence-type findings are correctly grounded in the provided code. \n    - Finding 1 correctly identifies the hardcoded `collName` in `HandleCreateSdmSubscriptions`.\n    - Finding 2 correctly identifies the missing pointer `&` in `openapi.Deserialize` calls within `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`.\n    - Finding 3 correctly identifies the `.+` alternative in the regex within `HandleCreateEeSubscriptions` and `HandleQueryeesubscriptions`.\n    - Finding 4 correctly identifies the direct `json.Unmarshal` of query parameters in `HandlePolicyDataUesUeIdSmDataGet` and `HandleQuerySmData`.\n    - Finding 5 identifies the use of `bson.M` with user-controlled slices in `HandleApplicationDataInfluenceDataGet`.\n- **absence_claims_score**: The agent did not make any \"absence\" claims (e.g., \"missing authorization check\") without grounding them in a specific code path. All claims were based on existing code patterns.\n- **finding_granularity_score**: Each finding is isolated to a specific weakness class and impact.\n- **weakness_classification_score**: The classifications (Logic Error, Ineffective Validation, Unsafe Unmarshaling, NoSQL Injection) are plausible and accurate for the evidence provided.\n- **severity_consistency_score**: The impacts described (data corruption, bypass of validation, application instability) are consistent with the identified weaknesses."
+    ]
+  },
+  {
+    "task_id": "task6_vuln_udr_full",
+    "repetition": 2,
+    "gt_rubric_normalized": 0.0,
+    "llm_totals": [
+      10.0,
+      10.0,
+      10.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 10.0,
+    "llm_max": 10.0,
+    "m1_strict": false,
+    "coverage_cited": [
+      "HandleAmfContext3gpp",
+      "HandleApplicationDataInfluenceDataGet",
+      "HandleCreateEeSubscriptions",
+      "HandleCreateSdmSubscriptions",
+      "HandleGetSharedData",
+      "HandlePolicyDataSubsToNotifyPost",
+      "HandlePolicyDataSubsToNotifySubsIdPut",
+      "HandleQueryAmData",
+      "HandleQueryAuthSubsData",
+      "HandleQueryeesubscriptions"
+    ],
+    "judge_feedback": [
+      "The agent correctly identified four distinct security and logic issues. \n\n- **Presence Evidence**: All findings cite specific functions and code patterns. \n    - Finding 1 (Logic Error) correctly identifies the hardcoded `collName` in `HandleCreateSdmSubscriptions`.\n    - Finding 2 (Pointer Usage) correctly identifies the missing `&` in `openapi.Deserialize` calls within `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`.\n    - Finding 3 (Inconsistent Validation) correctly contrasts the regex check in `HandleCreateEeSubscriptions` with the simple empty check in `HandleAmfContext3gpp`.\n    - Finding 4 (DoS) correctly identifies the `strings.Split` on query parameters in `HandleApplicationDataInfluenceDataGet` and `HandleGetSharedData`.\n- **Absence Claims**: The agent's claims regarding missing validation (Finding 3) are grounded in the specific code paths of the handlers mentioned.\n- **Finding Granularity**: Each finding is isolated to a specific class of error (Logic Error, Improper Pointer/Deserialization, Improper Input Validation, and Resource Consumption/DoS).\n- **Weakness Classification**: The classifications are plausible and align with the provided reference vocabulary.\n- **Severity Consistency**: The impacts (data corruption, data loss, attack surface increase, and DoS) are consistent with the identified weaknesses.",
+      "The agent correctly identified a variety of security and logic issues. \n\n- **Presence Evidence**: All findings cite specific functions and code patterns. The logic error in `HandleCreateSdmSubscriptions` (wrong collection name), the pointer error in `HandlePolicyDataSubsToNotifyPost` (passing by value), and the regex usage in `HandleCreateEeSubscriptions` are all clearly evidenced in the provided source.\n- **Absence Claims**: The agent identifies missing input validation (regex) in several handlers by contrasting them with the handlers that *do* have the validation, effectively showing the code path where the control is absent.\n- **Granularity**: Each finding is isolated to a specific weakness class (Logic Error, Improper Pointer/Deserialization, Input Validation, DoS).\n- **Classification**: The classifications are plausible and align with the reference vocabulary (Logic Error, Improper Input Validation, Improper Resource Control/DoS).\n- **Severity**: The impacts (data corruption, data loss, DoS) are consistent with the described weaknesses.\n\nI looked for any findings that might fail the check, specifically checking if the \"Improper Pointer Usage\" was actually a bug; in Go, passing a non-pointer to a function expecting an `interface{}` for deserialization (like `openapi.Deserialize`) will indeed fail to populate the original variable, confirming the finding.",
+      "The agent correctly identified four distinct vulnerabilities with high precision.\n\n- **Presence Evidence**: All findings cite specific functions and code patterns. \n    - Finding 1 (Logic Error) correctly identifies the hardcoded `collName` in `HandleCreateSdmSubscriptions`.\n    - Finding 2 (Deserialization) correctly identifies the missing `&` operator in `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`.\n    - Finding 3 (Validation) correctly contrasts the regex check in `HandleCreateEeSubscriptions` with the simple empty check in other handlers.\n    - Finding 4 (DoS) correctly identifies the `strings.Split` usage in `HandleApplicationDataInfluenceDataGet` and `HandleGetSharedData`.\n- **Absence Claims**: The agent identifies missing validation (Finding 3) and missing input limits (Finding 4) by showing the specific code paths where the input flows into the processor or memory allocation without the required controls.\n- **Granularity**: Each finding is isolated to a specific weakness class and evidence set.\n- **Classification**: The classes used (Logic Error, Deserialization/Pointer usage, Input Validation, DoS) are plausible and align with the provided reference vocabulary.\n- **Severity**: The impacts described (data corruption, data loss, increased attack surface, memory exhaustion) are consistent with the nature of the vulnerabilities."
+    ]
+  },
+  {
+    "task_id": "task6_vuln_udr_full",
+    "repetition": 3,
+    "gt_rubric_normalized": 0.444,
+    "llm_totals": [
+      10.0,
+      10.0,
+      10.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 10.0,
+    "llm_max": 10.0,
+    "m1_strict": false,
+    "coverage_cited": [
+      "HandleApplicationDataInfluenceDataGet",
+      "HandleCreateEeSubscriptions",
+      "HandleCreateSmfContextNon3gpp",
+      "HandlePolicyDataSubsToNotifyPost",
+      "HandlePolicyDataSubsToNotifySubsIdPut",
+      "HandleQueryeesubscriptions"
+    ],
+    "judge_feedback": [
+      "The agent identified four distinct vulnerabilities, each grounded in the provided code.\n\n- **Presence Evidence**: All findings cite specific functions and code patterns. \n    - Finding 1 correctly identifies the missing pointer in `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut` (`openapi.Deserialize(policyDataSubscription, ...)`).\n    - Finding 2 correctly identifies the `.+` catch-all in the regex within `HandleCreateEeSubscriptions` and `HandleQueryeesubscriptions`.\n    - Finding 3 correctly identifies the failure to return/abort after a `strconv.ParseInt` error in `HandleCreateSmfContextNon3gpp`.\n    - Finding 4 identifies the construction of MongoDB filters from query parameters in `HandleApplicationDataInfluenceDataGet`.\n- **Absence Claims**: The agent did not make \"absence-type\" claims (e.g., \"missing authorization check\") without grounding them in a specific code path. Finding 4 mentions a lack of validation/authorization, but it is framed as a logic/injection issue based on the existing code path.\n- **Finding Granularity**: Each finding is isolated to a specific weakness class and evidence.\n- **Weakness Classification**: The classes used (Logic Error, Improper Input Validation, Improper Error Handling, NoSQL Query Manipulation) are all plausible and align with the reference vocabulary.\n- **Severity Consistency**: The impacts described (data loss, data corruption, unauthorized retrieval) are consistent with the declared weakness classes.\n\nNo findings failed the checks.",
+      "The agent correctly identified four distinct vulnerabilities, providing precise evidence for each.\n\n- **Presence Evidence**: All findings cite specific functions and code patterns. \n    - Finding 1 correctly identifies the pass-by-value error in `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut` (passing `policyDataSubscription` instead of `&policyDataSubscription`).\n    - Finding 2 correctly identifies the `.+` catch-all in the regex within `HandleCreateEeSubscriptions` and `HandleQueryeesubscriptions`.\n    - Finding 3 correctly identifies the failure to return after a `strconv.ParseInt` error in `HandleCreateSmfContextNon3gpp`.\n    - Finding 4 correctly identifies the construction of MongoDB filters from `c.QueryArray` in `HandleApplicationDataInfluenceDataGet`.\n- **Absence Claims**: The agent did not make any generic \"missing control\" claims without grounding them in the provided code paths.\n- **Finding Granularity**: Each issue is isolated into its own finding with a clear class and impact.\n- **Weakness Classification**: The classes used (Logic Error, Improper Input Validation, Improper Error Handling, NoSQL Query Manipulation) are all plausible and align with the reference vocabulary.\n- **Severity Consistency**: The impacts described (data loss, validation bypass, data corruption, unauthorized retrieval) are consistent with the declared weakness classes.",
+      "The agent successfully identified four distinct vulnerabilities across different categories. \n\n- **Presence Evidence**: All findings cite specific functions and code patterns. \n    - Finding 1 correctly identifies the pass-by-value error in `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut` (passing `policyDataSubscription` instead of `&policyDataSubscription`).\n    - Finding 2 correctly identifies the \"match-all\" regex `.+` in `HandleCreateEeSubscriptions` and `HandleQueryeesubscriptions`.\n    - Finding 3 correctly identifies the failure to return/abort after a `strconv.ParseInt` error in `HandleCreateSmfContextNon3gpp`.\n    - Finding 4 correctly identifies the direct use of query parameters to build BSON filters in `HandleApplicationDataInfluenceDataGet`.\n- **Absence Claims**: No absence-type findings were made (all were presence-type), which by rubric scores 2.\n- **Finding Granularity**: Each finding is isolated to a specific weakness class and function.\n- **Weakness Classification**: The classifications (Logic Error, Improper Input Validation, Improper Error Handling, NoSQL Query Manipulation) are all plausible and align with the provided reference vocabulary.\n- **Severity Consistency**: The impacts described (data loss, validation bypass, data corruption, unauthorized retrieval) are consistent with the declared weakness classes."
+    ]
+  },
+  {
+    "task_id": "task7_vuln_amf_full",
+    "repetition": 1,
+    "gt_rubric_normalized": 1.0,
+    "llm_totals": [
+      10.0,
+      10.0,
+      10.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 10.0,
+    "llm_max": 10.0,
+    "m1_strict": true,
+    "coverage_cited": [
+      "HTTPAMFStatusChangeSubscribe",
+      "HTTPAMFStatusChangeSubscribeModify",
+      "HTTPCreateUEContext",
+      "HTTPN1N2MessageTransfer",
+      "HTTPUEContextTransfer",
+      "Index"
+    ],
+    "judge_feedback": [
+      "The agent correctly identified several vulnerabilities and logic errors. \n\n- **presence_evidence_score**: All presence-type findings (Information Exposure, Unsafe Slice Access, Inconsistent Context State) cite specific functions and code patterns that exhibit the claimed weakness. For example, the \"Inconsistent Context State\" finding correctly identifies that `c.Set` is used with different types (string vs struct) across different handlers.\n- **absence_claims_score**: The \"Improper Input Validation\" finding is an absence claim (missing default error handling in a switch). It correctly identifies the code path: the `switch` in `HTTPUEContextTransfer` lacks a `default` case, allowing the flow to proceed to the processor with an uninitialized object.\n- **finding_granularity_score**: Each finding is isolated to a specific weakness class with its own evidence and impact.\n- **weakness_classification_score**: The classifications (Information Exposure, DoS/Logic Error, Improper Input Validation) are plausible and align with the provided reference vocabulary.\n- **severity_consistency_score**: The impact claims (reconnaissance for info exposure, panics for slice access/context types) are consistent with the nature of the vulnerabilities.\n\nI looked for potential failures, such as whether the \"Unsafe Slice Access\" claim was grounded. Since `strings.Split` on an empty string returns a slice of length 1 containing an empty string, a panic on `str[0]` would only occur if the slice were length 0 (which `strings.Split` does not return). However, the agent framed this as \"might behave unexpectedly or panic,\" and the broader point about missing validation before indexing is a valid security review observation in this context.",
+      "The agent correctly identified and isolated four distinct security and stability issues. \n\n- **Presence Evidence**: All findings cite specific functions and code patterns. For example, the \"Information Exposure\" finding correctly identifies the use of `err.Error()` in `HTTPAMFStatusChangeSubscribeModify` and `HTTPCreateUEContext`. The \"Unsafe Slice Access\" correctly identifies the `strings.Split` pattern in `HTTPCreateUEContext`, `HTTPUEContextTransfer`, and `HTTPN1N2MessageTransfer`.\n- **Absence Claims**: The agent identifies a missing `default` case in the `switch` statement of `HTTPUEContextTransfer` and explains the resulting code path (proceeding to the processor with an uninitialized object), making the claim checkable.\n- **Granularity**: Each finding is isolated to a specific weakness class (Information Exposure, DoS/Panic, Input Validation, Logic Error/Panic).\n- **Classification**: The classes used (Information Exposure, DoS, Improper Input Validation) are plausible and align with the reference vocabulary.\n- **Severity Consistency**: The impacts (reconnaissance for info exposure, panics for slice access/type mismatch) are consistent with the declared weaknesses.\n\nI looked for potential failures in the \"Unsafe Slice Access\" claim; while `strings.Split` on an empty string returns a slice of length 1 (preventing a panic on `str[0]`), the agent's claim that it \"lacks validation that the slice contains the expected elements\" is a valid observation of unsafe coding patterns in a security context, and the logic error in the `HTTPUEContextTransfer` switch is a concrete absence of control.",
+      "The agent correctly identified and isolated four distinct issues. \n\n- **Presence Evidence**: All findings are grounded in the provided code. \n    - Finding 1 (Information Exposure) cites `err.Error()` in `HTTPAMFStatusChangeSubscribeModify` and `HTTPCreateUEContext`.\n    - Finding 2 (Unsafe Slice Access) cites `strings.Split(contentType, \";\")` and `str[0]` in `HTTPCreateUEContext`, `HTTPUEContextTransfer`, and `HTTPN1N2MessageTransfer`.\n    - Finding 3 (Missing Content-Type Check) cites the empty `default` case in the `switch` block of `HTTPUEContextTransfer`.\n    - Finding 4 (Inconsistent Context State) cites the varying types passed to `c.Set(sbi.IN_PB_DETAILS_CTX_STR, ...)` across different handlers (e.g., `problemDetail.Cause` vs `problemDetail`).\n- **Absence Claims**: The agent's claims about missing controls (e.g., missing `default` case in `HTTPUEContextTransfer`) are grounded in the specific code path where the input flows into the processor without validation.\n- **Granularity**: Each finding is isolated to a specific weakness class and does not bundle unrelated issues.\n- **Classification**: The classes used (Information Exposure, DoS/Unsafe Access, Improper Input Validation, and Logic Error/State Management) are plausible and align with the reference vocabulary.\n- **Severity Consistency**: The impacts (reconnaissance, panics/DoS, nil pointer dereferences) are consistent with the declared weakness classes."
+    ]
+  },
+  {
+    "task_id": "task7_vuln_amf_full",
+    "repetition": 2,
+    "gt_rubric_normalized": 1.0,
+    "llm_totals": [
+      10.0,
+      10.0,
+      10.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 10.0,
+    "llm_max": 10.0,
+    "m1_strict": true,
+    "coverage_cited": [
+      "HTTPAMFStatusChangeSubscribe",
+      "HTTPAMFStatusChangeSubscribeModify",
+      "HTTPCreateUEContext",
+      "HTTPEBIAssignment",
+      "HTTPN1N2MessageTransfer",
+      "HTTPUEContextTransfer"
+    ],
+    "judge_feedback": [
+      "The agent correctly identified several critical vulnerabilities and logic errors. \n\n- **presence_evidence_score**: All findings cite specific functions and code patterns. For example, the \"Inconsistent Context State Management\" finding correctly identifies the difference between passing a struct in `HTTPCreateUEContext` versus a string in `HTTPAMFStatusChangeSubscribeModify`.\n- **absence_claims_score**: The agent's claims regarding missing controls (like the missing `default` case/error handling in `HTTPUEContextTransfer` and the lack of size limits on `GetRawData`) are grounded in the provided code paths.\n- **finding_granularity_score**: Each finding is isolated by a distinct weakness class (Input Validation, Information Exposure, DoS, Logic Error).\n- **weakness_classification_score**: The classifications used (Improper Input Validation, Information Exposure, Denial of Service) are plausible and align with the reference vocabulary.\n- **severity_consistency_score**: The impacts described (OOM crashes for DoS, mapping internal structures for info leak) are consistent with the declared weakness classes.\n\nNo findings failed the checks.",
+      "The agent performed a high-quality review, identifying both subtle logic errors and systemic architectural weaknesses.\n\n- **presence_evidence_score**: All findings are backed by specific function references and code patterns. The agent correctly identified the logic flaw in `HTTPUEContextTransfer` where the `switch` statement lacks a `default` case, allowing the handler to proceed with an uninitialized request object.\n- **absence_claims_score**: The agent correctly identified the absence of request size limits (DoS) and the absence of error sanitization (Information Exposure), grounding these in the use of `c.GetRawData()` and the construction of `ProblemDetails` responses across the handlers.\n- **finding_granularity_score**: Each finding is distinct: one for input validation/logic, one for information exposure, one for resource consumption, and one for internal state consistency.\n- **weakness_classification_score**: The classifications used (Improper Input Validation, Information Exposure, DoS) are highly appropriate for the evidence provided.\n- **severity_consistency_score**: The impacts (OOM for DoS, internal mapping for info leak, panics for type inconsistency) are logically consistent with the identified weaknesses.\n\nI looked for any potential \"hallucinations\" regarding the Go language behavior (e.g., whether `strings.Split` on an empty string would cause a panic), and the agent correctly noted that it does not crash, but rather leads to a logic failure. All claims are verified against the provided source.",
+      "The agent performed a high-quality security review. \n\n- **presence_evidence_score**: All presence-type findings are correctly backed by the code. The agent correctly identified the logic flaw in `HTTPUEContextTransfer` where a missing `default` case in the switch statement allows the code to proceed with a `nil` error and uninitialized data. The inconsistent type assignment in `c.Set` is also accurately cited.\n- **absence_claims_score**: The agent identifies a missing size limit on `c.GetRawData()` (DoS) and missing error handling/validation in the `Content-Type` switch. These are grounded in the specific code paths provided.\n- **finding_granularity_score**: Each finding is isolated to a specific weakness class and impact.\n- **weakness_classification_score**: The classifications (Improper Input Validation, Information Exposure, DoS) are all plausible and align with the reference vocabulary.\n- **severity_consistency_score**: The impacts (OOM for DoS, reconnaissance for info leakage, crashes for type inconsistency) are consistent with the identified weaknesses.\n\nI looked for any findings that might fail the check, specifically checking if the `Content-Type` split would cause a panic (index out of range). Since `strings.Split(\"\", \";\")` returns `[]string{\"\"}`, `str[0]` is safe, and the agent correctly noted that it \"doesn't crash in Go,\" showing a high level of technical accuracy."
+    ]
+  },
+  {
+    "task_id": "task7_vuln_amf_full",
+    "repetition": 3,
+    "gt_rubric_normalized": 1.0,
+    "llm_totals": [
+      10.0,
+      10.0,
+      10.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 10.0,
+    "llm_max": 10.0,
+    "m1_strict": true,
+    "coverage_cited": [
+      "HTTPAMFStatusChangeSubscribe",
+      "HTTPAMFStatusChangeSubscribeModify",
+      "HTTPCreateUEContext",
+      "HTTPEBIAssignment",
+      "HTTPN1N2MessageSubscribe",
+      "HTTPN1N2MessageTransfer",
+      "HTTPRegistrationStatusUpdate",
+      "HTTPReleaseUEContext",
+      "HTTPUEContextTransfer"
+    ],
+    "judge_feedback": [
+      "The agent correctly identified three distinct security/logic issues. \n\n- **Presence Evidence**: All findings cite specific functions and code patterns. For the \"Improper Input Validation\" finding, the agent correctly identified that `HTTPUEContextTransfer` lacks a `default` case in its `switch` statement, which allows the execution to proceed to the processor even if the content type is unsupported (since `err` remains `nil`).\n- **Absence Claims**: The agent's claims about missing controls (e.g., the missing `default` case in `HTTPUEContextTransfer`) are grounded in the provided code paths.\n- **Granularity**: Each finding is isolated to a specific class of weakness (Information Exposure, Input Validation, and State Management).\n- **Classification**: The classifications used (Information Exposure, Improper Input Validation, and Inconsistent Context State Management) are plausible and align with the provided vocabulary.\n- **Severity Consistency**: The impact descriptions (insights into internal structures, potential Null Pointer Dereferences, and runtime panics) are consistent with the identified weaknesses.\n\nNo findings failed the checks.",
+      "The agent correctly identified three distinct security/logic issues. \n- For the presence-type finding regarding the missing `default` case in `HTTPUEContextTransfer`, the agent correctly cited the specific function and the logic flow (missing default case leading to `err` remaining `nil` and proceeding to the processor).\n- For the absence-type finding regarding the missing check for the `Content-Type` header, the agent identified the exact code path (`strings.Split(contentType, \";\")`) and explained the resulting behavior.\n- The findings are granular, properly classified (Information Exposure, Improper Input Validation, and a logic error regarding context state), and the severity/impact claims are consistent with the weaknesses.\n\nNo findings failed the checks.",
+      "The agent correctly identified three distinct security/logic issues. \n\n- **Presence Evidence**: All findings are grounded in the provided code. The claim regarding the missing `default` case in `HTTPUEContextTransfer` is verified by comparing its switch block to the one in `HTTPCreateUEContext`. The claim regarding inconsistent context types is verified by comparing `c.Set(..., problemDetail)` (struct) vs `c.Set(..., problemDetail.Cause)` (string).\n- **Absence Claims**: The agent identifies a missing control (the `default` case/error handling for unsupported content types) and explicitly shows the code path: the switch block in `HTTPUEContextTransfer` where the lack of a default case allows the execution to flow into the processor with an uninitialized request.\n- **Granularity**: Each finding is isolated: one for information exposure, one for input validation/logic flow, and one for state management.\n- **Classification**: The classes used (Information Exposure, Improper Input Validation, and Inconsistent State Management/Logic Error) are plausible and align with the provided reference vocabulary.\n- **Severity Consistency**: The impacts described (reconnaissance via error leaks, potential panics/logic errors in the processor) are consistent with the identified weaknesses.\n\nNo findings failed the checks."
+    ]
+  },
+  {
+    "task_id": "task8_vuln_udm_full",
+    "repetition": 1,
+    "gt_rubric_normalized": 0.667,
+    "llm_totals": [
+      10.0,
+      10.0,
+      10.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 10.0,
+    "llm_max": 10.0,
+    "m1_strict": true,
+    "coverage_cited": [
+      "HandleGetAmData",
+      "HandleGetNssai",
+      "HandleGetSmData",
+      "HandleGetSmfSelectData",
+      "HandleGetSupi",
+      "HandleGetTraceData",
+      "HandleGetUeContextInSmfData",
+      "HandleModify",
+      "HandleModifyForSharedData",
+      "HandleSubscribe",
+      "HandleSubscribeToSharedData",
+      "ThreeLayerPathHandlerFunc",
+      "TwoLayerPathHandlerFunc"
+    ],
+    "judge_feedback": [
+      "The agent correctly identified a variety of security and logic issues. \n\n- **Presence Evidence**: All claims are supported by specific function names and code patterns. For example, the claim about `getPlmnIDStruct` correctly identifies the use of `json.Unmarshal` on a query parameter.\n- **Absence Claims**: The agent identifies missing input validation for SUPI/UEID and explicitly lists the handlers where this check is missing (`HandleGetSmfSelectData`, `HandleGetSupi`, etc.), making the absence checkable against the provided code.\n- **Finding Granularity**: Each finding is isolated: input validation, JSON parsing, information exposure, and routing logic are treated as distinct issues.\n- **Weakness Classification**: The classifications (Missing Input Validation, Improper JSON Unmarshaling, Information Exposure, Unsafe Context Manipulation) align well with the provided reference vocabulary.\n- **Severity Consistency**: The impacts described (downstream injection, resource exhaustion, reconnaissance, unauthorized access) are consistent with the declared weakness classes.\n\nNo findings failed the checks.",
+      "The agent correctly identified four distinct security/logic issues. \n\n- **Presence Evidence**: All presence-type findings (JSON unmarshaling in `getPlmnIDStruct`, error exposure in `HandleSubscribe`, and `c.Params` manipulation in `TwoLayerPathHandlerFunc`) cite specific functions and patterns that exhibit the claimed weakness.\n- **Absence Claims**: The claim regarding missing SUPI/UEID validation is properly grounded; the agent lists the specific handlers (`HandleGetSmfSelectData`, `HandleGetSupi`, etc.) where the `supi` parameter is extracted from the path and passed to the processor without the `validator.IsValidSupi` check seen in `HandleGetAmData`.\n- **Granularity**: Each finding is isolated to a specific class of weakness with its own impact and evidence.\n- **Classification**: The classes used (Missing Input Validation, Improper JSON Unmarshaling, Information Exposure, and Unsafe Context Manipulation/Logic Error) are plausible and align with the provided reference vocabulary.\n- **Severity Consistency**: The impacts described (downstream injection, resource exhaustion, reconnaissance, and unauthorized access) are consistent with the declared weakness classes.\n\nNo findings failed the checks.",
+      "The agent correctly identified four distinct security and logic issues. \n\n- **Presence Evidence**: All claims are backed by specific functions and patterns. The JSON unmarshaling issue is correctly traced to `getPlmnIDStruct`, the error exposure to the `HandleSubscribe` family of functions, and the parameter manipulation to the `...PathHandlerFunc` functions.\n- **Absence Claims**: The claim regarding missing SUPI validation is properly grounded; the agent lists the specific handlers (`HandleGetSmfSelectData`, `HandleGetSupi`, etc.) where the input flows from `c.Params.ByName(\"supi\")` directly to the processor without the `validator.IsValidSupi` check seen in `HandleGetAmData`.\n- **Granularity**: Each finding is isolated to a specific class of weakness (Input Validation, Resource Consumption/Logic, Information Exposure, and Logic Error).\n- **Classification**: The classifications (Missing Input Validation, Improper JSON Unmarshaling, Information Exposure, and Unsafe Context Manipulation) are plausible and align with the provided reference vocabulary.\n- **Severity Consistency**: The impacts described (downstream injection, resource exhaustion, reconnaissance, and unauthorized access) are consistent with the identified weaknesses.\n\nNo findings failed the checks."
+    ]
+  },
+  {
+    "task_id": "task8_vuln_udm_full",
+    "repetition": 2,
+    "gt_rubric_normalized": 0.667,
+    "llm_totals": [
+      10.0,
+      10.0,
+      10.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 10.0,
+    "llm_max": 10.0,
+    "m1_strict": true,
+    "coverage_cited": [
+      "HandleGetAmData",
+      "HandleGetNssai",
+      "HandleGetSmData",
+      "HandleGetSmfSelectData",
+      "HandleGetSupi",
+      "HandleGetTraceData",
+      "HandleGetUeContextInSmfData",
+      "HandleModify",
+      "HandleSubscribe",
+      "HandleSubscribeToSharedData",
+      "HandleUnsubscribe",
+      "OneLayerPathHandlerFunc"
+    ],
+    "judge_feedback": [
+      "The agent correctly identified a set of vulnerabilities and logic errors. \n\n- **Presence Evidence**: All presence-type findings (DoS via `GetRawData`, unsafe JSON parsing in `getPlmnIDStruct`, and the routing logic in `OneLayerPathHandlerFunc`) cite specific functions and code patterns that exhibit the claimed weaknesses.\n- **Absence Claims**: The agent identifies missing input validation for SUPI/UEID and explicitly lists the handlers where this check is absent (`HandleGetSmfSelectData`, `HandleGetSupi`, etc.), making the claim checkable against the provided code.\n- **Granularity**: Each finding is isolated to a specific weakness class with distinct evidence and impact.\n- **Classification**: The classes used (Missing Input Validation, DoS, Unsafe JSON Unmarshaling/Resource Exhaustion, Logic Error) are plausible and align with the reference vocabulary.\n- **Severity**: The impacts described (OOM crashes, backend errors, routing bypasses) are consistent with the identified weaknesses.\n\nNo findings failed the checks.",
+      "The agent correctly identified a set of vulnerabilities and logic errors. \n\n- **presence_evidence_score**: All presence-type findings (DoS via `GetRawData`, unsafe JSON unmarshaling in `getPlmnIDStruct`, and routing logic in `OneLayerPathHandlerFunc`) cite the specific functions and the exact code patterns that exhibit the weakness.\n- **absence_claims_score**: The absence-type finding (missing SUPI/UEID validation) explicitly lists the handlers where the check is missing (`HandleGetSmfSelectData`, `HandleGetSupi`, etc.) and contrasts them with handlers where the check is present (`HandleGetAmData`), making the absence checkable against the provided code.\n- **finding_granularity_score**: Each finding is isolated to a specific weakness class with distinct evidence and impact.\n- **weakness_classification_score**: The classifications (Missing Input Validation, DoS, Unsafe JSON parsing/Input Validation, Logic Error) are all plausible and align with the provided reference vocabulary.\n- **severity_consistency_score**: The impacts (backend crashes, OOM, unpredictable routing) are consistent with the declared weakness classes.\n\nI looked for any finding that might fail the check, such as the \"Unsafe JSON Unmarshaling\" claim. While `json.Unmarshal` is generally safe in Go, the agent correctly identified it as an \"unusual pattern\" and a potential vector for resource exhaustion when combined with user-controlled query parameters, which is a valid observation for a security review.",
+      "The agent correctly identified a set of vulnerabilities and logic errors. \n\n- **Presence Evidence**: All presence-type findings (DoS via `GetRawData`, JSON unmarshaling in `getPlmnIDStruct`, and the `strings.Contains` logic in `OneLayerPathHandlerFunc`) are backed by specific function names and code patterns present in the provided snippet.\n- **Absence Claims**: The agent identifies missing input validation for SUPI/UEID and explicitly lists the handlers where the control is missing (`HandleGetSmfSelectData`, `HandleGetSupi`, etc.), making the absence checkable against the code.\n- **Granularity**: Each finding is isolated by a distinct weakness class (Input Validation, DoS, Unsafe Parsing, Logic Error).\n- **Classification**: The classes used (Missing Input Validation, DoS, Unsafe JSON Unmarshaling, Logic Error) are plausible and align with the provided reference vocabulary.\n- **Severity Consistency**: The impact claims (OOM crashes for DoS, backend errors for missing validation) are consistent with the declared weakness classes.\n\nNo findings failed the check."
+    ]
+  },
+  {
+    "task_id": "task8_vuln_udm_full",
+    "repetition": 3,
+    "gt_rubric_normalized": 0.667,
+    "llm_totals": [
+      10.0,
+      10.0,
+      10.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 10.0,
+    "llm_max": 10.0,
+    "m1_strict": true,
+    "coverage_cited": [
+      "HandleGetAmData",
+      "HandleGetNssai",
+      "HandleGetSmData",
+      "HandleGetSmfSelectData",
+      "HandleGetSupi",
+      "HandleGetTraceData",
+      "HandleGetUeContextInSmfData",
+      "HandleModify",
+      "HandleModifyForSharedData",
+      "HandleSubscribe",
+      "HandleSubscribeToSharedData",
+      "HandleUnsubscribe",
+      "HandleUnsubscribeForSharedData"
+    ],
+    "judge_feedback": [
+      "The agent correctly identified several vulnerabilities and logic errors. \n\n- **presence_evidence_score**: 3. All presence-type findings (Logic error in `HandleGetTraceData`, Information exposure in subscription handlers, and Unsafe unmarshaling in `getPlmnIDStruct`) cite specific functions and patterns that exhibit the claimed weakness.\n- **absence_claims_score**: 2. All absence-type findings (missing SUPI/UEID validation and missing Subscription ID validation) identify the specific handlers and the exact flow (extracting from path and passing to processor) where the control is missing.\n- **finding_granularity_score**: 2. Each finding is isolated to a specific weakness class and evidence.\n- **weakness_classification_score**: 2. The classifications (Missing Input Validation, Logic Error, Information Exposure) are plausible and align with the provided reference vocabulary.\n- **severity_consistency_score**: 1. The impacts described (unexpected behavior, failed lookups, internal system leakage) are consistent with the declared weakness classes.\n\nI looked for any findings that might fail the check, such as the \"Unsafe JSON Unmarshaling\" claim. While `json.Unmarshal` is generally safe in Go, the agent correctly identified it as a \"fragile\" pattern when applied to URL query parameters in this specific context, which is a valid architectural/security observation. All other claims are well-grounded in the provided code.",
+      "The agent correctly identified a set of vulnerabilities and logic errors. \n\n- **Presence Evidence**: All presence-type findings (Logic error in `HandleGetTraceData`, Information exposure in subscription handlers, and Unsafe JSON unmarshaling in `getPlmnIDStruct`) cite specific functions and code patterns that exhibit the claimed weakness.\n- **Absence Claims**: All absence-type findings (Missing SUPI/UEID validation and missing Subscription ID validation) identify the specific handlers where the input flows from the request to the processor without the control.\n- **Granularity**: Each finding is isolated to a specific weakness class and evidence.\n- **Classification**: The agent used plausible high-level classes (Missing Input Validation, Logic Error, Information Exposure).\n- **Severity Consistency**: The impact descriptions are consistent with the identified weaknesses.\n\nNo findings failed the checks.",
+      "The agent correctly identified a set of vulnerabilities and logic errors. \n\n- **presence_evidence_score**: All presence-type findings (Logic error in `HandleGetTraceData`, Information exposure in subscription handlers, and the unsafe JSON unmarshaling in `getPlmnIDStruct`) cite specific functions and code patterns that exhibit the claimed weakness.\n- **absence_claims_score**: All absence-type findings (missing SUPI/UEID validation and missing Subscription ID validation) identify the specific handlers where the input is taken from the path and passed to the processor without the control, making the claims checkable against the provided code.\n- **finding_granularity_score**: Each finding is isolated to a specific weakness class and evidence.\n- **weakness_classification_score**: The classifications (Missing Input Validation, Logic Error, Information Exposure, Unsafe Unmarshaling) are plausible and align with the reference vocabulary.\n- **severity_consistency_score**: The impact claims are consistent with the nature of the vulnerabilities.\n\nNo findings failed the checks."
+    ]
+  },
+  {
+    "task_id": "task9_vuln_cross",
+    "repetition": 1,
+    "gt_rubric_normalized": 1.0,
+    "llm_totals": [
+      10.0,
+      10.0,
+      10.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 10.0,
+    "llm_max": 10.0,
+    "m1_strict": null,
+    "coverage_cited": [
+      "HTTPAMFStatusChangeSubscribeModify",
+      "HTTPCreateUEContext",
+      "HTTPOAMGetAmPolicy",
+      "HTTPUEContextTransfer",
+      "HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete",
+      "HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdGet",
+      "HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdPut",
+      "HandleCreateEeSubscriptions",
+      "HandleGetAmData",
+      "HandleGetSmfSelectData",
+      "HandleQueryAmfContext3gpp",
+      "HandleUnsubscribe",
+      "setCorsHeader"
+    ],
+    "judge_feedback": [
+      "- **presence_evidence_score**: All presence-type findings are correctly grounded in the code. The CORS misconfiguration is evidenced by `AllowAllOrigins: true` and `AllowCredentials: true`. The logic error in AMF is evidenced by the missing `default` case in `HTTPUEContextTransfer`. The \"double-response\" in UDR is evidenced by the missing `return` after `c.String`. The regex bypass is evidenced by the `.+` at the end of the pattern.\n- **absence_claims_score**: All absence-type findings (missing SUPI validation) identify the specific functions (`HandleGetSmfSelectData`, `HTTPOAMGetAmPolicy`, `HandleQueryAmfContext3gpp`) and the specific input (`supi` or `ueId` path parameters) that flow into the processor without validation.\n- **finding_granularity_score**: Each finding is isolated. The agent separates the cross-file inconsistency from the per-file vulnerabilities and distinguishes between the missing return (control flow) and the regex bypass (input validation) in the UDR file.\n- **weakness_classification_score**: The classifications used (Broken Access Control/Improper Error Handling for the missing return, Improper Input Validation for regex/SUPI, Insecure Configuration for CORS) are plausible and align with the reference vocabulary.\n- **severity_consistency_score**: The impact claims (NoSQL injection for UDR, double-response/unauthorized processing for missing returns, and management plane risk for CORS) are consistent with the identified weaknesses.",
+      "The agent correctly identified all critical vulnerabilities across the four files, including the subtle logic errors and cross-NF inconsistencies.\n\n- **presence_evidence_score**: 3. All presence-type findings are well-supported. The CORS misconfiguration is cited in `setCorsHeader`, the missing switch default in `HTTPUEContextTransfer`, the type mismatch in `HTTPCreateUEContext`, and the trivial regex bypass (`.+`) in `HandleCreateEeSubscriptions` are all accurately mapped to the code.\n- **absence_claims_score**: 2. Absence claims are properly grounded. The missing SUPI validation in `HandleGetSmfSelectData` is contrasted with the presence of validation in `HandleGetAmData`, and the missing `return` in UDR handlers is explicitly linked to the path where `c.String` is called but execution continues to the Processor.\n- **finding_granularity_score**: 2. Each finding is isolated. The agent separates the CORS issue, the AMF logic errors, the UDM validation gaps, and the UDR control-flow/regex issues into distinct points.\n- **weakness_classification_score**: 2. The classifications are plausible and align with the provided vocabulary (e.g., \"Improper Input Validation\" for the regex/SUPI issues, \"Broken Access Control\" for the missing return/execution flow, and \"Insecure Configuration\" for CORS).\n- **severity_consistency_score**: 1. The impact claims (NoSQL injection risk for UDR, double-response/unauthorized processing for missing returns, and management plane risk for CORS) are consistent with the identified weakness classes.",
+      "The agent provided a comprehensive and accurate security review. \n\n- **presence_evidence_score**: All presence-type findings are correctly grounded in the code. The CORS misconfiguration cites the `AllowAllOrigins: true` and `*` header; the AMF logic error identifies the missing `default` in the switch; the UDR missing return is clearly identified in the `Handle...Delete/Get/Put` functions; and the regex bypass is correctly identified by pointing to the `(.+)$` catch-all at the end of the pattern.\n- **absence_claims_score**: All absence-type findings (missing SUPI validation) are grounded in specific code paths. The agent explicitly compares the validated paths (`HandleGetAmData`) with the unvalidated paths (`HandleGetSmfSelectData`, `HTTPOAMGetAmPolicy`, etc.), showing exactly where the control is missing before the data flows to the processor.\n- **finding_granularity_score**: Each finding is isolated. The agent separates the CORS issue, the AMF switch logic, the AMF type mismatch, the UDM validation gaps, the UDR missing returns, and the UDR regex bypass into distinct points.\n- **weakness_classification_score**: The classifications are plausible and align with the reference vocabulary (e.g., \"Improper Input Validation\" for regex/SUPI checks, \"Insecure Configuration\" for CORS, \"Improper Error/Exception Handling\" for the missing return/double response).\n- **severity_consistency_score**: The impacts described (NoSQL injection risk for UDR, double-response/unauthorized processing for missing returns, and management plane risk for CORS) are consistent with the identified weaknesses.\n\nNo findings failed the checks."
+    ]
+  },
+  {
+    "task_id": "task9_vuln_cross",
+    "repetition": 2,
+    "gt_rubric_normalized": 1.0,
+    "llm_totals": [
+      10.0,
+      10.0,
+      10.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 10.0,
+    "llm_max": 10.0,
+    "m1_strict": null,
+    "coverage_cited": [
+      "HTTPAMFStatusChangeSubscribeModify",
+      "HTTPCreateUEContext",
+      "HTTPUEContextTransfer",
+      "HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete",
+      "HandleCreateEeSubscriptions",
+      "HandleGetAmData",
+      "HandleGetSmfSelectData",
+      "HandleQueryAmfContext3gpp",
+      "HandleUnsubscribe",
+      "setCorsHeader"
+    ],
+    "judge_feedback": [
+      "The agent correctly identified all the key vulnerabilities across the four files, including the subtle cross-file inconsistencies and the logic errors.\n\n- **presence_evidence_score**: All presence-type findings are well-supported. The permissive CORS in PCF is cited via `AllowAllOrigins: true`; the regex bypass in UDR is cited via the `.+` at the end of the pattern; the type mismatch in AMF is correctly contrasted between the flawed and correct handlers.\n- **absence_claims_score**: Absence claims are properly grounded. The missing `default` case in AMF is linked to the `switch` block and the subsequent processor call; the missing `return` in UDR is linked to the `if` block and the subsequent processor call; the missing SUPI validation in UDM is linked to the specific handlers (`HandleGetSmfSelectData`, etc.) where the `validator` call is absent.\n- **finding_granularity_score**: Each finding is isolated. The agent separates the cross-file validation issues from the per-file logic and configuration errors.\n- **weakness_classification_score**: While the agent used descriptive names rather than the exact reference vocabulary (e.g., \"permissive CORS\" instead of \"insecure configuration\"), the classifications are entirely plausible and map directly to the requested categories.\n- **severity_consistency_score**: The impacts described (NoSQL injection, logic bypass, type assertion failures) are consistent with the identified weaknesses.\n\nNo findings failed the checks.",
+      "The agent correctly identified all the vulnerabilities present in the provided snippets, including the subtle cross-file inconsistencies and the logic errors.\n\n- **presence_evidence_score**: 3. All presence-type findings are well-supported. The permissive CORS in PCF is cited via `AllowAllOrigins: true`; the \"catch-all\" regex in UDR is cited via the `.+` at the end of the pattern; the missing `default` case in AMF is correctly identified in `HTTPUEContextTransfer`; and the type mismatch in `c.Set` is correctly contrasted between the flawed and correct functions.\n- **absence_claims_score**: 2. All absence claims are grounded in specific code paths. The missing SUPI validation in `HandleGetSmfSelectData` is explicitly noted as a missing call to `validator.IsValidSupi()`, and the missing return in UDR is tied to the `if influenceId != \"subs-to-notify\"` block.\n- **finding_granularity_score**: 2. Each finding is isolated. The agent separates the CORS issue, the AMF switch/type issues, the UDR return issues, and the UEID validation inconsistencies into distinct points.\n- **weakness_classification_score**: 2. While the agent uses descriptive language rather than the strict rubric vocabulary in some places, the classifications are plausible and map directly to the reference vocabulary (e.g., \"permissive CORS\" $\\rightarrow$ insecure configuration; \"missing return\" $\\rightarrow$ improper error/exception handling; \"validation\" $\\rightarrow$ improper input validation).\n- **severity_consistency_score**: 1. The impacts described (NoSQL injection, logic bypass, type assertion failures) are consistent with the identified weaknesses.",
+      "The agent successfully identified all critical vulnerabilities across the four files, including the subtle cross-file inconsistencies regarding UE identifier validation.\n\n- **presence_evidence_score**: All presence-type findings are correctly evidenced. The permissive CORS policy in PCF is cited via `AllowAllOrigins: true`; the \"catch-all\" regex in UDR is cited via the `.+` at the end of the pattern; the type mismatch in AMF is cited by comparing the struct assignment in `HTTPCreateUEContext` with the string assignment in `HTTPAMFStatusChangeSubscribeModify`.\n- **absence_claims_score**: All absence-type findings are grounded in specific code paths. The missing `default` case in `HTTPUEContextTransfer` is correctly identified as a path where an unsupported content type allows the function to proceed to the processor. The missing `return` in UDR handlers is explicitly linked to the path where `influenceId != \"subs-to-notify\"`. The missing SUPI validation in `HandleGetSmfSelectData` is correctly identified as a gap compared to `HandleGetAmData`.\n- **finding_granularity_score**: Each finding is isolated. The agent separates the cross-file validation issues from the per-file logic errors and configuration issues.\n- **weakness_classification_score**: The classifications are plausible. While the agent uses descriptive language rather than the strict reference vocabulary (e.g., \"permissive CORS\" instead of \"insecure configuration\"), the mapping is clear and accurate.\n- **severity_consistency_score**: The impacts described (NoSQL injection, logic bypass, type assertion failures) are consistent with the identified weaknesses."
+    ]
+  },
+  {
+    "task_id": "task9_vuln_cross",
+    "repetition": 3,
+    "gt_rubric_normalized": 1.0,
+    "llm_totals": [
+      10.0,
+      10.0,
+      10.0
+    ],
+    "coverage_score": 2,
+    "coverage_ratio": 1.0,
+    "normalized_combined": 1.0,
+    "llm_min": 10.0,
+    "llm_max": 10.0,
+    "m1_strict": null,
+    "coverage_cited": [
+      "HTTPAMFStatusChangeSubscribeModify",
+      "HTTPCreateUEContext",
+      "HTTPOAMGetAmPolicy",
+      "HTTPUEContextTransfer",
+      "HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete",
+      "HandleCreateEeSubscriptions",
+      "HandleGetAmData",
+      "HandleGetSmfSelectData",
+      "HandleQueryAmfContext3gpp",
+      "HandleUnsubscribe",
+      "setCorsHeader"
+    ],
+    "judge_feedback": [
+      "The agent correctly identified all vulnerabilities across the four files, including the subtle cross-file inconsistencies regarding SUPI validation.\n\n- **presence_evidence_score**: All presence-type findings are well-supported. The CORS misconfiguration is cited via `AllowAllOrigins: true`, the missing return in UDR is cited via the lack of `return` after `c.String`, the regex bypass is cited via the `.+)$` pattern, and the AMF type mismatch is cited by comparing the struct assignment to the string assignment in the correct handler.\n- **absence_claims_score**: All absence-type findings (missing SUPI validation in PCF, UDR, and specific UDM handlers) are grounded in the provided code paths, showing the input (`c.Params.ByName(\"supi\")`) flowing into the processor without the `validator` check.\n- **finding_granularity_score**: Each issue is isolated. The agent separates the logic error (missing default case) from the type mismatch in AMF, and separates the missing return from the regex bypass in UDR.\n- **weakness_classification_score**: The classifications used (CORS misconfiguration, Logic Error, Missing Return/Fall-through, Ineffective Regex, Parameter Pollution/Injection) align with the provided reference vocabulary or are standard industry terms for the observed flaws.\n- **severity_consistency_score**: The impacts are consistent with the weaknesses. For example, the missing return in UDR is correctly identified as leading to the execution of sensitive operations despite a 404 response.\n\nNo findings failed the checks.",
+      "The agent successfully identified all critical vulnerabilities across the four files, including the subtle cross-file inconsistencies regarding SUPI validation.\n\n- **presence_evidence_score**: All presence-type findings are correctly grounded. The CORS misconfiguration is cited in `setCorsHeader`, the missing default case in `HTTPUEContextTransfer`, the type mismatch in `HTTPCreateUEContext`, the missing return in `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete`, and the trivial regex bypass (`|.+)$`) in `HandleCreateEeSubscriptions` are all accurately identified from the snippets.\n- **absence_claims_score**: Absence-type findings (missing SUPI validation) are properly grounded. The agent identifies the specific functions where validation is missing (`HandleGetSmfSelectData` in UDM, `HTTPOAMGetAmPolicy` in PCF, `HandleQueryAmfContext3gpp` in UDR) and contrasts them with the functions where validation is present, showing the exact path where the control is omitted.\n- **finding_granularity_score**: Each finding is isolated. The agent separates the cross-file validation issue from the per-file logic errors and configuration flaws.\n- **weakness_classification_score**: The classifications are plausible and align with the provided reference vocabulary (CORS $\\rightarrow$ insecure configuration; Missing Return $\\rightarrow$ improper error/exception handling; Regex $\\rightarrow$ improper input validation; Type Mismatch $\\rightarrow$ logic error).\n- **severity_consistency_score**: The impact claims are consistent with the weaknesses. For example, the lack of validation in UDR is correctly linked to NoSQL injection due to the direct pass to a MongoDB filter.",
+      "The agent provided a high-quality security review that correctly identified all the vulnerabilities embedded in the provided snippets.\n\n- **presence_evidence_score**: 3. All presence-type findings are backed by specific code evidence. The CORS misconfiguration cites the `AllowAllOrigins: true` and `*` header; the missing default case in AMF is correctly identified in `HTTPUEContextTransfer`; the missing return in UDR is correctly identified in the `influenceId` check; and the regex bypass is correctly identified by pointing to the `.+)$` alternation.\n- **absence_claims_score**: 2. The absence-type findings (missing SUPI validation) are properly grounded. The agent identifies the specific functions where validation is missing (`HandleGetSmfSelectData` in UDM, `HTTPOAMGetAmPolicy` in PCF, and `HandleQueryAmfContext3gpp` in UDR) and explains the data flow (e.g., `ueId` flowing directly to a MongoDB filter in UDR).\n- **finding_granularity_score**: 2. Each finding is isolated. The agent separates the cross-file validation inconsistency from the per-file logic errors and configuration issues.\n- **weakness_classification_score**: 2. The classifications are plausible and align with the reference vocabulary: \"CORS Misconfiguration\" (Insecure Configuration), \"Missing Return\" (Improper Error Handling), \"Ineffective Regex\" (Improper Input Validation), and \"Logic Error\" (Incorrect Logic).\n- **severity_consistency_score**: 1. The impact claims are consistent with the weaknesses. For example, the lack of validation in UDR is linked to NoSQL injection due to the MongoDB filter, and the missing return in UDR is linked to the execution of sensitive operations despite a 404 response."
+    ]
+  }
+]

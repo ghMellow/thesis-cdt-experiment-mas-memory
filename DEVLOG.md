@@ -2,6 +2,14 @@
 
 ---
 
+## 2026-07-16 — judge_rubric: rubrica GT-free v2 eseguita nel banco C1/C2 (doc 12→13)  [sessione: e68b2265]
+
+**Intent:** "eseguila e riporta il risultato e infine pusha" — eseguire il test di ammissione della v2 proposta nel doc 12
+**Divergenze:** superficie a rischio definita operativamente come "funzione con `*gin.Context`" (handler + middleware CORS) — scelta AI, più stretta dell'elenco doc 12 §4 (i percorsi d'errore vivono dentro gli handler); motivazioni implementate estendendo il system prompt del giudice (`MOTIVATION_INSTRUCTION`) e persistendo la sezione feedback già estratta da `_extract_judge_scores_markdown`, senza toccare `agents/`
+**Decisioni:** estensione dello script v1 (`--rubric`, `--coverage surfaces`, `--motivations`) invece di script nuovo; stessi K=3, giudice di sistema, banco invariato
+**Esito/Problemi:** **CGP +0.600** (v1 +0.437), 0/5 C2 promossi (task7 C2 1.00→0.61: il giudice cita la contro-evidenza "ueContextId mai estratto dal contesto Gin"), 0/5 C1 bocciati; report reali ancora saturi 10/10, accordo M1-strict 9/12 → **ammissione parziale (3/5 target)**, doc 13
+**Lesson learned:** l'istruzione "cerca attivamente un finding che fallirebbe il controllo prima di dare il massimo" è la singola modifica più efficace (chiude da sola il buco dei claim di assenza); la completezza è confermata non-rubricabile — i report sinceri-ma-incompleti dicono solo cose vere, e nessun giudizio sull'argomentazione può vedere ciò che manca: serve un enumeratore di candidate (G5/SAST)
+
 ## 2026-07-16 — judge_rubric: proposta rubrica GT-free v2 (doc 12, non eseguita)  [sessione: e68b2265]
 
 **Intent:** "proponi una versione v2 di questa rubrica" + due messaggi verbatim dell'esperto di sicurezza del gruppo (analisi results/evaluation pre-metriche) da pesare

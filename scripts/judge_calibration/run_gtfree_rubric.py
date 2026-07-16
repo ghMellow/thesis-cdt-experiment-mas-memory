@@ -1,9 +1,12 @@
-"""Doc judge_rubric/10: rubrica GT-free (doc 05) nel banco di prova del doc 08.
+"""Doc judge_rubric/10 e 12: rubriche GT-free nel banco di prova del doc 08.
 
-Giudica con la rubrica task-independent `gtfree/rubric_v1.json` (3 criteri LLM,
-total_max 7) e aggiunge il criterio di coverage calcolato deterministicamente
-(0-2, stile SGV G2): funzioni Go esportate citate dal report / esposte nel
-task. Score combinato normalizzato su 9.
+Giudica con una rubrica task-independent caricata da file (default: v1,
+`gtfree/rubric_v1.json`) e aggiunge il criterio di coverage calcolato
+deterministicamente (0-2, stile SGV G2). Due varianti di coverage:
+    functions  (v1) funzioni Go citate / funzioni nel task (cap 6)
+    surfaces   (v2, doc 12 par. 4) superfici a rischio citate / superfici nel
+               task -- una superficie = funzione con parametro *gin.Context
+               (handler HTTP con input esterno, middleware/config CORS)
 
 Due set:
     --set c1c2    i 10 report di calibrazione (CGP GT-free vs baseline doc 09)
@@ -11,9 +14,11 @@ Due set:
                   accordo con M1-strict)
 
 Uso:
-    python scripts/judge_calibration/run_gtfree_rubric.py --set c1c2 [-k 3]
+    python scripts/judge_calibration/run_gtfree_rubric.py --set c1c2 [-k 3] \
+        [--rubric docs/judge_rubric/gtfree/rubric_v2_draft.json --coverage surfaces]
 Output:
-    results/evaluation/judge_calibration/gtfree_<set>_<model>.md (+ .json)
+    results/evaluation/judge_calibration/<prefix>_<set>_<model>.md (+ .json)
+    dove <prefix> = gtfree (v1) o gtfree_v2 (rubrica v2)
 """
 
 import argparse
@@ -45,12 +50,30 @@ COVERAGE_MAX = 2
 # ratio would make full coverage unreachable for any honest report.
 COVERAGE_DENOM_CAP = 6
 GO_FUNC_RE = re.compile(r"func\s+(?:\([^)]*\)\s*)?([A-Za-z_]\w*)\s*\(")
+# Risk surface (doc 12 par. 4): a function taking *gin.Context -- HTTP
+# handlers with external input plus middleware/config (e.g. CORS headers).
+GO_SURFACE_RE = re.compile(
+    r"func\s+(?:\([^)]*\)\s*)?([A-Za-z_]\w*)\s*\([^)]*\*gin\.Context"
+)
+
+# Judge output requirement of rubric v2 (doc 12 par. 3): motivations for
+# every criterion scored below its max, appended to the rubric prompt.
+MOTIVATION_INSTRUCTION = (
+    "\n\nAdditional output requirement: in the Feedback section, for every "
+    "criterion you score below its maximum, list which findings fail the "
+    "check and why (for presence claims: which signature is missing in the "
+    "cited snippet; for absence claims: which code path is not shown). "
+    "Before awarding a maximum score, actively look for at least one finding "
+    "that would fail the check and state why none does."
+)
 
 
-def task_functions(task_id):
-    """All Go functions (exported and not) in the task's code extract."""
+def task_functions(task_id, mode="functions"):
+    """Go functions in the task's code extract: all of them (v1 coverage) or
+    only risk surfaces, i.e. *gin.Context functions (v2 coverage)."""
     text = Path(f"docs/tasks/{task_id}.md").read_text(encoding="utf-8")
-    return sorted(set(GO_FUNC_RE.findall(text)))
+    regex = GO_SURFACE_RE if mode == "surfaces" else GO_FUNC_RE
+    return sorted(set(regex.findall(text)))
 
 
 def coverage_score(report_text, functions):
@@ -65,17 +88,20 @@ def coverage_score(report_text, functions):
     return score, round(ratio, 3), cited
 
 
-def judge_k(task_id, agent_response, rubric, model, is_hosted, k):
-    """K samples with the GT-free rubric; returns list of llm normalized-on-7 totals."""
+def judge_k(task_id, agent_response, rubric, model, is_hosted, k, motivations=False):
+    """K samples with the GT-free rubric; returns (llm totals, feedback texts)."""
     task_content = Path(f"docs/tasks/{task_id}.md").read_text(encoding="utf-8")
-    totals = []
+    system_prompt = build_judge_prompt(rubric)
+    if motivations:
+        system_prompt += MOTIVATION_INSTRUCTION
+    totals, feedbacks = [], []
     for i in range(1, k + 1):
         print(f"[{task_id} k={i}] judging with {model} (GT-free rubric)...")
         score, _, _ = run_judge_textual(
             task_content=task_content,
             rubric=rubric,
             agent_response=agent_response,
-            system_prompt=build_judge_prompt(rubric),
+            system_prompt=system_prompt,
             model=model,
             temperature=config.TEMPERATURE,
             base_url=config.OLLAMA_BASE_URL,
@@ -90,11 +116,13 @@ def judge_k(task_id, agent_response, rubric, model, is_hosted, k):
             )
         total = min(max(float(total), 0.0), float(rubric["total_max"]))
         totals.append(total)
-    return totals
+        if motivations and score.get("feedback"):
+            feedbacks.append(str(score["feedback"]))
+    return totals, feedbacks
 
 
 def combined(llm_totals, cov, rubric):
-    """Mean combined normalized score: (mean LLM total + coverage) / (7 + 2)."""
+    """Mean combined normalized score: (mean LLM total + coverage) / (total_max + 2)."""
     mean_llm = sum(llm_totals) / len(llm_totals)
     denom = rubric["total_max"] + COVERAGE_MAX
     return round((mean_llm + cov) / denom, 3), round(min(llm_totals), 1), round(max(llm_totals), 1)
@@ -104,32 +132,34 @@ def report_text_of(response):
     return f"{response.get('answer', '')}\n{response.get('reasoning', '')}"
 
 
-def run_c1c2(rubric, model, is_hosted, k):
+def run_c1c2(rubric, model, is_hosted, k, coverage_mode, motivations):
     rows = []
     for path in sorted(C1C2_DIR.glob("task*_C[12].json")):
         task_id, kind = path.stem.rsplit("_", 1)
         response = json.loads(path.read_text(encoding="utf-8"))
-        funcs = task_functions(task_id)
+        funcs = task_functions(task_id, coverage_mode)
         cov, ratio, cited = coverage_score(report_text_of(response), funcs)
-        totals = judge_k(task_id, response, rubric, model, is_hosted, k)
+        totals, feedbacks = judge_k(
+            task_id, response, rubric, model, is_hosted, k, motivations
+        )
         norm, lo, hi = combined(totals, cov, rubric)
         rows.append({
             "task_id": task_id, "kind": kind, "llm_totals": totals,
             "coverage_score": cov, "coverage_ratio": ratio,
             "cited": cited, "n_exposed": len(funcs), "normalized_combined": norm,
-            "llm_min": lo, "llm_max": hi,
+            "llm_min": lo, "llm_max": hi, "judge_feedback": feedbacks,
         })
     return rows
 
 
-def run_saved(rubric, model, is_hosted, k):
+def run_saved(rubric, model, is_hosted, k, coverage_mode, motivations):
     rows = []
     for path in sorted(glob.glob(os.path.join(config.RESULTS_PATH, "*", "*", "agent", "*.json"))):
         with open(path) as f:
             data = json.load(f)
         if data.get("task_type") != "textual":
             continue
-        funcs = task_functions(data["task_id"])
+        funcs = task_functions(data["task_id"], coverage_mode)
         for rep in data.get("repetitions", []):
             original = rep.get("judge_score") or {}
             if "normalized_score" not in original:
@@ -140,7 +170,9 @@ def run_saved(rubric, model, is_hosted, k):
             for finding in cvss.get("findings", []):
                 text += "\n" + str(finding.get("function", ""))
             cov, ratio, cited = coverage_score(text, funcs)
-            totals = judge_k(data["task_id"], response, rubric, model, is_hosted, k)
+            totals, feedbacks = judge_k(
+                data["task_id"], response, rubric, model, is_hosted, k, motivations
+            )
             norm, lo, hi = combined(totals, cov, rubric)
             cvss_eval = rep.get("cvss_eval") or {}
             m1_strict = (
@@ -152,7 +184,8 @@ def run_saved(rubric, model, is_hosted, k):
                 "gt_rubric_normalized": original["normalized_score"],
                 "llm_totals": totals, "coverage_score": cov, "coverage_ratio": ratio,
                 "normalized_combined": norm, "llm_min": lo, "llm_max": hi,
-                "m1_strict": m1_strict,
+                "m1_strict": m1_strict, "coverage_cited": cited,
+                "judge_feedback": feedbacks,
             })
     return rows
 
@@ -163,9 +196,17 @@ def main():
     parser.add_argument("--model", default=None)
     parser.add_argument("--local", action="store_true")
     parser.add_argument("-k", type=int, default=3)
+    parser.add_argument("--rubric", default=str(RUBRIC_PATH))
+    parser.add_argument("--coverage", choices=["functions", "surfaces"],
+                        default="functions")
+    parser.add_argument("--motivations", action="store_true",
+                        help="require per-criterion failure motivations (doc 12 par. 3)")
     args = parser.parse_args()
 
-    rubric = json.loads(RUBRIC_PATH.read_text(encoding="utf-8"))
+    rubric_path = Path(args.rubric)
+    rubric = json.loads(rubric_path.read_text(encoding="utf-8"))
+    prefix = "gtfree" if rubric_path.stem == "rubric_v1" else "gtfree_v2"
+    label = "v1" if prefix == "gtfree" else "v2"
     if args.model:
         model, is_hosted = args.model, not args.local
     else:
@@ -175,12 +216,13 @@ def main():
     slug = _model_slug(model, is_hosted)
 
     if args.set == "c1c2":
-        rows = run_c1c2(rubric, model, is_hosted, args.k)
+        rows = run_c1c2(rubric, model, is_hosted, args.k, args.coverage, args.motivations)
         c1 = [r["normalized_combined"] for r in rows if r["kind"] == "C1"]
         c2 = [r["normalized_combined"] for r in rows if r["kind"] == "C2"]
         cgp = sum(c1) / len(c1) - sum(c2) / len(c2)
         lines = [
-            f"# Rubrica GT-free v1 — set C1/C2, giudice {model} (doc judge_rubric/10)",
+            f"# Rubrica GT-free {label} — set C1/C2, giudice {model} "
+            f"(doc judge_rubric/{'10' if label == 'v1' else '12'})",
             "",
             f"- **CGP GT-free = {cgp:+.3f}** (C1 medio {sum(c1) / len(c1):.3f}, "
             f"C2 medio {sum(c2) / len(c2):.3f}) — baseline GT-derivata (doc 09): +0.948",
@@ -188,7 +230,8 @@ def main():
             f"{sum(1 for s in c2 if s >= 0.7)}/{len(c2)} a t=0.7",
             f"- C1 sotto soglia a t=0.65: {sum(1 for s in c1 if s < 0.65)}/{len(c1)}",
             "",
-            "| task | kind | LLM medio/7 (min–max) | coverage (ratio) | combinato /1 |",
+            f"| task | kind | LLM medio/{rubric['total_max']} (min–max) | "
+            f"coverage (ratio) | combinato /1 |",
             "|---|---|---|---|---|",
         ]
         for r in rows:
@@ -199,7 +242,7 @@ def main():
                 f"({r['coverage_ratio']}) | {r['normalized_combined']:.2f} |"
             )
     else:
-        rows = run_saved(rubric, model, is_hosted, args.k)
+        rows = run_saved(rubric, model, is_hosted, args.k, args.coverage, args.motivations)
         flips_065 = sum(
             1 for r in rows
             if (r["gt_rubric_normalized"] >= 0.65) != (r["normalized_combined"] >= 0.65)
@@ -213,7 +256,8 @@ def main():
             1 for r in defined if (r["normalized_combined"] >= 0.65) == r["m1_strict"]
         )
         lines = [
-            f"# Rubrica GT-free v1 — set report salvati, giudice {model} (doc judge_rubric/10)",
+            f"# Rubrica GT-free {label} — set report salvati, giudice {model} "
+            f"(doc judge_rubric/{'10' if label == 'v1' else '12'})",
             "",
             f"- Ripetizioni: {len(rows)}",
             f"- Flip vs rubrica GT-derivata: {flips_065}/{len(rows)} a t=0.65 — "
@@ -221,7 +265,8 @@ def main():
             f"- Accordo con M1-strict a t=0.65: {agree}/{len(defined)} "
             f"(baseline GT-derivata: 12/12)",
             "",
-            "| task | rep | GT-rubric | GT-free comb. | LLM/7 (min–max) | cov | M1-strict |",
+            f"| task | rep | GT-rubric | GT-free comb. | "
+            f"LLM/{rubric['total_max']} (min–max) | cov | M1-strict |",
             "|---|---|---|---|---|---|---|",
         ]
         for r in rows:
@@ -233,9 +278,9 @@ def main():
                 f"({r['llm_min']}–{r['llm_max']}) | {r['coverage_score']} | {m1s} |"
             )
 
-    with open(os.path.join(OUT_DIR, f"gtfree_{args.set}_{slug}.json"), "w") as f:
+    with open(os.path.join(OUT_DIR, f"{prefix}_{args.set}_{slug}.json"), "w") as f:
         json.dump(rows, f, indent=2)
-    with open(os.path.join(OUT_DIR, f"gtfree_{args.set}_{slug}.md"), "w") as f:
+    with open(os.path.join(OUT_DIR, f"{prefix}_{args.set}_{slug}.md"), "w") as f:
         f.write("\n".join(lines) + "\n")
     print("\n".join(lines))
 
