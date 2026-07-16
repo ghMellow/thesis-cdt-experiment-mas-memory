@@ -60,10 +60,13 @@ Cartella gemella di `sgv_protocol/` (che copre l'in-loop): qui si discute il **g
 | Documento | Contenuto |
 |-----------|-----------|
 | [judge_rubric/00_proposta_rubrica_cvss.md](judge_rubric/00_proposta_rubrica_cvss.md) | Antecedente (verbale decima call, 2026-07-08): rubrica v2 a due blocchi, tabella "Fase 2 senza GT" che apre il tema della cartella; schema dati, matching CVE↔handler, scelta B vs BT tuttora validi |
+| [judge_rubric/00_call11_2026-07-10.md](judge_rubric/00_call11_2026-07-10.md) | Antecedente (estratto undicesima call): Lorenzo propone di eliminare il giudice (output = lista CVSS ordinabile), difesa di Andrea, genealogia della rubrica GT-derivata, uscita dalla GT come obiettivo d'articolo, metriche di qualità/costo |
+| [judge_rubric/00_call12_2026-07-14.md](judge_rubric/00_call12_2026-07-14.md) | Antecedente (estratto dodicesima call): «un cane che si morde la coda» (circolarità rubrica↔GT), nascita delle idee "rubrica come esperto di sicurezza" e "rubrica ancorata alle CWE", rubrica attuale declassata a strada tentata, controprova su file mai visto |
 | [judge_rubric/01_stato_attuale_giudice_rubrica.md](judge_rubric/01_stato_attuale_giudice_rubrica.md) | Stato attuale: come funziona il giudice a rubrica, teoria e paper di riferimento (MT-Bench, G-Eval, Prometheus, RUBRICEVAL), debolezze osservate nel progetto, limite strutturale della rubrica GT-derivata |
 | [judge_rubric/02_paper_LLM-as-a-Verifier_2607.05391v2.md](judge_rubric/02_paper_LLM-as-a-Verifier_2607.05391v2.md) | Paper (verbatim, arXiv:2607.05391): score continui via expectation sui logit dei token di punteggio, scaling su granularità/ripetizione/decomposizione dei criteri — proposta futura come alternativa di rubrica |
 | [judge_rubric/03_discussione_llm_as_a_verifier.md](judge_rubric/03_discussione_llm_as_a_verifier.md) | Discussione del paper: mappa sul nostro sistema, fattibilità con Ollama/logprobs, cosa NON risolve (soglia, criteri GT-free), valutazione di Claude e proposta di pilota offline |
 | [judge_rubric/04_alternative_e_proposte.md](judge_rubric/04_alternative_e_proposte.md) | Alternative a confronto: rubrica "workflow esperto di sicurezza", criteri GT-free di qualità del report (raccomandata), ancoraggio CWE, calibrazione soglia, giudice ≠ agente — con sequenza operativa proposta |
+| [judge_rubric/05_rubrica_esperto_cwe_5g.md](judge_rubric/05_rubrica_esperto_cwe_5g.md) | Sviluppo dell'idea di call 12: combinazione workflow esperto × CWE di alto livello — giudice come auditor (non analista), matrice di criteri con coverage deterministico stile SGV, livello della tassonomia anti-leakage, onestà sulla "CWE 5G" (non esiste: FiGHT/SCAS come contesto), validazione con controprova su file mai visto |
 
 ## 📎 Supporto
 

@@ -13,7 +13,9 @@ Una proposta di rubrica è buona per noi se:
 
 (R4) è il punto metodologicamente forte della nostra posizione: avendo già il ramo deterministico, qualunque giudice GT-free è calibrabile e difendibile empiricamente, non solo argomentativamente.
 
-## 2. Opzione A — Rubrica "workflow dell'esperto di sicurezza" (idea dell'utente)
+## 2. Opzione A — Rubrica "workflow dell'esperto di sicurezza" (idea nata in call 12)
+
+> Origine testuale in `00_call12_2026-07-14.md` §2: «io mi provo a immaginare di essere un esperto di sicurezza che deve trovare delle CVE — quali sono i criteri con cui io, facendo l'analisi, vado a selezionare parti di codice? […] simulare il metodo di lavoro». **La combinazione di questa opzione con la C (CWE) è sviluppata nel doc 05**, dove il giudizio dato qui viene parzialmente rivisto: insieme sono più forti che separate.
 
 Impostare la rubrica su come lavora un esperto quando analizza codice per trovare vulnerabilità: copertura delle superfici di input, tracciamento del flusso dati, controllo dei percorsi d'errore, ecc. Il giudice valuterebbe se il *processo* dell'agente assomiglia a quello di un esperto.
 
@@ -42,7 +44,9 @@ Estrazione dello score con il metodo del doc 03 (scala 1–20, K ripetizioni, ex
 
 Costo di transizione: le rubriche per-task nei `_sol.md` verrebbero sostituite da *una* rubrica per-dominio (task-independent) — semplifica anche la manutenzione e risolve il problema del doc 01 §3.7 (rubrica che non scala al file `_full`, perché non nomina più bug specifici).
 
-## 4. Opzione C — Rubrica ancorata a CWE (già ipotizzata in call 12)
+## 4. Opzione C — Rubrica ancorata a CWE (nata in call 12)
+
+> In call 12 il relatore l'ha formulata così: «quello potrebbe essere un modo per stilare una rubrica che non è legata a nessuna ground truth» (vedi `00_call12_2026-07-14.md` §3, con la distinzione CVE/CWE e il limite ammesso: non si scoprono weakness nuove). La declinazione 5G e il livello giusto della tassonomia sono discussi nel doc 05 §3–4.
 
 Criteri per *classe di debolezza* (es. CWE-248 uncaught exception, CWE-754 improper check) invece che per vulnerabilità puntuale: il giudice valuta se il finding identifica correttamente una classe CWE plausibile per il codice citato.
 
@@ -67,3 +71,5 @@ Criteri per *classe di debolezza* (es. CWE-248 uncaught exception, CWE-754 impro
 | Giudice ≠ agente | n/a | ✅ | ✅ | **basso** | fare comunque |
 
 **Sequenza proposta da discutere col gruppo**: (1) calibrazione soglia + giudice di famiglia diversa sui dati esistenti (zero run nuove); (2) pilota doc 03 §5 (K, scala 1–20, rivalutazione offline dei report salvati); (3) se il pilota regge, sostituire le rubriche per-task GT-derivate con la rubrica per-dominio dell'opzione B, tenendo M1–M3/S1–S3 come metro di validazione (R4). Ogni passo è un confronto misurabile, presentabile come contributo metodologico della tesi.
+
+> **Aggiornamento (doc 05):** per il passo (3) esiste ora una forma concreta — la matrice workflow esperto × classi CWE di alto livello, con il criterio di coverage calcolato deterministicamente in stile SGV — e un test di accettazione preciso, la controprova su file mai visto proposta dal relatore in call 12. Vedi `05_rubrica_esperto_cwe_5g.md`.

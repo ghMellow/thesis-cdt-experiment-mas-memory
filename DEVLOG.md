@@ -2,6 +2,20 @@
 
 ---
 
+## 2026-07-16 — Prompt CVSS: verifica ordine reasoning→risposte + disambiguazione posizione  [sessione: 58313b68]
+
+**Intent:** finding dell'utente sui modelli piccoli (ragionamento prima, valori secchi dopo): "qui nei vari punti l'ordine delle richieste è corretto?"
+**Divergenze:** verifica AI: ordine già corretto ovunque (task Reasoning→Answer→Confidence; blocco CVSS function→vector→score). Segnalati due punti: (a) "between Reasoning and Confidence" ambiguo rispetto ad Answer; (b) il vector non ha micro-reasoning proprio — proposta riga di giustificazione per gruppi di metriche
+**Decisioni:** (a) accettato ("meglio togliere le ambiguità") → applicato in `agents/prompts.py`: "after the Answer section and before Confidence"; (b) rimandato a valutazione — timore dell'utente per la robustezza dell'estrazione md→json; verificato che il parser (`cvss_utils.py`) ignora righe con chiavi sconosciute e SGV G1 controlla solo i campi richiesti, quindi il rischio parsing è basso, ma nessuna implementazione per ora
+**Esito/Problemi:** modifica solo testuale al prompt, parser position-independent (estrazione per nome header in `_llm_utils.py`), nessun impatto su codice o SGV
+
+## 2026-07-16 — judge_rubric: estratti call 11/12 + doc 05 (esperto × CWE 5G)  [sessione: e68b2265]
+
+**Intent:** fornite le trascrizioni di undicesima e dodicesima call ("se vuoi creare dei file simili sempre come 00_nome_undicesima e poi un altro come 00_nome_dodicesima"); collegare i nuovi spunti nei doc successivi; "aggiungi una discussione - valutazione tua idee" sull'idea rubrica-esperto + CWE MITRE + CWE specifiche 5G ("non so… questo va ancora tutto deciso")
+**Divergenze:** naming `00_call11_2026-07-10.md` / `00_call12_2026-07-14.md` invece del letterale "00_nome_undicesima" (ordinamento alfabetico sensato accanto a `00_proposta_`); i due 00 sono *estratti tematici* focalizzati sul giudice, non trascrizioni integrali (fonte citata in testa: tesi-vault; il lato SGV di call 12 resta in `sgv_protocol/04`); nel doc 05 presa di posizione non richiesta: la combinazione esperto×CWE è più forte delle due idee separate e diventa l'istanziazione concreta dell'opzione B del doc 04 (giudice-auditor vs giudice-analista, coverage deterministico stile SGV, tassonomia a livello alto anti-leakage); segnalato che non esiste una vista CWE ufficiale 5G (FiGHT/SCAS solo come contesto, da riverificare su MITRE)
+**Decisioni:** eseguito tutto sulla base della libertà concessa; posizioni del doc 05 da validare con l'utente/gruppo
+**Esito/Problemi:** creati `00_call11`, `00_call12`, `05_rubrica_esperto_cwe_5g.md`; agganci retroattivi in doc 01 §3-4 (Lorenzo "eliminerei il giudice", "cane che si morde la coda", rubrica declassata a strada tentata), doc 04 §2/§4/§6 (origini in call 12 + rinvio al doc 05); indice README aggiornato. Trascrizione call 12 di qualità bassa: citazioni ripulite, senso ricostruito dal contesto (dichiarato in testa al doc)
+
 ## 2026-07-16 — proposta_rubrica_cvss spostata in judge_rubric come doc 00  [sessione: e68b2265]
 
 **Intent:** "vorrei capire dove spostarlo che ora era in una posizione provvisoria tra le cartelle che abbiamo: judge_rubric, sgv_protocol o supporto?" — supera l'entry precedente ("resta in docs/"): la posizione in docs/ root era provvisoria, la domanda era *dove*, non *se*

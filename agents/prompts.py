@@ -73,8 +73,8 @@ CVSS_PROMPT_BLOCK_HEADER = """
 ## CVSS Estimate (required)
 
 For each vulnerability reported in your Answer, also estimate its CVSS 4.0 base
-metrics. Add this exact section to your response, between Reasoning and Confidence,
-repeating the {n} lines below for each finding. Each finding names exactly ONE
+metrics. Add this exact section to your response, after the Answer section and
+before Confidence, repeating the {n} lines below for each finding. Each finding names exactly ONE
 function: if the same vulnerability affects several functions, repeat the whole
 block once per affected function (same vector/score, one `function:` line each)
 instead of listing multiple function names in a single line.
