@@ -24,7 +24,7 @@ Oggi il grafo LangGraph produce **un verdetto per intero tentativo** (`state["ve
 
 ### 2.3 Cosa serve costruire ex novo
 - **G1** (schema): già vicino a quanto fa il parsing esistente (`_extract_judge_scores_markdown` / `_extract_json_from_text` in `agents/_llm_utils.py`), ma lì il parsing è lato-judge; va spostato lato-SGV, prima e indipendente dal giudizio di merito.
-- **G2/G3** (esistenza simboli, groundedness snippet): richiedono che il testo esatto del codice mostrato all'agente sia congelato e riusabile per un confronto substring case-insensitive — nessuna normalizzazione che comprometta il match esatto. Da verificare come i task `_full` (task6/7/8) costruiscono il contesto, dato che sono proprio quelli dove il rubric accuracy è crollato in run 5 (`docs/07_risultati_cvss_run5_full_context.md`) — un problema di matching già osservato empiricamente, non solo teorico.
+- **G2/G3** (esistenza simboli, groundedness snippet): richiedono che il testo esatto del codice mostrato all'agente sia congelato e riusabile per un confronto substring case-insensitive — nessuna normalizzazione che comprometta il match esatto. Da verificare come i task `_full` (task6/7/8) costruiscono il contesto, dato che sono proprio quelli dove il rubric accuracy è crollato nella run a contesto pieno — un problema di matching già osservato empiricamente, non solo teorico.
 - **G4** (validità sintattica vettore CVSS): riusabile quasi di peso da `utils/cvss_eval.py` (già fa parsing/validazione vettori v4.0 con la libreria `cvss`).
 
 ## 3. Rischi/domande aperte prima di implementare

@@ -15,14 +15,6 @@ Come è fatto e come gira il progetto di sperimentazione.
 | [findings.md](findings.md) | Registro empirico: osservazioni che hanno causato correzioni al codice/metodo |
 | [risultati_template.md](risultati_template.md) | **Template** da copiare per il prossimo doc `0N_risultati_*.md`: cosa NON ripetere (già in `results/evaluation/*.md`), scheletro, checklist |
 | [experiments_framing.md](experiments_framing.md) | Coda di esperimenti framing (expert vs beginner) |
-| [01_proposta_rubrica_cvss.md](01_proposta_rubrica_cvss.md) | Proposta rubrica v2 con CVSS (post decima call) — documento di allineamento team |
-| [02_risultati_cvss_run1.md](02_risultati_cvss_run1.md) | Prima run esperimento 2b (rubrica + CVSS) su task5–9, senza hint di contesto — setup, risultati, findings |
-| [03_discussione_post_01_02.md](03_discussione_post_01_02.md) | Verbale della discussione del team dopo la condivisione dei due documenti sopra |
-| [04_risultati_cvss_run2.md](04_risultati_cvss_run2.md) | Run 2: stesso setup + hint di contesto NF (proposta Lorenzo) — confronto diretto con run 1, findings F7–F11 |
-| [05_risultati_cvss_run3.md](05_risultati_cvss_run3.md) | Run 3: stesso hint, REPETITIONS=3 — chiude se gli effetti di run 2 erano rumore o reali, findings F12–F16 |
-| [06_risultati_cvss_run4.md](06_risultati_cvss_run4.md) | Run 4: agente unico + matematica ufficiale FIRST 4.0 + prompt a 11 metriche — lo score ricalcolato dal vettore batte quello dichiarato, findings F17–F20 |
-| [07_risultati_cvss_run5_full_context.md](07_risultati_cvss_run5_full_context.md) | Run 5: contesto pieno (task6/7/8 `_full`) — il rubric accuracy crolla su task6/7 (0/6), invariato su task8/9; findings F21–F24 |
-| [08_risultati_cvss_run6_verifica_indipendente.md](08_risultati_cvss_run6_verifica_indipendente.md) | Run 6: prima run con `run_id` reale — verifica indipendente, F17/F18/F21 si riconfermano su campione fresco; findings F25–F28 |
 | [changelog.md](changelog.md) | Storico modifiche |
 | [tasks/](tasks/) | I task di code review usati dagli agenti |
 
@@ -67,6 +59,7 @@ Cartella gemella di `sgv_protocol/` (che copre l'in-loop): qui si discute il **g
 
 | Documento | Contenuto |
 |-----------|-----------|
+| [judge_rubric/00_proposta_rubrica_cvss.md](judge_rubric/00_proposta_rubrica_cvss.md) | Antecedente (verbale decima call, 2026-07-08): rubrica v2 a due blocchi, tabella "Fase 2 senza GT" che apre il tema della cartella; schema dati, matching CVE↔handler, scelta B vs BT tuttora validi |
 | [judge_rubric/01_stato_attuale_giudice_rubrica.md](judge_rubric/01_stato_attuale_giudice_rubrica.md) | Stato attuale: come funziona il giudice a rubrica, teoria e paper di riferimento (MT-Bench, G-Eval, Prometheus, RUBRICEVAL), debolezze osservate nel progetto, limite strutturale della rubrica GT-derivata |
 | [judge_rubric/02_paper_LLM-as-a-Verifier_2607.05391v2.md](judge_rubric/02_paper_LLM-as-a-Verifier_2607.05391v2.md) | Paper (verbatim, arXiv:2607.05391): score continui via expectation sui logit dei token di punteggio, scaling su granularità/ripetizione/decomposizione dei criteri — proposta futura come alternativa di rubrica |
 | [judge_rubric/03_discussione_llm_as_a_verifier.md](judge_rubric/03_discussione_llm_as_a_verifier.md) | Discussione del paper: mappa sul nostro sistema, fattibilità con Ollama/logprobs, cosa NON risolve (soglia, criteri GT-free), valutazione di Claude e proposta di pilota offline |

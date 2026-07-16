@@ -356,6 +356,7 @@ def _build_cost_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[
         "",
         "**Legend**",
         "",
+        "- `M5` = cost per repetition: wall-clock time + tokens in/out for agent and judge.",
         "- `n` = repetitions included, across every task type (not restricted to CVSS tasks).",
         "- `avg elapsed` = wall-clock seconds per repetition, start to save — includes every "
         "attempt when a retry (SGV or rubric) was triggered.",
@@ -469,18 +470,34 @@ def _build_cvss_section(
     lines = ['<a id="cvss-estimate"></a>', "## CVSS estimate (Blocco B, deterministic)", ""]
     lines += _build_cvss_vector_detail(roles, experiment_id, results_path)
     lines += _build_cvss_unmatched(roles, experiment_id, results_path)
-    lines += _build_detection_metrics_section(roles)
-    lines += _build_severity_metrics_section(roles)
+
+    # All the tables below are roll-ups over every repetition of the task —
+    # M1-M3/S1-S3 included (per-role rows, TP pooled across reps), not
+    # per-repetition detail. One umbrella heading makes the hierarchy explicit:
+    # headline metrics (advisor's proposal) first, legacy diagnostics last
+    # (2026-07-16 feedback: "Aggregate metrics" alone read as *the* aggregates,
+    # as if M/S were something else).
+    lines += [
+        '<a id="metrics-across-reps"></a>',
+        "### Metrics across repetitions",
+        "",
+        "_Every table in this section aggregates over all repetitions of the task "
+        "(one row per role); the per-finding detail is above._",
+        "",
+    ]
+    lines += _build_detection_metrics_section(roles, heading="####")
+    lines += _build_severity_metrics_section(roles, heading="####")
 
     lines += [
-        '<a id="aggregate-metrics"></a>',
-        "### Aggregate metrics (across repetitions)",
+        '<a id="legacy-diagnostics"></a>',
+        "#### Legacy diagnostics (runs 1–3 comparability)",
         "",
-        "_Diagnostic roll-up, useful for a global read once you've checked the "
-        "detail above isn't spitting nonsense — not the first thing to read._",
+        "_Diagnostic roll-up kept for comparability with runs 1–3, useful for a "
+        "global read once you've checked the detail above isn't spitting "
+        "nonsense — the headline metrics are M1–M3/S1–S3 above._",
         "",
         '<a id="estimates-vs-gt"></a>',
-        "#### Estimates vs ground truth",
+        "##### Estimates vs ground truth",
         "",
         "| role | estimates | matched | missed CVEs | unmatched findings | avg band vs published (0-3) | avg band vs B (0-3) | avg exploitability (0-5) | avg impact (0-3) |",
         "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
@@ -528,7 +545,7 @@ def _build_cvss_section(
         "official CVSS 4.0 algorithm — are in the table below.",
         "",
         '<a id="official-cvss-math"></a>',
-        "#### Official CVSS 4.0 math (score recomputed from the estimated vector) — the reference metrics",
+        "##### Official CVSS 4.0 math (score recomputed from the estimated vector) — the reference metrics",
         "",
         "| role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg subseq. distance (0-1) | avg Hamming (0-8) |",
         "| --- | --- | --- | --- | --- | --- | --- | --- |",
@@ -565,7 +582,7 @@ def _build_cvss_section(
     return lines
 
 
-def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
+def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]], heading: str = "###") -> List[str]:
     """M1 (detection per CVE) + M2 (precision/recall/F1) + M3 (alerts per TP),
     pass@1 vs pass@k (docs/sgv_protocol/00_proposta_relatore.md §5.1,
     07_metriche_M_S_2026-07-14.md). pass@1 = first attempt only (as if there
@@ -587,7 +604,7 @@ def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> 
 
     lines = [
         '<a id="detection-metrics"></a>',
-        "### Detection (M1, M2, M3 — pass@1 vs pass@k)",
+        f"{heading} Detection (M1, M2, M3 — pass@1 vs pass@k)",
         "",
         "| role | pass | detection rate | avg coverage | TP | FP | FN | precision | recall | F1 | alerts/TP |",
         "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
@@ -609,6 +626,8 @@ def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> 
         "",
         "**Legend**",
         "",
+        "- `M1` = detection rate / avg coverage, `M2` = precision / recall / F1, "
+        "`M3` = alerts/TP.",
         "- Unit of analysis is the CVE (docs/sgv_protocol/00_proposta_relatore.md §2): "
         "TP = matched CVEs, FN = missed CVEs, FP = findings that paired to no candidate "
         "CVE (includes genuine extra vulnerabilities with no catalogued CVE, not only "
@@ -625,12 +644,13 @@ def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> 
         "- A pass@k row with higher recall (or F1) than its pass@1 row is the retry loop "
         "actually finding more; if precision drops (or alerts/TP rises) at the same "
         "time, the extra findings came at a cost — read them together, not recall alone.",
+        "- Full definitions: docs/sgv_protocol/07_metriche_M_S_2026-07-14.md.",
         "",
     ]
     return lines
 
 
-def _build_severity_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> List[str]:
+def _build_severity_metrics_section(roles: Dict[str, List[Dict[str, Any]]], heading: str = "###") -> List[str]:
     """S1 (exact vector match) + S2 (per-metric accuracy/ordinal distance) +
     S3 (baseline: null model always guessing the modal GT vector), computed
     only on TP (matched findings) — docs/sgv_protocol/00_proposta_relatore.md
@@ -656,7 +676,7 @@ def _build_severity_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> L
 
     lines = [
         '<a id="severity-metrics"></a>',
-        "### Severity (S1, S2, S3 — computed on TP only)",
+        f"{heading} Severity (S1, S2, S3 — computed on TP only)",
         "",
         "| role | n (TP) | S1 exact match | S3 baseline exact match |",
         "| --- | --- | --- | --- |",
@@ -667,7 +687,7 @@ def _build_severity_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> L
             f"{_fmt_ratio(agg['s3_baseline_exact_match'])} |"
         )
 
-    lines += ["", "#### S2 — per-metric accuracy (agent vs. baseline), ordinal distance", ""]
+    lines += ["", f"{heading}# S2 — per-metric accuracy (agent vs. baseline), ordinal distance", ""]
     metrics = EXPLOITABILITY_METRICS + IMPACT_METRICS + SUBSEQUENT_METRICS
     lines += [
         "| role | metric | n | accuracy | baseline accuracy | avg ordinal distance |",
@@ -687,6 +707,8 @@ def _build_severity_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> L
         "",
         "**Legend**",
         "",
+        "- `S1` = exact match of the whole vector, `S2` = per-metric accuracy / ordinal "
+        "distance (table above), `S3` = null-model baseline both are read against.",
         "- Computed only on matched findings (TP) — unmatched findings and missed CVEs "
         "carry no severity comparison, per the proposal (§5.2).",
         "- `S1 exact match` = share of TP findings whose *entire* estimated vector "
@@ -701,6 +723,7 @@ def _build_severity_metrics_section(roles: Dict[str, List[Dict[str, Any]]]) -> L
         "vectors in scope.",
         "- `avg ordinal distance` (0-1, 0 = identical, 1 = opposite ends of the scale) — "
         "severity-aware: a None→High miss is penalized more than a None→Low one.",
+        "- Full definitions: docs/sgv_protocol/07_metriche_M_S_2026-07-14.md.",
         "",
     ]
     return lines
@@ -1328,9 +1351,9 @@ def _build_experiment_report(
     for role in roles.keys():
         filtered_roles[role] = [p for p in all_payloads if p.get("_role") == role]
 
-    # Blocco B (deterministic, script-computed CVSS metrics) leads the report;
-    # Blocco A (LLM-judge rubric: summary/scores/anomalies) follows, since its
-    # shape is more likely to change and shouldn't push B further down.
+    # Block order (2026-07-16 feedback): Blocco B (deterministic CVSS metrics)
+    # leads the report, Blocco C (SGV) follows, Blocco A (LLM-judge rubric:
+    # summary/scores/anomalies) closes — each separated by a horizontal rule.
     # Within Blocco B, the concrete per-finding detail (vector detail vs GT,
     # then unmatched findings) comes before the aggregate roll-up tables: a
     # reader calibrates on "is this agent talking sense" from the detail
@@ -1340,20 +1363,20 @@ def _build_experiment_report(
     cvss_lines = _build_cvss_section(filtered_roles, experiment_id, results_path)
 
     toc = ['<a id="toc"></a>', "**Contents**", ""]
-    if sgv_lines:
-        toc.append("- [SGV — Syntactic Grounding Verifier](#sgv)")
     if '<a id="vector-detail"></a>' in cvss_lines:
         toc.append("- [Vector detail (estimated vs. published)](#vector-detail)")
     if '<a id="unmatched-findings"></a>' in cvss_lines:
         toc.append("- [Unmatched findings](#unmatched-findings)")
+    if '<a id="metrics-across-reps"></a>' in cvss_lines:
+        toc.append("- [Metrics across repetitions](#metrics-across-reps)")
     if '<a id="detection-metrics"></a>' in cvss_lines:
-        toc.append("- [Detection (M1, M2, M3 — pass@1 vs pass@k)](#detection-metrics)")
+        toc.append("  - [Detection (M1, M2, M3 — pass@1 vs pass@k)](#detection-metrics)")
     if '<a id="severity-metrics"></a>' in cvss_lines:
-        toc.append("- [Severity (S1, S2, S3)](#severity-metrics)")
-    if '<a id="aggregate-metrics"></a>' in cvss_lines:
-        toc.append("- [Aggregate metrics (across repetitions)](#aggregate-metrics)")
-        toc.append("  - [Estimates vs ground truth](#estimates-vs-gt)")
-        toc.append("  - [Official CVSS 4.0 math](#official-cvss-math)")
+        toc.append("  - [Severity (S1, S2, S3)](#severity-metrics)")
+    if '<a id="legacy-diagnostics"></a>' in cvss_lines:
+        toc.append("  - [Legacy diagnostics (runs 1–3 comparability)](#legacy-diagnostics)")
+    if sgv_lines:
+        toc.append("- [SGV — Syntactic Grounding Verifier](#sgv)")
     toc.append("- [Rubric evaluation](#rubric-evaluation)")
     toc.append("  - [Summary](#rubric-summary)")
     toc.append("  - [Scores by role](#rubric-scores)")
@@ -1365,8 +1388,10 @@ def _build_experiment_report(
     toc.append("")
     lines += toc
 
-    lines += sgv_lines
     lines += cvss_lines
+    if sgv_lines:
+        lines += ["", "---", ""]
+        lines += sgv_lines
     lines += ["", "---", ""]
     lines += ['<a id="rubric-evaluation"></a>', "## Rubric evaluation (Blocco A, LLM judge)", ""]
     lines += summary_section

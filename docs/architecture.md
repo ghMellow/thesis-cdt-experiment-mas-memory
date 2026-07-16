@@ -313,6 +313,8 @@ data = {
 
 Per ogni `experiment_id` in `["1A", "1B"]` viene chiamata `_build_experiment_report`, che costruisce il Markdown in tre sezioni:
 
+> ⚠️ **Correzione (2026-07-16):** l'ordine dei blocchi nel report è **Blocco B** (CVSS estimate) → **Blocco C** (SGV) → **Blocco A** (rubric evaluation: summary, scores, M5, anomalies), separati da `---`. In precedenza la sezione SGV apriva il report mescolandosi al Blocco B. Dentro il Blocco B la gerarchia è: dettaglio per-finding (`Vector detail`, `Unmatched findings`) → cappello `### Metrics across repetitions` con dentro `Detection (M1–M3)`, `Severity (S1–S3)` e in coda `Legacy diagnostics (runs 1–3 comparability)` (ex "Aggregate metrics": band vs published + official CVSS math, tenute per comparabilità con i run 1–3) — anche M/S sono roll-up sulle ripetizioni, non metriche per-finding.
+
 **Sezione Summary** (contatori globali):
 
 | metric | valore |

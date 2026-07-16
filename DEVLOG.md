@@ -2,6 +2,55 @@
 
 ---
 
+## 2026-07-16 — proposta_rubrica_cvss spostata in judge_rubric come doc 00  [sessione: e68b2265]
+
+**Intent:** "vorrei capire dove spostarlo che ora era in una posizione provvisoria tra le cartelle che abbiamo: judge_rubric, sgv_protocol o supporto?" — supera l'entry precedente ("resta in docs/"): la posizione in docs/ root era provvisoria, la domanda era *dove*, non *se*
+**Divergenze:** raccomandata `judge_rubric/` come `00_` (convenzione di sgv_protocol: 00 = proposta che apre la discussione) — scartate sgv_protocol (filone del relatore, ha già il suo 00, il doc lo precede e non parla di SGV) e supporto (lo declasserebbe ad archivio mentre schema dati e matching CVE↔handler sono ancora validi)
+**Decisioni:** eseguito lo spostamento direttamente sulla base della domanda (destinazione scelta da Claude, non ancora confermata dall'utente)
+**Esito/Problemi:** `git mv` → `docs/judge_rubric/00_proposta_rubrica_cvss.md`; aggiornati i riferimenti in `docs/README.md` (riga spostata dalla tabella Sistema a quella judge_rubric), `docs/status.md`, `judge_rubric/01` §4; i path nelle entry DEVLOG passate lasciati invariati (traccia storica). I doc risultati 02–08 non linkano il file per nome, nessun altro riferimento da correggere
+
+## 2026-07-16 — 01_proposta_rubrica_cvss: resta in docs/, cross-link da judge_rubric  [sessione: e68b2265]
+
+**Intent:** "questo file ha senso integrarlo nella cartella oppure è un refuso che già è discusso dentro le due cartelle?"
+**Divergenze:** proposta terza via non prospettata dall'utente — né spostarlo né considerarlo refuso: resta in `docs/` come verbale storico (decima call, catena numerata 01–08, contenuto CVSS tuttora di riferimento), ma citato come antecedente in `judge_rubric/01` §4 (la tabella "Fase 2 senza GT" anticipa il problema della cartella; il "judge di coerenza interna" è l'antenato del criterio Internal consistency del doc 04)
+**Decisioni:** cross-link aggiunto; conferma dell'utente sulla collocazione ancora da ricevere
+**Esito/Problemi:** nessuna modifica al file storico; solo paragrafo "Antecedente storico" in `judge_rubric/01_stato_attuale_giudice_rubrica.md`
+
+## 2026-07-16 — Pulizia docs/02–08 (narrativa CVSS run1–6, superata)  [sessione: 50dd51e6]
+
+**Intent:** utente chiede se `docs/01–08_*.md` (proposta CVSS + narrativa run1–6) si possono eliminare, essendo estrapolazioni dei vecchi `results/` ora migliorati e standalone; propone di valutare se tenere almeno `01`.
+**Divergenze:** proposta AI: cancellare 02–08 (metodologia superata dal framework attuale — matematica ufficiale FIRST, metriche M1-M3/S1-S3, SGV, agente unico) ma **tenere 01** perché contiene decisioni di design non documentate altrove (schema dati JSON, matching CVE↔handler via GitHub Advisory API, scelta B vs BT).
+**Decisioni:** utente accetta la proposta as-is ("Elimino 02-08, tengo 01").
+**Esito/Problemi:** rimossi `docs/02_risultati_cvss_run1.md` → `08_risultati_cvss_run6_verifica_indipendente.md`; aggiornati i riferimenti in `docs/README.md`, `docs/status.md`, `docs/sgv_protocol/01_discussione_2026-07-13.md`, `docs/sgv_protocol/04_call12_2026-07-14.md` (rimossi i link, mantenuta la sostanza in prosa). Riferimenti nelle entry DEVLOG passate lasciati intatti (verbale storico, non riscritto).
+
+---
+
+## 2026-07-16 — Sigle M/S nelle legende dei report  [sessione: ac381692]
+
+**Intent:** dubbio utente sulla leggibilità per esperti di sicurezza: "forse merita mettere anche la spiegazione delle metriche? ... oppure con la legenda si capisce tutto??"
+**Divergenze:** valutazione AI: le legende spiegano le colonne ma manca la mappatura sigla→colonna (M1/M2/M3, S1/S2/S3, M5); proposta di NON aggiungere una sezione di metodologia (duplicherebbe docs/sgv_protocol/07) ma solo una bullet di mappatura + puntatore alle definizioni complete
+**Decisioni:** utente accetta ("ok aggiungi queste aggiunte minimali")
+**Esito/Problemi:** bullet di mappatura in testa alle legende Detection/Severity/Cost + riga "Full definitions: docs/sgv_protocol/07_metriche_M_S_2026-07-14.md" in coda a Detection/Severity; vale sia per i report per-task sia per comparison.md (stesse builder); report rigenerati
+
+---
+
+## 2026-07-16 — Gerarchia titoli dentro il Blocco B  [sessione: ac381692]
+
+**Intent:** dubbio utente: M/S sembrano "singole" rispetto alla sezione "Aggregate metrics" in fondo — riordinare o chiarire?
+**Divergenze:** proposta AI: invece dell'ordine dettaglio → legacy → M/S ipotizzato dall'utente, tenere M/S prima (sono le metriche headline della proposta del relatore) e rendere esplicita la gerarchia nei titoli: cappello `### Metrics across repetitions` con `#### Detection`, `#### Severity`, `#### Legacy diagnostics (runs 1–3 comparability)` al posto di "Aggregate metrics"
+**Decisioni:** utente accetta la proposta ("ok ci sta sistema la notazione")
+**Esito/Problemi:** `_build_detection_metrics_section`/`_build_severity_metrics_section` parametrizzate sul livello di heading (default `###` invariato per comparison.md); TOC annidato; report rigenerati; nota ⚠️ in architecture.md aggiornata
+
+---
+
+## 2026-07-16 — Riordino blocchi nei report result_*.md  [sessione: ac381692]
+
+**Intent:** "l'ordine era prima blocco B poi blocco A, con l'aggiunta di SGV e le metriche S e M ora il blocco B è diventato un mix. Struttura che voglio: blocco B, blocco C, blocco A, tra le sezioni separatore"
+**Decisioni:** M1–M3/S1–S3 restano sottosezioni del Blocco B (non richiesto spostarle); SGV (Blocco C) spostato da apertura report a dopo il Blocco B; separatori `---` tra i tre blocchi; TOC riordinato di conseguenza
+**Esito/Problemi:** `_build_experiment_report` in `utils/evaluation_utils.py` riordinato; report task5–9 rigenerati con `python -m utils.evaluation_utils` (semantic check tutto da cache, nessuna chiamata LLM nuova); nota ⚠️ in `architecture.md` §9 Passo 2
+
+---
+
 ## 2026-07-16 — Cartella docs/judge_rubric: discussione sul giudice a rubrica  [sessione: e68b2265]
 
 **Intent:** "crea una cartella dentro il docs in cui sulla riga di sgv_protocol voglio creare una serie di md di discussione" sul giudice a rubrica (teoria + paper, debolezze nel progetto, limiti GT) + spostare dentro il paper LLM-as-a-Verifier + doc di discussione del paper; "Proponi alternative … sei libero di migliorare il discorso proporre idee e soluzioni" e "poi sei libero di esplorare altre idee, parti dalle miei ma non fermarti a quello"

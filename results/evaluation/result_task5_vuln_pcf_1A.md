@@ -6,32 +6,17 @@
 <a id="toc"></a>
 **Contents**
 
-- [SGV — Syntactic Grounding Verifier](#sgv)
 - [Vector detail (estimated vs. published)](#vector-detail)
-- [Detection (M1, M2, M3 — pass@1 vs pass@k)](#detection-metrics)
-- [Severity (S1, S2, S3)](#severity-metrics)
-- [Aggregate metrics (across repetitions)](#aggregate-metrics)
-  - [Estimates vs ground truth](#estimates-vs-gt)
-  - [Official CVSS 4.0 math](#official-cvss-math)
+- [Metrics across repetitions](#metrics-across-reps)
+  - [Detection (M1, M2, M3 — pass@1 vs pass@k)](#detection-metrics)
+  - [Severity (S1, S2, S3)](#severity-metrics)
+  - [Legacy diagnostics (runs 1–3 comparability)](#legacy-diagnostics)
+- [SGV — Syntactic Grounding Verifier](#sgv)
 - [Rubric evaluation](#rubric-evaluation)
   - [Summary](#rubric-summary)
   - [Scores by role](#rubric-scores)
   - [Cost (M5)](#cost-metrics)
   - [Anomalies](#rubric-anomalies)
-
-<a id="sgv"></a>
-## SGV — Syntactic Grounding Verifier (Blocco C, deterministic, no ground truth)
-
-| metric | value |
-| --- | --- |
-| repetitions with at least one SGV retry | 1 |
-| repetitions where SGV never passed (scored downstream anyway) | 0 |
-
-#### Retries resolved by the agent (1)
-
-| role | task_id | rep | attempts | fixed on attempt |
-| --- | --- | --- | --- | --- |
-| agent | task5_vuln_pcf | 3 | 2 | 2 |
 
 <a id="cvss-estimate"></a>
 ## CVSS estimate (Blocco B, deterministic)
@@ -87,8 +72,13 @@
 | base score — declared / from vector (official math) | 5.1 / **7.1** | 8.7 |
 | [reasoning detail](matched_findings/task5_vuln_pcf_1A_agent_rep3_CVE-2026-41135.md) | | |
 
+<a id="metrics-across-reps"></a>
+### Metrics across repetitions
+
+_Every table in this section aggregates over all repetitions of the task (one row per role); the per-finding detail is above._
+
 <a id="detection-metrics"></a>
-### Detection (M1, M2, M3 — pass@1 vs pass@k)
+#### Detection (M1, M2, M3 — pass@1 vs pass@k)
 
 | role | pass | detection rate | avg coverage | TP | FP | FN | precision | recall | F1 | alerts/TP |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -97,21 +87,23 @@
 
 **Legend**
 
+- `M1` = detection rate / avg coverage, `M2` = precision / recall / F1, `M3` = alerts/TP.
 - Unit of analysis is the CVE (docs/sgv_protocol/00_proposta_relatore.md §2): TP = matched CVEs, FN = missed CVEs, FP = findings that paired to no candidate CVE (includes genuine extra vulnerabilities with no catalogued CVE, not only false positives — see the unmatched-findings legend above).
 - `pass@1` = evaluated against the agent's *first* attempt only, as if the SGV/rubric retry loop didn't exist.
 - `pass@k` = evaluated against the final accepted answer, after every retry — same numbers as the `matched`/`missed CVEs`/`unmatched findings` counts above.
 - `detection rate` = share of repetitions (with at least one target CVE) where ≥1 CVE was matched. `avg coverage` = mean matched/target CVEs per repetition.
 - `alerts/TP` (M3) = (TP+FP)/TP — how many findings a reviewer has to read for every true positive actually surfaced; lower is better (less noise per real vulnerability). `n/a` when TP = 0 (nothing to divide by).
 - A pass@k row with higher recall (or F1) than its pass@1 row is the retry loop actually finding more; if precision drops (or alerts/TP rises) at the same time, the extra findings came at a cost — read them together, not recall alone.
+- Full definitions: docs/sgv_protocol/07_metriche_M_S_2026-07-14.md.
 
 <a id="severity-metrics"></a>
-### Severity (S1, S2, S3 — computed on TP only)
+#### Severity (S1, S2, S3 — computed on TP only)
 
 | role | n (TP) | S1 exact match | S3 baseline exact match |
 | --- | --- | --- | --- |
 | agent | 3 | 0.0% | 100.0% |
 
-#### S2 — per-metric accuracy (agent vs. baseline), ordinal distance
+##### S2 — per-metric accuracy (agent vs. baseline), ordinal distance
 
 | role | metric | n | accuracy | baseline accuracy | avg ordinal distance |
 | --- | --- | --- | --- | --- | --- |
@@ -129,18 +121,20 @@
 
 **Legend**
 
+- `S1` = exact match of the whole vector, `S2` = per-metric accuracy / ordinal distance (table above), `S3` = null-model baseline both are read against.
 - Computed only on matched findings (TP) — unmatched findings and missed CVEs carry no severity comparison, per the proposal (§5.2).
 - `S1 exact match` = share of TP findings whose *entire* estimated vector (8 base metrics, 11 when SC/SI/SA were emitted) matches the published one field for field.
 - `S3 baseline` = a null model that always guesses the modal vector among the target CVEs in scope (one task, or every task pooled together) — read S1/accuracy as a margin **above** this, not in absolute terms. With a single target CVE in scope the baseline degenerates to 100% by construction (the modal vector of one CVE is that CVE's own vector) — real property of the dataset, not a bug; the margin is only informative with several target CVEs with differing vectors in scope.
 - `avg ordinal distance` (0-1, 0 = identical, 1 = opposite ends of the scale) — severity-aware: a None→High miss is penalized more than a None→Low one.
+- Full definitions: docs/sgv_protocol/07_metriche_M_S_2026-07-14.md.
 
-<a id="aggregate-metrics"></a>
-### Aggregate metrics (across repetitions)
+<a id="legacy-diagnostics"></a>
+#### Legacy diagnostics (runs 1–3 comparability)
 
-_Diagnostic roll-up, useful for a global read once you've checked the detail above isn't spitting nonsense — not the first thing to read._
+_Diagnostic roll-up kept for comparability with runs 1–3, useful for a global read once you've checked the detail above isn't spitting nonsense — the headline metrics are M1–M3/S1–S3 above._
 
 <a id="estimates-vs-gt"></a>
-#### Estimates vs ground truth
+##### Estimates vs ground truth
 
 | role | estimates | matched | missed CVEs | unmatched findings | avg band vs published (0-3) | avg band vs B (0-3) | avg exploitability (0-5) | avg impact (0-3) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -156,7 +150,7 @@ _Diagnostic roll-up, useful for a global read once you've checked the detail abo
 - The metrics that actually count — recomputed from the vector with the official CVSS 4.0 algorithm — are in the table below.
 
 <a id="official-cvss-math"></a>
-#### Official CVSS 4.0 math (score recomputed from the estimated vector) — the reference metrics
+##### Official CVSS 4.0 math (score recomputed from the estimated vector) — the reference metrics
 
 | role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg subseq. distance (0-1) | avg Hamming (0-8) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -170,6 +164,23 @@ _Diagnostic roll-up, useful for a global read once you've checked the detail abo
 - Severity distances are ordinal and normalized per metric group (0 = identical vector, 1 = every field at the opposite end of its scale).
 - The subsequent-system triad SC/SI/SA is part of the required vector; its distance is scored only when the agent's estimate actually includes all three fields (older/legacy runs may lack them, shown as `n/a`).
 - Hamming counts plainly differing fields among the 8 vulnerable-system metrics (n/a = older runs, recompute with `python -m utils.cvss_eval`).
+
+
+---
+
+<a id="sgv"></a>
+## SGV — Syntactic Grounding Verifier (Blocco C, deterministic, no ground truth)
+
+| metric | value |
+| --- | --- |
+| repetitions with at least one SGV retry | 1 |
+| repetitions where SGV never passed (scored downstream anyway) | 0 |
+
+#### Retries resolved by the agent (1)
+
+| role | task_id | rep | attempts | fixed on attempt |
+| --- | --- | --- | --- | --- |
+| agent | task5_vuln_pcf | 3 | 2 | 2 |
 
 
 ---
@@ -221,6 +232,7 @@ _Diagnostic roll-up, useful for a global read once you've checked the detail abo
 
 **Legend**
 
+- `M5` = cost per repetition: wall-clock time + tokens in/out for agent and judge.
 - `n` = repetitions included, across every task type (not restricted to CVSS tasks).
 - `avg elapsed` = wall-clock seconds per repetition, start to save — includes every attempt when a retry (SGV or rubric) was triggered.
 - Token columns = mean prompt/completion tokens the backend reported for the agent and judge calls; `n/a` when the backend didn't report them (seen on hosted Ollama Cloud runs in this project — the field is requested but not always populated, unlike local Ollama which reports it reliably).
