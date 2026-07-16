@@ -1,122 +1,80 @@
 ---
 title: "Cloud models"
-source: "https://ollama.com/search?c=cloud&page=2"
+source: "https://ollama.com/search?c=cloud"
 author:
 published:
-created: 2026-05-13
-description: "Cloud models on Ollama."
+description: "Cloud models on Ollama - aggiornato al 16 luglio 2026."
 tags:
   - "clippings"
----
-# Lista modelli usabili via api key gratuitamente:
-| Modello                      | Link                                                      | Usage                |
-| ---------------------------- | --------------------------------------------------------- | -------------------- |
-| kimi-k2.6:cloud              | [Link](https://ollama.com/library/kimi-k2.6)              | High Usage           |
-| deepseek-v4-pro:cloud        | [Link](https://ollama.com/library/deepseek-v4-pro)        | Extra High Usage     |
-| deepseek-v4-flash:cloud      | [Link](https://ollama.com/library/deepseek-v4-flash)      | Medium Usage         |
-| glm-5.1:cloud                | [Link](https://ollama.com/library/glm-5.1)                | High Usage           |
-| kimi-k2.5:cloud              | [Link](https://ollama.com/library/kimi-k2.5)              | High Usage           |
-| mistral-large-3:675b-cloud   | [Link](https://ollama.com/library/mistral-large-3)        | High Usage           |
-| qwen3-coder-next:cloud       | [Link](https://ollama.com/library/qwen3-coder-next)       | High Usage           |
-| qwen3-coder:480b-cloud       | [Link](https://ollama.com/library/qwen3-coder)            | High Usage           |
-| glm-5:cloud                  | [Link](https://ollama.com/library/glm-5)                  | High Usage           |
-| qwen3.5:cloud                | [Link](https://ollama.com/library/qwen3.5)                | Medium Usage         |
-| minimax-m2.7:cloud           | [Link](https://ollama.com/library/minimax-m2.7)           | Medium Usage         |
-| nemotron-3-super:cloud       | [Link](https://ollama.com/library/nemotron-3-super)       | Medium Usage         |
-| gemma3:27b-cloud             | [Link](https://ollama.com/library/gemma3)                 | Medium Usage         |
-| gemma3:4b-cloud              | [Link](https://ollama.com/library/gemma3)                 | Low Usage            |
-| gemma3:12b-cloud             | [Link](https://ollama.com/library/gemma3)                 | Low Usage            |
-| gemma4:31b-cloud             | [Link](https://ollama.com/library/gemma4)                 | **Medium Usage**     |
-| minimax-m2.5:cloud           | [Link](https://ollama.com/library/minimax-m2.5)           | **Medium Usage**     |
-| gemini-3-flash-preview:cloud | [Link](https://ollama.com/library/gemini-3-flash-preview) | **Extra High Usage** |
-| glm-4.7:cloud                | [Link](https://ollama.com/library/glm-4.7)                | **High Usage**       |
-| minimax-m2.1:cloud           | [Link](https://ollama.com/library/minimax-m2.1)           | **Medium Usage**     |
-| ministral-3:3b-cloud         | [Link](https://ollama.com/library/ministral-3)            | **Low Usage**        |
-| ministral-3:8b-cloud         | [Link](https://ollama.com/library/ministral-3)            | **Low Usage**        |
-| ministral-3:14b-cloud        | [Link](https://ollama.com/library/ministral-3)            | **Medium Usage**     |
-| deepseek-v3.2:cloud          | [Link](https://ollama.com/library/deepseek-v3.2)          | **High Usage**       |
-| devstral-small-2:24b-cloud   | [Link](https://ollama.com/library/devstral-small-2)       | **Medium Usage**     |
-| qwen3-next:80b-cloud         | [Link](https://ollama.com/library/qwen3-next)             | **High Usage**       |
-| nemotron-3-nano:30b-cloud    | [Link](https://ollama.com/library/nemotron-3-nano)        | **Low Usage**        |
-| rnj-1:8b-cloud               | [Link](https://ollama.com/library/rnj-1)                  | **Low Usage**        |
-| devstral-2:123b-cloud        | [Link](https://ollama.com/library/devstral-2)             | **High Usage**       |
-| cogito-2.1:671b-cloud        | [Link](https://ollama.com/library/cogito-2.1)             | **High Usage**       |
-| gpt-oss:20b-cloud            | [Link](https://ollama.com/library/gpt-oss)                | **Medium Usage**     |
-| gpt-oss:120b-cloud           | [Link](https://ollama.com/library/gpt-oss)                | **High Usage**       |
-| qwen3-vl:235b-cloud          | [Link](https://ollama.com/library/qwen3-vl)               | **High Usage**       |
-| kimi-k2-thinking:cloud       | [Link](https://ollama.com/library/kimi-k2-thinking)       | **Extra High Usage** |
-| minimax-m2:cloud             | [Link](https://ollama.com/library/minimax-m2)             | **High Usage**       |
-| glm-4.6:cloud                | [Link](https://ollama.com/library/glm-4.6)                | **Medium Usage**     |
-| deepseek-v3.1:671b-cloud     | [Link](https://ollama.com/library/deepseek-v3.1)          | **High Usage**       |
-| kimi-k2:1t-cloud             | [Link](https://ollama.com/library/kimi-k2)                | **High Usage**       |
-## Modelli per Livello di Usage
-
-## 🔴 Extra High Usage
-
-Questi sono i modelli con la domanda più alta su Ollama, generalmente i più capaci e ricercati:
-
-|Modello|Link|
-|---|---|
-|deepseek-v4-pro:cloud|[Link](https://ollama.com/library/deepseek-v4-pro)|
-|gemini-3-flash-preview:cloud|[Link](https://ollama.com/library/gemini-3-flash-preview)|
-|kimi-k2-thinking:cloud|[Link](https://ollama.com/library/kimi-k2-thinking)|
-
-## 🟠 High Usage
-
-Modelli molto popolari, ottimo rapporto capacità/utilizzo:
-
-|Modello|Link|
-|---|---|
-|kimi-k2.6:cloud|[Link](https://ollama.com/library/kimi-k2.6)|
-|glm-5.1:cloud|[Link](https://ollama.com/library/glm-5.1)|
-|kimi-k2.5:cloud|[Link](https://ollama.com/library/kimi-k2.5)|
-|mistral-large-3:675b-cloud|[Link](https://ollama.com/library/mistral-large-3)|
-|qwen3-coder-next:cloud|[Link](https://ollama.com/library/qwen3-coder-next)|
-|qwen3-coder:480b-cloud|[Link](https://ollama.com/library/qwen3-coder)|
-|glm-5:cloud|[Link](https://ollama.com/library/glm-5)|
-|glm-4.7:cloud|[Link](https://ollama.com/library/glm-4.7)|
-|deepseek-v3.2:cloud|[Link](https://ollama.com/library/deepseek-v3.2)|
-|qwen3-next:80b-cloud|[Link](https://ollama.com/library/qwen3-next)|
-|devstral-2:123b-cloud|[Link](https://ollama.com/library/devstral-2)|
-|cogito-2.1:671b-cloud|[Link](https://ollama.com/library/cogito-2.1)|
-|gpt-oss:120b-cloud|[Link](https://ollama.com/library/gpt-oss)|
-|qwen3-vl:235b-cloud|[Link](https://ollama.com/library/qwen3-vl)|
-|minimax-m2:cloud|[Link](https://ollama.com/library/minimax-m2)|
-|deepseek-v3.1:671b-cloud|[Link](https://ollama.com/library/deepseek-v3.1)|
-|kimi-k2:1t-cloud|[Link](https://ollama.com/library/kimi-k2)|
-
-## 🟡 Medium Usage
-
-Buoni modelli con utilizzo moderato:
-
-|Modello|Link|
-|---|---|
-|deepseek-v4-flash:cloud|[Link](https://ollama.com/library/deepseek-v4-flash)|
-|qwen3.5:cloud|[Link](https://ollama.com/library/qwen3.5)|
-|minimax-m2.7:cloud|[Link](https://ollama.com/library/minimax-m2.7)|
-|nemotron-3-super:cloud|[Link](https://ollama.com/library/nemotron-3-super)|
-|gemma3:27b-cloud|[Link](https://ollama.com/library/gemma3)|
-|gemma4:31b-cloud|[Link](https://ollama.com/library/gemma4)|
-|minimax-m2.5:cloud|[Link](https://ollama.com/library/minimax-m2.5)|
-|minimax-m2.1:cloud|[Link](https://ollama.com/library/minimax-m2.1)|
-|ministral-3:14b-cloud|[Link](https://ollama.com/library/ministral-3)|
-|devstral-small-2:24b-cloud|[Link](https://ollama.com/library/devstral-small-2)|
-|gpt-oss:20b-cloud|[Link](https://ollama.com/library/gpt-oss)|
-|glm-4.6:cloud|[Link](https://ollama.com/library/glm-4.6)|
-
-## 🟢 Low Usage
-
-Modelli leggeri o meno richiesti:
-
-|Modello|Link|
-|---|---|
-|gemma3:4b-cloud|[Link](https://ollama.com/library/gemma3)|
-|gemma3:12b-cloud|[Link](https://ollama.com/library/gemma3)|
-|ministral-3:3b-cloud|[Link](https://ollama.com/library/ministral-3)|
-|ministral-3:8b-cloud|[Link](https://ollama.com/library/ministral-3)|
-|nemotron-3-nano:30b-cloud|[Link](https://ollama.com/library/nemotron-3-nano)|
-|rnj-1:8b-cloud|[Link](https://ollama.com/library/rnj-1)|
-
+updated: "2026-07-16"
 ---
 
-I **top pick assoluti** per capacità e popolarità sono `deepseek-v4-pro`, `kimi-k2-thinking` e `gemini-3-flash-preview` (Extra High), seguiti da modelli come `kimi-k2:1t`, `qwen3-coder:480b`, `deepseek-v3.1:671b` e `cogito-2.1:671b` per chi cerca il massimo tra i High Usage.
+# Modelli Cloud Ollama: stato di disponibilità gratuita
+
+> Nota: tutti i modelli "cloud" di Ollama restano **utilizzabili gratuitamente tramite API key** (nessun costo per token). Il livello di "Usage" (Low/Medium/High/Extra High) indica solo il grado di rate-limiting applicato, non un costo. Ollama però **ritira periodicamente** i modelli più vecchi: il 15 luglio 2026 è stata effettuata una tornata massiccia di deprecazioni.
+
+## ✅ Modelli ancora attivi e gratuiti
+
+| Modello | Link | Note |
+|---|---|---|
+| deepseek-v4-pro:cloud | [Link](https://ollama.com/library/deepseek-v4-pro) | Attivo |
+| deepseek-v4-flash:cloud | [Link](https://ollama.com/library/deepseek-v4-flash) | Attivo, sostituto di deepseek-v3.1 e v3.2 |
+| kimi-k2.6:cloud | [Link](https://ollama.com/library/kimi-k2.6) | Attivo |
+| kimi-k2.5:cloud | [Link](https://ollama.com/library/kimi-k2.5) | Attivo |
+| kimi-k2.7-code:cloud | [Link](https://ollama.com/library/kimi-k2.7-code) | Nuovo, non presente nella lista precedente |
+| glm-5.1:cloud | [Link](https://ollama.com/library/glm-5.1) | Attivo |
+| glm-5.2:cloud | [Link](https://ollama.com/library/glm-5.2) | Nuovo, sostituto di glm-4.7 e glm-5 |
+| mistral-large-3:675b-cloud | [Link](https://ollama.com/library/mistral-large-3) | Attivo, sostituto consigliato per devstral-2:123b |
+| qwen3.5:cloud | [Link](https://ollama.com/library/qwen3.5) | Attivo (qwen3.5:397b è il sostituto di qwen3-coder-next e qwen3-coder:480b) |
+| minimax-m2.7:cloud | [Link](https://ollama.com/library/minimax-m2.7) | Attivo |
+| minimax-m2.5:cloud | [Link](https://ollama.com/library/minimax-m2.5) | Attivo |
+| minimax-m3:cloud | [Link](https://ollama.com/library/minimax-m3) | Nuovo, sostituto di minimax-m2, minimax-m2.1 e gemini-3-flash-preview |
+| nemotron-3-super:cloud | [Link](https://ollama.com/library/nemotron-3-super) | Attivo |
+| nemotron-3-ultra:cloud | [Link](https://ollama.com/library/nemotron-3-ultra) | Nuovo |
+| nemotron-3-nano:30b-cloud | [Link](https://ollama.com/library/nemotron-3-nano) | Attivo |
+| gemma4:31b-cloud | [Link](https://ollama.com/library/gemma4) | Attivo, sostituto di gemma3:4b/12b/27b |
+| gpt-oss:20b-cloud | [Link](https://ollama.com/library/gpt-oss) | Attivo |
+| gpt-oss:120b-cloud | [Link](https://ollama.com/library/gpt-oss) | Attivo |
+
+## ❌ Modelli ritirati il 15 luglio 2026
+
+| Modello ritirato | Sostituto consigliato |
+|---|---|
+| deepseek-v3.1:671b | deepseek-v4-flash |
+| deepseek-v3.2 | deepseek-v4-flash |
+| devstral-2:123b | mistral-large-3:675b |
+| devstral-small-2:24b | — |
+| ministral-3:14b | — |
+| ministral-3:3b | — |
+| ministral-3:8b | — |
+| gemini-3-flash-preview | minimax-m3 |
+| gemma3:12b | gemma4:31b |
+| gemma3:27b | gemma4:31b |
+| gemma3:4b | gemma4:31b |
+| glm-4.7 | glm-5.2 |
+| glm-5 | glm-5.2 |
+| minimax-m2.1 | minimax-m3 |
+| qwen3-coder-next | qwen3.5:397b |
+| qwen3-coder:480b | qwen3.5:397b |
+
+## ❌ Modelli ritirati in precedenza (giugno 2026)
+
+| Modello ritirato | Data ritiro | Sostituto consigliato |
+|---|---|---|
+| rnj-1:8b | 30 giugno 2026 | — |
+| kimi-k2-thinking | 16 giugno 2026 | kimi-k2.6 |
+| kimi-k2:1t | 16 giugno 2026 | kimi-k2.6 |
+| minimax-m2 | 16 giugno 2026 | minimax-m3 |
+| glm-4.6 | 16 giugno 2026 | glm-5.1 |
+| qwen3-next:80b | 16 giugno 2026 | qwen3.5 |
+| qwen3-vl:235b | 16 giugno 2026 | qwen3.5 |
+| qwen3-vl:235b-instruct | 16 giugno 2026 | qwen3.5 |
+| cogito-2.1:671b | 16 giugno 2026 | deepseek-v4-flash |
+
+## Come funziona il ritiro dei modelli
+
+Ollama comunica in anticipo (email e sito) le deprecazioni dei modelli cloud, mentre i modelli locali non sono mai affetti da questi ritiri. Il ritiro non riguarda il costo (resta gratuito), ma la disponibilità: i tool che puntano a un modello ritirato smettono di funzionare e vanno aggiornati verso il modello sostitutivo indicato.
+
+## Come restare aggiornati
+
+Per un elenco sempre corrente, la pagina ufficiale da consultare è `https://ollama.com/search?c=cloud`, mentre lo stato dei ritiri (passati e futuri) è documentato su `https://docs.ollama.com/cloud`.
