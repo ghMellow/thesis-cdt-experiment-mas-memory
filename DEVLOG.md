@@ -2,6 +2,14 @@
 
 ---
 
+## 2026-07-16 — judge_rubric: proposta rubrica GT-free v2 (doc 12, non eseguita)  [sessione: e68b2265]
+
+**Intent:** "proponi una versione v2 di questa rubrica" + due messaggi verbatim dell'esperto di sicurezza del gruppo (analisi results/evaluation pre-metriche) da pesare
+**Divergenze:** smistamento AI dei commenti esperto: 2 punti in rubrica (severità lassista H/L e C/I; nuovo criterio `finding_granularity` dal "mappazzone" UDR), 1 nel formato output del giudice (motivazione per criterio con finding bocciati), 1 fuori rubrica (definizioni C/I/A → prompt agente, todo separato); criteri riformulati a conteggio ("esattamente uno fallisce…") contro la saturazione — scelta AI non richiesta esplicitamente
+**Decisioni:** solo proposta, nessuna esecuzione (bozza `gtfree/rubric_v2_draft.json`, total_max LLM 10 + coverage superfici a rischio /2); test di ammissione con target dichiarati prima di misurare (C2 ≤1/5, task7 C2 non a pieni voti, accordo M1-strict ≥11/12); tolleranza H/L in `cvss_eval` registrata come todo, non implementata
+**Esito/Problemi:** doc 12 + bozza JSON creati; limiti dichiarati in §5 (completezza resta proxy, C2 "sofisticati" con percorso citato passerebbero — possibile estensione: dare al giudice il sorgente del task)
+**Lesson learned:** i commenti di un esperto esterno pre-teoria sono un test di validità indipendente: il suo "mancano le altre 6 CVE" conferma il meccanismo n. 3 del doc 11 senza aver letto i nostri doc
+
 ## 2026-07-16 — judge_rubric: rubrica GT-free v1 testata nel banco C1/C2 (doc 10→11)  [sessione: e68b2265]
 
 **Intent:** "da discutere col gruppo non è necessario, abbiamo il via libera dobbiamo solo riportare. Quindi direi di procedere come hai detto e confrontare con l'esperimento fatto" — implementare la rubrica doc 05 e confrontarla con la baseline doc 09

@@ -86,7 +86,8 @@ Sistema operativo. 12 task disponibili, framework LangGraph con retry/judge/toke
 - [ ] Mappare le CVE target di task9_vuln_cross in `cve_metrics_normalized.json` (oggi `n_target_cves=0`: M1 indefinito) o dichiararlo fuori dalle metriche deterministiche
 - [ ] Decisione di gruppo: `TEXTUAL_PASS_RATIO` 0.7 → 0.65 (o 0.55) e riferimento dichiarato della rubrica (M1-strict vs M1@any) — vedi doc judge_rubric/09 §4 *(via libera ricevuto: da riportare, non da discutere)*
 - [x] **Rubrica GT-free v1 testata (doc judge_rubric/10–11)** (`docs/judge_rubric/gtfree/rubric_v1.json`, `scripts/judge_calibration/run_gtfree_rubric.py`): matrice doc 05 (3 criteri LLM alto-livello CWE + coverage deterministico stile SGV). Esito: **CGP +0.437 vs baseline +0.948** (prezzo dell'uscita dalla GT misurato), 2/5 C2 promossi (claim di assenza non verificabili), saturazione 7/7 sui report reali, accordo M1-strict 9/12 vs 12/12. **v1 non passa il test di ammissione** — 3 meccanismi di rottura e direzioni v2 nel doc 11 §3
-- [ ] Rubrica GT-free **v2**: claim presenza/assenza distinti, scala 1–20 o logprob (locale), coverage su superfici a rischio invece che funzioni citate — vedi doc judge_rubric/11 §3
+- [ ] Rubrica GT-free **v2** — proposta pronta (doc judge_rubric/12, `gtfree/rubric_v2_draft.json`), da eseguire: criteri a conteggio anti-saturazione, split presenza/assenza, `finding_granularity` (dai commenti esperto), severità declassata e lassista, coverage su superfici a rischio; test di ammissione con target dichiarati (C2 ≤1/5, accordo M1-strict ≥11/12)
+- [ ] Recepire i commenti dell'esperto fuori-rubrica: tolleranza H/L e swap C/I in `cvss_eval` (metriche M), definizioni C/I/A nel prompt dell'agente — vedi doc judge_rubric/12 §1
 - [ ] **C1 — Temperature sweep** T∈{0.1, 0.7} su task7/8 expert e4b (prossimo esperimento)
 - [ ] Retry con feedback del judge reiniettato
 - [ ] Rieseguire task6 blind (senza special attention) — baseline pulita

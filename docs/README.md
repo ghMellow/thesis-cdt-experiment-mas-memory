@@ -74,6 +74,7 @@ Cartella gemella di `sgv_protocol/` (che copre l'in-loop): qui si discute il **g
 | [judge_rubric/calibration_c1c2/](judge_rubric/calibration_c1c2/) | Materiali verbatim del test C1/C2: 10 report (5 C1 corretti-riscritti, 5 C2 plausibili-ma-sbagliati) — banco di prova riusabile per qualunque rubrica candidata |
 | [judge_rubric/10_esperimento_rubrica_gtfree.md](judge_rubric/10_esperimento_rubrica_gtfree.md) | **Documento operativo**: la rubrica GT-free v1 (matrice doc 05: 3 criteri LLM + coverage deterministico, `gtfree/rubric_v1.json`) passata nel banco di prova del doc 08. **Eseguito 2026-07-16** |
 | [judge_rubric/11_risultati_rubrica_gtfree.md](judge_rubric/11_risultati_rubrica_gtfree.md) | **Risultati**: il prezzo dell'uscita dalla GT misurato — CGP da +0.948 a **+0.437**, 2/5 C2 promossi, saturazione (tutti 7/7) sui report reali, accordo M1-strict 9/12 vs 12/12. La v1 non passa il test di ammissione; 3 meccanismi di rottura identificati (claim di assenza, scala satura, completezza) con direzioni per la v2 |
+| [judge_rubric/12_proposta_rubrica_v2.md](judge_rubric/12_proposta_rubrica_v2.md) | **Proposta** rubrica GT-free v2 (`gtfree/rubric_v2_draft.json`, non ancora eseguita): criteri a conteggio anti-saturazione, split presenza/assenza dei claim, `finding_granularity` dai commenti dell'esperto, severità declassata e lassista (H/L e swap C/I tollerati), coverage deterministico su superfici a rischio; test di ammissione con target dichiarati vs v1 |
 
 ## 📎 Supporto
 
