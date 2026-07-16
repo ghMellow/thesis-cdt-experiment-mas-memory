@@ -2,6 +2,13 @@
 
 ---
 
+## 2026-07-16 — judge_rubric: direzione post-v2 — enumeratore SAST, non altre rubriche  [sessione: e68b2265]
+
+**Intent:** discussione post doc 13: "fatto insieme non rischia di creare bias verso quella lista? mentre farli separati permette di tenere i focus separati […] quindi per il prossimo passo possiamo dire che non cerchiamo altre rubriche ma che appunto dobbiamo inserire l'output di sonar cube?"
+**Divergenze:** AI conferma l'ipotesi utente (integrazione in parallelo, lista SAST mai nel prompt del giudice — ancoraggio, errori correlati, ablazione) e aggiunge: completezza = candidate SAST *considerate* (anche scartate motivatamente), non confermate, per non collidere con M4; nessun "run finale" LLM combinatore (la combinazione resta aritmetica)
+**Decisioni:** direzione concordata in chat (da riportare al gruppo): stop alle iterazioni di rubrica (v2 ha chiuso il chiudibile), prossimo esperimento = SAST come enumeratore di completezza nel ramo deterministico del giudice — anticipo del terzo stadio solo lato valutazione, il SAST come input all'agente resta all'esperimento 3 (roadmap Andrea)
+**Esito/Problemi:** solo discussione, nessun codice; criterio di successo già definito: accordo M1-strict da 9/12 verso 12/12 sostituendo l'enumeratore a regex con la lista SAST
+
 ## 2026-07-16 — judge_rubric: rubrica GT-free v2 eseguita nel banco C1/C2 (doc 12→13)  [sessione: e68b2265]
 
 **Intent:** "eseguila e riporta il risultato e infine pusha" — eseguire il test di ammissione della v2 proposta nel doc 12
