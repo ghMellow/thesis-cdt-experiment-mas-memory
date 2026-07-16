@@ -2,6 +2,13 @@
 
 ---
 
+## 2026-07-16 — Cartella docs/judge_rubric: discussione sul giudice a rubrica  [sessione: e68b2265]
+
+**Intent:** "crea una cartella dentro il docs in cui sulla riga di sgv_protocol voglio creare una serie di md di discussione" sul giudice a rubrica (teoria + paper, debolezze nel progetto, limiti GT) + spostare dentro il paper LLM-as-a-Verifier + doc di discussione del paper; "Proponi alternative … sei libero di migliorare il discorso proporre idee e soluzioni" e "poi sei libero di esplorare altre idee, parti dalle miei ma non fermarti a quello"
+**Divergenze:** non usato il subagent di ricerca web (dichiarato opzionale — letteratura coperta da conoscenza + bibliografia già nel repo: RUBRICEVAL, refs SGV); aggiunto un 4° doc (`04_alternative_e_proposte.md`) non richiesto esplicitamente ma coperto dalla libertà concessa; paper rinominato in `02_paper_LLM-as-a-Verifier_2607.05391v2.md` per rispettare la numerazione progressiva; nel doc 04 introdotti criteri di confronto R1–R4 e proposte extra (calibrazione soglia, giudice≠agente, self-consistency cross-repetition, progress signal)
+**Decisioni:** posizione presa da Claude (da validare col gruppo): idea "rubrica workflow esperto di sicurezza" ridimensionata a singolo criterio, non impianto (il dubbio dell'utente è fondato); raccomandata l'opzione B (criteri GT-free di qualità del report + estrazione probabilistica dello score alla LLM-as-a-Verifier), con sequenza: calibrazione soglia → pilota offline K/scala 1–20 → rubrica per-dominio
+**Esito/Problemi:** creati `docs/judge_rubric/01–04`, paper spostato, indice `docs/README.md` aggiornato con sezione ⚖️; nessuna modifica al codice. Aperto: verificare se Ollama (locale/cloud) espone i logprobs per il metodo pieno del paper
+
 ## 2026-07-14 — Rollup pool-ato M1-M3/S1-S3/M5 in comparison.md  [sessione: 2e99bcd7]
 
 **Intent:** "le metriche M e S le abbiamo per ogni task, ha senso calcolarle anche a liv globale... o è già implementata?" — poi "vai esatto possiamo già usare quel file li comparison md no?"

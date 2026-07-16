@@ -61,6 +61,17 @@ Proposta del relatore (2026-07-13): sostituire il retry guidato da LLM-judge con
 | [sgv_protocol/05_dove_va_sgv.html](sgv_protocol/05_dove_va_sgv.html) | Presentazione (3 slide): (1) stato attuale del flusso per formato con i controlli deterministici già esistenti; (2) proposta — un solo gate SGV condiviso prima dello split, Ramo A/B separati a valle; (3) **implementazione reale** — G1/G2/G4 sempre attivi, G3 opzionale via `config.SGV_SNIPPET_ENABLED` deciso a monte nel prompt |
 | [sgv_protocol/06_implementazione_2026-07-14.md](sgv_protocol/06_implementazione_2026-07-14.md) | **Prima implementazione G1–G4** (`utils/sgv.py`): cosa fa ogni controllo, scelte prese (campo `snippet` opzionale via flag, `_match_finding` non riusata per G2, gate condiviso, retry indipendente dalla rubrica), cosa resta aperto (calibrazione soglia Jaccard, prima run di prova) |
 
+## ⚖️ Giudice a rubrica — discussione in corso
+
+Cartella gemella di `sgv_protocol/` (che copre l'in-loop): qui si discute il **giudizio di accettazione** (giudice LLM + rubrica + soglia) e come svincolarlo dalla ground truth, dato che oggi la rubrica è scritta a partire dalla GT. Nulla è implementato — materiale per la discussione di gruppo.
+
+| Documento | Contenuto |
+|-----------|-----------|
+| [judge_rubric/01_stato_attuale_giudice_rubrica.md](judge_rubric/01_stato_attuale_giudice_rubrica.md) | Stato attuale: come funziona il giudice a rubrica, teoria e paper di riferimento (MT-Bench, G-Eval, Prometheus, RUBRICEVAL), debolezze osservate nel progetto, limite strutturale della rubrica GT-derivata |
+| [judge_rubric/02_paper_LLM-as-a-Verifier_2607.05391v2.md](judge_rubric/02_paper_LLM-as-a-Verifier_2607.05391v2.md) | Paper (verbatim, arXiv:2607.05391): score continui via expectation sui logit dei token di punteggio, scaling su granularità/ripetizione/decomposizione dei criteri — proposta futura come alternativa di rubrica |
+| [judge_rubric/03_discussione_llm_as_a_verifier.md](judge_rubric/03_discussione_llm_as_a_verifier.md) | Discussione del paper: mappa sul nostro sistema, fattibilità con Ollama/logprobs, cosa NON risolve (soglia, criteri GT-free), valutazione di Claude e proposta di pilota offline |
+| [judge_rubric/04_alternative_e_proposte.md](judge_rubric/04_alternative_e_proposte.md) | Alternative a confronto: rubrica "workflow esperto di sicurezza", criteri GT-free di qualità del report (raccomandata), ancoraggio CWE, calibrazione soglia, giudice ≠ agente — con sequenza operativa proposta |
+
 ## 📎 Supporto
 
 Materiale ausiliario: non necessario per capire lo stato attuale del sistema, ma utile come riferimento/archivio.
