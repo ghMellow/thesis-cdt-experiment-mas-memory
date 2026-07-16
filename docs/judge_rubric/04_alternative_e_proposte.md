@@ -13,6 +13,8 @@ Una proposta di rubrica è buona per noi se:
 
 (R4) è il punto metodologicamente forte della nostra posizione: avendo già il ramo deterministico, qualunque giudice GT-free è calibrabile e difendibile empiricamente, non solo argomentativamente.
 
+> **Caveat documentato in letteratura (aggiunto 2026-07-16):** togliere il riferimento ha un costo noto — i giudici LLM diventano sistematicamente *più generosi* quando non hanno una reference answer, con verdetti ribaltati fino all'85% quando la reference viene aggiunta, e un giudice **Gemma3-27B** (la nostra famiglia) che nel dominio a lui ostico accetta il 66% delle risposte sbagliate ("LLM Judges Can Be Too Generous When There Is No Reference Answer", arXiv:2607.12885 — paper integrale nel doc 06, discussione nel doc 07). Per noi è l'argomento in più a favore di (R4): la generosità del giudice GT-free non va assunta bassa, va **misurata** contro M1–M3 — il doc 07 §3 traspone il protocollo di calibrazione C1/C2 del paper come test di ammissione del giudice. Ed è anche un motivo per tenere il pezzo deterministico (coverage, doc 05 §3) fuori dal giudizio LLM.
+
 ## 2. Opzione A — Rubrica "workflow dell'esperto di sicurezza" (idea nata in call 12)
 
 > Origine testuale in `00_call12_2026-07-14.md` §2: «io mi provo a immaginare di essere un esperto di sicurezza che deve trovare delle CVE — quali sono i criteri con cui io, facendo l'analisi, vado a selezionare parti di codice? […] simulare il metodo di lavoro». **La combinazione di questa opzione con la C (CWE) è sviluppata nel doc 05**, dove il giudizio dato qui viene parzialmente rivisto: insieme sono più forti che separate.

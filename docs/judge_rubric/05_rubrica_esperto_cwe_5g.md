@@ -51,7 +51,7 @@ Il rischio segnalato nel doc 04 §4 resta: se il sottoinsieme di CWE in rubrica 
 
 Qui serve precisione, perché in call il punto è rimasto vago ("c'erano delle [CWE] del 5G in particolare"):
 
-- **Non esiste una vista CWE ufficiale per il 5G.** Le viste MITRE sono generali (Software Development CWE-699, Research Concepts CWE-1000, Hardware CWE-1194). *(Nota: da riverificare sul sito MITRE — se nel frattempo è comparsa una categoria telco, meglio ancora.)*
+- **Non esiste una vista CWE ufficiale per il 5G.** *(Verificato 2026-07-16 su cwe.mitre.org, CWE v4.20)*: le viste sono generali (Software Development CWE-699, Research Concepts CWE-1000, Hardware CWE-1194, Top 25 2025) più viste per linguaggio, standard di coding, OWASP, mobile *applications* (app-level, non reti mobili) e AI/ML — nessuna vista o categoria telco/5G.
 - Quello che esiste per il dominio: **MITRE FiGHT™** (framework di minacce per 5G, ma è ATT&CK-like — tattiche/tecniche d'attacco, non classi di debolezza del codice) e le **3GPP SCAS** (Security Assurance Specifications, requisiti di sicurezza per NF con test case). Utili come *contesto* e per i related work, ma non sostituiscono le CWE come vocabolario di code review.
 - La via pragmatica: rubrica ancorata alle classi CWE generali (§3), più un **contesto di dominio nel prompt del giudice** ("il file è una network function di un core 5G: le superfici tipiche sono SBI/HTTP, N1/N2, dati subscriber") — che è l'evoluzione naturale dell'hint di contesto NF già testato in run 2. La specificità 5G entra come contesto, non come tassonomia: meno elegante ma onesta, e non richiede di inventare una "CWE 5G" che non c'è.
 
@@ -61,7 +61,7 @@ Qui serve precisione, perché in call il punto è rimasto vago ("c'erano delle [
 
 **Rischi da dichiarare:**
 
-1. *Capacità di classificazione del giudice.* La call 12 lo ha già osservato ("ci ha dato quattro weakness, non quella [attesa]"): classificare per CWE è un giudizio semantico non banale per modelli piccoli. Mitigazione: livello alto della tassonomia (10 classi sono più facili di 900) + estrazione probabilistica (doc 03) che misura l'incertezza invece di nasconderla.
+1. *Capacità di classificazione del giudice.* La call 12 lo ha già osservato ("ci ha dato quattro weakness, non quella [attesa]"): classificare per CWE è un giudizio semantico non banale per modelli piccoli. La letteratura lo quantifica ed è dura: sul benchmark CWE-Trace (834 sample kernel Linux, 74 CWE) la Top-1 accuracy di classificazione CWE esatta resta **sotto l'1.3%**; e su 66k CVE un TF-IDF tradizionale batte gli LLM in classificazione (74% vs 59% direct prompting — "On Using LLMs for Vulnerability Classification", LAMPS 2025). Questo è l'argomento empirico decisivo per la mitigazione già proposta: livello alto della tassonomia (~10 classi invece di 900 cambia radicalmente il compito) + estrazione probabilistica (doc 03) che misura l'incertezza invece di nasconderla.
 2. *Il limite ammesso in call resta:* con questo approccio non si scoprono classi di debolezza nuove — accettabile perché l'obiettivo è trovare *vulnerabilità* nuove dentro classi note.
 3. *Doppio uso da non mescolare:* se il vocabolario CWE finisce sia nel prompt dell'agente sia nella rubrica del giudice, l'accordo agente–giudice si gonfia per costruzione. Sceglierne uno per volta, o dichiarare l'accoppiamento.
 

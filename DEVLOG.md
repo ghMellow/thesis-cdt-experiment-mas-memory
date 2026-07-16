@@ -2,6 +2,20 @@
 
 ---
 
+## 2026-07-16 — judge_rubric: paper "Too Generous" integrale (doc 06) + discussione (doc 07)  [sessione: e68b2265]
+
+**Intent:** fornito il paper completo arXiv:2607.12885 in `judge_rubric/LLM_Judges_Reference_Answer_paper.md` — "non ho capito se lo hai letto tutto o solo in parte"
+**Divergenze:** chiarito che il caveat del doc 04 era basato solo sull'abstract dai risultati di ricerca; letto integrale, rinominato il file in `06_paper_LLM_Judges_Too_Generous_2607.12885v1.md` (convenzione della cartella) e creato `07_discussione_giudici_troppo_generosi.md` non richiesto esplicitamente ma sul pattern 02→03; proposto passo (1-bis) nella sequenza: calibrazione C1/C2 del giudice trasposta dal paper
+**Decisioni:** in attesa di validazione utente (doc 07, rinomina, passo 1-bis); recepita la rinomina esterna `00_proposta_rubrica_cvss.md` → `00_call10_proposta_rubrica_cvss.md` (fatta dall'utente): aggiornati i riferimenti in `docs/README.md`, `docs/status.md`, `judge_rubric/00_call11`
+**Esito/Problemi:** la lettura integrale rafforza il caveat: Gemma3-27B tra i giudici testati (C2=0.66 nel dominio ostico, analogo del nostro 5G/Go), flip fino a 85%, self-family bias osservato (≈ nostro 1A); caveat doc 04 §1 aggiornato con i numeri e i puntatori a 06/07
+
+## 2026-07-16 — judge_rubric: verifiche web mirate al posto della ricerca broad con subagent  [sessione: e68b2265]
+
+**Intent:** "pensi abbiamo raggiunto un buon materiale teorico… oppure conviene lanciare dei subagent (famiglia sonnet) per fare ricerche su internet di paper o gente che ha problemi simili?"
+**Divergenze:** valutazione AI: teoria sufficiente per i passi 1–2 della sequenza (calibrazione soglia, pilota offline); ricerca broad con subagent sconsigliata (rendimenti decrescenti, contesto perso); al suo posto eseguite subito 5 verifiche web mirate inline sui punti lasciati aperti nei doc
+**Decisioni:** verifiche eseguite senza attendere conferma (rientravano nella domanda dell'utente); esiti agganciati nei doc: (a) Ollama locale espone logprobs da v0.12.11 su `/api/generate`, Cloud torna `null`, layer OpenAI li scarta → doc 03 §3 aggiornato (expectation piena solo in locale); (b) confermato su cwe.mitre.org (v4.20) che non esiste vista CWE telco/5G → doc 05 §4, tolto il "da riverificare"; (c) letteratura CWE-classification: Top-1 <1.3% su 74 CWE (CWE-Trace), TF-IDF batte LLM (74% vs 59%) → doc 05 §5 rischio 1 ora con evidenza empirica; (d) trovato paper "LLM Judges Can Be Too Generous When There Is No Reference Answer" (arXiv:2607.12885) → caveat aggiunto in doc 04 §1 a rafforzo di R4
+**Esito/Problemi:** nessun subagent lanciato; tutte le verifiche a favore delle posizioni già scritte (nessuna correzione di rotta, solo evidenza in più)
+
 ## 2026-07-16 — Prompt CVSS: verifica ordine reasoning→risposte + disambiguazione posizione  [sessione: 58313b68]
 
 **Intent:** finding dell'utente sui modelli piccoli (ragionamento prima, valori secchi dopo): "qui nei vari punti l'ordine delle richieste è corretto?"
