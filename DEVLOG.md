@@ -2,6 +2,14 @@
 
 ---
 
+## 2026-07-17 — Chiusura del cerchio metriche: matrice CVE×rep, retry channel, M2×SGV  [sessione: 01e3ad95]
+
+**Intent:** "si migliora sulla base delle cose che credi possano portare un valore aggiunto e poi […] dobbiamo un attimo chiudere il cerchio sulle cose attuali, per quanto riguarda l'esperto per ora non posso fare nulla quindi lavoriamo noi su quello che possiamo"
+**Divergenze:** su proposta AI (accettata in blocco con la concessione di libertà sopra): implementate le due variazioni del doc 07 rimaste sulla carta dal 2026-07-14 + matrice CVE×rep; rimandati (dipendono dall'esperto o dal gruppo): file di validazione esperto, tolleranza CVSS, M4, mapping task9, policy duplicati handler
+**Decisioni:** tre nuove sezioni nei report (per-task e pooled): CVE × repetition (✓/✗ + riga FP per-rep), Detection delta by retry channel (attribuzione transizione i→i+1 al gate che ha bocciato il tentativo i; delta ricalcolati da `history[*].cvss_estimate`, retroattivi), Detection × SGV conformity (bucket per esito `sgv_eval.per_finding` dell'ultimo tentativo)
+**Esito/Problemi:** risultati primo run: (1) le 4 CVE mancate di task6 sono **sempre le stesse** → miss sistematico, non variabilità; (2) **SGV: 1 retry → +1 TP/+0 FP; rubrica: 12 retry → +2 TP/+17 FP** → risposta empirica alla domanda §4 della proposta, argomento per condizionare il retry di rubrica; (3) M2×SGV: tutti i finding finali conformi → nessun segnale sul §4.5 in questo run. Somme verificate (ΔTP +3 = 15−12, ΔFP +17 = 84−67). Doc 07 marcato ✅ sulle due variazioni, guida 08 estesa
+**Lesson learned:** i dati per-tentativo già salvati (`history[*].cvss_estimate` + `sgv_eval` + `verdict`) bastano a rispondere retroattivamente a domande di attribuzione causale sul retry — nessuna nuova run necessaria quando la domanda cambia
+
 ## 2026-07-17 — Obiezioni su first-match e semantica dell'etichetta group  [sessione: 01e3ad95]
 
 **Intent:** utente: "non ho la sicurezza che il match attuale stia veramente mettendo quella che corrisponde alla gt??? […] l'etichetta quindi va presa come famiglia di cve sotto la stessa funzione? non doveva essere a livello di cve propria?"

@@ -81,6 +81,14 @@ Tempo di parete e token (agente e giudice) per ripetizione, mediati. Due avverte
 - **`avg elapsed` include tutti i retry**: è il costo della risposta finale, non del primo tentativo.
 - **I token sono `n/a` sui run hosted** (Ollama Cloud non riporta sempre i conteggi); su Ollama locale ci sono. Non è un bug del report.
 
+### Tre letture di supporto alla Detection (aggiunte 2026-07-17)
+
+Sotto la tabella Detection i report hanno tre sezioni che rispondono a domande che i numeri aggregati non possono coprire:
+
+- **CVE × repetition**: matrice ✓/✗ per CVE target e ripetizione, con riga `unmatched (FP)` per il rumore per-rep. Distingue a colpo d'occhio il **miss sistematico** (riga tutta ✗ — sul run corrente le 4 CVE mancate di task6 sono sempre le stesse) dall'**instabilità di campionamento** (✓/✗ misti). È anche la misura di stabilità più concreta disponibile con 3 ripetizioni.
+- **Detection delta by retry channel** (doc 07, variazione 1): il gap first attempt → final answer spaccato per **quale gate ha causato ogni retry** (SGV o rubrica), con ΔTP/ΔFP per canale ricalcolati dai tentativi salvati in `history`. Risponde alla domanda aperta del §4 della proposta. Sul run corrente: **SGV +1 TP / +0 FP; rubrica +2 TP / +17 FP** — il riesame indotto dall'SGV recupera a costo zero, quello della rubrica produce quasi solo rumore: un argomento empirico per condizionare il retry di rubrica.
+- **Detection × SGV conformity** (doc 07, variazione 2 — M2 × Blocco C): precision dei finding finali per esito SGV (`conform` / `non-conform` / `no SGV record`). Se i non-conformi avessero precision più bassa, sarebbe evidenza che i controlli sintattici correlano con la correttezza sostanziale (pro scarto §4.5). Sul run corrente tutti i finding finali sono conformi → **nessun segnale**, né pro né contro: la tabella parla solo sui run dove l'SGV esaurisce i retry senza conformità.
+
 ## 4. Le metriche S — Severity (solo sui TP)
 
 Le S misurano **quanto è giusto il CVSS stimato**, e per costruzione esistono solo dove c'è un confronto possibile: i finding matchati. Unmatched e missed non hanno metriche S. Non sono divise final answer/first attempt: la severity si misura solo sulla risposta finale.

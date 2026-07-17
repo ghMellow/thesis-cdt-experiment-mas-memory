@@ -489,6 +489,9 @@ def _build_cvss_section(
         "",
     ]
     lines += _build_detection_metrics_section(roles, heading="####")
+    lines += _build_cve_rep_matrix(roles, heading="####")
+    lines += _build_retry_channel_section(roles, heading="####")
+    lines += _build_sgv_detection_cross_section(roles, heading="####")
     lines += _build_severity_metrics_section(roles, heading="####")
 
     lines += [
@@ -661,6 +664,206 @@ def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]], hea
         "at the same time, the extra findings came at a cost — read them together, not "
         "recall alone.",
         "- Full definitions: docs/sgv_protocol/07_metriche_M_S_2026-07-14.md.",
+        "",
+    ]
+    return lines
+
+
+def _build_cve_rep_matrix(roles: Dict[str, List[Dict[str, Any]]], heading: str = "###") -> List[str]:
+    """CVE × repetition hit matrix on the final answer — makes visible at a
+    glance whether the same CVEs are found/missed across repetitions (e.g. the
+    task6 misses being always the same four), information otherwise
+    reconstructable only by cross-reading each repetition's missed list. The
+    per-rep FP row doubles as the stability read on the noise side."""
+    from utils.cvss_eval import _candidate_cves
+
+    by_role_task: Dict[Tuple[str, str], Dict[Any, Tuple[set, int]]] = {}
+    for role, payloads in sorted(roles.items()):
+        for p in payloads:
+            ce = p.get("cvss_eval")
+            if not isinstance(ce, dict):
+                continue
+            d = by_role_task.setdefault((role, p.get("task_id")), {})
+            d[p.get("repetition")] = (
+                {m.get("cve_id") for m in ce.get("matched", [])},
+                ce.get("unmatched_findings", 0),
+            )
+    if not by_role_task:
+        return []
+
+    lines = [
+        '<a id="cve-rep-matrix"></a>',
+        f"{heading} CVE × repetition (final answer)",
+        "",
+        "_✓ = CVE matched in that repetition, ✗ = missed. `unmatched (FP)` = findings "
+        "with no GT CVE in that repetition — the per-rep noise. A CVE row that is all "
+        "✗ is a systematic miss (never found), one with mixed ✓/✗ is a sampling "
+        "instability._",
+        "",
+    ]
+    for (role, task_id), by_rep in sorted(by_role_task.items(), key=lambda kv: (kv[0][1], kv[0][0])):
+        candidates = _candidate_cves(task_id or "")
+        reps = sorted(by_rep)
+        header_reps = " | ".join(f"rep {r}" for r in reps)
+        lines.append(f"| {task_id} — {role} | {header_reps} | hit rate |")
+        lines.append("| --- |" + " --- |" * (len(reps) + 1))
+        for cve in candidates:
+            hits = [cve["id"] in by_rep[r][0] for r in reps]
+            marks = " | ".join("✓" if h else "✗" for h in hits)
+            lines.append(f"| {cve['id']} | {marks} | {sum(hits)}/{len(reps)} |")
+        fp_cells = " | ".join(str(by_rep[r][1]) for r in reps)
+        fp_total = sum(by_rep[r][1] for r in reps)
+        lines.append(f"| unmatched (FP) | {fp_cells} | {fp_total} tot |")
+        lines.append("")
+    return lines
+
+
+def _retry_cause(attempt: Dict[str, Any]) -> str:
+    """Which gate triggered the retry *after* this attempt: the SGV gate runs
+    first, so a failed SGV is the cause even when the rubric would also have
+    failed; otherwise the retry belongs to the rubric judge. 'unknown' when
+    the attempt carries neither signal (non-vuln tasks, older runs)."""
+    sgv = attempt.get("sgv_eval")
+    if isinstance(sgv, dict) and sgv.get("passed") is False:
+        return "SGV"
+    if attempt.get("verdict") is not None or attempt.get("judge_score") is not None:
+        return "rubric"
+    return "unknown"
+
+
+def _build_retry_channel_section(roles: Dict[str, List[Dict[str, Any]]], heading: str = "###") -> List[str]:
+    """Doc 07 variation 1 (agreed 2026-07-14): stratify the first-attempt →
+    final-answer detection delta by *which* gate caused each retry (SGV vs
+    rubric judge — two independent retry channels, 06_implementazione). Each
+    attempt's cvss_estimate is saved in history, so the per-transition deltas
+    are recomputed here deterministically (no LLM, no new runs): the TP/FP
+    delta between attempt i and i+1 is attributed to the gate that rejected
+    attempt i. Answers the proposal's §4 open question — is the perimeter
+    widening due to the induced re-examination (and which one) or to sampling
+    variability alone."""
+    from utils.cvss_eval import evaluate_cvss_estimate
+
+    stats: Dict[Tuple[str, str], Dict[str, int]] = {}
+    for role, payloads in sorted(roles.items()):
+        for p in payloads:
+            history = p.get("history") or []
+            if len(history) < 2 or not isinstance(p.get("cvss_eval"), dict):
+                continue
+            task_id = p.get("task_id") or ""
+            evals = [evaluate_cvss_estimate(task_id, h.get("cvss_estimate")) for h in history]
+
+            def _counts(e: Optional[Dict[str, Any]]) -> Tuple[int, int]:
+                if not isinstance(e, dict):
+                    return 0, 0
+                return len(e.get("matched", [])), e.get("unmatched_findings", 0)
+
+            for i in range(len(history) - 1):
+                cause = _retry_cause(history[i])
+                tp_prev, fp_prev = _counts(evals[i])
+                tp_next, fp_next = _counts(evals[i + 1])
+                s = stats.setdefault((role, cause), {"transitions": 0, "d_tp": 0, "d_fp": 0})
+                s["transitions"] += 1
+                s["d_tp"] += tp_next - tp_prev
+                s["d_fp"] += fp_next - fp_prev
+    if not stats:
+        return []
+
+    lines = [
+        '<a id="retry-channel"></a>',
+        f"{heading} Detection delta by retry channel (doc 07, variation 1)",
+        "",
+        "| role | retry cause | transitions | ΔTP | ΔFP |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for (role, cause), s in sorted(stats.items()):
+        lines.append(
+            f"| {role} | {cause} | {s['transitions']} | {s['d_tp']:+d} | {s['d_fp']:+d} |"
+        )
+    lines += [
+        "",
+        "**Legend**",
+        "",
+        "- Each retry transition (attempt i → i+1) is attributed to the gate that "
+        "rejected attempt i: `SGV` when the syntactic verifier failed (it runs "
+        "first), `rubric` when the SGV passed and the retry came from the judge, "
+        "`unknown` when the attempt carries neither signal. ΔTP/ΔFP = matched/"
+        "unmatched findings gained (+) or lost (−) across that transition, summed "
+        "per channel.",
+        "- The channel sums together equal the first-attempt → final-answer gap in "
+        "the detection table above — this table splits that gap by cause "
+        "(docs/sgv_protocol/07_metriche_M_S_2026-07-14.md, variation 1; answers "
+        "the §4 open question of the proposal).",
+        "- Positive ΔTP with small ΔFP = that channel's re-examination genuinely "
+        "recovers vulnerabilities; ΔFP-only = that channel adds noise.",
+        "",
+    ]
+    return lines
+
+
+def _build_sgv_detection_cross_section(roles: Dict[str, List[Dict[str, Any]]], heading: str = "###") -> List[str]:
+    """Doc 07 variation 2 (agreed 2026-07-14): cross M2 with Blocco C — do
+    findings that are SGV-conform in the final answer have a higher TP rate
+    than the ones the SGV let through non-conform after exhausting retries?
+    Empirical evidence (without discarding anything) on whether the syntactic
+    checks correlate with substantive correctness, i.e. whether the §4.5
+    discard would be justified."""
+    per_cell: Dict[Tuple[str, str], Dict[str, int]] = {}
+    for role, payloads in sorted(roles.items()):
+        for p in payloads:
+            ce = p.get("cvss_eval")
+            if not isinstance(ce, dict):
+                continue
+            history = p.get("history") or []
+            sgv = (history[-1].get("sgv_eval") if history else None) or {}
+            conform_by_fn = {
+                _normalize_function_name(f.get("function")): f.get("passed")
+                for f in sgv.get("per_finding", [])
+                if isinstance(f, dict)
+            }
+
+            def _bucket(function: Any) -> str:
+                passed = conform_by_fn.get(_normalize_function_name(function))
+                if passed is True:
+                    return "conform"
+                if passed is False:
+                    return "non-conform"
+                return "no SGV record"
+
+            for m in ce.get("matched", []):
+                cell = per_cell.setdefault((role, _bucket(m.get("function"))), {"tp": 0, "fp": 0})
+                cell["tp"] += 1
+            for u in ce.get("unmatched", []):
+                cell = per_cell.setdefault((role, _bucket(u.get("function"))), {"tp": 0, "fp": 0})
+                cell["fp"] += 1
+    if not per_cell:
+        return []
+
+    lines = [
+        '<a id="sgv-detection-cross"></a>',
+        f"{heading} Detection × SGV conformity (doc 07, variation 2 — M2 × Blocco C)",
+        "",
+        "| role | SGV status (final answer) | TP | FP | precision |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    order = {"conform": 0, "non-conform": 1, "no SGV record": 2}
+    for (role, bucket), cell in sorted(per_cell.items(), key=lambda kv: (kv[0][0], order.get(kv[0][1], 9))):
+        tp, fp = cell["tp"], cell["fp"]
+        prec = _fmt_ratio(tp / (tp + fp)) if (tp + fp) else "n/a"
+        lines.append(f"| {role} | {bucket} | {tp} | {fp} | {prec} |")
+    lines += [
+        "",
+        "**Legend**",
+        "",
+        "- Findings of the final answer bucketed by their per-finding SGV outcome "
+        "(G2–G4, `sgv_eval.per_finding` of the last attempt): `non-conform` = the "
+        "SGV let it through after exhausting retries (non-discard policy), `no SGV "
+        "record` = the SGV reported nothing for that function name.",
+        "- If `non-conform` precision is clearly lower than `conform`, the syntactic "
+        "checks correlate with substantive correctness — first empirical evidence "
+        "for (or against) the §4.5 discard, gathered without discarding anything "
+        "(docs/sgv_protocol/07_metriche_M_S_2026-07-14.md, variation 2).",
+        "- A table with only `conform` rows means every final finding passed the "
+        "SGV in this run — no signal either way, not a confirmation.",
         "",
     ]
     return lines
@@ -1519,6 +1722,12 @@ def _build_experiment_report(
         toc.append("- [Metrics across repetitions](#metrics-across-reps)")
     if '<a id="detection-metrics"></a>' in cvss_lines:
         toc.append("  - [Detection (M1, M2, M3 — final answer vs first attempt)](#detection-metrics)")
+    if '<a id="cve-rep-matrix"></a>' in cvss_lines:
+        toc.append("  - [CVE × repetition](#cve-rep-matrix)")
+    if '<a id="retry-channel"></a>' in cvss_lines:
+        toc.append("  - [Detection delta by retry channel](#retry-channel)")
+    if '<a id="sgv-detection-cross"></a>' in cvss_lines:
+        toc.append("  - [Detection × SGV conformity](#sgv-detection-cross)")
     if '<a id="severity-metrics"></a>' in cvss_lines:
         toc.append("  - [Severity (S1, S2, S3)](#severity-metrics)")
     if '<a id="legacy-diagnostics"></a>' in cvss_lines:
@@ -1631,6 +1840,9 @@ def _write_evaluation_reports(
                 }
             section_lines = (
                 _build_detection_metrics_section(exp_roles)
+                + _build_cve_rep_matrix(exp_roles)
+                + _build_retry_channel_section(exp_roles)
+                + _build_sgv_detection_cross_section(exp_roles)
                 + _build_severity_metrics_section(exp_roles)
                 + _build_cost_metrics_section(exp_roles)
             )

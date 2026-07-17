@@ -31,6 +31,67 @@ No accuracy difference between 1A and 1B.
 - A final-answer row with higher recall (or F1) than its first-attempt row is the retry loop actually finding more; if precision drops (or alerts/TP rises) at the same time, the extra findings came at a cost — read them together, not recall alone.
 - Full definitions: docs/sgv_protocol/07_metriche_M_S_2026-07-14.md.
 
+<a id="cve-rep-matrix"></a>
+### CVE × repetition (final answer)
+
+_✓ = CVE matched in that repetition, ✗ = missed. `unmatched (FP)` = findings with no GT CVE in that repetition — the per-rep noise. A CVE row that is all ✗ is a systematic miss (never found), one with mixed ✓/✗ is a sampling instability._
+
+| task5_vuln_pcf — agent | rep 1 | rep 2 | rep 3 | hit rate |
+| --- | --- | --- | --- | --- |
+| CVE-2026-41135 | ✓ | ✓ | ✓ | 3/3 |
+| unmatched (FP) | 0 | 0 | 0 | 0 tot |
+
+| task6_vuln_udr_full — agent | rep 1 | rep 2 | rep 3 | hit rate |
+| --- | --- | --- | --- | --- |
+| CVE-2026-40245 | ✗ | ✗ | ✗ | 0/3 |
+| CVE-2026-40246 | ✗ | ✗ | ✗ | 0/3 |
+| CVE-2026-40247 | ✗ | ✗ | ✗ | 0/3 |
+| CVE-2026-40248 | ✗ | ✗ | ✗ | 0/3 |
+| CVE-2026-40249 | ✓ | ✓ | ✓ | 3/3 |
+| CVE-2026-40343 | ✓ | ✓ | ✓ | 3/3 |
+| unmatched (FP) | 5 | 4 | 4 | 13 tot |
+
+| task7_vuln_amf_full — agent | rep 1 | rep 2 | rep 3 | hit rate |
+| --- | --- | --- | --- | --- |
+| CVE-2026-41136 | ✓ | ✓ | ✓ | 3/3 |
+| unmatched (FP) | 4 | 4 | 8 | 16 tot |
+
+| task8_vuln_udm_full — agent | rep 1 | rep 2 | rep 3 | hit rate |
+| --- | --- | --- | --- | --- |
+| CVE-2026-42459 | ✓ | ✓ | ✓ | 3/3 |
+| unmatched (FP) | 12 | 11 | 11 | 34 tot |
+
+| task9_vuln_cross — agent | rep 1 | rep 2 | rep 3 | hit rate |
+| --- | --- | --- | --- | --- |
+| unmatched (FP) | 9 | 6 | 6 | 21 tot |
+
+<a id="retry-channel"></a>
+### Detection delta by retry channel (doc 07, variation 1)
+
+| role | retry cause | transitions | ΔTP | ΔFP |
+| --- | --- | --- | --- | --- |
+| agent | SGV | 1 | +1 | +0 |
+| agent | rubric | 12 | +2 | +17 |
+
+**Legend**
+
+- Each retry transition (attempt i → i+1) is attributed to the gate that rejected attempt i: `SGV` when the syntactic verifier failed (it runs first), `rubric` when the SGV passed and the retry came from the judge, `unknown` when the attempt carries neither signal. ΔTP/ΔFP = matched/unmatched findings gained (+) or lost (−) across that transition, summed per channel.
+- The channel sums together equal the first-attempt → final-answer gap in the detection table above — this table splits that gap by cause (docs/sgv_protocol/07_metriche_M_S_2026-07-14.md, variation 1; answers the §4 open question of the proposal).
+- Positive ΔTP with small ΔFP = that channel's re-examination genuinely recovers vulnerabilities; ΔFP-only = that channel adds noise.
+
+<a id="sgv-detection-cross"></a>
+### Detection × SGV conformity (doc 07, variation 2 — M2 × Blocco C)
+
+| role | SGV status (final answer) | TP | FP | precision |
+| --- | --- | --- | --- | --- |
+| agent | conform | 15 | 84 | 15.2% |
+
+**Legend**
+
+- Findings of the final answer bucketed by their per-finding SGV outcome (G2–G4, `sgv_eval.per_finding` of the last attempt): `non-conform` = the SGV let it through after exhausting retries (non-discard policy), `no SGV record` = the SGV reported nothing for that function name.
+- If `non-conform` precision is clearly lower than `conform`, the syntactic checks correlate with substantive correctness — first empirical evidence for (or against) the §4.5 discard, gathered without discarding anything (docs/sgv_protocol/07_metriche_M_S_2026-07-14.md, variation 2).
+- A table with only `conform` rows means every final finding passed the SGV in this run — no signal either way, not a confirmation.
+
 <a id="severity-metrics"></a>
 ### Severity (S1, S2, S3 — computed on TP only)
 

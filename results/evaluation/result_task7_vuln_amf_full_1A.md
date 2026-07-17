@@ -10,6 +10,8 @@
 - [Unmatched findings](#unmatched-findings)
 - [Metrics across repetitions](#metrics-across-reps)
   - [Detection (M1, M2, M3 — final answer vs first attempt)](#detection-metrics)
+  - [CVE × repetition](#cve-rep-matrix)
+  - [Detection × SGV conformity](#sgv-detection-cross)
   - [Severity (S1, S2, S3)](#severity-metrics)
   - [Legacy diagnostics (runs 1–3 comparability)](#legacy-diagnostics)
 - [SGV — Syntactic Grounding Verifier](#sgv)
@@ -132,6 +134,29 @@ _Every table in this section aggregates over all repetitions of the task (one ro
 - `alerts/TP` (M3) = (TP+FP)/TP — how many findings a reviewer has to read for every true positive actually surfaced; lower is better (less noise per real vulnerability). `n/a` when TP = 0 (nothing to divide by).
 - A final-answer row with higher recall (or F1) than its first-attempt row is the retry loop actually finding more; if precision drops (or alerts/TP rises) at the same time, the extra findings came at a cost — read them together, not recall alone.
 - Full definitions: docs/sgv_protocol/07_metriche_M_S_2026-07-14.md.
+
+<a id="cve-rep-matrix"></a>
+#### CVE × repetition (final answer)
+
+_✓ = CVE matched in that repetition, ✗ = missed. `unmatched (FP)` = findings with no GT CVE in that repetition — the per-rep noise. A CVE row that is all ✗ is a systematic miss (never found), one with mixed ✓/✗ is a sampling instability._
+
+| task7_vuln_amf_full — agent | rep 1 | rep 2 | rep 3 | hit rate |
+| --- | --- | --- | --- | --- |
+| CVE-2026-41136 | ✓ | ✓ | ✓ | 3/3 |
+| unmatched (FP) | 4 | 4 | 8 | 16 tot |
+
+<a id="sgv-detection-cross"></a>
+#### Detection × SGV conformity (doc 07, variation 2 — M2 × Blocco C)
+
+| role | SGV status (final answer) | TP | FP | precision |
+| --- | --- | --- | --- | --- |
+| agent | conform | 3 | 16 | 15.8% |
+
+**Legend**
+
+- Findings of the final answer bucketed by their per-finding SGV outcome (G2–G4, `sgv_eval.per_finding` of the last attempt): `non-conform` = the SGV let it through after exhausting retries (non-discard policy), `no SGV record` = the SGV reported nothing for that function name.
+- If `non-conform` precision is clearly lower than `conform`, the syntactic checks correlate with substantive correctness — first empirical evidence for (or against) the §4.5 discard, gathered without discarding anything (docs/sgv_protocol/07_metriche_M_S_2026-07-14.md, variation 2).
+- A table with only `conform` rows means every final finding passed the SGV in this run — no signal either way, not a confirmation.
 
 <a id="severity-metrics"></a>
 #### Severity (S1, S2, S3 — computed on TP only)
