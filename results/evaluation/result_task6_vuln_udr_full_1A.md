@@ -9,7 +9,7 @@
 - [Vector detail (estimated vs. published)](#vector-detail)
 - [Unmatched findings](#unmatched-findings)
 - [Metrics across repetitions](#metrics-across-reps)
-  - [Detection (M1, M2, M3 — pass@1 vs pass@k)](#detection-metrics)
+  - [Detection (M1, M2, M3 — final answer vs first attempt)](#detection-metrics)
   - [Severity (S1, S2, S3)](#severity-metrics)
   - [Legacy diagnostics (runs 1–3 comparability)](#legacy-diagnostics)
 - [SGV — Syntactic Grounding Verifier](#sgv)
@@ -25,7 +25,9 @@
 <a id="vector-detail"></a>
 ### Vector detail (estimated vs. published)
 
-| **CVE-2026-40343** — agent, rep 1 | estimated | published |
+_`group` letter (when present) = this CVE recurs — same letter on other matched reps and/or on rows of the unmatched table below (there it marks a finding on one of this CVE's handler functions: a probable duplicate to confirm in triage, not necessarily the same bug — see the unmatched legend)._
+
+| **CVE-2026-40343** — agent, rep 1 — group a | estimated | published |
 |---|---|---|
 | AV — Attack Vector | N | N |
 | AC — Attack Complexity | L | L |
@@ -41,7 +43,7 @@
 | base score — declared / from vector (official math) | 3.3 / **5.3** | 6.9 |
 | [reasoning detail](matched_findings/task6_vuln_udr_full_1A_agent_rep1_CVE-2026-40343.md) | | |
 
-| **CVE-2026-40249** — agent, rep 1 | estimated | published |
+| **CVE-2026-40249** — agent, rep 1 — group b | estimated | published |
 |---|---|---|
 | AV — Attack Vector | N | N |
 | AC — Attack Complexity | L | L |
@@ -57,7 +59,7 @@
 | base score — declared / from vector (official math) | 3.3 / **5.3** | 6.9 |
 | [reasoning detail](matched_findings/task6_vuln_udr_full_1A_agent_rep1_CVE-2026-40249.md) | | |
 
-| **CVE-2026-40343** — agent, rep 2 | estimated | published |
+| **CVE-2026-40343** — agent, rep 2 — group a | estimated | published |
 |---|---|---|
 | AV — Attack Vector | N | N |
 | AC — Attack Complexity | L | L |
@@ -73,7 +75,7 @@
 | base score — declared / from vector (official math) | 6.5 / **8.2** | 6.9 |
 | [reasoning detail](matched_findings/task6_vuln_udr_full_1A_agent_rep2_CVE-2026-40343.md) | | |
 
-| **CVE-2026-40249** — agent, rep 2 | estimated | published |
+| **CVE-2026-40249** — agent, rep 2 — group b | estimated | published |
 |---|---|---|
 | AV — Attack Vector | N | N |
 | AC — Attack Complexity | L | L |
@@ -89,7 +91,7 @@
 | base score — declared / from vector (official math) | 6.5 / **8.2** | 6.9 |
 | [reasoning detail](matched_findings/task6_vuln_udr_full_1A_agent_rep2_CVE-2026-40249.md) | | |
 
-| **CVE-2026-40343** — agent, rep 3 | estimated | published |
+| **CVE-2026-40343** — agent, rep 3 — group a | estimated | published |
 |---|---|---|
 | AV — Attack Vector | N | N |
 | AC — Attack Complexity | L | L |
@@ -105,7 +107,7 @@
 | base score — declared / from vector (official math) | 4.8 / **8.2** | 6.9 |
 | [reasoning detail](matched_findings/task6_vuln_udr_full_1A_agent_rep3_CVE-2026-40343.md) | | |
 
-| **CVE-2026-40249** — agent, rep 3 | estimated | published |
+| **CVE-2026-40249** — agent, rep 3 — group b | estimated | published |
 |---|---|---|
 | AV — Attack Vector | N | N |
 | AC — Attack Complexity | L | L |
@@ -143,7 +145,7 @@
 **Legend**
 
 - One row per finding the agent reported that matched no ground-truth CVE — either a false positive, or a genuine extra vulnerability with no catalogued CVE. Never counted against the evaluation (design choice: this is the practical use case, findings worth a human's triage).
-- `group` = a letter (a, b, c…) means same-letter rows are the same finding re-reported across repetitions (same function; identical vector, or an LLM-confirmed equivalent one). `≠` means the function recurred with a different vector and the LLM was asked and judged it a genuinely different finding, not a re-estimate. `—` means the function was seen only once — nothing to compare, no LLM call made. Grouping never removes or merges rows, it only labels them.
+- `group` = a letter (a, b, c…) means same-letter rows recur. **Letters are shared with the vector-detail section above**: an unmatched row carrying the same letter as a matched CVE sits on one of that CVE's handler functions (the CVE was already consumed in that repetition) — the same *location identity* the ground truth itself uses, so it is a **probable duplicate** of the matched CVE, not verified semantically: a handler can host more than one distinct bug, so in triage treat it as a duplicate to confirm quickly, not as a new candidate to score. Letters on unmatched-only clusters mean same function + identical vector (or an LLM-confirmed equivalent one). `≠` means the function recurred with a different vector and the LLM judged it a genuinely different finding, not a re-estimate. `—` means the function was seen only once — nothing to compare, no LLM call made. Grouping never removes or merges rows, it only labels them.
 - `score (from vector)` = the recomputed score, official CVSS 4.0 math — sort key, most severe first.
 - `declared` = the score the agent stated directly; diagnostic only (see note above, not produced from the vector).
 - `function` = the Go function the agent pointed to as the vulnerability's location.
@@ -158,22 +160,23 @@
 _Every table in this section aggregates over all repetitions of the task (one row per role); the per-finding detail is above._
 
 <a id="detection-metrics"></a>
-#### Detection (M1, M2, M3 — pass@1 vs pass@k)
+#### Detection (M1, M2, M3 — final answer vs first attempt)
 
-| role | pass | detection rate | avg coverage | TP | FP | FN | precision | recall | F1 | alerts/TP |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | pass@1 | 100.0% | 22.2% | 4 | 9 | 14 | 30.8% | 22.2% | 25.8% | 3.2 |
-| agent | pass@k | 100.0% | 33.3% | 6 | 13 | 12 | 31.6% | 33.3% | 32.4% | 3.2 |
+| role | answer | reps | detection rate | avg coverage | TP | FP | FN | precision | recall | F1 | alerts/TP |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| agent | final answer | 3 | 100.0% | 33.3% | 6 | 13 | 12 | 31.6% | 33.3% | 32.4% | 3.2 |
+| agent | first attempt | 3 | 100.0% | 22.2% | 4 | 9 | 14 | 30.8% | 22.2% | 25.8% | 3.2 |
 
 **Legend**
 
 - `M1` = detection rate / avg coverage, `M2` = precision / recall / F1, `M3` = alerts/TP.
 - Unit of analysis is the CVE (docs/sgv_protocol/00_proposta_relatore.md §2): TP = matched CVEs, FN = missed CVEs, FP = findings that paired to no candidate CVE (includes genuine extra vulnerabilities with no catalogued CVE, not only false positives — see the unmatched-findings legend above).
-- `pass@1` = evaluated against the agent's *first* attempt only, as if the SGV/rubric retry loop didn't exist.
-- `pass@k` = evaluated against the final accepted answer, after every retry — same numbers as the `matched`/`missed CVEs`/`unmatched findings` counts above.
+- `reps` = repetitions pooled into this row (across every task in scope, for pooled tables). Counts sum over all of them (unit = CVE × repetition): a CVE found in every repetition contributes one TP per repetition, and TP + FN = sum of each pooled repetition's target CVEs (single task: target CVEs × reps) — read TP against that ceiling, not against the number of distinct target CVEs.
+- `final answer` (the headline row) = evaluated against the final accepted answer, after every retry — the system as a black box; same numbers as the `matched`/`missed CVEs`/`unmatched findings` counts above. Formerly labelled `pass@k`.
+- `first attempt` = diagnostic counterfactual: same evaluation against the agent's *first* attempt only, as if the SGV/rubric retry loop didn't exist. Formerly labelled `pass@1`.
 - `detection rate` = share of repetitions (with at least one target CVE) where ≥1 CVE was matched. `avg coverage` = mean matched/target CVEs per repetition.
 - `alerts/TP` (M3) = (TP+FP)/TP — how many findings a reviewer has to read for every true positive actually surfaced; lower is better (less noise per real vulnerability). `n/a` when TP = 0 (nothing to divide by).
-- A pass@k row with higher recall (or F1) than its pass@1 row is the retry loop actually finding more; if precision drops (or alerts/TP rises) at the same time, the extra findings came at a cost — read them together, not recall alone.
+- A final-answer row with higher recall (or F1) than its first-attempt row is the retry loop actually finding more; if precision drops (or alerts/TP rises) at the same time, the extra findings came at a cost — read them together, not recall alone.
 - Full definitions: docs/sgv_protocol/07_metriche_M_S_2026-07-14.md.
 
 <a id="severity-metrics"></a>
@@ -203,6 +206,7 @@ _Every table in this section aggregates over all repetitions of the task (one ro
 
 - `S1` = exact match of the whole vector, `S2` = per-metric accuracy / ordinal distance (table above), `S3` = null-model baseline both are read against.
 - Computed only on matched findings (TP) — unmatched findings and missed CVEs carry no severity comparison, per the proposal (§5.2).
+- When a repetition reports the same handler more than once, the finding paired to the CVE (whose vector S reads) is the first in agent output order — function name is the only identity available, and a GT-aware tie-break would bias S upward (see cvss_eval._match_finding). The duplicates are visible in the unmatched table via the shared `group` letter.
 - `S1 exact match` = share of TP findings whose *entire* estimated vector (8 base metrics, 11 when SC/SI/SA were emitted) matches the published one field for field.
 - `S3 baseline` = a null model that always guesses the modal vector among the target CVEs in scope (one task, or every task pooled together) — read S1/accuracy as a margin **above** this, not in absolute terms. With a single target CVE in scope the baseline degenerates to 100% by construction (the modal vector of one CVE is that CVE's own vector) — real property of the dataset, not a bug; the margin is only informative with several target CVEs with differing vectors in scope.
 - `avg ordinal distance` (0-1, 0 = identical, 1 = opposite ends of the scale) — severity-aware: a None→High miss is penalized more than a None→Low one.

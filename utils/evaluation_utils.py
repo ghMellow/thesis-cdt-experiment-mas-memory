@@ -468,8 +468,11 @@ def _build_cvss_section(
         return _avg(vals)
 
     lines = ['<a id="cvss-estimate"></a>', "## CVSS estimate (Blocco B, deterministic)", ""]
-    lines += _build_cvss_vector_detail(roles, experiment_id, results_path)
-    lines += _build_cvss_unmatched(roles, experiment_id, results_path)
+    # Recurrence labels computed once so the letters are consistent between the
+    # matched (vector detail) and unmatched tables (call 13 follow-up).
+    matched_labels, unmatched_markers = _compute_finding_groups(roles)
+    lines += _build_cvss_vector_detail(roles, experiment_id, results_path, matched_labels=matched_labels)
+    lines += _build_cvss_unmatched(roles, experiment_id, results_path, unmatched_markers=unmatched_markers)
 
     # All the tables below are roll-ups over every repetition of the task —
     # M1-M3/S1-S3 included (per-role rows, TP pooled across reps), not
@@ -584,12 +587,15 @@ def _build_cvss_section(
 
 def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]], heading: str = "###") -> List[str]:
     """M1 (detection per CVE) + M2 (precision/recall/F1) + M3 (alerts per TP),
-    pass@1 vs pass@k (docs/sgv_protocol/00_proposta_relatore.md §5.1,
-    07_metriche_M_S_2026-07-14.md). pass@1 = first attempt only (as if there
-    were no retry loop at all); pass@k = after every retry (SGV + rubric),
-    same data as `cvss_eval` above. The gap between the two is the retry
-    loop's actual effect on detection — the empirical question the proposal
-    leaves open in §4's observation."""
+    final answer vs first attempt (docs/sgv_protocol/00_proposta_relatore.md
+    §5.1, 07_metriche_M_S_2026-07-14.md; renamed from pass@k/pass@1 per call
+    13 — the system is evaluated as a black box on its final accepted answer,
+    and "pass@k" wrongly suggested best-of-k independent samples). The
+    headline row is the final answer (after every SGV + rubric retry, same
+    data as `cvss_eval` above); "first attempt" is the diagnostic
+    counterfactual (history[0], as if the retry loop didn't exist) — the gap
+    between the two is the retry loop's actual effect on detection, the
+    empirical question the proposal leaves open in §4's observation."""
     from utils.cvss_eval import aggregate_detection_metrics
 
     def _role_evals(key: str):
@@ -604,20 +610,20 @@ def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]], hea
 
     lines = [
         '<a id="detection-metrics"></a>',
-        f"{heading} Detection (M1, M2, M3 — pass@1 vs pass@k)",
+        f"{heading} Detection (M1, M2, M3 — final answer vs first attempt)",
         "",
-        "| role | pass | detection rate | avg coverage | TP | FP | FN | precision | recall | F1 | alerts/TP |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+        "| role | answer | reps | detection rate | avg coverage | TP | FP | FN | precision | recall | F1 | alerts/TP |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     pass1_by_role = dict(_role_evals("cvss_eval_pass1"))
     passk_by_role = dict(_role_evals("cvss_eval"))
     for role in sorted(set(pass1_by_role) | set(passk_by_role)):
-        for label, evals in (("pass@1", pass1_by_role.get(role)), ("pass@k", passk_by_role.get(role))):
+        for label, evals in (("final answer", passk_by_role.get(role)), ("first attempt", pass1_by_role.get(role))):
             if not evals:
                 continue
             m = aggregate_detection_metrics(evals)
             lines.append(
-                f"| {role} | {label} | {_fmt_ratio(m['detection_rate'])} | "
+                f"| {role} | {label} | {m['n_reps']} | {_fmt_ratio(m['detection_rate'])} | "
                 f"{_fmt_ratio(m['avg_coverage'])} | {m['tp']} | {m['fp']} | {m['fn']} | "
                 f"{_fmt_ratio(m['precision'])} | {_fmt_ratio(m['recall'])} | "
                 f"{_fmt_ratio(m['f1'])} | {_fmt(m['alerts_per_tp'], 1)} |"
@@ -632,18 +638,28 @@ def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]], hea
         "TP = matched CVEs, FN = missed CVEs, FP = findings that paired to no candidate "
         "CVE (includes genuine extra vulnerabilities with no catalogued CVE, not only "
         "false positives — see the unmatched-findings legend above).",
-        "- `pass@1` = evaluated against the agent's *first* attempt only, as if the "
-        "SGV/rubric retry loop didn't exist.",
-        "- `pass@k` = evaluated against the final accepted answer, after every retry — "
-        "same numbers as the `matched`/`missed CVEs`/`unmatched findings` counts above.",
+        "- `reps` = repetitions pooled into this row (across every task in scope, for "
+        "pooled tables). Counts sum over all of them (unit = CVE × repetition): a CVE "
+        "found in every repetition contributes one TP per repetition, and TP + FN = "
+        "sum of each pooled repetition's target CVEs (single task: target CVEs × "
+        "reps) — read TP against that ceiling, not against the number of distinct "
+        "target CVEs.",
+        "- `final answer` (the headline row) = evaluated against the final accepted "
+        "answer, after every retry — the system as a black box; same numbers as the "
+        "`matched`/`missed CVEs`/`unmatched findings` counts above. Formerly labelled "
+        "`pass@k`.",
+        "- `first attempt` = diagnostic counterfactual: same evaluation against the "
+        "agent's *first* attempt only, as if the SGV/rubric retry loop didn't exist. "
+        "Formerly labelled `pass@1`.",
         "- `detection rate` = share of repetitions (with at least one target CVE) where "
         "≥1 CVE was matched. `avg coverage` = mean matched/target CVEs per repetition.",
         "- `alerts/TP` (M3) = (TP+FP)/TP — how many findings a reviewer has to read for "
         "every true positive actually surfaced; lower is better (less noise per real "
         "vulnerability). `n/a` when TP = 0 (nothing to divide by).",
-        "- A pass@k row with higher recall (or F1) than its pass@1 row is the retry loop "
-        "actually finding more; if precision drops (or alerts/TP rises) at the same "
-        "time, the extra findings came at a cost — read them together, not recall alone.",
+        "- A final-answer row with higher recall (or F1) than its first-attempt row is "
+        "the retry loop actually finding more; if precision drops (or alerts/TP rises) "
+        "at the same time, the extra findings came at a cost — read them together, not "
+        "recall alone.",
         "- Full definitions: docs/sgv_protocol/07_metriche_M_S_2026-07-14.md.",
         "",
     ]
@@ -655,8 +671,8 @@ def _build_severity_metrics_section(roles: Dict[str, List[Dict[str, Any]]], head
     S3 (baseline: null model always guessing the modal GT vector), computed
     only on TP (matched findings) — docs/sgv_protocol/00_proposta_relatore.md
     §5.2, 07_metriche_M_S_2026-07-14.md. Unlike M1/M2/M3 this isn't split
-    pass@1/pass@k: severity is a downstream measurement on the final
-    accepted answer, not a property of the retry loop."""
+    final answer/first attempt: severity is a downstream measurement on the
+    final accepted answer only, not a property of the retry loop."""
     from utils.cvss_eval import EXPLOITABILITY_METRICS, IMPACT_METRICS, SUBSEQUENT_METRICS, aggregate_severity_metrics
 
     task_ids = sorted({p.get("task_id") for payloads in roles.values() for p in payloads if p.get("task_id")})
@@ -711,6 +727,11 @@ def _build_severity_metrics_section(roles: Dict[str, List[Dict[str, Any]]], head
         "distance (table above), `S3` = null-model baseline both are read against.",
         "- Computed only on matched findings (TP) — unmatched findings and missed CVEs "
         "carry no severity comparison, per the proposal (§5.2).",
+        "- When a repetition reports the same handler more than once, the finding "
+        "paired to the CVE (whose vector S reads) is the first in agent output order "
+        "— function name is the only identity available, and a GT-aware tie-break "
+        "would bias S upward (see cvss_eval._match_finding). The duplicates are "
+        "visible in the unmatched table via the shared `group` letter.",
         "- `S1 exact match` = share of TP findings whose *entire* estimated vector "
         "(8 base metrics, 11 when SC/SI/SA were emitted) matches the published one field "
         "for field.",
@@ -866,18 +887,120 @@ def _cluster_unmatched_findings(
     return cluster_id, checked_not_equal
 
 
-def _assign_group_labels(cluster_ids: List[int]) -> Dict[int, str]:
-    """Letter per cluster with >1 member, in order of first appearance;
-    singleton clusters (finding seen only once) get no label — the letter
-    is only meaningful as a "this recurs" signal."""
-    counts: Dict[int, int] = {}
-    for cid in cluster_ids:
-        counts[cid] = counts.get(cid, 0) + 1
+def _compute_finding_groups(
+    roles: Dict[str, List[Dict[str, Any]]], semantic_check: bool = True
+) -> Tuple[Dict[Tuple[str, str, Any, str], str], Dict[Tuple[str, str, Any, int], str]]:
+    """Recurrence labels shared between the matched (vector detail) and
+    unmatched tables, so the same underlying finding carries the same letter
+    wherever it appears (call 13 follow-up: an unmatched duplicate of an
+    already-matched CVE was indistinguishable from a brand-new finding).
+
+    Cluster seeds: every matched finding of the same (task, role, CVE) is the
+    same vulnerability by definition — matching is per repetition, so a CVE
+    found again in a later repetition is a new TP, not an unmatched. An
+    unmatched finding joins a seed cluster when its function name matches one
+    of that CVE's handler functions (same containment rule as
+    cvss_eval._match_finding, deterministic, no LLM): that's the
+    duplicate-within-a-repetition case, where the CVE was already consumed by
+    an earlier finding of the same rep. Leftover unmatched findings are
+    clustered among themselves as before (_cluster_unmatched_findings,
+    incl. the cached LLM check for same-function/different-vector).
+
+    Returns (matched_labels, unmatched_markers):
+      matched_labels[(task_id, role, rep, cve_id)] = letter, only for
+        clusters with >1 member (recurrence is the signal);
+      unmatched_markers[(task_id, role, rep, idx)] = letter, '≠' or '—'
+        (idx = position in that repetition's `unmatched` list).
+    """
+    from utils.cvss_eval import _candidate_cves
+
+    matched_entries: List[Tuple[str, str, Any, str]] = []
+    unmatched_entries: List[Tuple[str, str, Any, Optional[str], Dict[str, Any], Dict[str, Any], int]] = []
+    for role, payloads in sorted(roles.items()):
+        for p in payloads:
+            ce = p.get("cvss_eval")
+            if not isinstance(ce, dict):
+                continue
+            task_id, rep = p.get("task_id"), p.get("repetition")
+            for m in ce.get("matched", []):
+                matched_entries.append((task_id, role, rep, m.get("cve_id")))
+            for idx, u in enumerate(ce.get("unmatched", [])):
+                unmatched_entries.append((role, task_id, rep, p.get("run_id"), {}, u, idx))
+
+    # Same triage order as the unmatched table, so letters follow reading order.
+    unmatched_entries.sort(
+        key=lambda e: e[5].get("computed_score_B", e[5].get("declared_score", -1.0)) or -1.0,
+        reverse=True,
+    )
+
+    # Seed clusters: one per (task, role, CVE) with matched rows.
+    cve_cluster: Dict[Tuple[str, str, str], int] = {}
+    members: Dict[int, int] = {}
+    matched_cids: List[int] = []
+    for task_id, role, _rep, cve_id in matched_entries:
+        cid = cve_cluster.setdefault((task_id, role, cve_id), len(cve_cluster))
+        members[cid] = members.get(cid, 0) + 1
+        matched_cids.append(cid)
+
+    handlers_cache: Dict[str, List[Tuple[str, List[str]]]] = {}
+
+    def _handlers(task_id: str) -> List[Tuple[str, List[str]]]:
+        if task_id not in handlers_cache:
+            handlers_cache[task_id] = [
+                (cve["id"], [h.lower() for h in (cve.get("handler_functions") or [])])
+                for cve in _candidate_cves(task_id)
+            ]
+        return handlers_cache[task_id]
+
+    linked: Dict[int, int] = {}  # position in unmatched_entries -> cluster id
+    leftover: List[Tuple[int, Tuple]] = []
+    for pos, entry in enumerate(unmatched_entries):
+        role, task_id, _rep, _run_id, _fa, u, _idx = entry
+        function = str(u.get("function", "")).strip().lower()
+        cid = None
+        if function and task_id:
+            for cve_id, handlers in _handlers(task_id):
+                if any(h and (h in function or function in h) for h in handlers):
+                    cid = cve_cluster.get((task_id, role, cve_id))
+                    if cid is not None:
+                        break
+        if cid is None:
+            leftover.append((pos, entry))
+        else:
+            linked[pos] = cid
+            members[cid] = members.get(cid, 0) + 1
+
+    offset = len(cve_cluster)
+    leftover_cids, checked_not_equal = _cluster_unmatched_findings(
+        [e[:6] for _, e in leftover], semantic_check=semantic_check
+    )
+    checked_not_equal = {cid + offset for cid in checked_not_equal}
+    for (pos, _entry), cid in zip(leftover, leftover_cids):
+        linked[pos] = cid + offset
+        members[cid + offset] = members.get(cid + offset, 0) + 1
+
+    # Letters in display order: matched section first, then unmatched triage order.
     labels: Dict[int, str] = {}
-    for cid in cluster_ids:
-        if counts[cid] > 1 and cid not in labels:
+
+    def _label(cid: int) -> Optional[str]:
+        if members.get(cid, 0) > 1 and cid not in labels:
             labels[cid] = _letter_label(len(labels))
-    return labels
+        return labels.get(cid)
+
+    matched_labels: Dict[Tuple[str, str, Any, str], str] = {}
+    for (task_id, role, rep, cve_id), cid in zip(matched_entries, matched_cids):
+        label = _label(cid)
+        if label:
+            matched_labels[(task_id, role, rep, cve_id)] = label
+
+    unmatched_markers: Dict[Tuple[str, str, Any, int], str] = {}
+    for pos, (role, task_id, rep, _run_id, _fa, _u, idx) in enumerate(unmatched_entries):
+        cid = linked[pos]
+        label = _label(cid)
+        unmatched_markers[(task_id, role, rep, idx)] = label or (
+            "≠" if cid in checked_not_equal else "—"
+        )
+    return matched_labels, unmatched_markers
 
 
 def _final_answer_with_prompt(p: Dict[str, Any]) -> Dict[str, Any]:
@@ -955,7 +1078,7 @@ def _write_unmatched_finding_file(
         f"| vector (estimated) | `{u.get('vector', '—')}` |",
         f"| score declared | {_fmt(u.get('declared_score'), 1)} |",
         f"| score computed (official CVSS 4.0 math) | {_fmt(u.get('computed_score_B'), 1)} |",
-        f"| group (recurs across reps) | {group_label or '—'} |",
+        f"| group (shared with matched table) | {group_label or '—'} |",
         "",
         "## Agent narrative for this repetition",
         "",
@@ -986,6 +1109,7 @@ def _write_matched_finding_file(
     run_id: Optional[str],
     m: Dict[str, Any],
     final_answer: Dict[str, Any],
+    group_label: Optional[str] = None,
 ) -> None:
     """One self-contained file per finding that DID pair to a ground-truth
     CVE: its structured data plus the agent's full narrative for that
@@ -1003,6 +1127,7 @@ def _write_matched_finding_file(
         "| field | value |",
         "| --- | --- |",
         f"| GT CVE | {m.get('cve_id', '—')} |",
+        f"| group (shared with unmatched table) | {group_label or '—'} |",
         f"| function | `{function}` |",
         f"| vector (estimated) | `{m.get('estimated_vector', '—')}` |",
         f"| vector (published) | `{m.get('published_vector', '—')}` |",
@@ -1033,7 +1158,7 @@ def _build_cvss_unmatched(
     roles: Dict[str, List[Dict[str, Any]]],
     experiment_id: str,
     results_path: str,
-    semantic_check: bool = True,
+    unmatched_markers: Optional[Dict[Tuple[str, str, Any, int], str]] = None,
 ) -> List[str]:
     """Findings with no ground-truth CVE, ranked most-severe-first by the
     officially recomputed score — the experts' use case: potential
@@ -1042,9 +1167,10 @@ def _build_cvss_unmatched(
     since the finding record itself carries no free-text rationale.
 
     Every repetition's finding stays its own row (nothing is deduplicated or
-    hidden) — the `group` column only adds a recurrence label so the same
-    finding re-reported across repetitions is visible at a glance (see
-    _cluster_unmatched_findings)."""
+    hidden) — the `group` column only adds a recurrence label, shared with the
+    vector-detail (matched) section so an unmatched duplicate of an
+    already-matched CVE carries the CVE's same letter (see
+    _compute_finding_groups)."""
     entries = []
     for role, payloads in sorted(roles.items()):
         for p in payloads:
@@ -1052,9 +1178,9 @@ def _build_cvss_unmatched(
             if not isinstance(ce, dict):
                 continue
             final_answer = _final_answer_with_prompt(p)
-            for u in ce.get("unmatched", []):
+            for idx, u in enumerate(ce.get("unmatched", [])):
                 entries.append(
-                    (role, p.get("task_id"), p.get("repetition"), p.get("run_id"), final_answer, u)
+                    (role, p.get("task_id"), p.get("repetition"), p.get("run_id"), final_answer, u, idx)
                 )
     if not entries:
         return []
@@ -1064,10 +1190,8 @@ def _build_cvss_unmatched(
         reverse=True,
     )
 
-    cluster_ids, checked_not_equal = _cluster_unmatched_findings(
-        entries, semantic_check=semantic_check
-    )
-    group_labels = _assign_group_labels(cluster_ids)
+    if unmatched_markers is None:
+        _, unmatched_markers = _compute_finding_groups(roles)
 
     out_dir = Path(results_path) / "evaluation" / "unmatched_findings"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -1080,13 +1204,11 @@ def _build_cvss_unmatched(
         "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     seen: Dict[Tuple[str, str, Any], int] = {}
-    for i, (role, task_id, rep, run_id, final_answer, u) in enumerate(entries, 1):
+    for i, (role, task_id, rep, run_id, final_answer, u, idx) in enumerate(entries, 1):
         key = (task_id, role, rep)
         seen[key] = seen.get(key, 0) + 1
         filename = f"{task_id}_{experiment_id}_{role}_rep{rep}_f{seen[key]}.md"
-        cid = cluster_ids[i - 1]
-        group_label = group_labels.get(cid)
-        marker = group_label or ("≠" if cid in checked_not_equal else "—")
+        marker = unmatched_markers.get((task_id, role, rep, idx), "—")
         _write_unmatched_finding_file(
             out_dir / filename, task_id, experiment_id, role, rep, run_id, u, final_answer,
             group_label=marker,
@@ -1104,13 +1226,20 @@ def _build_cvss_unmatched(
         "either a false positive, or a genuine extra vulnerability with no catalogued "
         "CVE. Never counted against the evaluation (design choice: this is the "
         "practical use case, findings worth a human's triage).",
-        "- `group` = a letter (a, b, c…) means same-letter rows are the same finding "
-        "re-reported across repetitions (same function; identical vector, or an "
+        "- `group` = a letter (a, b, c…) means same-letter rows recur. **Letters are "
+        "shared with the vector-detail section above**: an unmatched row carrying "
+        "the same letter as a matched CVE sits on one of that CVE's handler "
+        "functions (the CVE was already consumed in that repetition) — the same "
+        "*location identity* the ground truth itself uses, so it is a **probable "
+        "duplicate** of the matched CVE, not verified semantically: a handler can "
+        "host more than one distinct bug, so in triage treat it as a duplicate to "
+        "confirm quickly, not as a new candidate to score. Letters on "
+        "unmatched-only clusters mean same function + identical vector (or an "
         "LLM-confirmed equivalent one). `≠` means the function recurred with a "
-        "different vector and the LLM was asked and judged it a genuinely different "
-        "finding, not a re-estimate. `—` means the function was seen only once — "
-        "nothing to compare, no LLM call made. Grouping never removes or merges "
-        "rows, it only labels them.",
+        "different vector and the LLM judged it a genuinely different finding, not "
+        "a re-estimate. `—` means the function was seen only once — nothing to "
+        "compare, no LLM call made. Grouping never removes or merges rows, it only "
+        "labels them.",
         "- `score (from vector)` = the recomputed score, official CVSS 4.0 math — sort "
         "key, most severe first.",
         "- `declared` = the score the agent stated directly; diagnostic only (see note "
@@ -1131,7 +1260,10 @@ def _build_cvss_unmatched(
 
 
 def _build_cvss_vector_detail(
-    roles: Dict[str, List[Dict[str, Any]]], experiment_id: str, results_path: str
+    roles: Dict[str, List[Dict[str, Any]]],
+    experiment_id: str,
+    results_path: str,
+    matched_labels: Optional[Dict[Tuple[str, str, Any, str], str]] = None,
 ) -> List[str]:
     """Per-finding estimated vs. published CVSS vector, one compact table per
     CVE: rows are the compared metrics (labelled with the full name from the
@@ -1171,11 +1303,26 @@ def _build_cvss_vector_detail(
     out_dir = Path(results_path) / "evaluation" / "matched_findings"
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    lines = ['<a id="vector-detail"></a>', "### Vector detail (estimated vs. published)", ""]
+    if matched_labels is None:
+        matched_labels, _ = _compute_finding_groups(roles)
+
+    lines = [
+        '<a id="vector-detail"></a>',
+        "### Vector detail (estimated vs. published)",
+        "",
+        "_`group` letter (when present) = this CVE recurs — same letter on other "
+        "matched reps and/or on rows of the unmatched table below (there it marks a "
+        "finding on one of this CVE's handler functions: a probable duplicate to "
+        "confirm in triage, not necessarily the same bug — see the unmatched "
+        "legend)._",
+        "",
+    ]
     for role, task_id, rep, run_id, final_answer, m in entries:
         est = _parse_vector(m["estimated_vector"])
         pub = _parse_vector(m.get("published_vector") or "")
-        lines.append(f"| **{m['cve_id']}** — {role}, rep {rep} | estimated | published |")
+        group_label = matched_labels.get((task_id, role, rep, m.get("cve_id")))
+        group_suffix = f" — group {group_label}" if group_label else ""
+        lines.append(f"| **{m['cve_id']}** — {role}, rep {rep}{group_suffix} | estimated | published |")
         lines.append("|---|---|---|")
         # SC/SI/SA rows only when the agent emitted them (requested since 2026-07-10).
         shown_metrics = metrics + [c for c in SUBSEQUENT_METRICS if c in est]
@@ -1193,7 +1340,8 @@ def _build_cvss_vector_detail(
             )
         filename = f"{task_id}_{experiment_id}_{role}_rep{rep}_{m['cve_id']}.md"
         _write_matched_finding_file(
-            out_dir / filename, task_id, experiment_id, role, rep, run_id, m, final_answer
+            out_dir / filename, task_id, experiment_id, role, rep, run_id, m, final_answer,
+            group_label=group_label,
         )
         lines.append(f"| [reasoning detail](matched_findings/{filename}) | | |")
         lines.append("")
@@ -1370,7 +1518,7 @@ def _build_experiment_report(
     if '<a id="metrics-across-reps"></a>' in cvss_lines:
         toc.append("- [Metrics across repetitions](#metrics-across-reps)")
     if '<a id="detection-metrics"></a>' in cvss_lines:
-        toc.append("  - [Detection (M1, M2, M3 — pass@1 vs pass@k)](#detection-metrics)")
+        toc.append("  - [Detection (M1, M2, M3 — final answer vs first attempt)](#detection-metrics)")
     if '<a id="severity-metrics"></a>' in cvss_lines:
         toc.append("  - [Severity (S1, S2, S3)](#severity-metrics)")
     if '<a id="legacy-diagnostics"></a>' in cvss_lines:

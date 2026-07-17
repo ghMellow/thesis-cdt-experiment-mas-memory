@@ -6,7 +6,7 @@
 | vector (estimated) | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:N/VA:N/SC:H/SI:N/SA:N` |
 | score declared | 8.4 |
 | score computed (official CVSS 4.0 math) | 8.3 |
-| group (recurs across reps) | ≠ |
+| group (shared with matched table) | ≠ |
 
 ## Agent narrative for this repetition
 

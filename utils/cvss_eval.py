@@ -154,7 +154,17 @@ def _candidate_cves(task_id: str) -> List[Dict[str, Any]]:
 
 
 def _match_finding(finding: Dict[str, Any], candidates: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
-    """Match a finding to a candidate CVE by handler function name."""
+    """Match a finding to a candidate CVE by handler function name.
+
+    First-match semantics (call 13 follow-up): the caller consumes the CVE at
+    the first finding whose function matches, in agent output order. When a
+    repetition reports the same handler more than once, *which* finding gets
+    paired to the GT (and thus feeds the S metrics) is that order — function
+    name is the only identity available, so there is no GT-independent way to
+    prefer one duplicate over another, and any GT-aware tie-break (e.g. pick
+    the closest vector) would leak the GT into the pairing and bias S upward.
+    M metrics are unaffected either way (the CVE counts as matched once, the
+    other finding lands in unmatched)."""
     function = str(finding.get("function", "")).strip().lower()
     if function:
         for cve in candidates:

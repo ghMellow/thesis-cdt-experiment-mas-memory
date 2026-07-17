@@ -2,6 +2,35 @@
 
 ---
 
+## 2026-07-17 — Obiezioni su first-match e semantica dell'etichetta group  [sessione: 01e3ad95]
+
+**Intent:** utente: "non ho la sicurezza che il match attuale stia veramente mettendo quella che corrisponde alla gt??? […] l'etichetta quindi va presa come famiglia di cve sotto la stessa funzione? non doveva essere a livello di cve propria?"
+**Divergenze:** verifica empirica AI: 3 casi di doppio finding sullo stesso handler nel run corrente, 1 solo su handler di CVE target (task7 rep1, `HTTPUEContextTransfer`) e con vettori identici → impatto zero sulle S oggi; proposto di NON cambiare il first-match (qualunque tie-break GT-aware farebbe leakage e gonfierebbe le S), solo documentarlo
+**Decisioni:** obiezione sull'etichetta accolta — la lettera è identità di **localizzazione** (handler, lo stesso criterio della GT), non identità semantica verificata: legende report/guida/architecture corrette da "duplicato, salta in triage" a "probabile duplicato da confermare"; caveat first-match documentato in `_match_finding` (docstring), legenda Severity, guida 08 (nuova sottosezione)
+**Esito/Problemi:** report rigenerati, numeri invariati; aperture per il gruppo: (1) contare i finding sugli handler gemelli come duplicati o come match multipli della stessa CVE; (2) eventuale estensione del check LLM ≠ anche ai linked (oggi copre solo gli unmatched residui)
+
+## 2026-07-17 — Colonna reps + etichette group condivise matched↔unmatched  [sessione: 01e3ad95]
+
+**Intent:** leggendo la guida 08: "forse nei report bisogna segnarlo questo valore [n ripetizioni] altrimenti se cambia il numero uno si perde […] andrebbe estesa l'etichetta anche a quelle che hanno il match, così uno sa che quella etichetta vedendola tra i match e poi negli unmatched sa già che è quella e la salta"
+**Divergenze:** corretto il presupposto dell'utente — le CVE trovate alla rep 1 NON finiscono negli unmatched delle rep successive (valutazione per-ripetizione con candidati freschi); il duplicato va negli unmatched solo intra-rep. Link unmatched→CVE implementato deterministico (containment sugli `handler_functions` completi della GT, stessa regola di `_match_finding`) invece che via LLM; il check LLM resta solo per gli unmatched residui. Rimossa `_assign_group_labels` (dead code)
+**Decisioni:** colonna `reps` nelle tabelle Detection con legenda sul tetto TP+FN; `_compute_finding_groups` calcolata una volta in `_build_cvss_section` e condivisa dalle due tabelle; lettera anche sui matched (header Vector detail + detail file)
+**Esito/Problemi:** report rigenerati, numeri invariati; **scoperta**: su task8 15 dei 21 unmatched portano la lettera `a` della CVE matchata — sono finding su 5 handler gemelli di CVE-2026-42459, quindi gran parte del "rumore" di task8 è la stessa vulnerabilità riproposta, non 21 candidate distinte (conferma l'ipotesi del relatore in call 13, ma lato FP, non TP)
+**Lesson learned:** quando una CVE ha più handler, il matching consuma-al-primo trasforma i finding sugli handler gemelli in falsi FP — questione da portare al gruppo: contarli come duplicati (attuale) o come match multipli della stessa CVE
+
+## 2026-07-17 — Rename pass@k→final answer nei report + guida metriche (doc 08)  [sessione: 01e3ad95]
+
+**Intent:** "si e poi già che ci siamo crea un documento in italiano in cui mi presenti tutte le metriche e il loro significato e utilizzo in questo progetto […] utile per me che per altri nel caso appunto la legenda non basti"
+**Divergenze:** oltre al rename e alla guida, l'AI ha aggiunto all'indice `docs/README.md` anche i doc 07 e 00_call13 (mancavano) e la nota ✅ nel doc 07; ordine righe tabella invertito (final answer prima, come riga principale)
+**Decisioni:** rename solo di etichette/legende in `utils/evaluation_utils.py` — campi JSON (`cvss_eval`/`cvss_eval_pass1`) e calcoli invariati; guida come `docs/sgv_protocol/08_guida_metriche.md`
+**Esito/Problemi:** report rigenerati per il run `20260714T152535Z`, numeri invariati; la guida include la checklist anti-fraintendimento nata dalla call 13 (unità CVE×rep, detection rate ≠ precisione, FP = floor, S3 degenere su task mono-CVE)
+
+## 2026-07-17 — Call 13: validazione metriche M, solo risposta finale, ruolo dei FP  [sessione: 01e3ad95]
+
+**Intent:** call col relatore su metriche M e correttezza dei dati (trascrizione parziale in `docs/sgv_protocol/00_call13.md`, messa lì perché le metriche sono implementate nel contesto SGV); poi in chat: "il focus riguarda le metriche e su quali dati si basano se sono corretti. Anche il fatto che ci interessa solo la risposta finale […] cosa ne pensi?"
+**Decisioni (dalla call):** (1) verificare che i 15 TP vs 9 attesi non siano duplicati della stessa vulnerabilità e che i dati vengano solo dal run corrente, non dallo storico; (2) valutare solo la **risposta finale** dell'agente (scatola nera) — pass@1/pass@k non vanno mischiati, il pass@1 si può tenere ma il focus è la risposta finale; (3) metriche M lasciate così com'è per ora, prima si validano i dati; (4) i FP non vanno "ottimizzati via" — dentro potrebbero esserci vulnerabilità nuove, rischio overfitting sulla GT se si forza il sistema sulle 9 note; (5) validazione umana (Lorenzo) sia dei TP (CVSS) sia dei FP; (6) punto lunedì su SonarQube (≈54 run) e su estensione ad altri file free5GC; CDT/Digital Twin bloccato su Francesco, possibile consegna teorica per il 1 agosto
+**Esito/Problemi:** verifica AI post-call su codice e dati: 15 TP = 5 CVE distinte × 3 ripetizioni (unità = CVE×rep, nessun doppio conteggio: `cvss_eval.py` rimuove la CVE matchata da `remaining`); TP+FN = 27 = 9 target × 3 rep ✓; il report usa solo il run `20260714T152535Z` ✓; "pass@k" è già la risposta finale (`final_answer.cvss_estimate`), il nome è fuorviante → da rinominare
+**Lesson learned:** il "eccesso" di TP era un malinteso di unità di analisi (pooling su 3 rep), non un bug — le tabelle pooled devono dichiarare l'unità in modo che regga anche letta al volo in call
+
 ## 2026-07-16 — judge_rubric: direzione post-v2 — enumeratore SAST, non altre rubriche  [sessione: e68b2265]
 
 **Intent:** discussione post doc 13: "fatto insieme non rischia di creare bias verso quella lista? mentre farli separati permette di tenere i focus separati […] quindi per il prossimo passo possiamo dire che non cerchiamo altre rubriche ma che appunto dobbiamo inserire l'output di sonar cube?"
