@@ -167,13 +167,13 @@ Ordine di lettura consigliato davanti a una tabella nuova:
 
 ## 8. Dove sta cosa
 
-| Cosa | Dove |
-| --- | --- |
-| Definizioni formali (proposta relatore) | `docs/sgv_protocol/00_proposta_relatore.md` §5 |
-| Storia dell'implementazione e decisioni | `docs/sgv_protocol/07_metriche_M_S_2026-07-14.md` |
-| Calcolo (matching, aggregazioni) | `utils/cvss_eval.py` |
-| Rendering report e legende | `utils/evaluation_utils.py` |
-| Ground truth CVE (mapping di Lorenzo) | `File_Free5gc_Vulnerabili/cve_metrics_normalized.json` (path in `config.CVSS_DATASET_PATH`, caricato da `load_cvss_dataset`) |
-| Report generati | `results/evaluation/` (per-task + `comparison.md` + `consistency.md`) |
-| Rigenerare i report su un run | `poetry run python -m utils.evaluation_utils --run-id <id>` (`--list-runs` per elencarli) |
-| Ricalcolare le valutazioni CVSS retroattivamente | `poetry run python -m utils.cvss_eval` |
+| Cosa                                             | Dove                                                                                                                         |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| Definizioni formali (proposta relatore)          | `docs/sgv_protocol/00_proposta_relatore.md` §5                                                                               |
+| Storia dell'implementazione e decisioni          | `docs/sgv_protocol/07_metriche_M_S_2026-07-14.md`                                                                            |
+| Calcolo (matching, aggregazioni)                 | `utils/cvss_eval.py`                                                                                                         |
+| Rendering report e legende                       | `utils/evaluation_utils.py`                                                                                                  |
+| Ground truth CVE (mapping di Lorenzo)            | `File_Free5gc_Vulnerabili/cve_metrics_normalized.json` (path in `config.CVSS_DATASET_PATH`, caricato da `load_cvss_dataset`) |
+| Report generati                                  | `results/evaluation/` (per-task + `comparison.md` + `consistency.md`)                                                        |
+| Rigenerare i report su un run                    | `poetry run python -m utils.evaluation_utils --run-id <id>` (`--list-runs` per elencarli)                                    |
+| Ricalcolare le valutazioni CVSS retroattivamente | `poetry run python -m utils.cvss_eval`                                                                                       |

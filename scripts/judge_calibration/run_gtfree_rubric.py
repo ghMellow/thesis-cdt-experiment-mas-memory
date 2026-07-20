@@ -18,7 +18,7 @@ Uso:
         [--rubric docs/judge_rubric/gtfree/rubric_v2_draft.json --coverage surfaces]
 Output:
     results/evaluation/judge_calibration/<prefix>_<set>_<model>.md (+ .json)
-    dove <prefix> = gtfree (v1) o gtfree_v2 (rubrica v2)
+    dove <prefix> = gtfree (v1) o gtfree_v<N> (rubrica vN, dal nome file)
 """
 
 import argparse
@@ -205,8 +205,11 @@ def main():
 
     rubric_path = Path(args.rubric)
     rubric = json.loads(rubric_path.read_text(encoding="utf-8"))
-    prefix = "gtfree" if rubric_path.stem == "rubric_v1" else "gtfree_v2"
-    label = "v1" if prefix == "gtfree" else "v2"
+    ver_match = re.search(r"v(\d+)", rubric_path.stem)
+    version = ver_match.group(1) if ver_match else "x"
+    label = f"v{version}"
+    prefix = "gtfree" if version == "1" else f"gtfree_v{version}"
+    doc_ref = {"1": "10", "2": "12", "3": "14"}.get(version, "??")
     if args.model:
         model, is_hosted = args.model, not args.local
     else:
@@ -222,7 +225,7 @@ def main():
         cgp = sum(c1) / len(c1) - sum(c2) / len(c2)
         lines = [
             f"# Rubrica GT-free {label} — set C1/C2, giudice {model} "
-            f"(doc judge_rubric/{'10' if label == 'v1' else '12'})",
+            f"(doc judge_rubric/{doc_ref})",
             "",
             f"- **CGP GT-free = {cgp:+.3f}** (C1 medio {sum(c1) / len(c1):.3f}, "
             f"C2 medio {sum(c2) / len(c2):.3f}) — baseline GT-derivata (doc 09): +0.948",
@@ -257,7 +260,7 @@ def main():
         )
         lines = [
             f"# Rubrica GT-free {label} — set report salvati, giudice {model} "
-            f"(doc judge_rubric/{'10' if label == 'v1' else '12'})",
+            f"(doc judge_rubric/{doc_ref})",
             "",
             f"- Ripetizioni: {len(rows)}",
             f"- Flip vs rubrica GT-derivata: {flips_065}/{len(rows)} a t=0.65 — "

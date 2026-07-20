@@ -1,0 +1,46 @@
+{
+  "rubrica": {
+    "presence_evidence_score": {
+      "max": 3,
+      "criteri": {
+        "3": "Every PRESENCE-type finding (a claim that some flawed code element exists: a weak regex, a misconfigured policy, a response written without terminating the handler, an unsafe operation) cites a snippet, function or configuration that actually exhibits the typical signature of the declared weakness class",
+        "2": "Exactly one presence-type finding cites evidence that is generic, missing, or does not exhibit the signature of the claimed class; all others verify",
+        "1": "More than one presence-type finding fails the evidence check, but at least one verifies",
+        "0": "No presence-type finding cites evidence exhibiting the claimed signature, or the cited evidence is incompatible with the declared classes"
+      }
+    },
+    "absence_claims_score": {
+      "max": 2,
+      "criteri": {
+        "2": "Every ABSENCE-type finding (a claim that a control is missing: missing input validation, missing authorization check, missing return/abort after error) identifies the concrete code path where the missing control should occur — i.e. it shows the external input or sensitive operation flowing through the cited code without the claimed control, so the absence is checkable against the snippet. Reports with no absence-type findings also score 2",
+        "1": "At least one absence-type finding asserts a missing control without showing the code path that would need it (the claim cannot be checked against any cited code), but at least one other absence claim is properly grounded",
+        "0": "Absence-type findings are asserted without any grounding in cited code paths — the claims are unfalsifiable from the report alone"
+      }
+    },
+    "finding_granularity_score": {
+      "max": 2,
+      "criteri": {
+        "2": "Each finding isolates exactly one weakness: its cited evidence supports a single mechanism leading to a single CVSS impact dimension. No finding bundles code paths that would produce distinct impacts (e.g. a sensitive-data read AND a denial-of-service crash described together as one finding), and no two findings restate the same weakness under different names",
+        "1": "At least one finding bundles code paths that would produce more than one distinct impact dimension, or mixes multiple weakness classes, or duplicates another finding — but the majority isolate a single mechanism with a single impact",
+        "0": "The report is an undifferentiated blob: multiple distinct mechanisms and impacts are impasted into single findings so that individual weaknesses and their impacts cannot be told apart"
+      }
+    },
+    "weakness_classification_score": {
+      "max": 2,
+      "criteri": {
+        "2": "Every finding declares a high-level weakness class plausible for its evidence. Reference vocabulary: improper input validation; improper access control; improper authentication; improper error/exception handling (including missing control-flow termination after an error response); improper resource control or consumption (DoS); exposure of sensitive information; insecure configuration (including CORS/security-header policy); injection/improper neutralization; incorrect calculation or logic error; concurrency/race condition",
+        "1": "At least one finding has no discernible class or a class implausible for its evidence, but the majority classify plausibly",
+        "0": "No finding declares a plausible weakness class"
+      }
+    },
+    "impact_mechanism_consistency_score": {
+      "max": 2,
+      "criteri": {
+        "2": "For every finding, the CVSS impact dimension asserted is derivable from the mechanism the finding itself describes: a crash / out-of-memory / nil-pointer panic / unbounded-resource mechanism carries availability; an unauthorized read or sensitive-data exposure carries confidentiality; an unauthorized write / put / delete / state corruption carries integrity. This is an INTERNAL-consistency check (report vs. its own reasoning), not a comparison to any external truth. Tolerated and NOT penalized — CVSS precision is a prioritization aid, not the goal: High vs Low on an otherwise supported dimension, and isolated confidentiality/integrity swaps",
+        "1": "Exactly one finding asserts an impact dimension its own described mechanism does not support (e.g. the reasoning describes a denial-of-service but the vector claims confidentiality impact); all other findings are self-consistent",
+        "0": "More than one finding asserts an impact dimension contradicted by its own described mechanism, or impact/severity is asserted with no described mechanism to support it"
+      }
+    }
+  },
+  "total_max": 11
+}

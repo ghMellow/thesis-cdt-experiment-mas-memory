@@ -2,6 +2,14 @@
 
 ---
 
+## 2026-07-18 — Rubrica GT-free v3 dalla review esperto: proposta, test, rifiuto  [sessione: e68b2265]
+
+**Intent:** "valutare il materiale [review completa dell'esperto sul tag results-2026-07-14] per vedere se trovi qualcosa di utile per provare a migliorare la rubrica gt free e trovare modifiche aggiunte per una versione v3. Magari riesci a estrapolare una metodologia che possiamo applicare al giudice" → poi "creala e testala"
+**Divergenze:** proposto v3 = v2 + `impact_mechanism_consistency` (coerenza impatto↔meccanismo, GT-free perché è self-consistency del report) + `finding_granularity` riscritto con la firma multi-impatto del mappazzone; generalizzato il naming dello script (`gtfree_v<N>_*`, `doc_ref`) per non sovrascrivere i file v2. In fase di analisi avevo segnalato in anticipo il rischio che il criterio di coerenza non discriminasse C1/C2 — confermato dai numeri
+**Decisioni (esito misurato, non scelta dell'utente):** v3 **rifiutata**. CGP +0.518 < v2 +0.600 (C2 medio sale 0.383→0.451: i finding trapiantati sono internamente coerenti, prendono 2/2, il criterio regala base ai C2 senza discriminare); task7 C2 riapre a 0.667 (varianza 4/11/5); report reali ancora saturi (task6 11/11 ogni rep), M1-strict 9/12 invariato. `rubric_v3_draft.json` resta come esperimento documentato, non promosso. v2 resta la rubrica di riferimento
+**Esito/Problemi:** doc 14 (proposta+rifiuto in un doc, essendo negativo). Scoperta strutturale sul perché la granularità non morde: il "mappazzone" dell'esperto vive nell'artefatto `cvss_estimate` (collasso 7 CVE→1), NON nel testo del report che il giudice legge — parallela alla scoperta sulla completezza (doc 13). Segnalato inoltre che SonarQube trova ~0 CVE vere (`expert_review/01` §2), il che mette in dubbio il ruolo di enumeratore di completezza deciso il 2026-07-16 → nuovo todo in status.md. NON committato (results/ non si committa salvo richiesta esplicita)
+**Lesson learned:** la review di un esperto *con* GT è utile alla rubrica GT-free solo per la parte di procedura che non usa la GT (coerenza interna); le parti che gli danno valore (bundling, completezza) vivono in artefatti/dimensioni che una rubrica sul testo del report non può raggiungere — un risultato negativo che *conferma* la partizione del doc 13 invece di aggirarla
+
 ## 2026-07-17 — Chiusura del cerchio metriche: matrice CVE×rep, retry channel, M2×SGV  [sessione: 01e3ad95]
 
 **Intent:** "si migliora sulla base delle cose che credi possano portare un valore aggiunto e poi […] dobbiamo un attimo chiudere il cerchio sulle cose attuali, per quanto riguarda l'esperto per ora non posso fare nulla quindi lavoriamo noi su quello che possiamo"
