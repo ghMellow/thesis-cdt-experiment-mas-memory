@@ -102,5 +102,73 @@
   "unmatched/task9_vuln_cross/agent/handlecreateeesubscriptions/517812119c34f096": {
     "equivalent": false,
     "explanation": "The CVSS vectors differ in the Privileges Required (PR) and Confidentiality/Scope (VC/SC) metrics."
+  },
+  "agent/task5_vuln_pcf/fd3c600740011daf": {
+    "equivalent": false,
+    "explanation": "The third reasoning passage identifies an additional vulnerability (Broken Access Control / Missing Authorization regarding the SUPI parameter) that is not mentioned in the first two passages."
+  },
+  "agent/task6_vuln_udr/c09dae7f22cfc4d2": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same two vulnerabilities: missing return statements in three specific Gin handlers leading to backend execution despite a 404 response, and a regex bypass in two other handlers due to a catch-all '.+' pattern, with identical proposed fixes."
+  },
+  "unmatched/task6_vuln_udr/agent/handlecreateeesubscriptions/e325f9bb97bc2b37": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the Availability impact for the Confidentiality/Integrity/Availability triad (VA:L vs VA:N)."
+  },
+  "agent/task7_vuln_amf/520144d963b1dd5d": {
+    "equivalent": false,
+    "explanation": "The three passages identify different sets of vulnerabilities: the first focuses on a hardcoded error in N1N2MessageTransfer, the second identifies missing deserialization in RegistrationStatusUpdate, and the third identifies a compilation error (undefined variable) and a Resource Exhaustion (DoS) vulnerability not mentioned in the others."
+  },
+  "unmatched/task7_vuln_amf/agent/httpcreateuecontext/ca47a9871bcdb517": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their confidentiality, integrity, and availability impact ratings (VC, VI, VA)."
+  },
+  "unmatched/task7_vuln_amf/agent/httpebiassignment/b05e5ee532b96dad": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their impact metrics: the first lists VC:L (Confidentiality Low) and VI:N (Integrity None), while the second lists VC:N (Confidentiality None), VI:L (Integrity Low), and VA:H (Availability High)."
+  },
+  "unmatched/task7_vuln_amf/agent/httpn1n2messagetransfer/af7fff4502db9f0c": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their impact metrics, specifically regarding Confidentiality (VC:L vs VC:N), Integrity (VI:N vs VI:L), and Availability (VA:N vs VA:H)."
+  },
+  "agent/task8_vuln_udm/40248c63bc316f51": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same vulnerability (inconsistent SUPI input validation), list the same validated and unvalidated handlers, describe the same security risks (injection, DoS, unauthorized access), and propose the same fix (using validator.IsValidSupi)."
+  },
+  "agent/task5_vuln_pcf/a9de5ab108755301": {
+    "equivalent": false,
+    "explanation": "The first two reasonings identify three vulnerabilities (CORS, Middleware Misuse, and Broken Access Control), whereas the third reasoning only identifies two (CORS and Middleware Misuse), omitting the Broken Access Control/IDOR vulnerability."
+  },
+  "agent/task6_vuln_udr/bbfdd8c54fa4a9b0": {
+    "equivalent": false,
+    "explanation": "The second reasoning identifies an additional vulnerability regarding missing input validation in 'HandlePolicyDataUesUeIdSmDataGet' that is not mentioned in the first or third reasonings."
+  },
+  "unmatched/task6_vuln_udr/agent/handlecreateeesubscriptions/e9e0aa2108c86d5d": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their impact metrics for confidentiality (VI) and availability (VA)."
+  },
+  "unmatched/task6_vuln_udr/agent/handlequeryeesubscriptions/4cc24641f7be772e": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the Confidentiality impact metric: one specifies High (VC:H) and the other specifies Low (VC:L)."
+  },
+  "agent/task7_vuln_amf/f03795cb8a5febb6": {
+    "equivalent": false,
+    "explanation": "The third reasoning identifies a fatal compilation error due to the undefined 'reqbody' variable, whereas the first two treat it as a potential information exposure vulnerability."
+  },
+  "unmatched/task7_vuln_amf/agent/httpcreateuecontext/c1f931437a819b3e": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their impact metrics (VC, VI, VA), leading to different severity assessments."
+  },
+  "unmatched/task7_vuln_amf/agent/httpebiassignment/be5941cd892a51b9": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the Confidentiality impact metric: the first passage specifies 'VC:L' (Low) while the second specifies 'VC:N' (None)."
+  },
+  "unmatched/task7_vuln_amf/agent/httpn1n2messagetransfer/0122003cd67a55e0": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the Confidentiality impact metric: one specifies 'VC:L' (Low) while the other specifies 'VC:N' (None)."
+  },
+  "agent/task8_vuln_udm/e20588ef8a33ab4a": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same vulnerability (inconsistent SUPI input validation), list the same affected and non-affected handlers, describe the same security risks (injection, DoS, and data leakage), and propose the same fix (consistent use of validator.IsValidSupi)."
   }
 }

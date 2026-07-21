@@ -1,0 +1,1061 @@
+{
+  "task_id": "task8_vuln_udm",
+  "task_type": "textual",
+  "experiment_id": "1A_no_hint_excerpt",
+  "agent_role": "agent",
+  "model": "gemma4:31b-cloud",
+  "judge_model": "gemma4:31b-cloud",
+  "temperature": 0.3,
+  "is_hosted": true,
+  "task_path": "docs/tasks/task8_vuln_udm.md",
+  "sol_path": "docs/tasks/task8_vuln_udm_sol.md",
+  "repetitions": [
+    {
+      "repetition": 1,
+      "run_id": "20260721T151535Z",
+      "started_at": "2026-07-21T15:44:07.440321+00:00",
+      "finished_at": "2026-07-21T15:45:47.069518+00:00",
+      "elapsed_seconds": 99.62769583400222,
+      "attempts": 1,
+      "history": [
+        {
+          "answer": "The UDM implementation suffers from inconsistent input validation where the majority of SUPI-based handlers fail to validate the `supi` parameter before passing it to the business logic. This creates a risk of injection attacks or system instability if the backend processor assumes the identifier is well-formed.",
+          "reasoning": "The code review reveals a critical inconsistency in input validation for the `supi` (Subscription Permanent Identifier) parameter across multiple SBI handlers. In a 5G Core, the SUPI is a sensitive identifier used as a primary key to retrieve subscriber data.\n\n1. **Vulnerability Class:** Improper Input Validation / Inconsistent Validation.\n2. **Affected Handlers:**\n   - **Validated:** `HandleGetAmData` and `HandleUnsubscribe` (which validates both GPSI and SUPI) correctly use `validator.IsValidSupi()` or `validator.IsValidGpsi()`.\n   - **Unvalidated:** `HandleGetSmfSelectData`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, and `HandleGetSupi`. These handlers extract the `supi` from the URL parameters and pass it directly to the processor without any validation.\n3. **Security Impact:** While the SBI is typically protected by mTLS and OAuth2 (limiting access to authorized NFs), the lack of validation allows an authorized but compromised or malicious NF to send malformed SUPIs. This can lead to:\n   - **Injection Attacks:** If the `Processor` or the underlying database (e.g., MongoDB) does not sanitize the input, this could lead to NoSQL injection or query manipulation.\n   - **Unexpected Behavior/DoS:** Passing unexpectedly long strings or special characters could cause crashes or resource exhaustion in the data processing layer.\n   - **Data Leakage:** Bypassing format checks might allow an attacker to probe for records using wildcards or unexpected patterns if the backend supports them.\n4. **Proposed Fix:** Implement a consistent validation check using `validator.IsValidSupi(supi)` at the beginning of every handler that accepts a SUPI, returning a `400 Bad Request` (ProblemDetails) if the validation fails, mirroring the logic found in `HandleGetAmData`.",
+          "confidence": 1.0,
+          "cvss_estimate": {
+            "findings": [
+              {
+                "function": "HandleGetSmfSelectData",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "supi := c.Params.ByName(\"supi\")"
+              },
+              {
+                "function": "HandleGetNssai",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "supi := c.Params.ByName(\"supi\")"
+              },
+              {
+                "function": "HandleGetSmData",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "supi := c.Params.ByName(\"supi\")"
+              },
+              {
+                "function": "HandleGetTraceData",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "supi := c.Params.ByName(\"supi\")"
+              },
+              {
+                "function": "HandleGetUeContextInSmfData",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "supi := c.Params.ByName(\"supi\")"
+              },
+              {
+                "function": "HandleGetSupi",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "supi := c.Params.ByName(\"supi\")"
+              }
+            ]
+          },
+          "elapsed_seconds": 78.81,
+          "tokens_in": null,
+          "tokens_out": null,
+          "prompt_system": "\nYou are a 5G network engineer experienced in core network analysis and code review.\nReply ONLY in Markdown using the response format in the task. No extra text before or after.\n",
+          "prompt_user": "# Task 8 \u2014 Security Code Review: UDM Subscriber Data Management Handler (Go)\n\n**ID:** task8_vuln_udm  \n**Tipo:** textual  \n**Difficolt\u00e0:** media-alta\n\n---\n\n## Scenario\n\nThe following Go source file is the Subscriber Data Management SBI handler of the **Unified Data Management (UDM)** function in a free5GC 5G core implementation. The UDM stores and provides access to UE subscription data (mobility, session management, authentication) to other NFs. Each endpoint is keyed by a SUPI (Subscription Permanent Identifier) or GPSI.\n\nPerform a **security code review** of the representative handler selection below. Focus on input validation consistency \u2014 pay attention to which handlers validate identifiers before use and which do not.\n\n```go\npackage sbi\n\nimport (\n\t\"net/http\"\n\t\"strings\"\n\t\"net/url\"\n\t\"encoding/json\"\n\n\t\"github.com/gin-gonic/gin\"\n\n\t\"github.com/free5gc/openapi\"\n\t\"github.com/free5gc/openapi/models\"\n\t\"github.com/free5gc/udm/internal/logger\"\n\t\"github.com/free5gc/util/metrics/sbi\"\n\t\"github.com/free5gc/util/validator\"\n)\n\n// GetAmData - retrieve a UE's Access and Mobility Subscription Data\nfunc (s *Server) HandleGetAmData(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tif !validator.IsValidSupi(supi) {\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: \"Supi is invalid\",\n\t\t\tCause:  \"MANDATORY_IE_INCORRECT\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(int(problemDetail.Status)))\n\t\tc.JSON(int(problemDetail.Status), problemDetail)\n\t\treturn\n\t}\n\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetAmDataProcedure(c, supi, plmnID, supportedFeatures)\n}\n\n// GetSmfSelectData - retrieve a UE's SMF Selection Subscription Data\nfunc (s *Server) HandleGetSmfSelectData(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetSmfSelectDataProcedure(c, supi, plmnID, supportedFeatures)\n}\n\n// GetNssai - retrieve a UE's subscribed NSSAI\nfunc (s *Server) HandleGetNssai(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetNssaiProcedure(c, supi, plmnID, supportedFeatures)\n}\n\n// GetSmData - retrieve a UE's Session Management Subscription Data\nfunc (s *Server) HandleGetSmData(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"dnn\", c.Query(\"dnn\"))\n\tquery.Set(\"single-nssai\", c.Query(\"single-nssai\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tDnn := query.Get(\"dnn\")\n\tSnssai := query.Get(\"single-nssai\")\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetSmDataProcedure(c, supi, plmnID, Dnn, Snssai, supportedFeatures)\n}\n\n// GetTraceData - retrieve a UE's Trace Configuration Data\nfunc (s *Server) HandleGetTraceData(c *gin.Context) {\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnID := c.Query(\"plmn-id\")\n\ts.Processor().GetTraceDataProcedure(c, supi, plmnID)\n}\n\n// GetUeContextInSmfData - retrieve a UE's UE Context In SMF Data\nfunc (s *Server) HandleGetUeContextInSmfData(c *gin.Context) {\n\tsupi := c.Params.ByName(\"supi\")\n\tsupportedFeatures := c.Query(\"supported-features\")\n\ts.Processor().GetUeContextInSmfDataProcedure(c, supi, supportedFeatures)\n}\n\n// GetSupi - retrieve multiple data sets\nfunc (s *Server) HandleGetSupi(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"dataset-names\", c.Query(\"dataset-names\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tdataSetNames := strings.Split(query.Get(\"dataset-names\"), \",\")\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetSupiProcedure(c, supi, plmnID, dataSetNames, supportedFeatures)\n}\n\n// Unsubscribe - unsubscribe from notifications\nfunc (s *Server) HandleUnsubscribe(c *gin.Context) {\n\tueId := c.Params.ByName(\"ueId\")\n\tvalid := validator.IsValidGpsi(ueId) || validator.IsValidSupi(ueId)\n\tif !valid {\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: \"UE ID is invalid\",\n\t\t\tCause:  \"MANDATORY_IE_INCORRECT\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(int(problemDetail.Status)))\n\t\tc.JSON(int(problemDetail.Status), problemDetail)\n\t\treturn\n\t}\n\tsubscriptionID := c.Params.ByName(\"subscriptionId\")\n\ts.Processor().UnsubscribeProcedure(c, ueId, subscriptionID)\n}\n```\n\n---\n\n## Question\n\nIdentify all security vulnerabilities or inconsistencies in this file. For each finding:\n\n1. Name the vulnerability class or error type\n2. Identify which specific handlers are affected and which are not \u2014 this is essential\n3. Explain the security impact in the context of a UDM managing SUPI-indexed subscription data\n4. Propose a correct fix\n\n\n---\n\n## Agent Instructions\n\nReply ONLY in Markdown using this template:\n\n```md\n### Reasoning\nDetailed analysis: vulnerability class, location, impact, fix\n\n### Answer\nBrief summary of main findings (1-3 sentences)\n\n### Confidence\n0.0\n```\n\n\n**System context:** the code under review is a Network Function (NF) inside a 5G core network (free5GC architecture). In a standard 5G core deployment, the Service-Based Interface (SBI) between NFs runs behind mutual TLS and OAuth2 authorization by default. Use this when judging the *impact* (confidentiality/integrity/availability) of a vulnerability: do not assume a bug automatically exposes data \u2014 consider what is actually reachable or corrupted given this baseline.\n\n\n---\n\n## CVSS Estimate (required)\n\nFor each vulnerability reported in your Answer, also estimate its CVSS 4.0 base\nmetrics. Add this exact section to your response, after the Answer section and\nbefore Confidence, repeating the four lines below for each finding. Each finding names exactly ONE\nfunction: if the same vulnerability affects several functions, repeat the whole\nblock once per affected function (same vector/score, one `function:` line each)\ninstead of listing multiple function names in a single line.\n\n### CVSS Estimate\n- function: <name of the Go function containing the issue>\n- vector: CVSS:4.0/AV:_/AC:_/AT:_/PR:_/UI:_/VC:_/VI:_/VA:_/SC:_/SI:_/SA:_\n- score: <your estimated CVSS 4.0 base score, 0.0-10.0>\n- snippet: <one exact line of code, copied verbatim from the source above, that supports this finding>\n\nReplace each `_` in the vector with one of the allowed values:\n\n- AV Attack Vector: N (Network), A (Adjacent), L (Local), P (Physical)\n- AC Attack Complexity: L (Low), H (High)\n- AT Attack Requirements: N (None), P (Present)\n- PR Privileges Required: N (None), L (Low), H (High)\n- UI User Interaction: N (None), P (Passive), A (Active)\n- VC / VI / VA Confidentiality / Integrity / Availability impact on the\n  vulnerable system: H (High), L (Low), N (None)\n- SC / SI / SA Confidentiality / Integrity / Availability impact on\n  subsequent systems (other components reachable from the vulnerable one):\n  H (High), L (Low), N (None)\n",
+          "sgv_eval": {
+            "passed": true,
+            "per_finding": [
+              {
+                "function": "HandleGetSmfSelectData",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HandleGetNssai",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HandleGetSmData",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HandleGetTraceData",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HandleGetUeContextInSmfData",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HandleGetSupi",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              }
+            ],
+            "feedback": null
+          },
+          "judge_score": {
+            "validation_gap_identified_score": 4.0,
+            "spec_reference_score": 0.0,
+            "impact_assessment_score": 2.0,
+            "fix_quality_score": 1.0,
+            "total_score": 7.0,
+            "feedback": "The agent correctly identified the validation gap, specifically naming all 6 vulnerable handlers and contrasting them with the correctly implemented ones. The impact assessment was strong, correctly identifying the risks of malformed SUPIs reaching the processor/persistence layer and the potential for data enumeration/injection. The proposed fix was accurate and consistent with the existing codebase. However, the agent failed to reference the 3GPP TS 29.503 specification or describe the expected format of a SUPI, resulting in a score of 0 for the spec_reference_score.",
+            "judge_elapsed_seconds": 20.81,
+            "normalized_score": 0.778
+          },
+          "verdict": "correct"
+        }
+      ],
+      "final_answer": {
+        "answer": "The UDM implementation suffers from inconsistent input validation where the majority of SUPI-based handlers fail to validate the `supi` parameter before passing it to the business logic. This creates a risk of injection attacks or system instability if the backend processor assumes the identifier is well-formed.",
+        "reasoning": "The code review reveals a critical inconsistency in input validation for the `supi` (Subscription Permanent Identifier) parameter across multiple SBI handlers. In a 5G Core, the SUPI is a sensitive identifier used as a primary key to retrieve subscriber data.\n\n1. **Vulnerability Class:** Improper Input Validation / Inconsistent Validation.\n2. **Affected Handlers:**\n   - **Validated:** `HandleGetAmData` and `HandleUnsubscribe` (which validates both GPSI and SUPI) correctly use `validator.IsValidSupi()` or `validator.IsValidGpsi()`.\n   - **Unvalidated:** `HandleGetSmfSelectData`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, and `HandleGetSupi`. These handlers extract the `supi` from the URL parameters and pass it directly to the processor without any validation.\n3. **Security Impact:** While the SBI is typically protected by mTLS and OAuth2 (limiting access to authorized NFs), the lack of validation allows an authorized but compromised or malicious NF to send malformed SUPIs. This can lead to:\n   - **Injection Attacks:** If the `Processor` or the underlying database (e.g., MongoDB) does not sanitize the input, this could lead to NoSQL injection or query manipulation.\n   - **Unexpected Behavior/DoS:** Passing unexpectedly long strings or special characters could cause crashes or resource exhaustion in the data processing layer.\n   - **Data Leakage:** Bypassing format checks might allow an attacker to probe for records using wildcards or unexpected patterns if the backend supports them.\n4. **Proposed Fix:** Implement a consistent validation check using `validator.IsValidSupi(supi)` at the beginning of every handler that accepts a SUPI, returning a `400 Bad Request` (ProblemDetails) if the validation fails, mirroring the logic found in `HandleGetAmData`.",
+        "confidence": 1.0,
+        "cvss_estimate": {
+          "findings": [
+            {
+              "function": "HandleGetSmfSelectData",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "supi := c.Params.ByName(\"supi\")"
+            },
+            {
+              "function": "HandleGetNssai",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "supi := c.Params.ByName(\"supi\")"
+            },
+            {
+              "function": "HandleGetSmData",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "supi := c.Params.ByName(\"supi\")"
+            },
+            {
+              "function": "HandleGetTraceData",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "supi := c.Params.ByName(\"supi\")"
+            },
+            {
+              "function": "HandleGetUeContextInSmfData",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "supi := c.Params.ByName(\"supi\")"
+            },
+            {
+              "function": "HandleGetSupi",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "supi := c.Params.ByName(\"supi\")"
+            }
+          ]
+        }
+      },
+      "verdict": "correct",
+      "judge_score": {
+        "validation_gap_identified_score": 4.0,
+        "spec_reference_score": 0.0,
+        "impact_assessment_score": 2.0,
+        "fix_quality_score": 1.0,
+        "total_score": 7.0,
+        "feedback": "The agent correctly identified the validation gap, specifically naming all 6 vulnerable handlers and contrasting them with the correctly implemented ones. The impact assessment was strong, correctly identifying the risks of malformed SUPIs reaching the processor/persistence layer and the potential for data enumeration/injection. The proposed fix was accurate and consistent with the existing codebase. However, the agent failed to reference the 3GPP TS 29.503 specification or describe the expected format of a SUPI, resulting in a score of 0 for the spec_reference_score.",
+        "judge_elapsed_seconds": 20.81,
+        "normalized_score": 0.778
+      },
+      "cvss_eval": {
+        "estimate_provided": true,
+        "n_findings": 6,
+        "n_target_cves": 1,
+        "matched": [
+          {
+            "cve_id": "CVE-2026-42459",
+            "function": "HandleGetSmfSelectData",
+            "estimated_score": 5.3,
+            "published_score": 7.7,
+            "published_score_type": "BT",
+            "score_band_vs_published": 1,
+            "score_band_vs_B": 0,
+            "exploitability_match": 4,
+            "impact_match": 2,
+            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N/E:P",
+            "exploitability_distance": 0.1,
+            "impact_distance": 0.167,
+            "subsequent_match": 3,
+            "subsequent_distance": 0.0,
+            "hamming_distance": 2,
+            "exact_match": false,
+            "computed_score_B": 5.3,
+            "computed_delta_vs_B": 3.4,
+            "score_band_computed_vs_B": 0,
+            "score_coherence_delta": 0.0
+          }
+        ],
+        "missed_cves": [],
+        "unmatched_findings": 5,
+        "unmatched": [
+          {
+            "function": "HandleGetNssai",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetSmData",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetTraceData",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetUeContextInSmfData",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetSupi",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          }
+        ],
+        "aggregates": {
+          "avg_score_band_vs_published": 1.0,
+          "avg_score_band_vs_B": 0.0,
+          "avg_exploitability_match": 4.0,
+          "avg_impact_match": 2.0,
+          "avg_score_coherence_delta": 0.0,
+          "avg_computed_delta_vs_B": 3.4,
+          "avg_score_band_computed_vs_B": 0.0,
+          "avg_exploitability_distance": 0.1,
+          "avg_impact_distance": 0.167,
+          "avg_subsequent_match": 3.0,
+          "avg_subsequent_distance": 0.0,
+          "avg_hamming_distance": 2.0
+        }
+      },
+      "cvss_eval_pass1": {
+        "estimate_provided": true,
+        "n_findings": 6,
+        "n_target_cves": 1,
+        "matched": [
+          {
+            "cve_id": "CVE-2026-42459",
+            "function": "HandleGetSmfSelectData",
+            "estimated_score": 5.3,
+            "published_score": 7.7,
+            "published_score_type": "BT",
+            "score_band_vs_published": 1,
+            "score_band_vs_B": 0,
+            "exploitability_match": 4,
+            "impact_match": 2,
+            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N/E:P",
+            "exploitability_distance": 0.1,
+            "impact_distance": 0.167,
+            "subsequent_match": 3,
+            "subsequent_distance": 0.0,
+            "hamming_distance": 2,
+            "exact_match": false,
+            "computed_score_B": 5.3,
+            "computed_delta_vs_B": 3.4,
+            "score_band_computed_vs_B": 0,
+            "score_coherence_delta": 0.0
+          }
+        ],
+        "missed_cves": [],
+        "unmatched_findings": 5,
+        "unmatched": [
+          {
+            "function": "HandleGetNssai",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetSmData",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetTraceData",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetUeContextInSmfData",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetSupi",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          }
+        ],
+        "aggregates": {
+          "avg_score_band_vs_published": 1.0,
+          "avg_score_band_vs_B": 0.0,
+          "avg_exploitability_match": 4.0,
+          "avg_impact_match": 2.0,
+          "avg_score_coherence_delta": 0.0,
+          "avg_computed_delta_vs_B": 3.4,
+          "avg_score_band_computed_vs_B": 0.0,
+          "avg_exploitability_distance": 0.1,
+          "avg_impact_distance": 0.167,
+          "avg_subsequent_match": 3.0,
+          "avg_subsequent_distance": 0.0,
+          "avg_hamming_distance": 2.0
+        }
+      },
+      "tokens": {
+        "agent_in": null,
+        "agent_out": null,
+        "judge_in": null,
+        "judge_out": null
+      }
+    },
+    {
+      "repetition": 2,
+      "run_id": "20260721T151535Z",
+      "started_at": "2026-07-21T15:45:47.072785+00:00",
+      "finished_at": "2026-07-21T15:48:28.031919+00:00",
+      "elapsed_seconds": 160.9581483329821,
+      "attempts": 1,
+      "history": [
+        {
+          "answer": "The UDM implementation suffers from inconsistent input validation where most handlers (`HandleGetSmfSelectData`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, `HandleGetSupi`) fail to validate the `supi` parameter. This exposes the core network to potential NoSQL injection or DoS attacks if a trusted NF is compromised.",
+          "reasoning": "The code exhibits a critical inconsistency in input validation for the `supi` parameter across multiple SBI handlers. In a 5G Core, the SUPI (Subscription Permanent Identifier) is a sensitive identifier used as a primary key for subscriber data.\n\n1. **Vulnerability Class:** Improper Input Validation / Inconsistent Validation.\n2. **Affected Handlers:** \n   - `HandleGetAmData` and `HandleUnsubscribe` **correctly** validate the identifier using `validator.IsValidSupi` or `validator.IsValidGpsi`.\n   - `HandleGetSmfSelectData`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, and `HandleGetSupi` **fail** to validate the `supi` parameter before passing it to the processor.\n3. **Security Impact:** While the SBI is protected by mTLS and OAuth2 (limiting access to authorized NFs), the lack of validation allows a compromised or malicious NF to send malformed SUPIs. Depending on the implementation of the `Processor` and the underlying database (e.g., MongoDB), this could lead to:\n   - **Injection Attacks:** If the processor uses the SUPI in a database query without further sanitization, it could lead to NoSQL injection.\n   - **Resource Exhaustion/DoS:** Processing unexpectedly long or malformed strings can cause excessive memory allocation or database timeouts.\n   - **Logic Errors:** Bypassing expected format checks may lead to unexpected behavior in the data retrieval logic.\n4. **Proposed Fix:** Implement a consistent validation check at the start of every handler that accepts a `supi` or `ueId`. A helper function should be used to ensure that `validator.IsValidSupi(supi)` is called before any business logic is executed.",
+          "confidence": 1.0,
+          "cvss_estimate": {
+            "findings": [
+              {
+                "function": "HandleGetSmfSelectData",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "supi := c.Params.ByName(\"supi\")"
+              },
+              {
+                "function": "HandleGetNssai",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "supi := c.Params.ByName(\"supi\")"
+              },
+              {
+                "function": "HandleGetSmData",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "supi := c.Params.ByName(\"supi\")"
+              },
+              {
+                "function": "HandleGetTraceData",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "supi := c.Params.ByName(\"supi\")"
+              },
+              {
+                "function": "HandleGetUeContextInSmfData",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "supi := c.Params.ByName(\"supi\")"
+              },
+              {
+                "function": "HandleGetSupi",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "supi := c.Params.ByName(\"supi\")"
+              }
+            ]
+          },
+          "elapsed_seconds": 133.31,
+          "tokens_in": null,
+          "tokens_out": null,
+          "prompt_system": "\nYou are a 5G network engineer experienced in core network analysis and code review.\nReply ONLY in Markdown using the response format in the task. No extra text before or after.\n",
+          "prompt_user": "# Task 8 \u2014 Security Code Review: UDM Subscriber Data Management Handler (Go)\n\n**ID:** task8_vuln_udm  \n**Tipo:** textual  \n**Difficolt\u00e0:** media-alta\n\n---\n\n## Scenario\n\nThe following Go source file is the Subscriber Data Management SBI handler of the **Unified Data Management (UDM)** function in a free5GC 5G core implementation. The UDM stores and provides access to UE subscription data (mobility, session management, authentication) to other NFs. Each endpoint is keyed by a SUPI (Subscription Permanent Identifier) or GPSI.\n\nPerform a **security code review** of the representative handler selection below. Focus on input validation consistency \u2014 pay attention to which handlers validate identifiers before use and which do not.\n\n```go\npackage sbi\n\nimport (\n\t\"net/http\"\n\t\"strings\"\n\t\"net/url\"\n\t\"encoding/json\"\n\n\t\"github.com/gin-gonic/gin\"\n\n\t\"github.com/free5gc/openapi\"\n\t\"github.com/free5gc/openapi/models\"\n\t\"github.com/free5gc/udm/internal/logger\"\n\t\"github.com/free5gc/util/metrics/sbi\"\n\t\"github.com/free5gc/util/validator\"\n)\n\n// GetAmData - retrieve a UE's Access and Mobility Subscription Data\nfunc (s *Server) HandleGetAmData(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tif !validator.IsValidSupi(supi) {\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: \"Supi is invalid\",\n\t\t\tCause:  \"MANDATORY_IE_INCORRECT\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(int(problemDetail.Status)))\n\t\tc.JSON(int(problemDetail.Status), problemDetail)\n\t\treturn\n\t}\n\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetAmDataProcedure(c, supi, plmnID, supportedFeatures)\n}\n\n// GetSmfSelectData - retrieve a UE's SMF Selection Subscription Data\nfunc (s *Server) HandleGetSmfSelectData(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetSmfSelectDataProcedure(c, supi, plmnID, supportedFeatures)\n}\n\n// GetNssai - retrieve a UE's subscribed NSSAI\nfunc (s *Server) HandleGetNssai(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetNssaiProcedure(c, supi, plmnID, supportedFeatures)\n}\n\n// GetSmData - retrieve a UE's Session Management Subscription Data\nfunc (s *Server) HandleGetSmData(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"dnn\", c.Query(\"dnn\"))\n\tquery.Set(\"single-nssai\", c.Query(\"single-nssai\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tDnn := query.Get(\"dnn\")\n\tSnssai := query.Get(\"single-nssai\")\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetSmDataProcedure(c, supi, plmnID, Dnn, Snssai, supportedFeatures)\n}\n\n// GetTraceData - retrieve a UE's Trace Configuration Data\nfunc (s *Server) HandleGetTraceData(c *gin.Context) {\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnID := c.Query(\"plmn-id\")\n\ts.Processor().GetTraceDataProcedure(c, supi, plmnID)\n}\n\n// GetUeContextInSmfData - retrieve a UE's UE Context In SMF Data\nfunc (s *Server) HandleGetUeContextInSmfData(c *gin.Context) {\n\tsupi := c.Params.ByName(\"supi\")\n\tsupportedFeatures := c.Query(\"supported-features\")\n\ts.Processor().GetUeContextInSmfDataProcedure(c, supi, supportedFeatures)\n}\n\n// GetSupi - retrieve multiple data sets\nfunc (s *Server) HandleGetSupi(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"dataset-names\", c.Query(\"dataset-names\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tdataSetNames := strings.Split(query.Get(\"dataset-names\"), \",\")\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetSupiProcedure(c, supi, plmnID, dataSetNames, supportedFeatures)\n}\n\n// Unsubscribe - unsubscribe from notifications\nfunc (s *Server) HandleUnsubscribe(c *gin.Context) {\n\tueId := c.Params.ByName(\"ueId\")\n\tvalid := validator.IsValidGpsi(ueId) || validator.IsValidSupi(ueId)\n\tif !valid {\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: \"UE ID is invalid\",\n\t\t\tCause:  \"MANDATORY_IE_INCORRECT\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(int(problemDetail.Status)))\n\t\tc.JSON(int(problemDetail.Status), problemDetail)\n\t\treturn\n\t}\n\tsubscriptionID := c.Params.ByName(\"subscriptionId\")\n\ts.Processor().UnsubscribeProcedure(c, ueId, subscriptionID)\n}\n```\n\n---\n\n## Question\n\nIdentify all security vulnerabilities or inconsistencies in this file. For each finding:\n\n1. Name the vulnerability class or error type\n2. Identify which specific handlers are affected and which are not \u2014 this is essential\n3. Explain the security impact in the context of a UDM managing SUPI-indexed subscription data\n4. Propose a correct fix\n\n\n---\n\n## Agent Instructions\n\nReply ONLY in Markdown using this template:\n\n```md\n### Reasoning\nDetailed analysis: vulnerability class, location, impact, fix\n\n### Answer\nBrief summary of main findings (1-3 sentences)\n\n### Confidence\n0.0\n```\n\n\n**System context:** the code under review is a Network Function (NF) inside a 5G core network (free5GC architecture). In a standard 5G core deployment, the Service-Based Interface (SBI) between NFs runs behind mutual TLS and OAuth2 authorization by default. Use this when judging the *impact* (confidentiality/integrity/availability) of a vulnerability: do not assume a bug automatically exposes data \u2014 consider what is actually reachable or corrupted given this baseline.\n\n\n---\n\n## CVSS Estimate (required)\n\nFor each vulnerability reported in your Answer, also estimate its CVSS 4.0 base\nmetrics. Add this exact section to your response, after the Answer section and\nbefore Confidence, repeating the four lines below for each finding. Each finding names exactly ONE\nfunction: if the same vulnerability affects several functions, repeat the whole\nblock once per affected function (same vector/score, one `function:` line each)\ninstead of listing multiple function names in a single line.\n\n### CVSS Estimate\n- function: <name of the Go function containing the issue>\n- vector: CVSS:4.0/AV:_/AC:_/AT:_/PR:_/UI:_/VC:_/VI:_/VA:_/SC:_/SI:_/SA:_\n- score: <your estimated CVSS 4.0 base score, 0.0-10.0>\n- snippet: <one exact line of code, copied verbatim from the source above, that supports this finding>\n\nReplace each `_` in the vector with one of the allowed values:\n\n- AV Attack Vector: N (Network), A (Adjacent), L (Local), P (Physical)\n- AC Attack Complexity: L (Low), H (High)\n- AT Attack Requirements: N (None), P (Present)\n- PR Privileges Required: N (None), L (Low), H (High)\n- UI User Interaction: N (None), P (Passive), A (Active)\n- VC / VI / VA Confidentiality / Integrity / Availability impact on the\n  vulnerable system: H (High), L (Low), N (None)\n- SC / SI / SA Confidentiality / Integrity / Availability impact on\n  subsequent systems (other components reachable from the vulnerable one):\n  H (High), L (Low), N (None)\n",
+          "sgv_eval": {
+            "passed": true,
+            "per_finding": [
+              {
+                "function": "HandleGetSmfSelectData",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HandleGetNssai",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HandleGetSmData",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HandleGetTraceData",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HandleGetUeContextInSmfData",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HandleGetSupi",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              }
+            ],
+            "feedback": null
+          },
+          "judge_score": {
+            "validation_gap_identified_score": 4.0,
+            "spec_reference_score": 0.0,
+            "impact_assessment_score": 2.0,
+            "fix_quality_score": 1.0,
+            "total_score": 7.0,
+            "feedback": "- **validation_gap_identified_score**: The agent perfectly identified the inconsistency, listed all 6 vulnerable handlers, and correctly contrasted them with the correctly implemented ones.\n- **spec_reference_score**: The agent failed to reference 3GPP TS 29.503 or describe the specific expected format of a SUPI (e.g., imsi-...), which was required for a full score.\n- **impact_assessment_score**: The agent correctly explained the impact within the UDM context, mentioning the risk of malformed values reaching the processor/database and potential injection or logic errors.\n- **fix_quality_score**: The agent proposed using `validator.IsValidSupi()`, which is consistent with the existing pattern in the code.",
+            "judge_elapsed_seconds": 27.64,
+            "normalized_score": 0.778
+          },
+          "verdict": "correct"
+        }
+      ],
+      "final_answer": {
+        "answer": "The UDM implementation suffers from inconsistent input validation where most handlers (`HandleGetSmfSelectData`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, `HandleGetSupi`) fail to validate the `supi` parameter. This exposes the core network to potential NoSQL injection or DoS attacks if a trusted NF is compromised.",
+        "reasoning": "The code exhibits a critical inconsistency in input validation for the `supi` parameter across multiple SBI handlers. In a 5G Core, the SUPI (Subscription Permanent Identifier) is a sensitive identifier used as a primary key for subscriber data.\n\n1. **Vulnerability Class:** Improper Input Validation / Inconsistent Validation.\n2. **Affected Handlers:** \n   - `HandleGetAmData` and `HandleUnsubscribe` **correctly** validate the identifier using `validator.IsValidSupi` or `validator.IsValidGpsi`.\n   - `HandleGetSmfSelectData`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, and `HandleGetSupi` **fail** to validate the `supi` parameter before passing it to the processor.\n3. **Security Impact:** While the SBI is protected by mTLS and OAuth2 (limiting access to authorized NFs), the lack of validation allows a compromised or malicious NF to send malformed SUPIs. Depending on the implementation of the `Processor` and the underlying database (e.g., MongoDB), this could lead to:\n   - **Injection Attacks:** If the processor uses the SUPI in a database query without further sanitization, it could lead to NoSQL injection.\n   - **Resource Exhaustion/DoS:** Processing unexpectedly long or malformed strings can cause excessive memory allocation or database timeouts.\n   - **Logic Errors:** Bypassing expected format checks may lead to unexpected behavior in the data retrieval logic.\n4. **Proposed Fix:** Implement a consistent validation check at the start of every handler that accepts a `supi` or `ueId`. A helper function should be used to ensure that `validator.IsValidSupi(supi)` is called before any business logic is executed.",
+        "confidence": 1.0,
+        "cvss_estimate": {
+          "findings": [
+            {
+              "function": "HandleGetSmfSelectData",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "supi := c.Params.ByName(\"supi\")"
+            },
+            {
+              "function": "HandleGetNssai",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "supi := c.Params.ByName(\"supi\")"
+            },
+            {
+              "function": "HandleGetSmData",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "supi := c.Params.ByName(\"supi\")"
+            },
+            {
+              "function": "HandleGetTraceData",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "supi := c.Params.ByName(\"supi\")"
+            },
+            {
+              "function": "HandleGetUeContextInSmfData",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "supi := c.Params.ByName(\"supi\")"
+            },
+            {
+              "function": "HandleGetSupi",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "supi := c.Params.ByName(\"supi\")"
+            }
+          ]
+        }
+      },
+      "verdict": "correct",
+      "judge_score": {
+        "validation_gap_identified_score": 4.0,
+        "spec_reference_score": 0.0,
+        "impact_assessment_score": 2.0,
+        "fix_quality_score": 1.0,
+        "total_score": 7.0,
+        "feedback": "- **validation_gap_identified_score**: The agent perfectly identified the inconsistency, listed all 6 vulnerable handlers, and correctly contrasted them with the correctly implemented ones.\n- **spec_reference_score**: The agent failed to reference 3GPP TS 29.503 or describe the specific expected format of a SUPI (e.g., imsi-...), which was required for a full score.\n- **impact_assessment_score**: The agent correctly explained the impact within the UDM context, mentioning the risk of malformed values reaching the processor/database and potential injection or logic errors.\n- **fix_quality_score**: The agent proposed using `validator.IsValidSupi()`, which is consistent with the existing pattern in the code.",
+        "judge_elapsed_seconds": 27.64,
+        "normalized_score": 0.778
+      },
+      "cvss_eval": {
+        "estimate_provided": true,
+        "n_findings": 6,
+        "n_target_cves": 1,
+        "matched": [
+          {
+            "cve_id": "CVE-2026-42459",
+            "function": "HandleGetSmfSelectData",
+            "estimated_score": 5.3,
+            "published_score": 7.7,
+            "published_score_type": "BT",
+            "score_band_vs_published": 1,
+            "score_band_vs_B": 0,
+            "exploitability_match": 4,
+            "impact_match": 1,
+            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N/E:P",
+            "exploitability_distance": 0.1,
+            "impact_distance": 0.333,
+            "subsequent_match": 3,
+            "subsequent_distance": 0.0,
+            "hamming_distance": 3,
+            "exact_match": false,
+            "computed_score_B": 5.3,
+            "computed_delta_vs_B": 3.4,
+            "score_band_computed_vs_B": 0,
+            "score_coherence_delta": 0.0
+          }
+        ],
+        "missed_cves": [],
+        "unmatched_findings": 5,
+        "unmatched": [
+          {
+            "function": "HandleGetNssai",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetSmData",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetTraceData",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetUeContextInSmfData",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetSupi",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          }
+        ],
+        "aggregates": {
+          "avg_score_band_vs_published": 1.0,
+          "avg_score_band_vs_B": 0.0,
+          "avg_exploitability_match": 4.0,
+          "avg_impact_match": 1.0,
+          "avg_score_coherence_delta": 0.0,
+          "avg_computed_delta_vs_B": 3.4,
+          "avg_score_band_computed_vs_B": 0.0,
+          "avg_exploitability_distance": 0.1,
+          "avg_impact_distance": 0.333,
+          "avg_subsequent_match": 3.0,
+          "avg_subsequent_distance": 0.0,
+          "avg_hamming_distance": 3.0
+        }
+      },
+      "cvss_eval_pass1": {
+        "estimate_provided": true,
+        "n_findings": 6,
+        "n_target_cves": 1,
+        "matched": [
+          {
+            "cve_id": "CVE-2026-42459",
+            "function": "HandleGetSmfSelectData",
+            "estimated_score": 5.3,
+            "published_score": 7.7,
+            "published_score_type": "BT",
+            "score_band_vs_published": 1,
+            "score_band_vs_B": 0,
+            "exploitability_match": 4,
+            "impact_match": 1,
+            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N/E:P",
+            "exploitability_distance": 0.1,
+            "impact_distance": 0.333,
+            "subsequent_match": 3,
+            "subsequent_distance": 0.0,
+            "hamming_distance": 3,
+            "exact_match": false,
+            "computed_score_B": 5.3,
+            "computed_delta_vs_B": 3.4,
+            "score_band_computed_vs_B": 0,
+            "score_coherence_delta": 0.0
+          }
+        ],
+        "missed_cves": [],
+        "unmatched_findings": 5,
+        "unmatched": [
+          {
+            "function": "HandleGetNssai",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetSmData",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetTraceData",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetUeContextInSmfData",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetSupi",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          }
+        ],
+        "aggregates": {
+          "avg_score_band_vs_published": 1.0,
+          "avg_score_band_vs_B": 0.0,
+          "avg_exploitability_match": 4.0,
+          "avg_impact_match": 1.0,
+          "avg_score_coherence_delta": 0.0,
+          "avg_computed_delta_vs_B": 3.4,
+          "avg_score_band_computed_vs_B": 0.0,
+          "avg_exploitability_distance": 0.1,
+          "avg_impact_distance": 0.333,
+          "avg_subsequent_match": 3.0,
+          "avg_subsequent_distance": 0.0,
+          "avg_hamming_distance": 3.0
+        }
+      },
+      "tokens": {
+        "agent_in": null,
+        "agent_out": null,
+        "judge_in": null,
+        "judge_out": null
+      }
+    },
+    {
+      "repetition": 3,
+      "run_id": "20260721T151535Z",
+      "started_at": "2026-07-21T15:48:28.035528+00:00",
+      "finished_at": "2026-07-21T15:50:43.169043+00:00",
+      "elapsed_seconds": 135.13268637500005,
+      "attempts": 1,
+      "history": [
+        {
+          "answer": "The UDM implementation suffers from inconsistent input validation where the `supi` identifier is validated in `HandleGetAmData` and `HandleUnsubscribe`, but completely ignored in six other data retrieval handlers. This allows unvalidated user input to reach the core processing logic, potentially enabling injection attacks or unauthorized data access from a compromised peer NF.",
+          "reasoning": "The code exhibits a critical **Inconsistent Input Validation** vulnerability. In a 5G UDM, the `supi` (Subscription Permanent Identifier) is a sensitive primary key used to retrieve subscriber data. \n\n1. **Vulnerability Class:** Improper Input Validation / Lack of Sanitization.\n2. **Affected Handlers:** \n   - `HandleGetSmfSelectData`\n   - `HandleGetNssai`\n   - `HandleGetSmData`\n   - `HandleGetTraceData`\n   - `HandleGetUeContextInSmfData`\n   - `HandleGetSupi`\n3. **Non-Affected Handlers:** \n   - `HandleGetAmData` (correctly calls `validator.IsValidSupi(supi)`)\n   - `HandleUnsubscribe` (correctly calls `validator.IsValidGpsi` and `validator.IsValidSupi`)\n4. **Security Impact:** The `supi` parameter is taken directly from the URL path (`c.Params.ByName(\"supi\")`) and passed to the `Processor` without validation in most handlers. While the SBI is protected by mTLS and OAuth2, an authenticated but compromised NF (e.g., an AMF or SMF) could send malformed SUPIs. This could lead to:\n   - **Injection Attacks:** Depending on how the `Processor` handles the string (e.g., if it's used in a database query like MongoDB or SQL), this could lead to NoSQL/SQL injection.\n   - **Logic Errors/DoS:** Unexpected characters could cause the backend data store to crash or return incorrect data sets.\n   - **Information Disclosure:** Bypassing expected SUPI formats might allow an attacker to probe for existing subscribers using wildcards or special characters if the backend supports them.\n5. **Proposed Fix:** Implement a consistent validation check at the start of every handler that accepts a `supi` or `ueId`. A helper function should be used to ensure all endpoints enforce the same regex/length constraints defined in `validator.IsValidSupi`.",
+          "confidence": 1.0,
+          "cvss_estimate": {
+            "findings": [
+              {
+                "function": "HandleGetSmfSelectData",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "supi := c.Params.ByName(\"supi\")"
+              },
+              {
+                "function": "HandleGetNssai",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "supi := c.Params.ByName(\"supi\")"
+              },
+              {
+                "function": "HandleGetSmData",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "supi := c.Params.ByName(\"supi\")"
+              },
+              {
+                "function": "HandleGetTraceData",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "supi := c.Params.ByName(\"supi\")"
+              },
+              {
+                "function": "HandleGetUeContextInSmfData",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "supi := c.Params.ByName(\"supi\")"
+              },
+              {
+                "function": "HandleGetSupi",
+                "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+                "score": 5.3,
+                "snippet": "supi := c.Params.ByName(\"supi\")"
+              }
+            ]
+          },
+          "elapsed_seconds": 113.68,
+          "tokens_in": null,
+          "tokens_out": null,
+          "prompt_system": "\nYou are a 5G network engineer experienced in core network analysis and code review.\nReply ONLY in Markdown using the response format in the task. No extra text before or after.\n",
+          "prompt_user": "# Task 8 \u2014 Security Code Review: UDM Subscriber Data Management Handler (Go)\n\n**ID:** task8_vuln_udm  \n**Tipo:** textual  \n**Difficolt\u00e0:** media-alta\n\n---\n\n## Scenario\n\nThe following Go source file is the Subscriber Data Management SBI handler of the **Unified Data Management (UDM)** function in a free5GC 5G core implementation. The UDM stores and provides access to UE subscription data (mobility, session management, authentication) to other NFs. Each endpoint is keyed by a SUPI (Subscription Permanent Identifier) or GPSI.\n\nPerform a **security code review** of the representative handler selection below. Focus on input validation consistency \u2014 pay attention to which handlers validate identifiers before use and which do not.\n\n```go\npackage sbi\n\nimport (\n\t\"net/http\"\n\t\"strings\"\n\t\"net/url\"\n\t\"encoding/json\"\n\n\t\"github.com/gin-gonic/gin\"\n\n\t\"github.com/free5gc/openapi\"\n\t\"github.com/free5gc/openapi/models\"\n\t\"github.com/free5gc/udm/internal/logger\"\n\t\"github.com/free5gc/util/metrics/sbi\"\n\t\"github.com/free5gc/util/validator\"\n)\n\n// GetAmData - retrieve a UE's Access and Mobility Subscription Data\nfunc (s *Server) HandleGetAmData(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tif !validator.IsValidSupi(supi) {\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: \"Supi is invalid\",\n\t\t\tCause:  \"MANDATORY_IE_INCORRECT\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(int(problemDetail.Status)))\n\t\tc.JSON(int(problemDetail.Status), problemDetail)\n\t\treturn\n\t}\n\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetAmDataProcedure(c, supi, plmnID, supportedFeatures)\n}\n\n// GetSmfSelectData - retrieve a UE's SMF Selection Subscription Data\nfunc (s *Server) HandleGetSmfSelectData(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetSmfSelectDataProcedure(c, supi, plmnID, supportedFeatures)\n}\n\n// GetNssai - retrieve a UE's subscribed NSSAI\nfunc (s *Server) HandleGetNssai(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetNssaiProcedure(c, supi, plmnID, supportedFeatures)\n}\n\n// GetSmData - retrieve a UE's Session Management Subscription Data\nfunc (s *Server) HandleGetSmData(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"dnn\", c.Query(\"dnn\"))\n\tquery.Set(\"single-nssai\", c.Query(\"single-nssai\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tDnn := query.Get(\"dnn\")\n\tSnssai := query.Get(\"single-nssai\")\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetSmDataProcedure(c, supi, plmnID, Dnn, Snssai, supportedFeatures)\n}\n\n// GetTraceData - retrieve a UE's Trace Configuration Data\nfunc (s *Server) HandleGetTraceData(c *gin.Context) {\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnID := c.Query(\"plmn-id\")\n\ts.Processor().GetTraceDataProcedure(c, supi, plmnID)\n}\n\n// GetUeContextInSmfData - retrieve a UE's UE Context In SMF Data\nfunc (s *Server) HandleGetUeContextInSmfData(c *gin.Context) {\n\tsupi := c.Params.ByName(\"supi\")\n\tsupportedFeatures := c.Query(\"supported-features\")\n\ts.Processor().GetUeContextInSmfDataProcedure(c, supi, supportedFeatures)\n}\n\n// GetSupi - retrieve multiple data sets\nfunc (s *Server) HandleGetSupi(c *gin.Context) {\n\tquery := url.Values{}\n\tquery.Set(\"plmn-id\", c.Query(\"plmn-id\"))\n\tquery.Set(\"dataset-names\", c.Query(\"dataset-names\"))\n\tquery.Set(\"supported-features\", c.Query(\"supported-features\"))\n\n\tsupi := c.Params.ByName(\"supi\")\n\tplmnIDStruct, problemDetails := s.getPlmnIDStruct(c.Request.URL.Query())\n\tif problemDetails != nil {\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetails.Cause)\n\t\tc.JSON(int(problemDetails.Status), problemDetails)\n\t\treturn\n\t}\n\tvar plmnID string\n\tif plmnIDStruct != nil {\n\t\tplmnID = plmnIDStruct.Mcc + plmnIDStruct.Mnc\n\t}\n\tdataSetNames := strings.Split(query.Get(\"dataset-names\"), \",\")\n\tsupportedFeatures := query.Get(\"supported-features\")\n\ts.Processor().GetSupiProcedure(c, supi, plmnID, dataSetNames, supportedFeatures)\n}\n\n// Unsubscribe - unsubscribe from notifications\nfunc (s *Server) HandleUnsubscribe(c *gin.Context) {\n\tueId := c.Params.ByName(\"ueId\")\n\tvalid := validator.IsValidGpsi(ueId) || validator.IsValidSupi(ueId)\n\tif !valid {\n\t\tproblemDetail := models.ProblemDetails{\n\t\t\tTitle:  \"Malformed request syntax\",\n\t\t\tStatus: http.StatusBadRequest,\n\t\t\tDetail: \"UE ID is invalid\",\n\t\t\tCause:  \"MANDATORY_IE_INCORRECT\",\n\t\t}\n\t\tc.Set(sbi.IN_PB_DETAILS_CTX_STR, http.StatusText(int(problemDetail.Status)))\n\t\tc.JSON(int(problemDetail.Status), problemDetail)\n\t\treturn\n\t}\n\tsubscriptionID := c.Params.ByName(\"subscriptionId\")\n\ts.Processor().UnsubscribeProcedure(c, ueId, subscriptionID)\n}\n```\n\n---\n\n## Question\n\nIdentify all security vulnerabilities or inconsistencies in this file. For each finding:\n\n1. Name the vulnerability class or error type\n2. Identify which specific handlers are affected and which are not \u2014 this is essential\n3. Explain the security impact in the context of a UDM managing SUPI-indexed subscription data\n4. Propose a correct fix\n\n\n---\n\n## Agent Instructions\n\nReply ONLY in Markdown using this template:\n\n```md\n### Reasoning\nDetailed analysis: vulnerability class, location, impact, fix\n\n### Answer\nBrief summary of main findings (1-3 sentences)\n\n### Confidence\n0.0\n```\n\n\n**System context:** the code under review is a Network Function (NF) inside a 5G core network (free5GC architecture). In a standard 5G core deployment, the Service-Based Interface (SBI) between NFs runs behind mutual TLS and OAuth2 authorization by default. Use this when judging the *impact* (confidentiality/integrity/availability) of a vulnerability: do not assume a bug automatically exposes data \u2014 consider what is actually reachable or corrupted given this baseline.\n\n\n---\n\n## CVSS Estimate (required)\n\nFor each vulnerability reported in your Answer, also estimate its CVSS 4.0 base\nmetrics. Add this exact section to your response, after the Answer section and\nbefore Confidence, repeating the four lines below for each finding. Each finding names exactly ONE\nfunction: if the same vulnerability affects several functions, repeat the whole\nblock once per affected function (same vector/score, one `function:` line each)\ninstead of listing multiple function names in a single line.\n\n### CVSS Estimate\n- function: <name of the Go function containing the issue>\n- vector: CVSS:4.0/AV:_/AC:_/AT:_/PR:_/UI:_/VC:_/VI:_/VA:_/SC:_/SI:_/SA:_\n- score: <your estimated CVSS 4.0 base score, 0.0-10.0>\n- snippet: <one exact line of code, copied verbatim from the source above, that supports this finding>\n\nReplace each `_` in the vector with one of the allowed values:\n\n- AV Attack Vector: N (Network), A (Adjacent), L (Local), P (Physical)\n- AC Attack Complexity: L (Low), H (High)\n- AT Attack Requirements: N (None), P (Present)\n- PR Privileges Required: N (None), L (Low), H (High)\n- UI User Interaction: N (None), P (Passive), A (Active)\n- VC / VI / VA Confidentiality / Integrity / Availability impact on the\n  vulnerable system: H (High), L (Low), N (None)\n- SC / SI / SA Confidentiality / Integrity / Availability impact on\n  subsequent systems (other components reachable from the vulnerable one):\n  H (High), L (Low), N (None)\n",
+          "sgv_eval": {
+            "passed": true,
+            "per_finding": [
+              {
+                "function": "HandleGetSmfSelectData",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HandleGetNssai",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HandleGetSmData",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HandleGetTraceData",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HandleGetUeContextInSmfData",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              },
+              {
+                "function": "HandleGetSupi",
+                "passed": true,
+                "checks": {
+                  "G2": "ok",
+                  "G3": "ok",
+                  "G4": "ok"
+                }
+              }
+            ],
+            "feedback": null
+          },
+          "judge_score": {
+            "validation_gap_identified_score": 4.0,
+            "spec_reference_score": 0.0,
+            "impact_assessment_score": 2.0,
+            "fix_quality_score": 1.0,
+            "total_score": 7.0,
+            "feedback": "- **validation_gap_identified_score**: The agent correctly identified the inconsistency, listed all 6 vulnerable handlers, and contrasted them with the correctly implemented ones.\n- **spec_reference_score**: The agent failed to reference 3GPP TS 29.503 or describe the specific expected format of a SUPI (e.g., IMSI format), which was required for a full score.\n- **impact_assessment_score**: The agent provided a strong UDM-specific impact assessment, mentioning the SUPI as a primary key and the risks of injection or enumeration in the persistence layer.\n- **fix_quality_score**: The agent proposed using the existing `validator.IsValidSupi` pattern to fix the issue.",
+            "judge_elapsed_seconds": 21.45,
+            "normalized_score": 0.778
+          },
+          "verdict": "correct"
+        }
+      ],
+      "final_answer": {
+        "answer": "The UDM implementation suffers from inconsistent input validation where the `supi` identifier is validated in `HandleGetAmData` and `HandleUnsubscribe`, but completely ignored in six other data retrieval handlers. This allows unvalidated user input to reach the core processing logic, potentially enabling injection attacks or unauthorized data access from a compromised peer NF.",
+        "reasoning": "The code exhibits a critical **Inconsistent Input Validation** vulnerability. In a 5G UDM, the `supi` (Subscription Permanent Identifier) is a sensitive primary key used to retrieve subscriber data. \n\n1. **Vulnerability Class:** Improper Input Validation / Lack of Sanitization.\n2. **Affected Handlers:** \n   - `HandleGetSmfSelectData`\n   - `HandleGetNssai`\n   - `HandleGetSmData`\n   - `HandleGetTraceData`\n   - `HandleGetUeContextInSmfData`\n   - `HandleGetSupi`\n3. **Non-Affected Handlers:** \n   - `HandleGetAmData` (correctly calls `validator.IsValidSupi(supi)`)\n   - `HandleUnsubscribe` (correctly calls `validator.IsValidGpsi` and `validator.IsValidSupi`)\n4. **Security Impact:** The `supi` parameter is taken directly from the URL path (`c.Params.ByName(\"supi\")`) and passed to the `Processor` without validation in most handlers. While the SBI is protected by mTLS and OAuth2, an authenticated but compromised NF (e.g., an AMF or SMF) could send malformed SUPIs. This could lead to:\n   - **Injection Attacks:** Depending on how the `Processor` handles the string (e.g., if it's used in a database query like MongoDB or SQL), this could lead to NoSQL/SQL injection.\n   - **Logic Errors/DoS:** Unexpected characters could cause the backend data store to crash or return incorrect data sets.\n   - **Information Disclosure:** Bypassing expected SUPI formats might allow an attacker to probe for existing subscribers using wildcards or special characters if the backend supports them.\n5. **Proposed Fix:** Implement a consistent validation check at the start of every handler that accepts a `supi` or `ueId`. A helper function should be used to ensure all endpoints enforce the same regex/length constraints defined in `validator.IsValidSupi`.",
+        "confidence": 1.0,
+        "cvss_estimate": {
+          "findings": [
+            {
+              "function": "HandleGetSmfSelectData",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "supi := c.Params.ByName(\"supi\")"
+            },
+            {
+              "function": "HandleGetNssai",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "supi := c.Params.ByName(\"supi\")"
+            },
+            {
+              "function": "HandleGetSmData",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "supi := c.Params.ByName(\"supi\")"
+            },
+            {
+              "function": "HandleGetTraceData",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "supi := c.Params.ByName(\"supi\")"
+            },
+            {
+              "function": "HandleGetUeContextInSmfData",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "supi := c.Params.ByName(\"supi\")"
+            },
+            {
+              "function": "HandleGetSupi",
+              "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+              "score": 5.3,
+              "snippet": "supi := c.Params.ByName(\"supi\")"
+            }
+          ]
+        }
+      },
+      "verdict": "correct",
+      "judge_score": {
+        "validation_gap_identified_score": 4.0,
+        "spec_reference_score": 0.0,
+        "impact_assessment_score": 2.0,
+        "fix_quality_score": 1.0,
+        "total_score": 7.0,
+        "feedback": "- **validation_gap_identified_score**: The agent correctly identified the inconsistency, listed all 6 vulnerable handlers, and contrasted them with the correctly implemented ones.\n- **spec_reference_score**: The agent failed to reference 3GPP TS 29.503 or describe the specific expected format of a SUPI (e.g., IMSI format), which was required for a full score.\n- **impact_assessment_score**: The agent provided a strong UDM-specific impact assessment, mentioning the SUPI as a primary key and the risks of injection or enumeration in the persistence layer.\n- **fix_quality_score**: The agent proposed using the existing `validator.IsValidSupi` pattern to fix the issue.",
+        "judge_elapsed_seconds": 21.45,
+        "normalized_score": 0.778
+      },
+      "cvss_eval": {
+        "estimate_provided": true,
+        "n_findings": 6,
+        "n_target_cves": 1,
+        "matched": [
+          {
+            "cve_id": "CVE-2026-42459",
+            "function": "HandleGetSmfSelectData",
+            "estimated_score": 5.3,
+            "published_score": 7.7,
+            "published_score_type": "BT",
+            "score_band_vs_published": 1,
+            "score_band_vs_B": 0,
+            "exploitability_match": 4,
+            "impact_match": 2,
+            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N/E:P",
+            "exploitability_distance": 0.1,
+            "impact_distance": 0.167,
+            "subsequent_match": 3,
+            "subsequent_distance": 0.0,
+            "hamming_distance": 2,
+            "exact_match": false,
+            "computed_score_B": 5.3,
+            "computed_delta_vs_B": 3.4,
+            "score_band_computed_vs_B": 0,
+            "score_coherence_delta": 0.0
+          }
+        ],
+        "missed_cves": [],
+        "unmatched_findings": 5,
+        "unmatched": [
+          {
+            "function": "HandleGetNssai",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetSmData",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetTraceData",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetUeContextInSmfData",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetSupi",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          }
+        ],
+        "aggregates": {
+          "avg_score_band_vs_published": 1.0,
+          "avg_score_band_vs_B": 0.0,
+          "avg_exploitability_match": 4.0,
+          "avg_impact_match": 2.0,
+          "avg_score_coherence_delta": 0.0,
+          "avg_computed_delta_vs_B": 3.4,
+          "avg_score_band_computed_vs_B": 0.0,
+          "avg_exploitability_distance": 0.1,
+          "avg_impact_distance": 0.167,
+          "avg_subsequent_match": 3.0,
+          "avg_subsequent_distance": 0.0,
+          "avg_hamming_distance": 2.0
+        }
+      },
+      "cvss_eval_pass1": {
+        "estimate_provided": true,
+        "n_findings": 6,
+        "n_target_cves": 1,
+        "matched": [
+          {
+            "cve_id": "CVE-2026-42459",
+            "function": "HandleGetSmfSelectData",
+            "estimated_score": 5.3,
+            "published_score": 7.7,
+            "published_score_type": "BT",
+            "score_band_vs_published": 1,
+            "score_band_vs_B": 0,
+            "exploitability_match": 4,
+            "impact_match": 2,
+            "estimated_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "published_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N/E:P",
+            "exploitability_distance": 0.1,
+            "impact_distance": 0.167,
+            "subsequent_match": 3,
+            "subsequent_distance": 0.0,
+            "hamming_distance": 2,
+            "exact_match": false,
+            "computed_score_B": 5.3,
+            "computed_delta_vs_B": 3.4,
+            "score_band_computed_vs_B": 0,
+            "score_coherence_delta": 0.0
+          }
+        ],
+        "missed_cves": [],
+        "unmatched_findings": 5,
+        "unmatched": [
+          {
+            "function": "HandleGetNssai",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetSmData",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetTraceData",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetUeContextInSmfData",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          },
+          {
+            "function": "HandleGetSupi",
+            "declared_score": 5.3,
+            "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N",
+            "computed_score_B": 5.3
+          }
+        ],
+        "aggregates": {
+          "avg_score_band_vs_published": 1.0,
+          "avg_score_band_vs_B": 0.0,
+          "avg_exploitability_match": 4.0,
+          "avg_impact_match": 2.0,
+          "avg_score_coherence_delta": 0.0,
+          "avg_computed_delta_vs_B": 3.4,
+          "avg_score_band_computed_vs_B": 0.0,
+          "avg_exploitability_distance": 0.1,
+          "avg_impact_distance": 0.167,
+          "avg_subsequent_match": 3.0,
+          "avg_subsequent_distance": 0.0,
+          "avg_hamming_distance": 2.0
+        }
+      },
+      "tokens": {
+        "agent_in": null,
+        "agent_out": null,
+        "judge_in": null,
+        "judge_out": null
+      }
+    }
+  ]
+}

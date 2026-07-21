@@ -8,3 +8,21 @@
 - 1A agent task8_vuln_udm_full: rep 3 differs from rep 2
 - 1A agent task9_vuln_cross: rep 2 differs from rep 1
 - 1A agent task9_vuln_cross: rep 3 differs from rep 2
+
+- 1A_sast_hint agent task5_vuln_pcf: rep 2 differs from rep 1
+- 1A_sast_hint agent task5_vuln_pcf: rep 3 differs from rep 2
+- 1A_sast_hint agent task6_vuln_udr: rep 2 differs from rep 1
+- 1A_sast_hint agent task6_vuln_udr: rep 3 differs from rep 2
+- 1A_sast_hint agent task7_vuln_amf: rep 2 differs from rep 1
+- 1A_sast_hint agent task7_vuln_amf: rep 3 differs from rep 2
+- 1A_sast_hint agent task8_vuln_udm: rep 2 differs from rep 1
+- 1A_sast_hint agent task8_vuln_udm: rep 3 differs from rep 2
+
+- 1A_no_hint_excerpt agent task5_vuln_pcf: rep 2 differs from rep 1
+- 1A_no_hint_excerpt agent task5_vuln_pcf: rep 3 differs from rep 2
+- 1A_no_hint_excerpt agent task6_vuln_udr: rep 2 differs from rep 1
+- 1A_no_hint_excerpt agent task6_vuln_udr: rep 3 differs from rep 2
+- 1A_no_hint_excerpt agent task7_vuln_amf: rep 2 differs from rep 1
+- 1A_no_hint_excerpt agent task7_vuln_amf: rep 3 differs from rep 2
+- 1A_no_hint_excerpt agent task8_vuln_udm: rep 2 differs from rep 1
+- 1A_no_hint_excerpt agent task8_vuln_udm: rep 3 differs from rep 2
