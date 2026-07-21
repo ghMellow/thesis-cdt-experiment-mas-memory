@@ -81,6 +81,14 @@ CVSS_SCORE_BANDS = [(0.5, 3), (1.5, 2), (3.0, 1)]
 # impact-scoring failure (F2). Set False to reproduce run 1 (no hint).
 CVSS_CONTEXT_HINT_ENABLED = True
 
+# ── SAST hint (2026-07-21 test): raw, unfiltered SonarQube alerts injected ──
+# into the prompt, to measure empirically whether they help or hurt vs the
+# no-SAST baseline (docs/sgv_protocol/10_dati_paper_no_sonarqube.md). Off by
+# default — enable via env var so the baseline config stays the committed
+# default: SAST_HINT_ENABLED=true python main.py ...
+SAST_HINT_ENABLED = os.getenv("SAST_HINT_ENABLED", "false").lower() == "true"
+SAST_HINT_DATASET_PATH = "docs/sast_tools/ground_truth_vuln_files.json"
+
 # ── SGV: Syntactic Grounding Verifier (proposta relatore, doc docs/sgv_protocol/) ──
 # Filtro deterministico in-loop, senza accesso alla ground truth: valuta la
 # fondatezza formale del report (non la correttezza della vulnerabilità) e

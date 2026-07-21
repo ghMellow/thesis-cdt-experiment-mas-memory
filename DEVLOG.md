@@ -2,6 +2,19 @@
 
 ---
 
+## 2026-07-21 — Test empirico: rumore SonarQube nel prompt agente, no effetto misurato  [sessione: 1802d643]
+
+**Intent:** analizzando `ground_truth_vuln_files.xlsx` (fornito dall'utente) era emersa l'ipotesi teorica "iniettare il rumore SonarQube nel prompt farebbe danni (più FP)". L'utente: "invece proviamo ad iniettare anche sonarqube per verificare effettivamente che quel rumore faccia danni? così al posto di dire non lo userei perché non è granché abbiamo un 'l'ho provato e fa schifo'"
+**Divergenze:** costruito un secondo run di controllo (`1A_no_hint_excerpt`) non richiesto esplicitamente, perché il test iniziale (hint su excerpt) non era comparabile al baseline esistente in doc 10 (quello usa i file `_full` per UDR/AMF/UDM) — necessario per isolare una sola variabile
+**Decisioni:** utente ha scelto 3 ripetizioni (non 1, opzione offerta) per comparabilità piena nonostante il costo/tempo maggiore
+**Esito/Problemi:** **l'ipotesi non è confermata** — pooled precision 31.0% (hint) vs 30.5% (no-hint) su 4 task × 3 rep, differenza di 1 FP su 40+41, nessun task peggiora. Verificato anche a livello di contenuto (non solo conteggi): le reasoning con/senza hint citano le stesse classi di bug, nessuna distrazione visibile sugli alert di stile. Rubrica giudice: 12/12 corretti con hint vs 11/12 senza (1 retry in più senza hint). Doc `docs/sgv_protocol/11_sast_hint_noise_test_2026-07-21.md`, todo aggiornato in status.md
+**Lesson learned:** un'ipotesi difensiva ("il rumore probabilmente fa danni") a costo di verifica basso (12 run × 3 rep, poche decine di minuti) va testata prima di essere scritta come argomento nel paper — il framing esplicito nel prompt ("unfiltered, use only if relevant") sembra bastare a far scartare il rumore dal modello, almeno con questo dataset SonarQube/questo modello
+
+## 2026-07-21 — Skill sast-tools-lifecycle per gosec/Semgrep (non ancora installati)
+
+**Intent:** utente ha chiesto costo in spazio disco di installare gosec/Semgrep (system-level, non Poetry — gosec richiede il toolchain Go, Semgrep è un tool esterno anche se pip-installabile) e una skill per tracciare install/rimozione pulita
+**Esito/Problemi:** creata skill `~/.claude/skills/sast-tools-lifecycle/SKILL.md` (modalità install/status/remove, verifica `brew uses --installed` prima di rimuovere dipendenze condivise) + ledger `docs/sast_tools/install_log.md`. Stima pre-installazione ~1-1.3GB (dominata da `go` + dipendenze `semgrep`/`python@3.14`), nessuna delle due ancora installata a fine sessione
+
 ## 2026-07-18 — Rubrica GT-free v3 dalla review esperto: proposta, test, rifiuto  [sessione: e68b2265]
 
 **Intent:** "valutare il materiale [review completa dell'esperto sul tag results-2026-07-14] per vedere se trovi qualcosa di utile per provare a migliorare la rubrica gt free e trovare modifiche aggiunte per una versione v3. Magari riesci a estrapolare una metodologia che possiamo applicare al giudice" → poi "creala e testala"
