@@ -381,6 +381,13 @@ def aggregate_detection_metrics(evals: List[Dict[str, Any]]) -> Dict[str, Any]:
     # nothing was ever matched (no TP to divide by).
     alerts_per_tp = (tp + fp) / tp if tp else None
 
+    # Sanity check (docs/sgv_protocol/08_guida_metriche.md §6 step 1): TP+FN
+    # must equal the sum of each pooled repetition's target CVEs. A mismatch
+    # means a bug in the matching/aggregation, not a property of the data —
+    # surfaced in the report instead of relying on a manual check every time.
+    expected_tp_fn = sum(e.get("n_target_cves", 0) or 0 for e in evals)
+    sanity_ok = (tp + fn) == expected_tp_fn
+
     return {
         "n_reps": len(evals),
         "n_reps_with_targets": len(with_targets),
@@ -393,7 +400,87 @@ def aggregate_detection_metrics(evals: List[Dict[str, Any]]) -> Dict[str, Any]:
         "recall": recall,
         "alerts_per_tp": alerts_per_tp,
         "f1": f1,
+        "sanity_ok": sanity_ok,
+        "expected_tp_fn": expected_tp_fn,
     }
+
+
+def aggregate_precision_at_k(
+    evals: List[Dict[str, Any]], k_values: Tuple[int, ...] = (1, 3, 5)
+) -> Dict[int, Dict[str, Any]]:
+    """Precision@K (relatore feedback 2026-07-21): within each repetition,
+    rank all final findings (matched + unmatched) by the agent's *own*
+    estimated severity — `computed_score_B`, the officially recomputed score
+    from the estimated vector (falls back to the declared score when the
+    vector didn't parse) — never the ground-truth score, which would leak
+    the answer into the ranking. Precision@K = share of true positives among
+    the top K findings of a repetition; a repetition with fewer than K
+    findings is excluded from that K's average (nothing to fill the slot
+    with), not counted as 0. The result is a mean over repetitions with
+    equal weight each (macro-style, consistent with the M2 macro-average
+    fix above), not a count pooled by volume.
+    """
+
+    def _score(entry: Dict[str, Any], fallback_key: str) -> Optional[float]:
+        val = entry.get("computed_score_B", entry.get(fallback_key))
+        return float(val) if isinstance(val, (int, float)) else None
+
+    per_rep_ranked: List[List[Tuple[Optional[float], bool]]] = []
+    for e in evals:
+        ranked = [
+            (_score(m, "estimated_score"), True) for m in e.get("matched", [])
+        ] + [
+            (_score(u, "declared_score"), False) for u in e.get("unmatched", [])
+        ]
+        # Undefined-score findings sort last, not first — they must not look
+        # like high-confidence alerts just because there's nothing to compare.
+        ranked.sort(key=lambda pair: (pair[0] is None, -(pair[0] or 0.0)))
+        per_rep_ranked.append(ranked)
+
+    results: Dict[int, Dict[str, Any]] = {}
+    for k in k_values:
+        rep_precisions = [
+            sum(1 for _, is_tp in ranked[:k] if is_tp) / k
+            for ranked in per_rep_ranked
+            if len(ranked) >= k
+        ]
+        results[k] = {
+            "n_reps_with_k_findings": len(rep_precisions),
+            "n_reps_total": len(per_rep_ranked),
+            "mean_precision_at_k": (
+                sum(rep_precisions) / len(rep_precisions) if rep_precisions else None
+            ),
+        }
+    return results
+
+
+def compute_repetition_variability(evals: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+    """Sample mean/std and 95% CI of TP and FP *counts* across the
+    repetitions of a single task (relatore feedback 2026-07-21: with only 3
+    repetitions we have no variability/significance measure at all). Must be
+    called on evals from one task only — pooling repetitions of different
+    tasks here would average away exactly the instability this is meant to
+    surface. Undefined (None) fields when n<2 (no variance with one sample).
+    The CI uses Student's t (df=n-1): with n=3 that's t≈4.30 at 95%, so the
+    interval is wide — report it as a rough, order-of-magnitude bound on
+    stability, not a tight statistical guarantee."""
+    import statistics
+
+    from scipy import stats as _stats
+
+    def _stats_for(counts: List[int]) -> Dict[str, Any]:
+        n = len(counts)
+        mean = statistics.mean(counts) if n else None
+        if n < 2:
+            return {"n": n, "mean": mean, "std": None, "ci95_half_width": None}
+        std = statistics.stdev(counts)
+        t_crit = float(_stats.t.ppf(0.975, df=n - 1))
+        half_width = t_crit * std / (n**0.5)
+        return {"n": n, "mean": mean, "std": std, "ci95_half_width": half_width}
+
+    tp_counts = [len(e.get("matched", [])) for e in evals]
+    fp_counts = [e.get("unmatched_findings", 0) for e in evals]
+    return {"tp": _stats_for(tp_counts), "fp": _stats_for(fp_counts)}
 
 
 def _modal_vector(vectors: List[Dict[str, str]]) -> Dict[str, str]:

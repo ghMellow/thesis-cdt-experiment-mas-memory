@@ -489,6 +489,8 @@ def _build_cvss_section(
         "",
     ]
     lines += _build_detection_metrics_section(roles, heading="####")
+    lines += _build_precision_at_k_section(roles, heading="####")
+    lines += _build_variability_section(roles, heading="####")
     lines += _build_cve_rep_matrix(roles, heading="####")
     lines += _build_retry_channel_section(roles, heading="####")
     lines += _build_sgv_detection_cross_section(roles, heading="####")
@@ -607,6 +609,47 @@ def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]], hea
             if evals:
                 yield role, evals
 
+    def _role_evals_by_task(key: str):
+        """Same as _role_evals but grouped by task_id, for the macro-average
+        row: each task contributes one precision/recall/F1 value, averaged
+        with equal weight regardless of how many findings it produced —
+        unlike the micro-average headline row above, where a noisy task
+        (e.g. UDM, more than a third of all pooled FP) dominates the pooled
+        count simply by volume (relatore feedback 2026-07-21)."""
+        for role, payloads in sorted(roles.items()):
+            by_task: Dict[str, List[Dict[str, Any]]] = {}
+            for p in payloads:
+                if isinstance(p.get(key), dict) and p.get("task_id"):
+                    by_task.setdefault(p["task_id"], []).append(p[key])
+            if by_task:
+                yield role, by_task
+
+    def _macro_average(by_task: Dict[str, List[Dict[str, Any]]]) -> Optional[Dict[str, Any]]:
+        # Tasks with no mapped target CVE (e.g. task9_vuln_cross) contribute no
+        # real precision signal — every finding is unmatched by construction,
+        # so including them would drag the macro average down for a reason
+        # unrelated to detection quality. Excluded here, same as the paper
+        # tables (docs/sgv_protocol/10_dati_paper_no_sonarqube.tex).
+        per_task = [
+            m
+            for m in (aggregate_detection_metrics(evals) for evals in by_task.values())
+            if m["expected_tp_fn"] > 0
+        ]
+        if len(per_task) < 2:
+            return None
+
+        def _avg(field: str) -> Optional[float]:
+            values = [m[field] for m in per_task if m[field] is not None]
+            return sum(values) / len(values) if values else None
+
+        return {
+            "n_tasks": len(per_task),
+            "precision": _avg("precision"),
+            "recall": _avg("recall"),
+            "f1": _avg("f1"),
+            "alerts_per_tp": _avg("alerts_per_tp"),
+        }
+
     pass1_present = any(True for _ in _role_evals("cvss_eval_pass1"))
     if not pass1_present:
         return []
@@ -620,8 +663,14 @@ def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]], hea
     ]
     pass1_by_role = dict(_role_evals("cvss_eval_pass1"))
     passk_by_role = dict(_role_evals("cvss_eval"))
+    pass1_by_role_task = dict(_role_evals_by_task("cvss_eval_pass1"))
+    passk_by_role_task = dict(_role_evals_by_task("cvss_eval"))
+    sanity_warnings: List[str] = []
     for role in sorted(set(pass1_by_role) | set(passk_by_role)):
-        for label, evals in (("final answer", passk_by_role.get(role)), ("first attempt", pass1_by_role.get(role))):
+        for label, evals, by_task in (
+            ("final answer", passk_by_role.get(role), passk_by_role_task.get(role)),
+            ("first attempt", pass1_by_role.get(role), pass1_by_role_task.get(role)),
+        ):
             if not evals:
                 continue
             m = aggregate_detection_metrics(evals)
@@ -631,12 +680,38 @@ def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]], hea
                 f"{_fmt_ratio(m['precision'])} | {_fmt_ratio(m['recall'])} | "
                 f"{_fmt_ratio(m['f1'])} | {_fmt(m['alerts_per_tp'], 1)} |"
             )
+            macro = _macro_average(by_task) if by_task else None
+            if macro:
+                lines.append(
+                    f"| {role} | {label} (macro avg, n={macro['n_tasks']} tasks) | — | — | — | — | — | — | "
+                    f"{_fmt_ratio(macro['precision'])} | {_fmt_ratio(macro['recall'])} | "
+                    f"{_fmt_ratio(macro['f1'])} | {_fmt(macro['alerts_per_tp'], 1)} |"
+                )
+            if not m["sanity_ok"]:
+                sanity_warnings.append(
+                    f"- ⚠️ **Sanity check failed** ({role}, {label}): TP+FN = "
+                    f"{m['tp']}+{m['fn']} = {m['tp'] + m['fn']}, expected "
+                    f"{m['expected_tp_fn']} (sum of target CVEs across the "
+                    f"{m['n_reps']} pooled repetitions). Do not trust this row "
+                    "until the mismatch is investigated (docs/sgv_protocol/"
+                    "08_guida_metriche.md §6 step 1)."
+                )
+    if sanity_warnings:
+        lines += ["", *sanity_warnings]
     lines += [
         "",
         "**Legend**",
         "",
         "- `M1` = detection rate / avg coverage, `M2` = precision / recall / F1, "
         "`M3` = alerts/TP.",
+        "- The headline row is a **micro-average**: TP/FP/FN summed across every "
+        "pooled task/repetition, then precision/recall/F1 computed once on the "
+        "totals — a task with more findings (e.g. UDM, over a third of all "
+        "pooled FP) weighs more just by volume. `macro avg`, shown only when "
+        "≥2 tasks are pooled, is the simple arithmetic mean of each task's own "
+        "precision/recall/F1/alerts-per-TP — every task counts equally "
+        "regardless of how many findings it produced. Read both: a large gap "
+        "between them means one noisy task is driving the micro number.",
         "- Unit of analysis is the CVE (docs/sgv_protocol/00_proposta_relatore.md §2): "
         "TP = matched CVEs, FN = missed CVEs, FP = findings that paired to no candidate "
         "CVE (includes genuine extra vulnerabilities with no catalogued CVE, not only "
@@ -667,6 +742,123 @@ def _build_detection_metrics_section(roles: Dict[str, List[Dict[str, Any]]], hea
         "",
     ]
     return lines
+
+
+def _build_precision_at_k_section(roles: Dict[str, List[Dict[str, Any]]], heading: str = "###") -> List[str]:
+    """Precision@K on the final answer (relatore feedback 2026-07-21): are
+    the findings the agent ranks as most severe also the ones most likely to
+    be real? Ranked by the agent's own recomputed severity
+    (`computed_score_B`), never the ground truth — see
+    `cvss_eval.aggregate_precision_at_k`."""
+    from utils.cvss_eval import aggregate_precision_at_k
+
+    k_values = (1, 3, 5)
+    rows: List[str] = []
+    for role, payloads in sorted(roles.items()):
+        evals = [p["cvss_eval"] for p in payloads if isinstance(p.get("cvss_eval"), dict)]
+        if not evals:
+            continue
+        results = aggregate_precision_at_k(evals, k_values)
+        cells = []
+        for k in k_values:
+            r = results[k]
+            if r["mean_precision_at_k"] is None:
+                cells.append(f"n/a (0/{r['n_reps_total']} reps have ≥{k})")
+            else:
+                cells.append(
+                    f"{_fmt_ratio(r['mean_precision_at_k'])} "
+                    f"({r['n_reps_with_k_findings']}/{r['n_reps_total']} reps)"
+                )
+        rows.append(f"| {role} | " + " | ".join(cells) + " |")
+
+    if not rows:
+        return []
+
+    return [
+        '<a id="precision-at-k"></a>',
+        f"{heading} Precision@K (final answer, ranked by agent's own severity estimate)",
+        "",
+        "| role | P@1 | P@3 | P@5 |",
+        "| --- | --- | --- | --- |",
+        *rows,
+        "",
+        "**Legend**",
+        "",
+        "- Within each repetition, all final findings (matched + unmatched) are "
+        "ranked by `computed_score_B` — the official CVSS score recomputed from "
+        "the *agent's own estimated vector*, never the ground-truth score (that "
+        "would leak the answer into the ranking). Precision@K = share of true "
+        "positives among the top K findings of that repetition.",
+        "- The value shown is the **mean across repetitions**, each weighted "
+        "equally — not a count pooled by volume (same macro logic as the "
+        "Detection table above).",
+        "- A repetition with fewer than K findings is **excluded** from that "
+        "K's average, not counted as 0 — the `(n/total reps)` fraction shows "
+        "how many repetitions actually had enough findings to fill the slot; "
+        "a low fraction (e.g. 1/3) means the number is based on very little "
+        "data and should be read with caution.",
+        "- Answers: \"if I only trust the top-K most severe alerts, how many "
+        "are real?\" — a high P@1 with a lower P@5 would mean the agent's own "
+        "severity ranking is doing real triage work; flat values across K mean "
+        "severity doesn't predict correctness here.",
+        "",
+    ]
+
+
+def _build_variability_section(roles: Dict[str, List[Dict[str, Any]]], heading: str = "###") -> List[str]:
+    """Per-task mean/std/95% CI of TP and FP counts across repetitions
+    (relatore feedback 2026-07-21: no variability measure existed with only
+    3 repetitions per task). Grouped by task_id — pooling repetitions across
+    different NFs here would hide exactly the run-to-run instability this
+    section exists to show (see cvss_eval.compute_repetition_variability)."""
+    from utils.cvss_eval import compute_repetition_variability
+
+    rows: List[str] = []
+    for role, payloads in sorted(roles.items()):
+        by_task: Dict[str, List[Dict[str, Any]]] = {}
+        for p in payloads:
+            if isinstance(p.get("cvss_eval"), dict) and p.get("task_id"):
+                by_task.setdefault(p["task_id"], []).append(p["cvss_eval"])
+        for task_id in sorted(by_task):
+            evals = by_task[task_id]
+            if len(evals) < 2:
+                continue
+            v = compute_repetition_variability(evals)
+            tp, fp = v["tp"], v["fp"]
+            rows.append(
+                f"| {role} | {task_id} | {tp['n']} | "
+                f"{_fmt(tp['mean'], 2)} ± {_fmt(tp['std'], 2)} "
+                f"(CI95 ±{_fmt(tp['ci95_half_width'], 2)}) | "
+                f"{_fmt(fp['mean'], 2)} ± {_fmt(fp['std'], 2)} "
+                f"(CI95 ±{_fmt(fp['ci95_half_width'], 2)}) |"
+            )
+
+    if not rows:
+        return []
+
+    return [
+        '<a id="variability"></a>',
+        f"{heading} Run-to-run variability (final answer, TP/FP per repetition)",
+        "",
+        "| role | task | n reps | TP mean ± std | FP mean ± std |",
+        "| --- | --- | --- | --- | --- |",
+        *rows,
+        "",
+        "**Legend**",
+        "",
+        "- Mean, sample standard deviation, and 95% confidence interval "
+        "(Student's t, df = n−1) of the TP and FP *counts* across the "
+        "repetitions of that task — not pooled across tasks, since that "
+        "would average away the instability this section exists to show.",
+        "- With n=3 the CI is wide (t≈4.30 at 95%, vs. ≈2.0 at n=30) — "
+        "treat it as a rough order-of-magnitude bound on stability, not a "
+        "tight statistical guarantee. More repetitions would narrow it.",
+        "- A task where std ≈ 0 for both TP and FP is stable run-to-run "
+        "(e.g. always finding the same CVEs with the same amount of noise); "
+        "a high FP std means the noise volume itself is unpredictable, on "
+        "top of whatever the pooled alerts/TP average already says.",
+        "",
+    ]
 
 
 def _build_cve_rep_matrix(roles: Dict[str, List[Dict[str, Any]]], heading: str = "###") -> List[str]:
@@ -1840,6 +2032,8 @@ def _write_evaluation_reports(
                 }
             section_lines = (
                 _build_detection_metrics_section(exp_roles)
+                + _build_precision_at_k_section(exp_roles)
+                + _build_variability_section(exp_roles)
                 + _build_cve_rep_matrix(exp_roles)
                 + _build_retry_channel_section(exp_roles)
                 + _build_sgv_detection_cross_section(exp_roles)

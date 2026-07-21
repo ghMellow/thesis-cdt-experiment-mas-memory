@@ -1,9 +1,7 @@
 """Single source for every prompt *text* (constants/templates) sent to an LLM.
 
 The functions that assemble these pieces with runtime data (task content,
-rubric, retry history) stay where they were — `inject_cvss_instructions` in
-`utils/cvss_utils.py`, `build_retry_task_content`/`build_judge_prompt` in
-`utils/experiment_utils.py`. This file only holds the pieces that are pure
+rubric, retry history) stay where they were, relative py. This file only holds the pieces that are pure
 text, so it can be shared/read on its own without pulling in the rest of the
 pipeline. Reading it top-to-bottom follows the assembly order below.
 

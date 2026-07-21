@@ -17,11 +17,14 @@ No accuracy difference between 1A and 1B.
 | role | answer | reps | detection rate | avg coverage | TP | FP | FN | precision | recall | F1 | alerts/TP |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | agent | final answer | 15 | 100.0% | 83.3% | 15 | 84 | 12 | 15.2% | 55.6% | 23.8% | 6.6 |
+| agent | final answer (macro avg, n=4 tasks) | — | — | — | — | — | — | 38.9% | 83.3% | 43.7% | 5.7 |
 | agent | first attempt | 15 | 91.7% | 72.2% | 12 | 67 | 15 | 15.2% | 44.4% | 22.6% | 6.6 |
+| agent | first attempt (macro avg, n=4 tasks) | — | — | — | — | — | — | 39.8% | 72.2% | 38.8% | 4.6 |
 
 **Legend**
 
 - `M1` = detection rate / avg coverage, `M2` = precision / recall / F1, `M3` = alerts/TP.
+- The headline row is a **micro-average**: TP/FP/FN summed across every pooled task/repetition, then precision/recall/F1 computed once on the totals — a task with more findings (e.g. UDM, over a third of all pooled FP) weighs more just by volume. `macro avg`, shown only when ≥2 tasks are pooled, is the simple arithmetic mean of each task's own precision/recall/F1/alerts-per-TP — every task counts equally regardless of how many findings it produced. Read both: a large gap between them means one noisy task is driving the micro number.
 - Unit of analysis is the CVE (docs/sgv_protocol/00_proposta_relatore.md §2): TP = matched CVEs, FN = missed CVEs, FP = findings that paired to no candidate CVE (includes genuine extra vulnerabilities with no catalogued CVE, not only false positives — see the unmatched-findings legend above).
 - `reps` = repetitions pooled into this row (across every task in scope, for pooled tables). Counts sum over all of them (unit = CVE × repetition): a CVE found in every repetition contributes one TP per repetition, and TP + FN = sum of each pooled repetition's target CVEs (single task: target CVEs × reps) — read TP against that ceiling, not against the number of distinct target CVEs.
 - `final answer` (the headline row) = evaluated against the final accepted answer, after every retry — the system as a black box; same numbers as the `matched`/`missed CVEs`/`unmatched findings` counts above. Formerly labelled `pass@k`.
@@ -30,6 +33,37 @@ No accuracy difference between 1A and 1B.
 - `alerts/TP` (M3) = (TP+FP)/TP — how many findings a reviewer has to read for every true positive actually surfaced; lower is better (less noise per real vulnerability). `n/a` when TP = 0 (nothing to divide by).
 - A final-answer row with higher recall (or F1) than its first-attempt row is the retry loop actually finding more; if precision drops (or alerts/TP rises) at the same time, the extra findings came at a cost — read them together, not recall alone.
 - Full definitions: docs/sgv_protocol/07_metriche_M_S_2026-07-14.md.
+
+<a id="precision-at-k"></a>
+### Precision@K (final answer, ranked by agent's own severity estimate)
+
+| role | P@1 | P@3 | P@5 |
+| --- | --- | --- | --- |
+| agent | 60.0% (15/15 reps) | 30.6% (12/15 reps) | 20.0% (12/15 reps) |
+
+**Legend**
+
+- Within each repetition, all final findings (matched + unmatched) are ranked by `computed_score_B` — the official CVSS score recomputed from the *agent's own estimated vector*, never the ground-truth score (that would leak the answer into the ranking). Precision@K = share of true positives among the top K findings of that repetition.
+- The value shown is the **mean across repetitions**, each weighted equally — not a count pooled by volume (same macro logic as the Detection table above).
+- A repetition with fewer than K findings is **excluded** from that K's average, not counted as 0 — the `(n/total reps)` fraction shows how many repetitions actually had enough findings to fill the slot; a low fraction (e.g. 1/3) means the number is based on very little data and should be read with caution.
+- Answers: "if I only trust the top-K most severe alerts, how many are real?" — a high P@1 with a lower P@5 would mean the agent's own severity ranking is doing real triage work; flat values across K mean severity doesn't predict correctness here.
+
+<a id="variability"></a>
+### Run-to-run variability (final answer, TP/FP per repetition)
+
+| role | task | n reps | TP mean ± std | FP mean ± std |
+| --- | --- | --- | --- | --- |
+| agent | task5_vuln_pcf | 3 | 1.00 ± 0.00 (CI95 ±0.00) | 0.00 ± 0.00 (CI95 ±0.00) |
+| agent | task6_vuln_udr_full | 3 | 2.00 ± 0.00 (CI95 ±0.00) | 4.33 ± 0.58 (CI95 ±1.43) |
+| agent | task7_vuln_amf_full | 3 | 1.00 ± 0.00 (CI95 ±0.00) | 5.33 ± 2.31 (CI95 ±5.74) |
+| agent | task8_vuln_udm_full | 3 | 1.00 ± 0.00 (CI95 ±0.00) | 11.33 ± 0.58 (CI95 ±1.43) |
+| agent | task9_vuln_cross | 3 | 0.00 ± 0.00 (CI95 ±0.00) | 7.00 ± 1.73 (CI95 ±4.30) |
+
+**Legend**
+
+- Mean, sample standard deviation, and 95% confidence interval (Student's t, df = n−1) of the TP and FP *counts* across the repetitions of that task — not pooled across tasks, since that would average away the instability this section exists to show.
+- With n=3 the CI is wide (t≈4.30 at 95%, vs. ≈2.0 at n=30) — treat it as a rough order-of-magnitude bound on stability, not a tight statistical guarantee. More repetitions would narrow it.
+- A task where std ≈ 0 for both TP and FP is stable run-to-run (e.g. always finding the same CVEs with the same amount of noise); a high FP std means the noise volume itself is unpredictable, on top of whatever the pooled alerts/TP average already says.
 
 <a id="cve-rep-matrix"></a>
 ### CVE × repetition (final answer)

@@ -1,0 +1,162 @@
+% =====================================================================
+% Dati per il paper — configurazione senza SonarQube (2026-07-20)
+% Fonte: run 20260714T152535Z (results/evaluation/comparison.md + result_task*_1A.md)
+% Copre in §IV.B: Precision/Recall/F1 (RQ1,RQ2), Alerts-per-TP (RQ2),
+% Computational cost (RQ2), Exact vector match (RQ3), Per-metric accuracy (RQ3).
+% NON copre RQ1 lato SAST (serve SonarQube, rimandato).
+% Richiede \usepackage{booktabs} nel preambolo.
+% =====================================================================
+
+We evaluate the unguided agentic LLM (no SAST hints) on four network
+functions of Free5GC (PCF, UDR, AMF, UDM), each containing at least one
+publicly disclosed CVE, using the pipeline described in Sec.~IV. For
+each network function the agent is run for 3 independent repetitions;
+findings are compared against the official patch by the deterministic,
+ground-truth-aware judge (Sec.~IV, \emph{Measurement} phase), producing
+the true/false positive and false negative counts that the tables below
+are built from. A fifth task with no mapped target CVE (cross-NF) is
+reported separately and excluded from the pooled rows, since every one
+of its findings is unmatched by construction and would otherwise be
+indistinguishable from noise.
+
+% ---------------------------------------------------------------------
+% Tabella 1 — Precision & analyst workload per network function (M2, M3)
+% Recall/F1 RIMOSSE su richiesta del relatore (review 2026-07-21): la GT è
+% limitata alle sole CVE note e mappate, quindi Recall non misura la reale
+% capacità di scoperta, solo il ritrovamento di un sottoinsieme noto — un
+% "miss" può essere una vulnerabilità non ancora catalogata, non un errore
+% dell'agente. Riorientata la domanda della tabella da "quanto trova tutto"
+% a "quanto è affidabile ciò che trova / quanto costa in falsi allarmi".
+% Riga "Pooled (micro)" = somma dei conteggi TP/FP/FN su PCF+UDR+AMF+UDM
+% (esclude task9/cross-NF: 0 CVE target mappate) e precision/alerts-TP
+% ricalcolate sui totali aggregati — un task con più finding (qui UDM,
+% oltre un terzo di tutti gli FP) pesa di più solo per volume.
+% Riga "Pooled (macro)" = media aritmetica semplice delle 4 precisioni/
+% alerts-TP per-NF, ogni NF pesa uguale. Aggiunta su richiesta del
+% relatore (review 2026-07-21): la riga micro era sbilanciata da UDM.
+% ---------------------------------------------------------------------
+
+Aware of the incompleteness of the ground truth -- limited to publicly
+known, mapped CVEs and not covering the full attack surface of the
+codebase -- we do not treat Recall, nor the metrics derived from it
+(F1), as a measure of completeness: a ``miss'' under this metric may
+simply be a vulnerability not yet catalogued, not one the agent failed
+to find. The quantitative analysis therefore focuses exclusively on
+Precision (and its inverse, Alerts-per-True-Positive), which measures
+the false-alarm burden the system imposes on a human analyst,
+independently of how complete the reference dataset is. F1 is not
+reported, to avoid conveying a false sense of balance between two
+properties we are not in a position to both measure.
+
+\begin{table}[t]
+\centering
+\caption{Precision and analyst workload of the unguided agentic LLM (no SAST guidance), pooled over 3 repetitions per network function.}
+\label{tab:detection-no-sast}
+\begin{tabular}{lrrrrr}
+\toprule
+NF & TP & FP & FN & Prec. & Alerts/TP \\
+\midrule
+PCF & 3  & 0  & 0  & 100.0\% & 1.0 \\
+UDR & 6  & 13 & 12 & 31.6\%  & 3.2 \\
+AMF & 3  & 16 & 0  & 15.8\%  & 6.3 \\
+UDM & 3  & 34 & 0  & 8.1\%   & 12.3 \\
+\midrule
+Pooled (micro)$^{*}$ & 15 & 63 & 12 & 19.2\% & 5.2 \\
+Pooled (macro)$^{\dagger}$ & 15 & 63 & 12 & 38.9\% & 5.7 \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize{$^{*}$Micro-average: excludes the cross-NF task (0 mapped target CVEs; all 21 of its findings are unmatched by construction, not comparable noise). Including it: TP 15, FP 84, precision 15.2\%, alerts/TP 6.6.\\
+$^{\dagger}$Macro-average: simple arithmetic mean of the four per-NF precision/alerts-per-TP values above (equal weight per NF, unaffected by UDM's finding volume). TP/FP/FN are the same raw counts as the micro row, shown for reference only -- FN is not used to derive any ratio in this table (see note above on Recall).}
+\end{table}
+
+% ---------------------------------------------------------------------
+% Tabella 2 — Severity: exact match (S1) contro la baseline a vettore
+% modale (S3). S3 non è un modello random: risponde sempre il vettore
+% più frequente tra le CVE target in scope. Con una sola CVE target
+% (PCF, AMF, UDM) la baseline è 100% per costruzione (nota a piè
+% tabella) — solo UDR (6 CVE eterogenee) e il pooled sono informativi.
+% ---------------------------------------------------------------------
+\begin{table}[t]
+\centering
+\caption{Exact CVSS v4.0 vector match on true positives (S1), against a null-model baseline that always predicts the modal target vector (S3).}
+\label{tab:s1-s3}
+\begin{tabular}{lrrr}
+\toprule
+NF & n (TP) & S1 exact match & S3 baseline \\
+\midrule
+PCF & 3  & 0.0\% & 100.0\%$^{*}$ \\
+UDR & 6  & 0.0\% & 0.0\%  \\
+AMF & 3  & 0.0\% & 100.0\%$^{*}$ \\
+UDM & 3  & 0.0\% & 100.0\%$^{*}$ \\
+\midrule
+Pooled & 15 & 0.0\% & 0.0\% \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize{$^{*}$Degenerate: single target CVE in scope, so the modal vector is that CVE's own vector by construction — only UDR (6 heterogeneous CVEs) and the pooled row are informative.}
+\end{table}
+
+% ---------------------------------------------------------------------
+% Tabella 3 — Severity: accuratezza per metrica CVSS (S2). Riportata
+% pooled + UDR (unico NF con CVE eterogenee, quindi l'unico dove S2
+% per-NF ha senso; PCF/AMF/UDM avrebbero solo scatti 0%/100% su 1 CVE
+% ripetuta 3 volte, non informativi — vedi Tabella 2).
+% ---------------------------------------------------------------------
+\begin{table}[t]
+\centering
+\caption{Per-metric accuracy and average ordinal distance on the CVSS v4.0 base metrics, pooled over all matched findings ($n=15$) and on UDR alone ($n=6$, the only NF with heterogeneous target vectors), against the S3 baseline.}
+\label{tab:s2}
+\begin{tabular}{lrrrrr}
+\toprule
+& \multicolumn{2}{c}{Pooled ($n=15$)} & \multicolumn{2}{c}{UDR only ($n=6$)} & \\
+Metric & Acc. & Base. & Acc. & Base. & Ord. dist. (pooled) \\
+\midrule
+AV & 100.0\% & 100.0\% & 100.0\% & 100.0\% & 0.00 \\
+AC & 100.0\% & 100.0\% & 100.0\% & 100.0\% & 0.00 \\
+AT & 100.0\% & 100.0\% & 100.0\% & 100.0\% & 0.00 \\
+PR & 20.0\%  & 100.0\% & 0.0\%   & 100.0\% & 0.53 \\
+UI & 86.7\%  & 100.0\% & 100.0\% & 100.0\% & 0.07 \\
+VC & 66.7\%  & 80.0\%  & 100.0\% & 100.0\% & 0.20 \\
+VI & 46.7\%  & 40.0\%  & 33.3\%  & 0.0\%   & 0.27 \\
+VA & 60.0\%  & 80.0\%  & 100.0\% & 100.0\% & 0.33 \\
+SC & 73.3\%  & 100.0\% & 100.0\% & 100.0\% & 0.13 \\
+SI & 60.0\%  & 80.0\%  & 16.7\%  & 50.0\%  & 0.27 \\
+SA & 93.3\%  & 100.0\% & 100.0\% & 100.0\% & 0.03 \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize{Ordinal distance column is pooled-only. Largest error concentrated on PR (privileges required, 0\% on UDR): the agent systematically overestimates required privileges relative to the published CVEs. On UDR, SI (subsequent-system integrity) is also weak (16.7\% vs.\ 50.0\% baseline).}
+\end{table}
+
+% ---------------------------------------------------------------------
+% Tabella 4 — Costo computazionale (M5), pooled su tutti i task
+% (non solo quelli di sicurezza). Token n/a: backend hosted (Ollama
+% Cloud) non riporta sempre prompt_eval_count/eval_count.
+% ---------------------------------------------------------------------
+\begin{table}[t]
+\centering
+\caption{Wall-clock cost per repetition (including every SGV/rubric retry), pooled across all task types ($n=15$).}
+\label{tab:cost}
+\begin{tabular}{lr}
+\toprule
+Metric & Value \\
+\midrule
+Avg. elapsed time (s) & 56.2 \\
+Avg. agent tokens (in/out) & n/a$^{*}$ \\
+Avg. judge tokens (in/out) & n/a$^{*}$ \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize{$^{*}$Token counts unavailable on this hosted backend (Ollama Cloud does not always report \texttt{prompt\_eval\_count}/\texttt{eval\_count}); available on local-model runs.}
+\end{table}
+
+% =====================================================================
+% APERTO — non ancora risolto, da chiudere prima della submission:
+% Il run produce 84 FP totali (63 sui 4 NF con GT + 21 su cross-NF),
+% non i "~10 potenziali" dichiarati da Lorenzo con la versione
+% precedente del sistema (vedi docs/sgv_protocol/09_commenti_guida_metriche.md).
+% Riconciliare prima di scrivere in prosa "the system recovers every
+% known CVE and surfaces N additional candidates".
+% RQ1 (SAST-alone, M4) non coperta: serve SonarQube, rimandato.
+% =====================================================================
