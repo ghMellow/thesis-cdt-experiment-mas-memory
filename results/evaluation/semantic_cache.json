@@ -246,5 +246,81 @@
   "unmatched/task8_vuln_udm_full/agent/handlemodifyforshareddata/a807e8bbc5a45df4": {
     "equivalent": false,
     "explanation": "The CVSS vectors differ in their impact metrics, specifically regarding integrity and availability (L vs N)."
+  },
+  "agent/task6_vuln_udr_full/3cfe762977465260": {
+    "equivalent": false,
+    "explanation": "The passages disagree on the fourth vulnerability: some identify a missing return after a 404 error, some identify NoSQL injection/enumeration, some identify DoS via unbounded query arrays, and one identifies an incorrect error handling sequence in group subscriptions."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handleapplicationdatainfluencedataget/a101e7de5edc143f": {
+    "equivalent": false,
+    "explanation": "The three passages provide different CVSS vectors, differing in privilege requirements (PR) and impact metrics (VC, VA, SA)."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlecreateeesubscriptions/5add6ff610081670": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ across the passages, specifically in the PR (Privileges Required), SI (Integrity Impact), and VC (Confidentiality Impact) metrics."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlequeryeesubscriptions/235523bf04b27bc6": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ across the passages, specifically in the PR (Privileges Required), VC (Confidentiality), VI (Integrity), and SI (System Integrity) metrics."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlepolicydatauesueidsmdataget/00b30854cc18eb7a": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their Privileges Required (PR:H vs PR:L) and Confidentiality/Availability impact (VC:L/VA:N vs VC:N/VA:L)."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlequerysmdata/080c02032427c0e8": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their Privileges Required (PR:H vs PR:L) and Confidentiality/Availability impact (VC:L/VA:N vs VC:N/VA:L) metrics."
+  },
+  "agent/task6_vuln_udr_full/2e240b957c6c57d9": {
+    "equivalent": false,
+    "explanation": "The reasonings are not semantically equivalent as they identify different sets of vulnerabilities and logic errors; specifically, some highlight missing return statements in error handlers and NoSQL injection, while others emphasize ReDoS and inconsistencies in validation across different handlers."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handleapplicationdatainfluencedataget/dce5fafd094df101": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ across the passages in several metrics, including Privilege Required (PR), Confidentiality (VC), Availability (VA), and Scope (SC)."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlecreateeesubscriptions/983efe8d2a782962": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ across the passages, specifically in the PR (Privileges Required), SI (Integrity Impact), and VA (Availability Impact) metrics."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlepolicydatauesueidsmdataget/22a97fcce1d50891": {
+    "equivalent": false,
+    "explanation": "The reasoning passages provide different CVSS vectors, varying in privileges required (PR:H vs PR:L), scope (SC:L vs SC:N), and impact metrics (VC/VA)."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlequerysmdata/3bffc840685665aa": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in several key metrics, including Confidentiality (VC), Availability (VA), Scope (SC), and Privileges Required (PR)."
+  },
+  "agent/task6_vuln_udr_full/d9ed500921cf1893": {
+    "equivalent": false,
+    "explanation": "The reasonings identify different sets of vulnerabilities; some highlight pass-by-value deserialization and SMF context parsing errors, while others focus on incorrect collection mapping for SDM subscriptions and missing return statements after error responses."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlecreatesdmsubscriptions/3dec618d76de5fa7": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their availability (VA) and integrity (SI) ratings."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlecreatesmfcontextnon3gpp/2418f6799645964b": {
+    "equivalent": false,
+    "explanation": "The reasoning passages provide three different CVSS vectors with differing values for Privileges Required (PR), Integrity Impact (VI), and Subsequent Integrity Impact (SI)."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlepolicydatauesueidsmdataget/de935ce379e0023a": {
+    "equivalent": false,
+    "explanation": "The reasonings provide different CVSS vectors, specifically differing in Privileges Required (PR), Confidentiality (VC), and Availability (VA) metrics."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handleapplicationdatainfluencedataget/8299de3fb1721f27": {
+    "equivalent": false,
+    "explanation": "The three reasonings provide different CVSS vectors, specifically differing in the Scope (SC) and Availability (VA/VC) metrics."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlequerysmdata/a199025094a1047b": {
+    "equivalent": false,
+    "explanation": "The passages provide different CVSS vectors, specifically differing in Privileges Required (PR) and Confidentiality/Availability (VC/VA) impact levels."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlecreateeesubscriptions/24d9783062de72b1": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ across the passages, specifically in the PR (Privileges Required), SI (Integrity Impact), and VC (Confidentiality Impact) components."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlequeryeesubscriptions/2436a3d573bd0833": {
+    "equivalent": false,
+    "explanation": "The reasoning passages provide different CVSS vectors, varying in privilege requirements (PR:H vs PR:L) and impact metrics (VI, SI, VC)."
   }
 }

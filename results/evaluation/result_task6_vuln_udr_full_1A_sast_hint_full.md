@@ -1,7 +1,7 @@
 # 1A_sast_hint_full — task6_vuln_udr_full
 
 > **Run(s) in this report:**
-> - `agent`: 20260723T081003Z
+> - `agent`: 20260723T081003Z, 20260723T111819Z, 20260723T123725Z
 
 <a id="toc"></a>
 **Contents**
@@ -62,7 +62,7 @@ _`group` letter (when present) = this CVE recurs — same letter on other matche
 | base score — declared / from vector (official math) | 6.8 / **8.6** | 6.9 |
 | [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep1_CVE-2026-40249.md) | | |
 
-| **CVE-2026-40246** — agent, rep 1 | estimated | published |
+| **CVE-2026-40246** — agent, rep 1 — group c | estimated | published |
 |---|---|---|
 | AV — Attack Vector | N | N |
 | AC — Attack Complexity | L | L |
@@ -78,7 +78,7 @@ _`group` letter (when present) = this CVE recurs — same letter on other matche
 | base score — declared / from vector (official math) | 5.3 / **5.3** | 8.7 |
 | [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep1_CVE-2026-40246.md) | | |
 
-| **CVE-2026-40247** — agent, rep 1 | estimated | published |
+| **CVE-2026-40247** — agent, rep 1 — group d | estimated | published |
 |---|---|---|
 | AV — Attack Vector | N | N |
 | AC — Attack Complexity | L | L |
@@ -94,7 +94,7 @@ _`group` letter (when present) = this CVE recurs — same letter on other matche
 | base score — declared / from vector (official math) | 5.3 / **5.3** | 8.7 |
 | [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep1_CVE-2026-40247.md) | | |
 
-| **CVE-2026-40248** — agent, rep 1 | estimated | published |
+| **CVE-2026-40248** — agent, rep 1 — group e | estimated | published |
 |---|---|---|
 | AV — Attack Vector | N | N |
 | AC — Attack Complexity | L | L |
@@ -174,25 +174,387 @@ _`group` letter (when present) = this CVE recurs — same letter on other matche
 | base score — declared / from vector (official math) | 6.8 / **8.5** | 6.9 |
 | [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep3_CVE-2026-40249.md) | | |
 
+| **CVE-2026-40343** — agent, rep 4 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **H** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | N | N |
+| VI — Integrity Impact to the Vulnerable System | **H** | **L** |
+| VA — Availability Impact to the Vulnerable System | **H** | **N** |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | **N** | **L** |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 4.8 / **7.0** | 6.9 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep4_CVE-2026-40343.md) | | |
+
+| **CVE-2026-40249** — agent, rep 4 — group b | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **H** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | N | N |
+| VI — Integrity Impact to the Vulnerable System | **H** | **L** |
+| VA — Availability Impact to the Vulnerable System | **H** | **N** |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 4.8 / **7.0** | 6.9 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep4_CVE-2026-40249.md) | | |
+
+| **CVE-2026-40245** — agent, rep 4 | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **H** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **N** | **H** |
+| VI — Integrity Impact to the Vulnerable System | N | N |
+| VA — Availability Impact to the Vulnerable System | **L** | **N** |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 2.0 / **5.1** | 8.7 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep4_CVE-2026-40245.md) | | |
+
+| **CVE-2026-40343** — agent, rep 5 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **H** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | N | N |
+| VI — Integrity Impact to the Vulnerable System | **H** | **L** |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | **H** | **L** |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 4.8 / **8.2** | 6.9 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep5_CVE-2026-40343.md) | | |
+
+| **CVE-2026-40249** — agent, rep 5 — group b | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **H** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | N | N |
+| VI — Integrity Impact to the Vulnerable System | **H** | **L** |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | **H** | **N** |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 4.8 / **8.2** | 6.9 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep5_CVE-2026-40249.md) | | |
+
+| **CVE-2026-40343** — agent, rep 6 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | N | N |
+| VI — Integrity Impact to the Vulnerable System | L | L |
+| VA — Availability Impact to the Vulnerable System | **L** | **N** |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | **N** | **L** |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.1 / **5.3** | 6.9 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep6_CVE-2026-40343.md) | | |
+
+| **CVE-2026-40249** — agent, rep 6 — group b | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | N | N |
+| VI — Integrity Impact to the Vulnerable System | L | L |
+| VA — Availability Impact to the Vulnerable System | **L** | **N** |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.1 / **5.3** | 6.9 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep6_CVE-2026-40249.md) | | |
+
+| **CVE-2026-40343** — agent, rep 7 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | N | N |
+| VI — Integrity Impact to the Vulnerable System | **H** | **L** |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | **N** | **L** |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.3 / **7.1** | 6.9 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep7_CVE-2026-40343.md) | | |
+
+| **CVE-2026-40249** — agent, rep 7 — group b | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | N | N |
+| VI — Integrity Impact to the Vulnerable System | **H** | **L** |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.3 / **7.1** | 6.9 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep7_CVE-2026-40249.md) | | |
+
+| **CVE-2026-40246** — agent, rep 8 — group c | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **H** | **N** |
+| VI — Integrity Impact to the Vulnerable System | **H** | **N** |
+| VA — Availability Impact to the Vulnerable System | **N** | **H** |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 7.1 / **8.6** | 8.7 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep8_CVE-2026-40246.md) | | |
+
+| **CVE-2026-40247** — agent, rep 8 — group d | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | H | H |
+| VI — Integrity Impact to the Vulnerable System | N | N |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 6.1 / **7.1** | 8.7 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep8_CVE-2026-40247.md) | | |
+
+| **CVE-2026-40248** — agent, rep 8 — group e | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | N | N |
+| VI — Integrity Impact to the Vulnerable System | H | H |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 7.1 / **7.1** | 8.7 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep8_CVE-2026-40248.md) | | |
+
+| **CVE-2026-40343** — agent, rep 8 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | N | N |
+| VI — Integrity Impact to the Vulnerable System | **H** | **L** |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | **N** | **L** |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 7.1 / **7.1** | 6.9 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep8_CVE-2026-40343.md) | | |
+
+| **CVE-2026-40249** — agent, rep 8 — group b | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | N | N |
+| VI — Integrity Impact to the Vulnerable System | **H** | **L** |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 7.1 / **7.1** | 6.9 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep8_CVE-2026-40249.md) | | |
+
+| **CVE-2026-40246** — agent, rep 9 — group c | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **H** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | N | N |
+| VI — Integrity Impact to the Vulnerable System | **H** | **N** |
+| VA — Availability Impact to the Vulnerable System | H | H |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 7.1 / **7.0** | 8.7 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep9_CVE-2026-40246.md) | | |
+
+| **CVE-2026-40247** — agent, rep 9 — group d | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **H** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | H | H |
+| VI — Integrity Impact to the Vulnerable System | N | N |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 7.1 / **6.9** | 8.7 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep9_CVE-2026-40247.md) | | |
+
+| **CVE-2026-40248** — agent, rep 9 — group e | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **H** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | N | N |
+| VI — Integrity Impact to the Vulnerable System | H | H |
+| VA — Availability Impact to the Vulnerable System | **H** | **N** |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 7.1 / **7.0** | 8.7 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep9_CVE-2026-40248.md) | | |
+
+| **CVE-2026-40343** — agent, rep 9 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **H** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | N | N |
+| VI — Integrity Impact to the Vulnerable System | **N** | **L** |
+| VA — Availability Impact to the Vulnerable System | **H** | **N** |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | **N** | **L** |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.3 / **6.9** | 6.9 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep9_CVE-2026-40343.md) | | |
+
+| **CVE-2026-40249** — agent, rep 9 — group b | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **H** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | N | N |
+| VI — Integrity Impact to the Vulnerable System | **N** | **L** |
+| VA — Availability Impact to the Vulnerable System | **H** | **N** |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.3 / **6.9** | 6.9 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep9_CVE-2026-40249.md) | | |
+
+| **CVE-2026-40343** — agent, rep 10 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **H** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | N | N |
+| VI — Integrity Impact to the Vulnerable System | **H** | **L** |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | **H** | **L** |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 6.0 / **8.2** | 6.9 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep10_CVE-2026-40343.md) | | |
+
+| **CVE-2026-40249** — agent, rep 10 — group b | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **H** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | N | N |
+| VI — Integrity Impact to the Vulnerable System | **H** | **L** |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | **H** | **N** |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 6.0 / **8.2** | 6.9 |
+| [reasoning detail](matched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep10_CVE-2026-40249.md) | | |
+
 <a id="unmatched-findings"></a>
 ### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)
 
 | # | group | details | score (from vector) | declared | function | task | role | rep | vector |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep1_f1.md) | 5.3 | 5.3 | `HandleCreateEeSubscriptions` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
-| 2 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep1_f2.md) | 5.3 | 5.3 | `HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
-| 3 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep1_f3.md) | 5.3 | 5.3 | `HandlePolicyDataUesUeIdSmDataGet` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
-| 4 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep1_f4.md) | 5.3 | 5.3 | `HandleQuerySmData` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
-| 5 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep2_f1.md) | 5.1 | 2.3 | `HandleCreateEeSubscriptions` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N` |
-| 6 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep2_f2.md) | 5.1 | 2.3 | `HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N` |
-| 7 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep2_f3.md) | 5.1 | 2.3 | `HandlePolicyDataUesUeIdSmDataGet` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 8 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep2_f4.md) | 5.1 | 2.3 | `HandleQuerySmData` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 9 | c | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep2_f5.md) | 5.1 | 2.3 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 10 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep3_f1.md) | 5.1 | 3.3 | `HandleCreateEeSubscriptions` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
-| 11 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep3_f2.md) | 5.1 | 3.3 | `HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 12 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep3_f3.md) | 5.1 | 3.3 | `HandlePolicyDataUesUeIdSmDataGet` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
-| 13 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep3_f4.md) | 5.1 | 3.3 | `HandleQuerySmData` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
-| 14 | c | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep3_f5.md) | 5.1 | 3.3 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 1 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep5_f1.md) | 8.2 | 4.8 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:H` |
+| 2 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep6_f1.md) | 7.1 | 5.3 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| 3 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep8_f1.md) | 7.1 | 6.1 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 4 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep8_f2.md) | 7.1 | 5.3 | `HandleCreateEeSubscriptions` | task6_vuln_udr_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| 5 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep1_f1.md) | 5.3 | 5.3 | `HandleCreateEeSubscriptions` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 6 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep1_f2.md) | 5.3 | 5.3 | `HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 7 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep1_f3.md) | 5.3 | 5.3 | `HandlePolicyDataUesUeIdSmDataGet` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 8 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep1_f4.md) | 5.3 | 5.3 | `HandleQuerySmData` | task6_vuln_udr_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 9 | f | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep6_f2.md) | 5.3 | 5.1 | `HandleCreateEeSubscriptions` | task6_vuln_udr_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 10 | g | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep6_f3.md) | 5.3 | 4.3 | `HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 11 | h | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep6_f4.md) | 5.3 | 4.3 | `HandlePolicyDataUesUeIdSmDataGet` | task6_vuln_udr_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 12 | f | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep7_f1.md) | 5.3 | 5.3 | `HandleCreateEeSubscriptions` | task6_vuln_udr_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 13 | g | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep7_f2.md) | 5.3 | 5.3 | `HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 14 | h | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep7_f3.md) | 5.3 | 5.3 | `HandlePolicyDataUesUeIdSmDataGet` | task6_vuln_udr_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 15 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep7_f4.md) | 5.3 | 5.3 | `HandleQuerySmData` | task6_vuln_udr_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 16 | i | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep2_f1.md) | 5.1 | 2.3 | `HandleCreateEeSubscriptions` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N` |
+| 17 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep2_f2.md) | 5.1 | 2.3 | `HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N` |
+| 18 | j | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep2_f3.md) | 5.1 | 2.3 | `HandlePolicyDataUesUeIdSmDataGet` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 19 | k | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep2_f4.md) | 5.1 | 2.3 | `HandleQuerySmData` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 20 | l | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep2_f5.md) | 5.1 | 2.3 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 21 | m | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep3_f1.md) | 5.1 | 3.3 | `HandleCreateEeSubscriptions` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 22 | n | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep3_f2.md) | 5.1 | 3.3 | `HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 23 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep3_f3.md) | 5.1 | 3.3 | `HandlePolicyDataUesUeIdSmDataGet` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 24 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep3_f4.md) | 5.1 | 3.3 | `HandleQuerySmData` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 25 | l | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep3_f5.md) | 5.1 | 3.3 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 26 | m | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep4_f1.md) | 5.1 | 2.0 | `HandleCreateEeSubscriptions` | task6_vuln_udr_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 27 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep4_f2.md) | 5.1 | 2.0 | `HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 28 | j | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep4_f3.md) | 5.1 | 2.0 | `HandlePolicyDataUesUeIdSmDataGet` | task6_vuln_udr_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 29 | k | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep4_f4.md) | 5.1 | 2.0 | `HandleQuerySmData` | task6_vuln_udr_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 30 | i | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep5_f2.md) | 5.1 | 3.0 | `HandleCreateEeSubscriptions` | task6_vuln_udr_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:N/SC:N/SI:L/SA:N` |
+| 31 | n | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep5_f3.md) | 5.1 | 3.0 | `HandleQueryeesubscriptions` | task6_vuln_udr_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 32 | j | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep5_f4.md) | 5.1 | 3.0 | `HandlePolicyDataUesUeIdSmDataGet` | task6_vuln_udr_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 33 | k | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep5_f5.md) | 5.1 | 3.0 | `HandleQuerySmData` | task6_vuln_udr_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 34 | m | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep9_f1.md) | 5.1 | 3.0 | `HandleCreateEeSubscriptions` | task6_vuln_udr_full | agent | 9 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 35 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep10_f1.md) | 5.1 | 4.0 | `HandleApplicationDataInfluenceDataGet` | task6_vuln_udr_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:L/SI:N/SA:N` |
+| 36 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep10_f2.md) | 5.1 | 4.0 | `HandlePolicyDataUesUeIdSmDataGet` | task6_vuln_udr_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:L/SI:N/SA:N` |
+| 37 | ≠ | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep10_f3.md) | 5.1 | 4.0 | `HandleQuerySmData` | task6_vuln_udr_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:N/VA:N/SC:L/SI:N/SA:N` |
+| 38 | — | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep10_f4.md) | 5.1 | 3.0 | `HandleQueryAmfContext3gpp` | task6_vuln_udr_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 39 | — | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep7_f5.md) | 0.0 | 0.0 | `HandleCreateEeGroupSubscriptions` | task6_vuln_udr_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 40 | — | [detail](unmatched_findings/task6_vuln_udr_full_1A_sast_hint_full_agent_rep7_f6.md) | 0.0 | 0.0 | `HandleQueryEeGroupSubscriptions` | task6_vuln_udr_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:N/SC:N/SI:N/SA:N` |
 
 **Legend**
 
@@ -216,8 +578,8 @@ _Every table in this section aggregates over all repetitions of the task (one ro
 
 | role | answer | reps | detection rate | avg coverage | TP | FP | FN | precision | recall | F1 | alerts/TP |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | final answer | 3 | 100.0% | 50.0% | 9 | 14 | 9 | 39.1% | 50.0% | 43.9% | 2.6 |
-| agent | first attempt | 3 | 100.0% | 27.8% | 5 | 8 | 13 | 38.5% | 27.8% | 32.3% | 2.6 |
+| agent | final answer | 10 | 100.0% | 50.0% | 30 | 40 | 30 | 42.9% | 50.0% | 46.2% | 2.3 |
+| agent | first attempt | 10 | 90.0% | 38.3% | 23 | 27 | 37 | 46.0% | 38.3% | 41.8% | 2.2 |
 
 **Legend**
 
@@ -237,7 +599,7 @@ _Every table in this section aggregates over all repetitions of the task (one ro
 
 | role | P@1 | P@3 | P@5 |
 | --- | --- | --- | --- |
-| agent | 100.0% (3/3 reps) | 77.8% (3/3 reps) | 60.0% (3/3 reps) |
+| agent | 90.0% (10/10 reps) | 80.0% (10/10 reps) | 60.0% (10/10 reps) |
 
 **Legend**
 
@@ -251,7 +613,7 @@ _Every table in this section aggregates over all repetitions of the task (one ro
 
 | role | task | n reps | TP mean ± std | FP mean ± std |
 | --- | --- | --- | --- | --- |
-| agent | task6_vuln_udr_full | 3 | 3.00 ± 1.73 (CI95 ±4.30) | 4.67 ± 0.58 (CI95 ±1.43) |
+| agent | task6_vuln_udr_full | 10 | 3.00 ± 1.41 (CI95 ±1.01) | 4.00 ± 1.49 (CI95 ±1.07) |
 
 **Legend**
 
@@ -264,23 +626,23 @@ _Every table in this section aggregates over all repetitions of the task (one ro
 
 _✓ = CVE matched in that repetition, ✗ = missed. `unmatched (FP)` = findings with no GT CVE in that repetition — the per-rep noise. A CVE row that is all ✗ is a systematic miss (never found), one with mixed ✓/✗ is a sampling instability._
 
-| task6_vuln_udr_full — agent | rep 1 | rep 2 | rep 3 | hit rate |
-| --- | --- | --- | --- | --- |
-| CVE-2026-40245 | ✗ | ✗ | ✗ | 0/3 |
-| CVE-2026-40246 | ✓ | ✗ | ✗ | 1/3 |
-| CVE-2026-40247 | ✓ | ✗ | ✗ | 1/3 |
-| CVE-2026-40248 | ✓ | ✗ | ✗ | 1/3 |
-| CVE-2026-40249 | ✓ | ✓ | ✓ | 3/3 |
-| CVE-2026-40343 | ✓ | ✓ | ✓ | 3/3 |
-| unmatched (FP) | 4 | 5 | 5 | 14 tot |
+| task6_vuln_udr_full — agent | rep 1 | rep 2 | rep 3 | rep 4 | rep 5 | rep 6 | rep 7 | rep 8 | rep 9 | rep 10 | hit rate |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| CVE-2026-40245 | ✗ | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | 1/10 |
+| CVE-2026-40246 | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ | ✗ | 3/10 |
+| CVE-2026-40247 | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ | ✗ | 3/10 |
+| CVE-2026-40248 | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ | ✗ | 3/10 |
+| CVE-2026-40249 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 10/10 |
+| CVE-2026-40343 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 10/10 |
+| unmatched (FP) | 4 | 5 | 5 | 4 | 5 | 4 | 6 | 2 | 1 | 4 | 40 tot |
 
 <a id="retry-channel"></a>
 #### Detection delta by retry channel (doc 07, variation 1)
 
 | role | retry cause | transitions | ΔTP | ΔFP |
 | --- | --- | --- | --- | --- |
-| agent | SGV | 4 | +1 | +5 |
-| agent | rubric | 2 | +3 | +1 |
+| agent | SGV | 5 | +1 | +5 |
+| agent | rubric | 13 | +6 | +8 |
 
 **Legend**
 
@@ -293,8 +655,9 @@ _✓ = CVE matched in that repetition, ✗ = missed. `unmatched (FP)` = findings
 
 | role | SGV status (final answer) | TP | FP | precision |
 | --- | --- | --- | --- | --- |
-| agent | conform | 9 | 8 | 52.9% |
+| agent | conform | 28 | 28 | 50.0% |
 | agent | non-conform | 0 | 6 | 0.0% |
+| agent | no SGV record | 2 | 6 | 25.0% |
 
 **Legend**
 
@@ -307,23 +670,23 @@ _✓ = CVE matched in that repetition, ✗ = missed. `unmatched (FP)` = findings
 
 | role | n (TP) | S1 exact match | S3 baseline exact match |
 | --- | --- | --- | --- |
-| agent | 9 | 0.0% | 0.0% |
+| agent | 30 | 0.0% | 0.0% |
 
 ##### S2 — per-metric accuracy (agent vs. baseline), ordinal distance
 
 | role | metric | n | accuracy | baseline accuracy | avg ordinal distance |
 | --- | --- | --- | --- | --- | --- |
-| agent | AV | 9 | 100.0% | 100.0% | 0.00 |
-| agent | AC | 9 | 100.0% | 100.0% | 0.00 |
-| agent | AT | 9 | 100.0% | 100.0% | 0.00 |
-| agent | PR | 9 | 0.0% | 100.0% | 0.72 |
-| agent | UI | 9 | 100.0% | 100.0% | 0.00 |
-| agent | VC | 9 | 44.4% | 88.9% | 0.56 |
-| agent | VI | 9 | 0.0% | 22.2% | 0.50 |
-| agent | VA | 9 | 88.9% | 88.9% | 0.11 |
-| agent | SC | 9 | 100.0% | 100.0% | 0.00 |
-| agent | SI | 9 | 55.6% | 66.7% | 0.28 |
-| agent | SA | 9 | 100.0% | 100.0% | 0.00 |
+| agent | AV | 30 | 100.0% | 100.0% | 0.00 |
+| agent | AC | 30 | 100.0% | 100.0% | 0.00 |
+| agent | AT | 30 | 100.0% | 100.0% | 0.00 |
+| agent | PR | 30 | 0.0% | 100.0% | 0.77 |
+| agent | UI | 30 | 100.0% | 100.0% | 0.00 |
+| agent | VC | 30 | 76.7% | 86.7% | 0.23 |
+| agent | VI | 30 | 23.3% | 23.3% | 0.42 |
+| agent | VA | 30 | 66.7% | 90.0% | 0.28 |
+| agent | SC | 30 | 100.0% | 100.0% | 0.00 |
+| agent | SI | 30 | 56.7% | 66.7% | 0.27 |
+| agent | SA | 30 | 100.0% | 100.0% | 0.00 |
 
 **Legend**
 
@@ -345,7 +708,7 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 
 | role | estimates | matched | missed CVEs | unmatched findings | avg band vs published (0-3) | avg band vs B (0-3) | avg exploitability (0-5) | avg impact (0-3) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | 3/3 | 9 | 9 | 14 | 1.73 | 1.73 | 4.00 | 1.40 |
+| agent | 10/10 | 30 | 30 | 40 | 1.37 | 1.37 | 4.00 | 1.70 |
 
 **Legend**
 
@@ -361,7 +724,7 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 
 | role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg subseq. distance (0-1) | avg Hamming (0-8) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | 1.94 | 1.87 | 1.13 | 0.17 | 0.37 | 0.12 | 2.60 |
+| agent | 1.71 | 1.31 | 1.74 | 0.16 | 0.29 | 0.12 | 2.30 |
 
 **Legend**
 
@@ -380,10 +743,10 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 
 | metric | value |
 | --- | --- |
-| repetitions with at least one SGV retry | 3 |
-| repetitions where SGV never passed (scored downstream anyway) | 3 |
+| repetitions with at least one SGV retry | 4 |
+| repetitions where SGV never passed (scored downstream anyway) | 4 |
 
-#### Let through despite failing G1–G4 (3)
+#### Let through despite failing G1–G4 (4)
 
 | role | task_id | rep | attempts | failing finding | checks |
 | --- | --- | --- | --- | --- | --- |
@@ -410,10 +773,10 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 
 | metric | value |
 | --- | --- |
-| total results | 3 |
-| correct | 1 (33.3%) |
-| wrong | 2 |
-| retried (attempts > 1) | 3 |
+| total results | 10 |
+| correct | 2 (20.0%) |
+| wrong | 8 |
+| retried (attempts > 1) | 9 |
 | truly inconsistent tasks | 1 |
 | surface-only differences (semantically equiv.) | 0 |
 
@@ -427,7 +790,7 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 
 | role | accuracy | avg_confidence | brier_score | avg_attempts | avg_textual_norm |
 | --- | --- | --- | --- | --- | --- |
-| agent | 33.3% | 0.900 | 0.5433 | 3.00 | 0.592 |
+| agent | 20.0% | 0.915 | 0.6777 | 2.80 | 0.533 |
 
 **Legend**
 
@@ -445,7 +808,7 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 
 | role | n | avg elapsed (s) | avg agent tokens in | avg agent tokens out | avg judge tokens in | avg judge tokens out |
 | --- | --- | --- | --- | --- | --- | --- |
-| agent | 3 | 609.0 | n/a | n/a | n/a | n/a |
+| agent | 10 | 333.4 | n/a | n/a | n/a | n/a |
 
 **Legend**
 
@@ -457,12 +820,18 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 <a id="rubric-anomalies"></a>
 ### Anomalies
 
-#### Wrong verdicts (2)
+#### Wrong verdicts (8)
 
 | role | task_id | rep | attempts | confidence | score/delta |
 | --- | --- | --- | --- | --- | --- |
 | agent | task6_vuln_udr_full | 2 | 3 | 0.900 | 4.0 |
 | agent | task6_vuln_udr_full | 3 | 3 | 0.900 | 4.0 |
+| agent | task6_vuln_udr_full | 4 | 3 | 0.900 | 5.0 |
+| agent | task6_vuln_udr_full | 5 | 3 | 0.950 | 4.0 |
+| agent | task6_vuln_udr_full | 6 | 3 | 0.900 | 4.0 |
+| agent | task6_vuln_udr_full | 7 | 3 | 0.950 | 5.0 |
+| agent | task6_vuln_udr_full | 8 | 3 | 0.950 | 5.0 |
+| agent | task6_vuln_udr_full | 10 | 3 | 0.900 | 0.0 |
 
 **Legend**
 
@@ -471,13 +840,19 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 - `confidence` = agent self-reported confidence on the final answer.
 - `score/delta` = normalized rubric score (textual) or |answer − ground_truth| (math).
 
-#### Retries triggered (3)
+#### Retries triggered (9)
 
 | role | task_id | rep | attempts | final_verdict |
 | --- | --- | --- | --- | --- |
 | agent | task6_vuln_udr_full | 1 | 3 | correct |
 | agent | task6_vuln_udr_full | 2 | 3 | wrong |
 | agent | task6_vuln_udr_full | 3 | 3 | wrong |
+| agent | task6_vuln_udr_full | 4 | 3 | wrong |
+| agent | task6_vuln_udr_full | 5 | 3 | wrong |
+| agent | task6_vuln_udr_full | 6 | 3 | wrong |
+| agent | task6_vuln_udr_full | 7 | 3 | wrong |
+| agent | task6_vuln_udr_full | 8 | 3 | wrong |
+| agent | task6_vuln_udr_full | 10 | 3 | wrong |
 
 **Legend**
 
@@ -489,7 +864,7 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 #### Truly inconsistent reasoning (1)
 
 **agent — task6_vuln_udr_full**
-> The reasonings differ on the fourth point: the first identifies a logic error involving a missing return statement after a 404 response, while the second and third identify a NoSQL query manipulation/enumeration vulnerability in HandleApplicationDataInfluenceDataGet.
+> The reasonings are not semantically equivalent as they identify different sets of vulnerabilities and logic errors; specifically, some highlight missing return statements in error handlers and NoSQL injection, while others emphasize ReDoS and inconsistencies in validation across different handlers.
 
 **rep 1:**
 
@@ -517,5 +892,85 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 3. **Improper Input Validation (Unsafe JSON Unmarshal from Query Params)**: In `HandlePolicyDataUesUeIdSmDataGet` and `HandleQuerySmData`, the code takes raw query parameters (`snssai` and `single-nssai`) and passes them directly to `json.Unmarshal`. This is a dangerous pattern as it allows an attacker to provide malformed or maliciously crafted JSON strings. While the impact is limited by the `S-NSSAI` struct's simplicity, this pattern generally exposes the system to resource exhaustion (DoS) or unexpected behavior when parsing untrusted input from the URL.
 
 4. **Improper Input Validation (NoSQL Query Manipulation/Enumeration)**: In `HandleApplicationDataInfluenceDataGet`, the code constructs MongoDB filters by splitting comma-separated query parameters (e.g., `influence-Ids`, `supis`) and using the `$in` operator. This allows a requester to query for multiple identities simultaneously. In a 5G core, this can be used to enumerate valid SUPIs or Influence IDs, facilitating reconnaissance for further attacks.
+
+**rep 4:**
+
+1. **Logic Error (Pass-by-Value in Deserialization):** In `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`, the variable `policyDataSubscription` is declared as a value. It is then passed to `openapi.Deserialize(policyDataSubscription, reqBody, "application/json")`. In Go, deserialization functions require a pointer to the target object to modify its contents. Because a copy is passed, the original `policyDataSubscription` remains empty. The subsequent call to the `Processor` will result in the UDR storing or updating records with zero-valued data, leading to data loss or corruption of policy subscriptions.
+
+2. **Improper Input Validation (Regex Bypass):** In `HandleCreateEeSubscriptions` and `HandleQueryeesubscriptions`, the `ueId` is validated against the regex `^(imsi-[0-9]{5,15}|nai-.+|msisdn-[0-9]{5,15}|extid-[^@]+@[^@]+|gci-.+|gli-.+|.+)$`. The final alternative `.+` matches any sequence of one or more characters. This effectively nullifies all previous specific format constraints (IMSI, MSISDN, etc.), allowing any non-empty string to be accepted. This bypasses 3GPP compliance checks for SUPI/GPSI identifiers.
+
+3. **Unsafe JSON Unmarshaling of Query Parameters:** In `HandlePolicyDataUesUeIdSmDataGet` and `HandleQuerySmData`, the code retrieves a query parameter (e.g., `sNssaiQuery`) and passes it directly to `json.Unmarshal([]byte(sNssaiQuery), &sNssai)`. If the query parameter is missing, `sNssaiQuery` is an empty string, and `json.Unmarshal` fails. However, the code only logs the error and continues execution. The `Processor` then receives a zero-initialized `models.Snssai` struct rather than a `nil` value, which can lead to incorrect database queries (filtering by empty fields instead of ignoring the filter).
+
+4. **Potential Logic Error (Missing Return on Error):** In `HandleApplicationDataInfluenceDataSubsToNotifyGet`, if `openapi.Deserialize` fails for the `snssai` parameter, the code sends a `http.StatusBadRequest` response but does **not** return from the function. The execution continues to the final line `s.Processor().ApplicationDataInfluenceDataSubsToNotifyGetProcedure(...)`, which may lead to double-responses (header already written) or processing a request with invalid/empty parameters.
+
+**rep 5:**
+
+1. **Logic Error (Pass-by-Value in Deserialization):** In `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`, the variable `policyDataSubscription` is passed to `openapi.Deserialize` by value rather than by reference. In Go, this means the function modifies a copy of the struct, and the original variable remains empty. Consequently, the UDR will persist empty/zero-valued subscription data to the database, leading to a complete failure of the policy notification functionality and data integrity loss.
+
+2. **Ineffective Input Validation (Regex Bypass):** In `HandleCreateEeSubscriptions` and `HandleQueryeesubscriptions`, the `ueId` is validated using the regex `^(imsi-[0-9]{5,15}|nai-.+|msisdn-[0-9]{5,15}|extid-[^@]+@[^@]+|gci-.+|gli-.+|.+)$`. The final alternative `.+` matches any string of length 1 or more, effectively rendering all previous 3GPP-specific constraints useless. This allows any arbitrary string to be used as a `ueId`, bypassing intended format restrictions.
+
+3. **Potential Resource Exhaustion (DoS via MongoDB `$in`):** In `HandleApplicationDataInfluenceDataGet`, the handler processes several query parameters (`influence-Ids`, `dnns`, `internal-Group-Id`, `supis`) by splitting them by commas and passing the resulting slices directly into MongoDB `$in` filters. There is no limit on the number of elements an attacker can provide in these comma-separated strings. A very large list of IDs can lead to excessive memory consumption and CPU load on the MongoDB instance, causing a Denial of Service.
+
+4. **Unsafe JSON Unmarshaling of Query Parameters:** In `HandlePolicyDataUesUeIdSmDataGet` and `HandleQuerySmData`, the code attempts to `json.Unmarshal` a raw query parameter string (e.g., `single-nssai`) into a struct. If the unmarshaling fails, the error is logged, but the function continues execution with a zero-valued struct. This "fail-open" behavior can lead to incorrect query results or logic errors in the processor because the system cannot distinguish between a missing parameter and a malformed one.
+
+**rep 6:**
+
+1. **Improper Input Validation (Regex Bypass):** In `HandleCreateEeSubscriptions` and `HandleQueryeesubscriptions`, the `ueId` is validated using the regex `^(imsi-[0-9]{5,15}|nai-.+|msisdn-[0-9]{5,15}|extid-[^@]+@[^@]+|gci-.+|gli-.+|.+)$`. The final alternative `.+` matches any sequence of one or more characters. Because this is part of an OR group, the regex will always return true for any non-empty string, effectively bypassing all the specific 3GPP identity formats (IMSI, MSISDN, etc.) intended to be enforced. This allows the injection of arbitrary strings into the database.
+
+2. **Resource Exhaustion (DoS) via Unbounded Query Arrays:** In `HandleApplicationDataInfluenceDataGet`, the handler takes several query parameters (`influence-Ids`, `dnns`, `internal-Group-Id`, `supis`) and performs `strings.Split(param[0], ",")`. There is no limit on the number of elements produced by this split or the length of the input string. An attacker can provide a massive comma-separated list, leading to high memory consumption during the split operation and potentially causing a Denial of Service (DoS) on the UDR or the MongoDB backend due to the size of the `$in` operator array.
+
+3. **Unsafe JSON Unmarshaling of URL Parameters:** In `HandlePolicyDataUesUeIdSmDataGet` and `HandleQuerySmData`, the code attempts to unmarshal a query parameter directly into a struct: `json.Unmarshal([]byte(sNssaiQuery), &sNssai)`. If the parameter is missing or malformed, the error is only logged as a warning, and the function proceeds with a zero-initialized `sNssai` object. This leads to logic errors where the system queries for "empty" S-NSSAIs instead of returning a `400 Bad Request`, potentially returning incorrect subscription data.
+
+4. **Improper Error Handling (Nil Pointer Dereference Risk):** In `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`, the code calls `openapi.Deserialize(policyDataSubscription, reqBody, "application/json")`. However, `policyDataSubscription` is declared as a value `var policyDataSubscription models.PolicyDataSubscription`, not a pointer. Passing a value to a function expecting an interface/pointer for deserialization typically fails or results in no data being populated, but more critically, the code does not `return` after the error is handled in the `if err != nil` block. The execution continues to `s.Processor()....Procedure(c, policyDataSubscription)`, passing an uninitialized or partially initialized object to the business logic.
+
+**rep 7:**
+
+1. **Improper Input Validation (Regex Bypass)**:
+   - **Location**: `HandleCreateEeSubscriptions`, `HandleQueryeesubscriptions`.
+   - **Pattern**: The regex `^(imsi-[0-9]{5,15}|nai-.+|msisdn-[0-9]{5,15}|extid-[^@]+@[^@]+|gci-.+|gli-.+|.+)$` ends with `.+`.
+   - **Impact**: The `.+` alternative matches any non-empty string, rendering all previous specific 3GPP format constraints (like IMSI or MSISDN lengths) useless. This allows arbitrary strings to be used as `ueId`, potentially leading to database pollution or bypassing expected identifier constraints in the 5G core.
+   - **Fix**: Remove the `.+` alternative from the regular expression.
+
+2. **Logic Error (Pass-by-Value in Deserialization)**:
+   - **Location**: `HandlePolicyDataSubsToNotifyPost`, `HandlePolicyDataSubsToNotifySubsIdPut`.
+   - **Pattern**: `openapi.Deserialize(policyDataSubscription, reqBody, "application/json")` is called passing the struct by value instead of by pointer.
+   - **Impact**: In Go, passing a struct by value creates a copy. The `Deserialize` function populates the copy, leaving the original `policyDataSubscription` variable empty. The UDR then processes/stores zero-valued records, causing data loss or corruption of policy subscriptions.
+   - **Fix**: Pass the address of the variable: `openapi.Deserialize(&policyDataSubscription, ...)`
+
+3. **Unsafe JSON Unmarshaling (Silent Failure)**:
+   - **Location**: `HandlePolicyDataUesUeIdSmDataGet`, `HandleQuerySmData`.
+   - **Pattern**: `json.Unmarshal([]byte(sNssaiQuery), &sNssai)` is called, but errors are only logged as warnings (`logger.DataRepoLog.Warnln(err)`) without stopping execution.
+   - **Impact**: Malformed JSON in query parameters is ignored, and the system proceeds with a zero-valued `sNssai`. This can lead to incorrect data retrieval or logic errors in the processor where a malformed request is treated as a valid request for a default/empty value.
+   - **Fix**: Return a `http.StatusBadRequest` if `json.Unmarshal` fails.
+
+4. **Logic Error (Incorrect Error Handling Sequence)**:
+   - **Location**: `HandleCreateEeGroupSubscriptions`, `HandleQueryEeGroupSubscriptions`.
+   - **Pattern**: The code checks `if !match` and returns a response before checking `if err != nil` from `regexp.MatchString`.
+   - **Impact**: If the regex engine fails, the code reports an "Invalid ueGroupId" (client error) instead of a system failure (server error), masking internal errors and violating proper error handling patterns.
+   - **Fix**: Check `if err != nil` immediately after the `MatchString` call.
+
+**rep 8:**
+
+1. **Improper Request Termination (Logic Error/Bypass)**: In `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete`, `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdGet`, and `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdPut`, the code checks if the `influenceId` parameter equals `"subs-to-notify"`. If it does not, it calls `c.String(http.StatusNotFound, "404 page not found")`. However, it does not call `return`. In the Gin framework, calling a response method does not stop the execution of the handler. The code continues to execute the `Processor` procedure. This allows an attacker to trigger backend logic (deletion, retrieval, or update) for any `influenceId` provided in the URL, effectively bypassing the intended restriction.
+
+2. **Incorrect Argument Passing (Nil Pointer/Data Corruption)**: In `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`, the variable `policyDataSubscription` is declared as a value (`var policyDataSubscription models.PolicyDataSubscription`). It is then passed to `openapi.Deserialize(policyDataSubscription, reqBody, "application/json")`. Because it is passed by value, the `Deserialize` function cannot populate the original variable. The `Processor` subsequently receives a zero-valued (empty) `PolicyDataSubscription` object. This results in the UDR storing empty or corrupted subscription data in the database, leading to a loss of integrity for policy data.
+
+3. **Potential NoSQL Injection (Filter Manipulation)**: In `HandleApplicationDataInfluenceDataGet`, query parameters (`influence-Ids`, `dnns`, etc.) are split by commas and passed directly into `bson.M` filters using the `$in` operator. While `$in` is safer than direct assignment, the lack of input validation on the individual strings allows for the injection of unexpected values. If the `Processor` or the MongoDB driver handles these slices in a way that allows operator injection or if the logic depends on specific string formats, an attacker could potentially retrieve data they are not authorized to see.
+
+4. **Regular Expression Denial of Service (ReDoS)**: In `HandleCreateEeGroupSubscriptions`, `HandleQueryEeGroupSubscriptions`, `HandleCreateEeSubscriptions`, and `HandleQueryeesubscriptions`, `regexp.MatchString` is used with patterns containing multiple greedy matches and overlapping groups (e.g., `.+` at the end of the `ueId` pattern). While the patterns are relatively simple, the use of `.+` combined with other alternatives can lead to catastrophic backtracking if a very long, specially crafted string is provided, potentially causing CPU exhaustion and a Denial of Service (DoS) of the UDR NF.
+
+**rep 9:**
+
+1. **NoSQL Injection (MongoDB)**: In `HandleApplicationDataInfluenceDataGet`, the code takes multiple query parameters (`influence-Ids`, `dnns`, `internal-Group-Id`, `supis`) and splits them by commas, then directly inserts them into `bson.M` filters using the `$in` operator. While `$in` is generally safer than raw query strings, the lack of validation on the input strings allows an attacker to potentially manipulate the query logic if the `Processor` logic doesn't strictly enforce types. More critically, the `S-NSSAI` parsing logic is noted in the comments as having bugs with MongoDB field orders, suggesting unstable query construction.
+2. **Improper Input Validation (Regex Bypass/DoS)**: In `HandleCreateEeGroupSubscriptions`, `HandleQueryEeGroupSubscriptions`, `HandleCreateEeSubscriptions`, and `HandleQueryeesubscriptions`, the code uses `regexp.MatchString` on user-provided parameters (`ueGroupId`, `ueId`). While it attempts to validate the format, the regex `.+` at the end of the `ueId` pattern effectively makes the entire validation useless, as any string will match. This allows arbitrary strings to be passed to the database layer.
+3. **Logic Error (Incorrect Parameter Handling)**: In `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete` (and similar "SubsToNotify" handlers), the code checks if `influenceId == "subs-to-notify"`. If it is NOT equal, it calls `c.String(http.StatusNotFound, "404 page not found")`, but it **does not return**. The execution continues, and the `Processor` is called anyway. This is a critical logic error where a 404 is sent, but the action (Delete/Get/Put) is still performed on the backend.
+4. **Improper Error Handling (Nil Pointer Dereference)**: In `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`, the `openapi.Deserialize` function is called with `policyDataSubscription` (the value) instead of `&policyDataSubscription` (the pointer). Since `policyDataSubscription` is a struct, passing it by value to a function expecting an interface/pointer for deserialization will either fail to populate the object or cause a panic/runtime error depending on the `openapi` package implementation.
+
+**rep 10:**
+
+1. **Incorrect Pointer Passing (Logic Error/Data Corruption):** In `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`, the variable `policyDataSubscription` is passed to `openapi.Deserialize` by value. Since `Deserialize` requires a pointer to populate the object, the variable remains empty. The subsequent call to the `Processor` sends a zero-valued object to the database, leading to the corruption or erasure of subscription data.
+2. **NoSQL Query Manipulation:** In `HandleApplicationDataInfluenceDataGet`, user-supplied query parameters (`influence-Ids`, `dnns`, `supis`, etc.) are split by commas and inserted directly into MongoDB `$in` filters. While not a classic string-injection, the lack of validation on the elements allows a compromised NF to perform broad data discovery or "scraping" of the UDR by providing lists of IDs, potentially bypassing intended access controls.
+3. **Improper Error Handling (JSON Unmarshaling):** In `HandlePolicyDataUesUeIdSmDataGet` and `HandleQuerySmData`, the code attempts to `json.Unmarshal` query parameters into `models.Snssai`. If this fails, the error is logged as a warning, but the function continues with a zero-valued struct. This leads to the system querying the database with empty filters, which may return incorrect data or unintended results.
+4. **Inconsistent Input Validation (Security Pattern):** There is a significant discrepancy in `ueId` validation. Functions like `HandleCreateEeSubscriptions` and `HandleQueryeesubscriptions` implement strict 3GPP regex validation, whereas most other handlers (e.g., `HandleQueryAmfContext3gpp`, `HandleQuerySmsData`) only check if the string is empty. This inconsistency allows malformed identifiers to reach the database layer, increasing the attack surface for potential driver-level exploits or resource exhaustion.
 
 

@@ -2,6 +2,14 @@
 
 ---
 
+## 2026-07-23 — UDR `_full` esteso a n=10: beneficio hint confermato; AMF FP spiegati come bundling  [sessione: 1802d643]
+
+**Intent:** utente, sul risultato AMF a n=3: "quindi diciamo AMF genera più FP ma significa che ci sono nuove possible cve indicate dall'LLM? ... poi per quelli matched quello si riferiscono alla gt quindi easy no? se fosse costante sarebbe top perché aumenta il coverage" → poi "conviene provarlo a fare solo per questo task UDR? ... per AMF dire rumore sarebbe meglio dire FP e basta"
+**Divergenze:** verificato a livello di contenuto (non solo conteggio) che i 29 FP di AMF sono ~4 diagnosi concettuali condivise per ripetizione, ripetute una volta per funzione elencata nel blocco CVSS Estimate (stesso fenomeno di bundling già noto su UDM dal 2026-07-17) — non 13 vulnerabilità false distinte; corretto il linguaggio del doc da "rumore fa danni" a "FP" per allinearsi alla terminologia già nota al team
+**Decisioni:** utente conferma di concentrare le rep extra solo su UDR (AMF/UDM non ne hanno bisogno, spiegazione qualitativa già chiara); portato UDR `_full` da n=3 a n=10 per lato, usando experiment-id dedicati (`1A_sast_hint_full` esteso, nuovo `1A_no_hint_full`) per non alterare il baseline canonico `1A` condiviso con doc 10/comparison.md
+**Esito/Problemi:** rate limit Ollama Cloud (429) a metà dell'estensione, ripreso senza perdita dati dopo il reset (skip automatico delle rep già salvate per numero, non serviva alcun intervento). **Risultato a n=10: il beneficio su UDR è confermato, non rumore** — recall 35%→50%, precision 29.6%→42.9%, migliora sia sulle CVE facili (8/10→10/10) sia su quelle difficili (1/10→3/10 ciascuna). Caso positivo solido, ribalta la lettura cauta di ieri ("probabilmente rumore, 1 rep su 3"). Doc 11 e status.md aggiornati
+**Lesson learned:** n=3 aveva prodotto un risultato indistinguibile dal rumore di campionamento nonostante fosse un effetto reale — la scala del campione ha cambiato la conclusione da "non si può affermare" a "confermato", non solo la sua precisione; utile ricordare per calibrare quante ripetizioni servono prima di scrivere una conclusione definitiva
+
 ## 2026-07-23 — Test SAST hint esteso ai file `_full`: effetto reale e task-dipendente  [sessione: 1802d643]
 
 **Intent:** utente, dopo aver discusso i risultati sull'excerpt (nessun effetto): "poi mi è venuto in mente... discutiamo dei risultati ottenuti ora e poi direi di lanciare su file full no? così possiamo riportare al team"
