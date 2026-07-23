@@ -141,7 +141,7 @@ SA & 93.3\%  & 100.0\% & 100.0\% & 100.0\% & 0.03 \\
 % ---------------------------------------------------------------------
 \begin{table}[t]
 \centering
-\caption{Wall-clock cost per repetition (including every SGV/rubric retry), pooled across all task types ($n=15$).}
+\caption{Wall-clock cost per repetition (including every SGV/rubric retry), averaged over 15 repetitions (5 tasks $\times$ 3 reps each, including the cross-NF task).}
 \label{tab:cost}
 \begin{tabular}{lr}
 \toprule
@@ -153,7 +153,7 @@ Avg. judge tokens (in/out) & n/a$^{*}$ \\
 \bottomrule
 \end{tabular}
 \\[2pt]
-\footnotesize{$^{*}$Token counts unavailable on this hosted backend (Ollama Cloud does not always report \texttt{prompt\_eval\_count}/\texttt{eval\_count}); available on local-model runs. Unlike the pooled rows of Tables~\ref{tab:detection-no-sast}, \ref{tab:precision-at-k} and \ref{tab:ablation-retry}, the cross-NF task is \emph{intentionally included} here ($n=15$ = all 5 tasks $\times$ 3 reps): wall-clock cost per repetition does not depend on whether the task has a mapped target CVE, so there is no reason to exclude it.}
+\footnotesize{$^{*}$Token counts unavailable on this hosted backend (Ollama Cloud does not always report \texttt{prompt\_eval\_count}/\texttt{eval\_count}); available on local-model runs. Unlike the pooled rows of Tables~\ref{tab:detection-no-sast}, \ref{tab:precision-at-k} and \ref{tab:ablation-retry}, the cross-NF task is \emph{intentionally included} here: wall-clock cost per repetition does not depend on whether the task has a mapped target CVE, so there is no reason to exclude it. \textbf{The 15 repetitions counted here are unrelated to the $\mathrm{TP}=15$ figure in Tables~\ref{tab:detection-no-sast}--\ref{tab:s2} and \ref{tab:ablation-retry}}, despite both tables using the notation ``$n{=}15$'' elsewhere in this document: here it is a sample size (how many times the agent ran), there it is a result count (how many CVEs it matched). The cross-NF task has 0 target CVEs and therefore always contributes 0 true positives -- it does not add to the TP=15 figure whether included or excluded, so no inconsistency arises from including it here while excluding it from the detection tables (only its 21 false positives are scope-dependent, see Table~\ref{tab:detection-no-sast}'s footnote).}
 \end{table}
 
 % ---------------------------------------------------------------------

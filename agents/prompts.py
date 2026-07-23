@@ -12,7 +12,8 @@ final agent prompt =
   1. SYSTEM_PROMPTS[role]                         -> SystemMessage
   2. docs/tasks/<task>.md raw content              -> \
   3. + SAST_HINT_BLOCK   (if config.SAST_HINT_ENABLED, NF has alerts) | utils/sast_hint.py:
-  4. + NF_CONTEXT_HINT   (if CVSS task, hint on)    | utils/cvss_utils.py:  build_sast_hint_block()
+                                                       build_sast_hint_block()
+  4. + NF_CONTEXT_HINT   (if CVSS task, hint on)    | utils/cvss_utils.py:
   5. + CVSS_PROMPT_BLOCK (if CVSS task)            -> / inject_cvss_instructions()
   6. [+ retry addendum, built in utils/experiment_utils.py:build_retry_task_content,
         retries only]
