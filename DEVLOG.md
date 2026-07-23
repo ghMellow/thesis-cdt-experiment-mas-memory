@@ -2,6 +2,14 @@
 
 ---
 
+## 2026-07-23 — Test SAST hint esteso ai file `_full`: effetto reale e task-dipendente  [sessione: 1802d643]
+
+**Intent:** utente, dopo aver discusso i risultati sull'excerpt (nessun effetto): "poi mi è venuto in mente... discutiamo dei risultati ottenuti ora e poi direi di lanciare su file full no? così possiamo riportare al team"
+**Divergenze:** riuso del baseline no-hint `_full` già esistente (quello del doc 10) invece di rilanciarlo — bastava il run mancante (hint attivo su `_full`), risparmiando 9 run
+**Decisioni:** procede con 3 ripetizioni su UDR/AMF/UDM `_full` (PCF non ha variante `_full`); durante il run caduta di connessione internet (~37 min di gap nel log) assorbita automaticamente dal retry dell'HTTP client, nessun rilancio necessario
+**Esito/Problemi:** risultato **diverso e più interessante** di quello sull'excerpt — non più "nessun effetto" ma effetto misto: UDR migliora (recall 33→50%, precision 32→39%), AMF peggiora nettamente (FP 16→29, precision 16→9%), UDM identico. Pooled recall sale (50→62.5%) ma la media nasconde la storia per-task. Doc 11 esteso con la sezione `_full`, status.md aggiornato
+**Lesson learned:** il test sull'excerpt (contesto corto, hint denso) non generalizza al caso più duro/realistico (`_full`, contesto lungo) — un esperimento "quick and cheap" su una variante facile del task può dare un falso senso di chiusura; la direzione dell'effetto del rumore dipende da dove cadono gli alert rispetto al codice vulnerabile reale, non da una proprietà intrinseca del "rumore SAST"
+
 ## 2026-07-21 — Test empirico: rumore SonarQube nel prompt agente, no effetto misurato  [sessione: 1802d643]
 
 **Intent:** analizzando `ground_truth_vuln_files.xlsx` (fornito dall'utente) era emersa l'ipotesi teorica "iniettare il rumore SonarQube nel prompt farebbe danni (più FP)". L'utente: "invece proviamo ad iniettare anche sonarqube per verificare effettivamente che quel rumore faccia danni? così al posto di dire non lo userei perché non è granché abbiamo un 'l'ho provato e fa schifo'"

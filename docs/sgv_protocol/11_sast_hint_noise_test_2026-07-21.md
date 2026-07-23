@@ -27,19 +27,43 @@ Rubrica (Blocco A, verdetto LLM judge): con hint 12/12 corretti (1 retry su UDR)
 
 Confrontato il contenuto dei finding non matchati (non solo il numero) per AMF/UDM: le reasoning nelle due condizioni citano **le stesse 4 classi di bug** (information exposure via error message, content-type default case vuoto, stato inconsistente `c.Set`, errore hardcoded su `HTTPN1N2MessageTransfer`) — il modello non ha ripetuto gli alert SonarQube nel suo output né si è distratto su di essi (nessuna menzione di "duplicated string literal" o "TODO" nelle reasoning ispezionate). La composizione dei finding per-ripetizione varia leggermente (5/4/6 vs 4/5/6 su 3 rep) ma è variabilità run-to-run normale a `TEMPERATURE=0.3`, non un effetto sistematico dell'hint.
 
-## Conclusione
+## Conclusione (excerpt)
 
-**L'ipotesi "il rumore fa danni" non è confermata su questo test.** Su nessuno dei 4 task l'iniezione del rumore SonarQube grezzo ha peggiorato precision/recall/FP in modo misurabile; il pooled è sostanzialmente identico (31.0% vs 30.5%, 1 FP di differenza su 40+41). Il modello sembra scartare autonomamente gli alert di stile quando gli viene detto esplicitamente di farlo nel framing del prompt — l'istruzione "use them only if relevant" ha retto.
+**Sull'excerpt, l'ipotesi "il rumore fa danni" non è confermata.** Su nessuno dei 4 task l'iniezione del rumore SonarQube grezzo ha peggiorato precision/recall/FP in modo misurabile; il pooled è sostanzialmente identico (31.0% vs 30.5%, 1 FP di differenza su 40+41). Il modello sembra scartare autonomamente gli alert di stile quando gli viene detto esplicitamente di farlo nel framing del prompt — l'istruzione "use them only if relevant" ha retto.
 
-**Limiti da dichiarare prima di generalizzare:**
+**Limiti dichiarati a questo punto (superati in parte dal test `_full` sotto):**
 - n=3 ripetizioni per condizione: differenze piccole (es. il singolo FP su PCF) non sono statisticamente distinguibili dal rumore di campionamento già documentato altrove (`comparison.md` — run-to-run variability).
 - Testato solo con framing esplicito che sconta l'alert ("unfiltered, most are NOT vulnerabilities, use only if relevant") — un prompt che presentasse gli stessi alert come "verificati" o senza quel caveat potrebbe comportarsi diversamente; questo test isola l'effetto del *contenuto rumoroso*, non quello del *framing di fiducia nella fonte*.
-- Testato su file excerpt, non sui `_full` usati nel doc 10 — non comparabile direttamente ai numeri del paper, ma comparabile 1:1 tra le due condizioni di questo test (unica variabile cambiata).
+- Testato solo su file **excerpt** (contesto corto, hint denso relativo al codice) — il caso più favorevole per veder emergere un eventuale effetto. Il caso più duro/realistico (`_full`, contesto lungo, hint diluito) non era coperto → esteso di seguito.
 
-**Implicazione per la sequenza fase 2/esperimento 3:** l'obiezione teorica che aveva fatto propendere per "prima l'enumeratore lato giudice, poi l'input all'agente" (rischio di innescare più FP) non trova conferma empirica per questo dataset SonarQube. Non cambia la sequenza già decisa (l'enumeratore di completezza lato giudice resta il passo successivo, vedi doc 13 §3–4 e status.md), ma toglie peso all'argomento "è pericoloso" come motivo per rimandare l'input diretto all'agente — resta comunque aperta la domanda se **gosec/Semgrep**, con alert realmente pertinenti (non stile), diano un beneficio di detection misurabile, cosa che questo test non copre (il dataset SonarQube ha 0 CWE reali sulle CVE target, quindi non poteva comunque aiutare — poteva solo far danni o essere neutro, ed è risultato neutro).
+---
+
+## Estensione 2026-07-23: stesso test sui file `_full`
+
+Motivazione: l'excerpt è il caso più favorevole (hint denso rispetto al contesto); il baseline "ufficiale" citato nel paper (doc 10, run `20260714T152535Z`) usa invece i file `_full` per UDR/AMF/UDM — serviva coprire anche quel caso prima di riportare una conclusione al team. Baseline no-hint riusato da doc 10 (nessun nuovo run necessario per quel lato); nuovo run solo per l'hint attivo: `--experiment-id 1A_sast_hint_full`, stessi 3 task (`task6_vuln_udr_full`, `task7_vuln_amf_full`, `task8_vuln_udm_full`), 3 ripetizioni. PCF non ha una variante `_full`, resta coperto dal test excerpt sopra.
+
+### Risultati `_full` — Detection (M2/M3, final answer, pooled per task)
+
+| Task (`_full`) | TP hint | FP hint | Recall hint | Prec. hint | TP no-hint | FP no-hint | Recall no-hint | Prec. no-hint |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| UDR | 9 | 14 | 50.0% | 39.1% | 6 | 13 | 33.3% | 31.6% |
+| AMF | 3 | 29 | 100% | 9.4% | 3 | 16 | 100% | 15.8% |
+| UDM | 3 | 34 | 100% | 8.1% | 3 | 34 | 100% | 8.1% |
+| **Pooled** | **15** | **77** | **62.5%** | 16.3% | **12** | **63** | **50.0%** | 16.0% |
+
+### Conclusione (`_full`) — effetto misto, non più "nessun effetto"
+
+A differenza dell'excerpt, sui file `_full` l'hint ha un effetto **reale e task-dipendente**, non nullo:
+
+- **UDR migliora**: recall 33.3%→50.0% (3 CVE in più trovate su 18 possibili — delle 6 CVE target, quelle non visibili nell'excerpt), precision leggermente migliore (39.1% vs 31.6%). Qui l'hint aiuta genuinamente, probabilmente perché alcuni alert (anche se di stile) cadono vicino a handler realmente vulnerabili non coperti dall'excerpt, aumentando l'attenzione dell'agente su quelle zone del file lungo.
+- **AMF peggiora nettamente**: stesso TP (unica CVE target, sempre trovata), ma FP quasi raddoppiati (29 vs 16) → precision quasi dimezzata (9.4% vs 15.8%). Qui il rumore fa danni, confermando l'ipotesi originale — su questo task specifico.
+- **UDM è identico**: stessi 34 FP finali in entrambe le condizioni (differisce solo il first-attempt prima dei retry, poi convergono).
+- **Pooled**: recall sale (50.0%→62.5%, trainata da UDR), precision resta piatta (16.0%→16.3%), F1 leggermente migliore — ma la media nasconde la storia vera, che è per-task.
+
+**Messaggio da riportare al team:** l'effetto del rumore SonarQube nel prompt **non è uniforme** — dipende dal task e dal contesto (corto vs lungo). Non è "fa sempre danni" (ipotesi originale, falsificata su 3 task su 4) né "non fa mai danni" (falsificato da AMF `_full`). Su contesto lungo può sia aiutare (UDR, probabilmente per localizzazione incidentale) sia danneggiare (AMF, rumore puro) nello stesso identico setup di prompt/framing — la direzione dell'effetto sembra dipendere da dove cadono gli alert rispetto alle vulnerabilità reali del file, non da una proprietà generale del "rumore".
 
 ## File prodotti
 
 - `utils/sast_hint.py`, `config.SAST_HINT_ENABLED`/`SAST_HINT_DATASET_PATH`, blocco testo in `agents/prompts.py`
 - `docs/sast_tools/ground_truth_vuln_files.json` (dati), `docs/sast_tools/install_log.md` (ledger tool esterni, skill `sast-tools-lifecycle`)
-- Risultati: `results/*/1A_sast_hint/`, `results/*/1A_no_hint_excerpt/` (non committati, salvo richiesta esplicita)
+- Risultati: `results/*/1A_sast_hint/`, `results/*/1A_no_hint_excerpt/`, `results/*/1A_sast_hint_full/` (baseline `_full` no-hint riusata da `results/*/1A/` esistente) — non committati, salvo richiesta esplicita

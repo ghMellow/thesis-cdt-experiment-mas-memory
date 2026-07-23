@@ -170,5 +170,81 @@
   "agent/task8_vuln_udm/e20588ef8a33ab4a": {
     "equivalent": true,
     "explanation": "All three passages identify the same vulnerability (inconsistent SUPI input validation), list the same affected and non-affected handlers, describe the same security risks (injection, DoS, and data leakage), and propose the same fix (consistent use of validator.IsValidSupi)."
+  },
+  "agent/task6_vuln_udr_full/c8180f05eebf6ca8": {
+    "equivalent": false,
+    "explanation": "The reasonings differ on the fourth point: the first identifies a logic error involving a missing return statement after a 404 response, while the second and third identify a NoSQL query manipulation/enumeration vulnerability in HandleApplicationDataInfluenceDataGet."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlecreateeesubscriptions/15cfc7fe72474c88": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the Integrity impacts (SI:L vs SI:N) and Privileges Required (PR:H vs PR:L)."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlequeryeesubscriptions/b282a4337823db62": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in critical metrics, including Privileges Required (PR), Confidentiality (VC), Integrity (VI), and Availability (VA)."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlepolicydatauesueidsmdataget/6e24dd7e0511d53f": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their Confidentiality (VC), Availability (VA), and Privileges Required (PR) metrics."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlequerysmdata/4a368be39bf04895": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the Privileges Required (PR) and Confidentiality/Availability (VC/VA) metrics."
+  },
+  "agent/task7_vuln_amf_full/155a7e194e14376d": {
+    "equivalent": false,
+    "explanation": "The three reasonings identify different sets of vulnerabilities: the first mentions unbounded memory allocation (DoS) and a missing default case in a switch block, the second includes a specific API implementation error in HTTPN1N2MessageTransfer, and the third identifies a type inconsistency in context storage (CWE-704) not mentioned in the others."
+  },
+  "unmatched/task7_vuln_amf_full/agent/httpamfstatuschangesubscribemodify/e5e5eb49527a1efc": {
+    "equivalent": false,
+    "explanation": "The reasoning passages provide different CVSS vectors, indicating different assessments of vulnerability severity and impact."
+  },
+  "unmatched/task7_vuln_amf_full/agent/httpcreateuecontext/60eb968c3b562482": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the 'SA' (Safety) and 'PR' (Privileges Required) components."
+  },
+  "unmatched/task7_vuln_amf_full/agent/httpebiassignment/a5571378a73e4514": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their parameters for Privileges Required (PR:L vs PR:N) and Safety/Availability (SA:H vs SA:N)."
+  },
+  "unmatched/task7_vuln_amf_full/agent/httpregistrationstatusupdate/4ac743f8fc1a9245": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the PR (Privileges Required) and SA (Safety/Scope) metrics across the three passages."
+  },
+  "unmatched/task7_vuln_amf_full/agent/httpreleaseuecontext/768eebc8d3224656": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their PR (Privileges Required) and SA (Security Assurance/Scope) values."
+  },
+  "unmatched/task7_vuln_amf_full/agent/httpn1n2messagetransfer/30fc5c54121edecc": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors are different, specifically varying in PR (Privileges Required), VI (Information Integrity), VA (Availability), and SA (Safety) metrics."
+  },
+  "unmatched/task7_vuln_amf_full/agent/httpn1n2messagesubscribe/1898899e0bdb676d": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their ratings for Confidentiality, Availability, and Privileges Required."
+  },
+  "unmatched/task7_vuln_amf_full/agent/httpamfstatuschangesubscribe/ece111820a91d7c5": {
+    "equivalent": false,
+    "explanation": "The reasoning passages provide different CVSS vectors, varying in confidentiality (VC), availability (VA), and authentication requirements (PR)."
+  },
+  "agent/task8_vuln_udm_full/d613553c10215f9d": {
+    "equivalent": true,
+    "explanation": "All three passages identify the same four core vulnerabilities: missing SUPI/UEID input validation in specific handlers, unsafe JSON parsing/handling of the plmn-id query parameter, information leakage via raw error messages in the ProblemDetails response, and fragile routing logic using strings.Contains."
+  },
+  "unmatched/task8_vuln_udm_full/agent/getplmnidstruct/eb83b62dc27cfb40": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the Availability requirement (VA:H vs VA:L)."
+  },
+  "unmatched/task8_vuln_udm_full/agent/onelayerpathhandlerfunc/fd92fa2bdf423fd0": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the Scope (SC, SI, SA) metrics: the first passage assigns them 'L' (Low), while the second assigns them 'N' (None)."
+  },
+  "unmatched/task8_vuln_udm_full/agent/twolayerpathhandlerfunc/be4a9de6be5df5d8": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their Availability (VA), Scope (SC), and Integrity (SI) metrics."
+  },
+  "unmatched/task8_vuln_udm_full/agent/handlemodifyforshareddata/a807e8bbc5a45df4": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their impact metrics, specifically regarding integrity and availability (L vs N)."
   }
 }

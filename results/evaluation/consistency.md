@@ -26,3 +26,10 @@
 - 1A_no_hint_excerpt agent task7_vuln_amf: rep 3 differs from rep 2
 - 1A_no_hint_excerpt agent task8_vuln_udm: rep 2 differs from rep 1
 - 1A_no_hint_excerpt agent task8_vuln_udm: rep 3 differs from rep 2
+
+- 1A_sast_hint_full agent task6_vuln_udr_full: rep 2 differs from rep 1
+- 1A_sast_hint_full agent task6_vuln_udr_full: rep 3 differs from rep 2
+- 1A_sast_hint_full agent task7_vuln_amf_full: rep 2 differs from rep 1
+- 1A_sast_hint_full agent task7_vuln_amf_full: rep 3 differs from rep 2
+- 1A_sast_hint_full agent task8_vuln_udm_full: rep 2 differs from rep 1
+- 1A_sast_hint_full agent task8_vuln_udm_full: rep 3 differs from rep 2
