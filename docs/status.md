@@ -46,7 +46,7 @@ Sistema operativo. 12 task disponibili, framework LangGraph con retry/judge/toke
 | --- | --- |
 | `task1_math_int`, `task2_math_real` | math |
 | `task3_anomaly`, `task4_rootcause` | textual 5G |
-| `task5_vuln_pcf` | security review PCF |
+| `task5_vuln_pcf` | security review PCF — file già completo (65 righe), nessuna variante `_full` separata: nei confronti excerpt/full va contato lato "file completo" |
 | `task6_vuln_udr` | security review UDR excerpt |
 | `task6_vuln_udr_full` | security review UDR file completo (2891 righe) |
 | `task7_vuln_amf` | security review AMF excerpt |

@@ -1,6 +1,8 @@
-# 08 — Guida alle metriche M/S: significato, uso e interpretazione (2026-07-17)
+# 08 — Guida alle metriche M/S: significato, uso e interpretazione (2026-07-17, aggiornata 2026-08-01)
 
 > Guida di lettura **autocontenuta** per le tabelle di `results/evaluation/` (report per-task e `comparison.md`). Le legende nei report sono il promemoria rapido; questo documento è la spiegazione completa — nasce dalla call 13 (`00_call13.md`), dove le legende da sole non sono bastate. Definizioni formali originali: `00_proposta_relatore.md` §5; storia dell'implementazione: `07_metriche_M_S_2026-07-14.md`; codice: `utils/cvss_eval.py` (calcolo) e `utils/evaluation_utils.py` (report).
+>
+> **Il run usato come esempio in questa guida resta `20260714T152535Z`** (task5-9, 3 ripetizioni ciascuno, unico setup con tutti e 5 i task sotto lo stesso esperimento). Dal 2026-07-17 sono stati raccolti altri run (hint SAST, varianti excerpt/full di task5-8) ma su un sottoinsieme diverso di task e come condizioni sperimentali distinte, non come ripetizioni in più dello stesso esperimento: mescolarli in questa guida confonderebbe l'esempio didattico con un confronto tra condizioni. Per quei run vedi i report `result_task*_1A_sast_hint*.md`/`result_task*_1A_no_hint_excerpt.md`/`_full.md` in `results/evaluation/` e `docs/sgv_protocol/11_sast_hint_noise_test_2026-07-21.md`. L'aggiornamento 2026-08-01 riguarda solo i punti sotto diventati obsoleti alla luce di analisi successive, non un cambio di run.
 
 ## 1. Come nascono i numeri: la pipeline di valutazione
 
@@ -126,11 +128,13 @@ Il link unmatched→CVE è deterministico (confronto con l'elenco completo di ha
 
 Il matching consuma la CVE al **primo** finding (in ordine di output dell'agente) la cui funzione corrisponde a un handler. Se nella stessa ripetizione ci sono due finding sullo *stesso* handler, quale dei due diventa il TP — e quindi quale vettore leggono le S — dipende solo da quell'ordine. Non è risolvibile in modo pulito: l'unica identità disponibile è il nome della funzione, e qualunque tie-break che guardi la GT (es. "prendi il vettore più vicino") farebbe leakage della GT nell'accoppiamento gonfiando le S. Le M non sono toccate in nessun caso (la CVE conta matched una volta sola, l'altro finding va negli unmatched).
 
-Impatto misurato sul run corrente: 3 casi di doppio finding sullo stesso handler, di cui **uno solo** su un handler di CVE target (task7 rep 1, `HTTPUEContextTransfer`) — e lì i due vettori sono **identici**, quindi oggi l'effetto sulle S è zero. Resta una fragilità strutturale da conoscere quando si leggono le S su run futuri.
+Impatto misurato sul run corrente (20260714T152535Z): 3 casi di doppio finding sullo stesso handler, di cui **uno solo** su un handler di CVE target (task7 rep 1, `HTTPUEContextTransfer`) — e lì i due vettori sono **identici**, quindi su questo run l'effetto sulle S è zero.
+
+**Aggiornamento 2026-08-01**: su tutti i run disponibili oggi (non solo questo), il caso non è raro come sembrava da questo singolo run — sono 18 le ripetizioni con handler duplicato, concentrate soprattutto su poche funzioni lato AMF (`httpuecontexttransfer`, `setcorsheader`, `httpcreateuecontext`), coerente con l'osservazione che i falsi positivi su AMF sono in parte bundling per-funzione più CVE distinte riportate sotto lo stesso handler. Resta una fragilità strutturale reale, non solo teorica — dettaglio quantitativo: `docs/findings.md` F23.
 
 ## 5. Metriche fuori dal blocco CVSS
 
-- **`accuracy` (rubrica)** in testa a `comparison.md`: quota di ripetizioni promosse dal giudice LLM con la rubrica. Misura il *gate di accettazione*, non la detection — un report può passare la rubrica dicendo solo cose vere e incomplete (il buco di completezza documentato nei doc 10–13 di `judge_rubric/`).
+- **`accuracy` (rubrica)** in testa a `comparison.md`: quota di ripetizioni promosse dal giudice LLM con la rubrica. Misura il *gate di accettazione*, non la detection — un report può passare la rubrica dicendo solo cose vere e incomplete (il buco di completezza è confermato strutturale nei doc 10–14 di `judge_rubric/`, sintetizzati in `judge_rubric/15_stato_attuale_gtfree.md`: nemmeno la rubrica GT-free v2, la migliore misurata, riesce a chiuderlo senza un enumeratore esterno di candidate).
 - **`consistency.md`**: confronto tra ripetizioni successive dello stesso task (equivalenza semantica via LLM). Sul run corrente ogni ripetizione differisce dalla precedente su tutti i task → le conclusioni da run singole sono fragili, e le 3 ripetizioni sono il minimo per dire qualcosa.
 
 ## 6. Come leggere un report in pratica
@@ -167,7 +171,7 @@ Ordine di lettura consigliato davanti a una tabella nuova:
 
 ## 8. Dove sta cosa
 
-| Cosa                                             | Dove                                                                                                                         |
+| Cosa                                              | Dove                                                                                                                         |
 | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
 | Definizioni formali (proposta relatore)          | `docs/sgv_protocol/00_proposta_relatore.md` §5                                                                               |
 | Storia dell'implementazione e decisioni          | `docs/sgv_protocol/07_metriche_M_S_2026-07-14.md`                                                                            |
@@ -177,3 +181,7 @@ Ordine di lettura consigliato davanti a una tabella nuova:
 | Report generati                                  | `results/evaluation/` (per-task + `comparison.md` + `consistency.md`)                                                        |
 | Rigenerare i report su un run                    | `poetry run python -m utils.evaluation_utils --run-id <id>` (`--list-runs` per elencarli)                                    |
 | Ricalcolare le valutazioni CVSS retroattivamente | `poetry run python -m utils.cvss_eval`                                                                                       |
+| Vista trasversale code-as-truth di questo blocco | `docs/codemap/mappa_sistema.md` §6 (definizioni ancorate al codice) e §4/ADR-11 (rubrica GT-free)                            |
+| Frequenza reale dei duplicati first-match (F23)  | `docs/findings.md`                                                                                                           |
+| Stato attuale rubrica GT-free (v1/v2/v3)         | `docs/judge_rubric/15_stato_attuale_gtfree.md`                                                                               |
+| Run con hint SAST / varianti excerpt-full        | `results/evaluation/result_task*_1A_sast_hint*.md`, `docs/sgv_protocol/11_sast_hint_noise_test_2026-07-21.md`                |

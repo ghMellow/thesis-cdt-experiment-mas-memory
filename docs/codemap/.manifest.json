@@ -1,0 +1,69 @@
+{
+  "generated_at_commit": "acf6e218a5796606f8771ffa000ffb902778cdbc",
+  "generated_at_date": "2026-07-23",
+  "files": {
+    "01_orchestrazione.md": {
+      "sources": {
+        "main.py": "e017557cf38c136786ff0503e0a9cb775ae0fd33",
+        "config.py": "c5e5dd371c4a1058224a67d3775fb74c86618ed1"
+      }
+    },
+    "02_langgraph_state_machine.md": {
+      "sources": {
+        "utils/experiment_utils.py": "32e21c1e60778fa8872b5d7c4ed612516934a4c2"
+      }
+    },
+    "03_agenti_llm.md": {
+      "sources": {
+        "agents/agent_runner.py": "b047597dc556115a0dd06246157eaf48d01a28a4",
+        "agents/_llm_utils.py": "21cb72adbc4c2ccc4af43a1236f4aad40638be6e",
+        "agents/judge_agent.py": "567837b707ac8f468af5cd068d17042b4159cab6",
+        "agents/prompts.py": "0fb13b50e1aab30901a0e155a0e41323c3093be3"
+      }
+    },
+    "04_task_loader.md": {
+      "sources": {
+        "utils/task_utils.py": "c5e5dd371c4a1058224a67d3775fb74c86618ed1"
+      }
+    },
+    "05_valutazione_metriche.md": {
+      "sources": {
+        "utils/evaluation_utils.py": "96285e3bf5874d1159ae4f251f07e384d4963bfd"
+      }
+    },
+    "06_cvss_scoring.md": {
+      "sources": {
+        "utils/cvss_eval.py": "96285e3bf5874d1159ae4f251f07e384d4963bfd",
+        "utils/cvss_utils.py": "02603a04b29c7309dcf8309070646f875fc3f6fa"
+      }
+    },
+    "07_sgv_gate.md": {
+      "sources": {
+        "utils/sgv.py": "5d97f35392246966754a1aef014b6b2db8c96d59",
+        "utils/sast_hint.py": "c5e5dd371c4a1058224a67d3775fb74c86618ed1"
+      }
+    },
+    "08_script_calibrazione.md": {
+      "sources": {
+        "scripts/judge_calibration/calibrate_threshold.py": "0e1bd50c57138c4f6b60678c2b7459a85ef917bf",
+        "scripts/judge_calibration/rejudge_cross_family.py": "0e1bd50c57138c4f6b60678c2b7459a85ef917bf",
+        "scripts/judge_calibration/run_c1c2.py": "0e1bd50c57138c4f6b60678c2b7459a85ef917bf",
+        "scripts/judge_calibration/run_gtfree_rubric.py": "8803cb9507f749163cec87cf5d6ead9549bb4d77"
+      }
+    },
+    "flusso.md": {
+      "type": "cross-cutting",
+      "note": "Sintesi trasversale derivata dagli altri file di questa cartella (01-08), non da una lettura diretta del codice. Staleness = se uno qualsiasi dei file tecnici 01-08 elencati sotto viene rigenerato con contenuto sostanzialmente diverso (non solo hash del sorgente cambiato, ma sezione usata da flusso.md effettivamente toccata).",
+      "derived_from": [
+        "01_orchestrazione.md",
+        "02_langgraph_state_machine.md",
+        "03_agenti_llm.md",
+        "05_valutazione_metriche.md",
+        "06_cvss_scoring.md",
+        "07_sgv_gate.md",
+        "08_script_calibrazione.md"
+      ],
+      "generated_at_commit": "acf6e218a5796606f8771ffa000ffb902778cdbc"
+    }
+  }
+}

@@ -41,16 +41,19 @@ Confrontato il contenuto dei finding non matchati (non solo il numero) per AMF/U
 
 ## Estensione 2026-07-23: stesso test sui file `_full`
 
-Motivazione: l'excerpt è il caso più favorevole (hint denso rispetto al contesto); il baseline "ufficiale" citato nel paper (doc 10, run `20260714T152535Z`) usa invece i file `_full` per UDR/AMF/UDM — serviva coprire anche quel caso prima di riportare una conclusione al team. Baseline no-hint riusato da doc 10 (nessun nuovo run necessario per quel lato); nuovo run solo per l'hint attivo: `--experiment-id 1A_sast_hint_full`, stessi 3 task (`task6_vuln_udr_full`, `task7_vuln_amf_full`, `task8_vuln_udm_full`), 3 ripetizioni. PCF non ha una variante `_full`, resta coperto dal test excerpt sopra.
+Motivazione: l'excerpt è il caso più favorevole (hint denso rispetto al contesto); il baseline "ufficiale" citato nel paper (doc 10, run `20260714T152535Z`) usa invece i file `_full` per UDR/AMF/UDM — serviva coprire anche quel caso prima di riportare una conclusione al team. Baseline no-hint riusato da doc 10 (nessun nuovo run necessario per quel lato); nuovo run solo per l'hint attivo: `--experiment-id 1A_sast_hint_full`, stessi 3 task (`task6_vuln_udr_full`, `task7_vuln_amf_full`, `task8_vuln_udm_full`), 3 ripetizioni.
+
+> ⚠️ **Correzione (2026-07-23, sollevata dal team):** PCF **era escluso a torto** dalla tabella sotto — riportato ora. `File_Free5gc_Vulnerabili/PCF/api_oam.go` è **65 righe** (contro 2891 di UDR, 501 di AMF, 858 di UDM): il task `task5_vuln_pcf.md` incorpora l'intero file (stesse 3 funzioni del sorgente, verificato), quindi l'unica versione esistente di PCF **è già** il file completo — non un excerpt di qualcosa di più lungo. Il test excerpt fatto all'inizio su PCF, quindi, è già un test su file completo, e va conteggiato in questa tabella (dati già disponibili, nessun nuovo run necessario). PCF non ha una seconda variante `_full` solo perché non ne ha mai avuto bisogno (il file era già abbastanza corto).
 
 ### Risultati `_full` — Detection (M2/M3, final answer, pooled per task)
 
-| Task (`_full`) | TP hint | FP hint | Recall hint | Prec. hint | TP no-hint | FP no-hint | Recall no-hint | Prec. no-hint |
+| Task (file completo) | TP hint | FP hint | Recall hint | Prec. hint | TP no-hint | FP no-hint | Recall no-hint | Prec. no-hint |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| UDR | 9 | 14 | 50.0% | 39.1% | 6 | 13 | 33.3% | 31.6% |
-| AMF | 3 | 29 | 100% | 9.4% | 3 | 16 | 100% | 15.8% |
-| UDM | 3 | 34 | 100% | 8.1% | 3 | 34 | 100% | 8.1% |
-| **Pooled** | **15** | **77** | **62.5%** | 16.3% | **12** | **63** | **50.0%** | 16.0% |
+| PCF (65 righe, unica versione) | 3 | 4 | 100% | 42.9% | 3 | 5 | 100% | 37.5% |
+| UDR (`_full`, 2891 righe) | 9 | 14 | 50.0% | 39.1% | 6 | 13 | 33.3% | 31.6% |
+| AMF (`_full`, 501 righe) | 3 | 29 | 100% | 9.4% | 3 | 16 | 100% | 15.8% |
+| UDM (`_full`, 858 righe) | 3 | 34 | 100% | 8.1% | 3 | 34 | 100% | 8.1% |
+| **Pooled** | **18** | **81** | **66.7%** | 18.2% | **15** | **68** | **55.6%** | 18.1% |
 
 ### Conclusione (`_full`) — effetto misto, non più "nessun effetto"
 
@@ -59,7 +62,7 @@ A differenza dell'excerpt, sui file `_full` l'hint ha un effetto **reale e task-
 - **UDR migliora**: recall 33.3%→50.0% (3 CVE in più trovate su 18 possibili — delle 6 CVE target, quelle non visibili nell'excerpt), precision leggermente migliore (39.1% vs 31.6%). Qui l'hint aiuta genuinamente, probabilmente perché alcuni alert (anche se di stile) cadono vicino a handler realmente vulnerabili non coperti dall'excerpt, aumentando l'attenzione dell'agente su quelle zone del file lungo.
 - **AMF peggiora nettamente**: stesso TP (unica CVE target, sempre trovata), ma FP quasi raddoppiati (29 vs 16) → precision quasi dimezzata (9.4% vs 15.8%). Qui il rumore fa danni, confermando l'ipotesi originale — su questo task specifico.
 - **UDM è identico**: stessi 34 FP finali in entrambe le condizioni (differisce solo il first-attempt prima dei retry, poi convergono).
-- **Pooled**: recall sale (50.0%→62.5%, trainata da UDR), precision resta piatta (16.0%→16.3%), F1 leggermente migliore — ma la media nasconde la storia vera, che è per-task.
+- **Pooled**: recall sale (55.6%→66.7%, trainata da UDR), precision resta piatta (18.1%→18.2%), F1 leggermente migliore — ma la media nasconde la storia vera, che è per-task. (PCF, identico al 100%/100% in entrambe le condizioni, non sposta il confronto: alza il livello assoluto di recall/precision ma non discrimina hint vs no-hint.)
 
 ### Verifica per-ripetizione (2026-07-23, prima di riportare) — UDR fragile, AMF più solido
 

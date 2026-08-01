@@ -4,6 +4,8 @@
 **Tipo:** textual  
 **Difficoltà:** media
 
+> Nota (2026-07-23): `File_Free5gc_Vulnerabili/PCF/api_oam.go` è di sole 65 righe — il codice sotto **è il file intero**, non un estratto. A differenza di UDR/AMF/UDM, questo task non ha una variante `_full` separata perché non ne ha mai avuto bisogno. Nelle analisi che confrontano "excerpt vs file completo" (es. `docs/sgv_protocol/11`), questo task va conteggiato lato "file completo".
+
 ---
 
 ## Scenario

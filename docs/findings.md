@@ -476,3 +476,27 @@ Il paradosso beginner > expert è un effetto framing × capacità confinato alla
 
 **Fonte:** `results/evaluation/result_task*_framing_B2.md`, `docs/experiments_framing.md` §B2
 
+---
+
+## F23 — Matching finding↔CVE per nome handler (first-match): quanto è frequente il caso ambiguo, con dati reali
+
+**Contesto:** il matching fra un finding dichiarato dall'agente e una CVE di ground truth avviene per containment sul nome funzione, con semantica first-match: se in una ripetizione l'agente cita due volte lo stesso handler, solo la prima occorrenza viene associata alla CVE, la seconda resta "unmatched" (vedi `docs/codemap/mappa_sistema.md` ADR-8, `utils/cvss_eval.py:165`). In una sessione di analisi (2026-07-17) era emerso il dubbio se questo fosse un caso raro e trascurabile o un problema sistematico: se lo stesso handler compare due volte, non c'è garanzia che la prima occorrenza sia davvero quella "giusta", e il rischio era di sottostimare il numero di finding realmente distinti.
+
+**Verifica quantitativa (snapshot 2026-08-01, tutti gli esperimenti/task presenti in `results/` in locale):**
+
+Contando le ripetizioni in cui lo stesso handler compare più di una volta tra i finding (matched + unmatched) di quella ripetizione:
+
+| Metrica | Valore |
+| --- | --- |
+| Ripetizioni totali con almeno un handler duplicato | 18 |
+| Task coinvolti | `task7_vuln_amf` (10), `task7_vuln_amf_full` (7), `task5_vuln_pcf` (6), `task8_vuln_udm_full` (3) |
+| Handler più coinvolti | `httpuecontexttransfer` (8 ripetizioni), `setcorsheader` (6), `httpcreateuecontext` (6), `httpamfstatuschangesubscribemodify` (2) |
+
+**Interpretazione:** il caso non è un edge case isolato, è un pattern ricorrente e concentrato su un piccolo insieme di handler, quasi tutti lato AMF (`task7_vuln_amf`/`_full`). Questo è coerente con l'osservazione più recente del progetto ("AMF FP spiegati come bundling per-funzione", commit `acf6e21`): più CVE distinte finiscono associate allo stesso handler perché l'agente le raggruppa per funzione invece che per vulnerabilità, e il matching first-match non ha modo di distinguerle a valle.
+
+**Perché non è stato cambiato l'algoritmo:** un tie-break che scelga quale occorrenza duplicata associare alla GT in base a quale ha il vettore CVSS più vicino a quello pubblicato "sbircerebbe" la ground truth per decidere l'accoppiamento, gonfiando artificialmente le metriche di severità (S) verso l'alto (motivazione originale in `utils/cvss_eval.py:165`, ADR-8). La scelta attuale resta quindi first-match deterministico, ma con la consapevolezza, ora quantificata, che il caso non è raro: è la ragione concreta per cui esiste la tabella "unmatched findings" dedicata al triage manuale nei report.
+
+**Prossimo passo se si vuole approfondire:** una vera analisi di sensibilità (quanto cambiano M1-M3/S1-S3 con un criterio di matching diverso, es. "conta tutte le occorrenze distinte" invece di first-match) richiede di ricalcolare le metriche con un matching alternativo sugli stessi dati grezzi e confrontare. Non ancora fatto: è un esperimento a sé, non solo una verifica di frequenza.
+
+**Fonte:** analisi diretta sui file `results/task*/*/*/*.json` presenti localmente (non versionati), script ad-hoc con `Counter` sui campi `matched`/`unmatched` di ogni ripetizione; sessione originaria che ha sollevato il dubbio: chat Claude Code del 2026-07-17 (`01e3ad95-1fef-4597-a8f3-511d08205e81`).
+
