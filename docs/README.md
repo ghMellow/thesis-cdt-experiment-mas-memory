@@ -88,6 +88,15 @@ Cartella gemella di `sgv_protocol/` (che copre l'in-loop): qui si discute il **g
 | [judge_rubric/14_proposta_rifiuto_rubrica_v3.md](judge_rubric/14_proposta_rifiuto_rubrica_v3.md) | **Rifiuto v3** (dalla review completa dell'esperto, `docs/expert_review/`): aggiungeva `impact_mechanism_consistency` (coerenza impatto↔meccanismo) e granularità riscritta col mappazzone. Esito: **CGP +0.518 < v2 +0.600** (il criterio di coerenza non discrimina C1/C2, regala base ai C2), saturazione reale invariata (task6 11/11), M1-strict 9/12. La v3 è **rifiutata**: i difetti dell'esperto (bundling, completezza) vivono in artefatti che la rubrica non vede (`cvss_estimate`, enumeratore esterno), non nel testo del report |
 | [judge_rubric/15_stato_attuale_gtfree.md](judge_rubric/15_stato_attuale_gtfree.md) | **Sintesi** (2026-08-01) dei doc 10-14: perché esiste la rubrica GT-free, il banco di prova, tabella comparativa v1/v2/v3, perché v2 resta la migliore ma nessuna versione chiude il buco della completezza (serve un enumeratore esterno, non un'altra rubrica). Punto di ingresso unico invece di leggere i 5 documenti in ordine |
 
+## 🧩 Semantica esplicita / ontologia — discussione aperta
+
+Tema: aggiungere un validatore basato su ontologia (grafo di concetti/relazioni con vincoli formali) come controllo semantico esplicito, oggi assente dal codice (G2/G3 dell'SGV sono sintattici, il giudice LLM è semantica implicita). Nato da un precedente in `call_3.md` §8.4, concretizzato in call 15 (2026-07-29). **Nessuna implementazione**: azioni assegnate sono handoff fuori repo (condivisione materiale con un collaboratore esterno per costruire una prima bozza di ontologia).
+
+| Documento | Contenuto |
+|-----------|-----------|
+| [semantica_esplicita/00_call15_notazione_semantica_esplicita_2026-07-29.md](semantica_esplicita/00_call15_notazione_semantica_esplicita_2026-07-29.md) | Cos'è la semantica/notazione esplicita (ontologia vs semantica implicita LLM), come si collega ai rami A/B esistenti, stato nel codice (assente, verificato), collegamento al problema di matching finding↔CVE, nota di attenzione sul rischio di reintrodurre uno strato implicito se interrogata via LLM |
+| [semantica_esplicita/01_fattibilita_implementazione.md](semantica_esplicita/01_fattibilita_implementazione.md) | **Fattibilità**: passi pratici (ontologia, rappresentazione, grounding, dove agganciarla, calibrazione), cosa è fattibile subito vs cosa dipende da lavoro esterno, inghippi principali (circolarità con la GT, reintroduzione dello strato implicito, campione piccolo, ridondanza con G2/G3/G4), raccomandazione a partire piccolo fuori dal retry loop |
+
 ## 🔗 Matching CVE↔handler — discussione aperta (per ora chiusa)
 
 Tema specifico: cosa fare quando una CVE della ground truth copre più funzioni handler (oggi solo UDM, 6 handler gemelli) e il matching deterministico per nome funzione ne consuma solo una per ripetizione. Decisione presa: lasciare il codice invariato (non cambia le conclusioni già pubblicate, non c'è un vincolo esterno da rispettare, la roadmap GT-free lo rende meno centrale) — cartella aperta per tracciare l'evoluzione futura se il tema viene ripreso.
