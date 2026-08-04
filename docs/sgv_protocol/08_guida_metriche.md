@@ -49,6 +49,8 @@ Il divario tra le due righe misura cosa fa davvero il retry loop: se `final answ
 
 Conseguenza pratica: **la precision riportata è un limite inferiore** (floor) della precision vera. Se tra gli 84 unmatched del run corrente Lorenzo confermasse anche solo qualche vulnerabilità genuina, la precision reale salirebbe. Per questo la strategia concordata è validare i FP, **non** ottimizzare il sistema per azzerarli: forzare l'agente a trovare solo le 9 CVE note è overfitting sulla GT e uccide la generalizzazione (che è il caso d'uso finale: contesti *senza* ground truth).
 
+**Grezzo vs deduplicato — non confondere i due conteggi (aggiunto 2026-08-04).** I 63 FP di task5–8 sono un conteggio **per-ripetizione** (ogni funzione segnalata, in ogni run, conta 1 riga) — non 63 candidate distinte da validare. Il bundling per-handler descritto sopra (b) e nella sezione `group` più sotto ne gonfia il numero in modo sistematico: es. su AMF una singola diagnosi concettuale ("DoS via `GetRawData()` illimitato") viene scritta una volta per ciascuna delle 9 funzioni a cui l'agente la applica nella stessa ripetizione → 9 righe, 1 bug. Prima di mandare i finding a un validatore umano, quindi, serve un **passaggio di deduplicazione per pattern concettuale** — oggi fatto a mano, non dal sistema: per il giro "solo LLM" ha portato i 63 FP grezzi (task5-8) a **20 finding deduplicati** (`docs/expert_review/02_CVE_CVSS.docx.md`), di cui 10 confermati come nuove CVE da Lorenzo. Dettaglio e numeri per NF: `docs/sgv_protocol/10_dati_paper_no_sonarqube.md` (box di chiusura in cima).
+
 ## 3. Le metriche M — Detection
 
 ### M1 — Detection rate e coverage

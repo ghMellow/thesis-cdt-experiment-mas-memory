@@ -6,6 +6,8 @@
 
 Il run disponibile produce **84 finding non matchati (FP)** in totale, non i "~10 potenziali" che Lorenzo aveva dichiarato venerdì con la versione precedente del sistema. Di questi 84, **21 sono su task9** (0 CVE target mappate in quel task — ogni finding è per costruzione unmatched, non è rumore comparabile agli altri task). Restano **63 FP sui task5–8**. Prima di scrivere "il sistema trova tutte le CVE note + ne dà N potenziali" nel paper, va riconciliato questo numero con quanto dichiarato da Lorenzo (task aperto, non bloccante per compilare le tabelle sotto).
 
+> ✅ **Chiuso (2026-08-04):** i 63 FP sono il conteggio grezzo **per-ripetizione** (ogni funzione × ogni run conta come 1 riga), gonfiato dal bundling per-handler già documentato in doc 08 §"colonna `group`" — non 63 candidate distinte. Quello effettivamente girato a Lorenzo per la validazione (`docs/expert_review/02_CVE_CVSS.docx.md`) è una lista **deduplicata a mano per pattern concettuale**: **20 finding** (UDR 7, PCF 3, AMF 5, UDM 5), non 63 né 63/3. Di questi 20, **10 sono diventati nuove CVE** (UDR 4, PCF 0, AMF 2, UDM 4 — combacia col totale in fondo al documento di Lorenzo). Il "~10" che Lorenzo aveva dichiarato era quindi corretto fin dall'inizio: si riferiva ai finding già deduplicati, non al conteggio grezzo per-ripetizione che il sistema riporta nelle tabelle M2/M3. **Non c'è ancora un passaggio automatico di dedup nel sistema** — l'unica dedup esistente oggi è quella manuale fatta per preparare il documento per Lorenzo; le tabelle M2/M3 restano sul grezzo per costruzione (floor di precision, §2 doc 08).
+
 ---
 
 ## Tabella 1 — Detection & workload per network function (M2, M3)
@@ -38,6 +40,37 @@ Note per il testo:
 - **PCF è il caso ideale**: coverage e precision al 100%, alerts/TP = 1.0.
 - **UDR è il buco di completezza**: detection rate 100% ma coverage 33% — trova sempre qualcosa, mai tutto (4 CVE su 6 mai trovate in nessuna delle 3 ripetizioni, vedi CVE×repetition matrix in `comparison.md`).
 - **AMF/UDM sono il caso "trova ma annega nel rumore"**: recall 100%, precision bassa. Su UDM, 15 dei 34 unmatched condividono l'handler della CVE-2026-42459 già matchata (probabili duplicati, non 34 candidate distinte — colonna `group` nel report per-task).
+
+## Tabella 1bis — Con SAST guidance (2026-08-04)
+
+> Aggiunta in risposta a domanda diretta del team ("come cambia Tabella 1 con la SAST guidance?"). **Nessun run nuovo necessario**: i dati esistevano già dal test A/B di doc 11 (esperimenti `1A_sast_hint` per PCF, `1A_sast_hint_full` per UDR/AMF/UDM), sulla stessa identica granularità di file di Tabella 1 — qui solo riassemblati nello stesso formato per il confronto diretto. Fonte: `result_task5_vuln_pcf_1A_sast_hint.md`, `result_task{6,7,8}_vuln_*_full_1A_sast_hint_full.md` (n=3 ripetizioni, le prime 3 dell'estensione a n=10 di UDR — vedi nota sotto).
+
+```latex
+\begin{table}[t]
+\centering
+\caption{Detection performance and analyst workload with SAST-hint guidance (SonarQube alerts injected in the prompt), pooled over 3 repetitions per network function.}
+\label{tab:detection-sast-hint}
+\begin{tabular}{lrrrrrrr}
+\toprule
+NF & TP & FP & FN & Prec. & Rec. & F1 & Alerts/TP \\
+\midrule
+PCF & 3  & 4  & 0  & 42.9\%  & 100.0\% & 60.0\%  & 2.3 \\
+UDR & 9  & 14 & 9  & 39.1\%  & 50.0\%  & 44.0\%  & 2.6 \\
+AMF & 3  & 29 & 0  & 9.4\%   & 100.0\% & 17.1\%  & 10.7 \\
+UDM & 3  & 34 & 0  & 8.1\%   & 100.0\% & 15.0\%  & 12.3 \\
+\midrule
+Pooled & 18 & 81 & 9 & 18.2\% & 66.7\% & 28.4\% & 5.5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+```
+
+Note per il testo:
+
+- **Effetto non uniforme, non "sempre meglio"**: su UDR l'hint aiuta (recall 33.3%→50.0%, precision anche migliore 31.6%→39.1%); su AMF peggiora nettamente (FP quasi raddoppiati, 16→29, precision quasi dimezzata) — verificato che non è "13 vulnerabilità nuove allucinate" ma la stessa manciata di ~4 classi di bug applicata a più funzioni (bundling per-funzione, doc 11 §"AMF `_full`"); su UDM è identico (34 FP in entrambe le condizioni).
+- **Pooled**: recall +11pt (55.6%→66.7%), precision sostanzialmente piatta (19.2%→18.2%), alerts/TP leggermente peggiore (5.2→5.5) — più vulnerabilità vere trovate, a un costo di triage marginalmente più alto.
+- **UDR — robustezza confermata a n=10**: a n=3 il beneficio sembrava rumore campionario (le 3 CVE extra trovate solo in rep1). Esteso a n=10 ripetizioni per condizione: **confermato, non rumore** — recall 35.0%→50.0% e precision 29.6%→42.9%, migliora sia sulle CVE facili (8/10→10/10) sia sulle difficili (1/10→3/10 ciascuna). Dettaglio: doc 11 §"UDR `_full` portato a n=10".
+- **Confronto coi 63/84 FP grezzi discussi sopra**: anche qui gli 81 FP pooled sono grezzi per-ripetizione, non deduplicati — stessa cautela di lettura della nota di chiusura in cima al documento.
 
 ## Tabella 2 — Severity: exact match e baseline (S1, S3)
 
