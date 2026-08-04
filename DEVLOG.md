@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-08-04 — Chiarimento 63 FP grezzi vs 20 deduplicati vs 10 CVE; Tabella 1bis con SAST guidance  [sessione: 198b2f92-dec7-485f-b7ce-31e92c27b4fd]
+
+**Intent:** utente riporta due messaggi ricevuti dal team (verifica numeri per Lorenzo: FP totali 63 vs 10 CVE nuove confermate; richiesta di come cambia Tabella 1 con SAST guidance), poi chiede "vai lancia" per produrre la tabella guided mancante, poi "ok quindi se dovessi rispondere ai messaggi cosa scrivo?" e infine di mettere le modifiche nella "guida metriche"
+**Divergenze:** prima di lanciare un nuovo run (richiesto esplicitamente con "vai lancia"), ho controllato se i dati guided comparabili a Tabella 1 esistessero già — esistevano (`1A_sast_hint`/`1A_sast_hint_full` di doc 11, luglio), quindi non ho lanciato nulla e ho riassemblato la tabella da risultati già presenti, segnalandolo esplicitamente invece di eseguire l'istruzione alla lettera
+**Decisioni:** utente ha confermato di procedere con l'aggiornamento di entrambi i documenti proposti (doc 08 §2 e doc 10 box di chiusura + nuova Tabella 1bis), nessuna modifica rifiutata
+**Esito/Problemi:** chiarito che i 63 FP di Tabella 1 (task5-8) sono un conteggio grezzo per-ripetizione, gonfiato da bundling per-handler (già noto, colonna `group`); la lista effettivamente inviata a Lorenzo per validazione (`docs/expert_review/02_CVE_CVSS.docx.md`) è una dedup manuale a 20 finding concettuali, di cui 10 confermati nuove CVE — combacia col totale dichiarato da Lorenzo. Aggiunta Tabella 1bis (SAST guidance, n=3, stessa granularità di Tabella 1) in `docs/sgv_protocol/10_dati_paper_no_sonarqube.md`, chiuso il box "⚠️ Da chiudere" con nota ✅, aggiunto paragrafo dedup in `docs/sgv_protocol/08_guida_metriche.md` §2
+**Lesson learned:** prima di eseguire un comando esplicito ("lancia il run") che implica un costo (tempo/compute), verificare se il dato richiesto non sia già stato prodotto in un esperimento precedente con parametri equivalenti — in questo caso il test A/B di doc 11 copriva esattamente la stessa granularità di file di Tabella 1, solo mai assemblato in quel formato
+
+---
+
+## 2026-08-04 — Doc 02: correzione lettura "KPI scartati" → KPI come possibile sostituto della GT-JSON  [sessione: 4cc43a5e-8fef-4244-bdc2-aa22daeef410]
+
+**Intent:** utente, dopo aver letto la mia sintesi: "ma perché in call mi hanno detto che avrebbe senso usare transformer e LLM sui KPI?" — segnala che la mia lettura del passaggio garbled della trascrizione (righe 139-141) era invertita rispetto a quanto ricorda dalla call; poi, su mia richiesta di chiarimento, ricostruisce: "si diceva che al posto di usare i json si parte dalla definizione di ontologia e si arriva a creare un qualcosa basato su altre metriche es KPI... o puoi definire il dominio con l'ontologia oppure ne descrivi il sistema, da capire in questa seconda ottica come si vede"
+**Divergenze:** nessuna — non ho tentato di risolvere autonomamente l'ambiguità del garbled transcript, ho chiesto conferma diretta all'utente invece di tenere la lettura sbagliata o indovinarne un'altra
+**Decisioni:** aggiunto §3 "Correzione" nel doc 02 con nota ⚠️ esplicita; corretta la sintesi decisionale: KPI non scartati ma proposti come sostituto della GT-JSON (dato osservabile), ancora indefinito come si applichino; formalizzata la biforcazione dominio-vs-sistema riportata dall'utente; aggiunta sezione "Domande aperte da portare a Mario/Francesco" invece di inventare una risposta definitiva
+**Esito/Problemi:** nessuno; nessun codice toccato
+**Lesson learned:** su una trascrizione automatica rumorosa, una frase ambigua va verificata con chi era in call prima di scriverla come conclusione nel documento — non basta segnalare "trascrizione rumorosa" a posteriori se nel frattempo si è già scritta una sintesi con polarità invertita
+
+## 2026-08-04 — Doc 02 su semantica esplicita: no JSON GT, transformer vs LLM  [sessione: 4cc43a5e-8fef-4244-bdc2-aa22daeef410]
+
+**Intent:** utente, su una nuova trascrizione (`2026-07-29-sedicesima.md`, aperta in IDE): "usa già quanto discusso [00/01] per espandere il discorso e capire la fattibilità all'uso dei [ontologia/KG] quindi no alla json gt e poi anche come farlo se usare i transformer o LLM per creare esplicità e quindi ragionare su quella"
+**Divergenze:** segnalata nel doc una discrepanza di fonte non richiesta dall'utente (la trascrizione aperta è etichettata "sedicesima"/16ª ma nominata con la data della "quindicesima"/15ª, 2026-07-29); l'utente ha poi chiarito in chat che è un follow-up reale avvenuto oggi (2026-08-04), non un duplicato — il nome file riporta solo la data del template non ricompilato. Nota aggiornata di conseguenza nel doc.
+**Decisioni:** creato `docs/semantica_esplicita/02_call16_scope_senza_json_gt_transformer_vs_llm_2026-07-29.md`; riportata la correzione di Mario in call (righe 129-135 della trascrizione) che esclude esplicitamente la ground truth JSON come base dell'ontologia per questo repo — l'ontologia serve solo a formalizzare lo schema della risposta del framework, non il contenuto della GT (evita la circolarità già segnalata in 01); aggiunta come terza via di grounding (oltre a regex/keyword e LLM, già in 01) il mapping via Transformer/embedding discusso da Mario, con trade-off esplicitato (non puro pattern-matching, ma resta ispezionabile via soglia/distanza loggata)
+**Esito/Problemi:** nessuno; nessun codice toccato, solo documentazione
+**Lesson learned:** quando due trascrizioni con nomi ordinali diversi condividono la stessa data, non presumere siano la stessa call solo perché il contenuto sembra proseguire lo stesso filo — trattarle come fonti distinte finché l'utente non conferma
+
 ## 2026-07-31 — Rimossi tutti i trattini lunghi da `mappa_sistema.md`  [sessione: d6eb7fa3]
 
 **Intent:** utente: "ho trovato 68 di — ti avevo detto di toglierli, usa la punteggiatura umana come , andare a capo ; ecc"
