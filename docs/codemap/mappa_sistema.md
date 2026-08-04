@@ -2,6 +2,36 @@
 
 > Documento "code-as-truth": fonte esclusiva codice sorgente + git log/blame/show. Formato Mermaid/ADR, distinto da `codemap/flusso.md` (prosa minimale) e da `codemap/00_indice.md`/`narrativa/` (dettaglio per modulo). Questo file mappa pipeline, decisioni e domande aperte in un unico documento.
 
+## Indice
+
+- [Panoramica](#panoramica)
+- [Pipeline](#pipeline)
+  - [Vista d'insieme (livello blocchi)](#vista-dinsieme-livello-blocchi)
+  - [Flusso principale (per ripetizione)](#flusso-principale-per-ripetizione)
+  - [Macchina a stati del retry](#macchina-a-stati-del-retry)
+  - [Schema dati persistito](#schema-dati-persistito)
+- [Approfondimenti per blocco](#approfondimenti-per-blocco)
+  - [1. Come si costruisce il prompt](#1-come-si-costruisce-il-prompt-inviato-al-modello-load_task--assembly)
+  - [2. Il gate SGV (G1→G4)](#2-il-gate-sgv-g1g4-in-dettaglio-cosa-verifica-ognuno)
+  - [3. `check_answer`: matematico vs testuale](#3-check_answer-matematico-vs-testuale-e-come-è-fatta-la-rubrica)
+  - [4. La rubrica GT-free](#4-la-rubrica-gt-free-un-secondo-giudice-isolato-dal-flusso-principale)
+  - [5. Dalla persistenza al report](#5-dalla-persistenza-al-report-come-nasce-un-file-markdown)
+  - [6. Le metriche del blocco CVSS (M1-M5, S1-S3)](#6-le-metriche-del-blocco-cvss-m1-m5-s1-s3-cosa-misurano)
+  - [7. Sequenza di chiamate](#7-sequenza-di-chiamate-agente-gate-giudice-persistenza)
+- [Decisioni architetturali](#decisioni-architetturali)
+  - [ADR-1: Gate sintattico deterministico (SGV)](#adr-1-gate-sintattico-deterministico-sgv-prima-del-giudizio)
+  - [ADR-2: Nessun fallback LLM per G3](#adr-2-nessun-fallback-llm-per-il-controllo-g3-groundedness-snippet)
+  - [ADR-3: Unificazione dei ruoli agente](#adr-3-unificazione-dei-ruoli-agente-expertbeginner--ruolo-singolo)
+  - [ADR-4: Tagging `run_id`](#adr-4-tagging-run_id-per-una-reportistica-run-scoped)
+  - [ADR-5: Valutazione CVSS deterministica (Blocco B)](#adr-5-valutazione-cvss-deterministica-blocco-b-separata-dal-verdetto)
+  - [ADR-6: Ordine dei blocchi nel report finale](#adr-6-ordine-dei-blocchi-nel-report-finale-b--c--a)
+  - [ADR-7: Media micro/macro per le metriche di detection](#adr-7-media-micro-pooled-e-macro-per-task-per-le-metriche-di-detection)
+  - [ADR-8: Matching finding↔CVE per nome funzione](#adr-8-matching-findingcve-per-nome-funzione-first-match-senza-tie-break-gt-aware)
+  - [ADR-9: Rinomina pass@1/pass@k](#adr-9-rinomina-pass1passk--first-attemptfinal-answer)
+  - [ADR-10: Intervallo di confidenza 95% (t di Student)](#adr-10-intervallo-di-confidenza-al-95-con-distribuzione-t-di-student)
+  - [ADR-11: Rubrica GT-free come traccia separata](#adr-11-rubrica-gt-free-tenuta-come-traccia-di-calibrazione-separata-mai-promossa-nel-flusso-principale)
+- [Domande aperte](#domande-aperte)
+
 ## Panoramica
 
 > Questo documento copre solo il ramo di analisi statica del codice (questo repository). Il ramo di analisi dinamica/Digital Twin, che studia il comportamento della rete a runtime, è un sistema separato e non è coperto qui.
