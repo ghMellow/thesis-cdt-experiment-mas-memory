@@ -96,7 +96,7 @@ Sistema operativo. 12 task disponibili, framework LangGraph con retry/judge/toke
 - [ ] Retry con feedback del judge reiniettato
 - [ ] Rieseguire task6 blind (senza special attention) — baseline pulita
 - [ ] False positive rate tracking / task "controllo negativo"
-- [ ] Preparare estratti per validazione esperti 5G (task5, task7, task8)
+- [ ] **Decisione di gruppo rimandata: matching CVE↔handler quando una CVE copre più funzioni (oggi solo UDM, 6 handler gemelli)** — il consumo secco della CVE al primo finding matchato trasforma le citazioni corrette sui restanti handler in FP (misurato: 15/34 FP di UDM `_full` sono questo, non rumore). Due opzioni valutate (non implementate): A) contare ogni handler come match indipendente (cambia la definizione di TP/recall, tocca i numeri già pubblicati in doc 11); B) bucket "duplicato" a parte, TP/recall invariati, solo FP ridotto. Nessuna delle due cambia la conclusione hint=no-hint su UDM già riportata. Verificato inoltre che `handler_functions` (incluso il gruppo dei 6 per CVE-2026-42459) è un campo aggiunto da Claude, assente nei dati grezzi ricevuti (`cve_metrics (1).json`) — quindi non c'è un'"intenzione originale del relatore" da rispettare qui, è una scelta di design nostra. Lasciato invariato per ora: non blocca la roadmap verso una rubrica GT-free (dove il giudice qualitativo, non il matching deterministico, guiderà la valutazione)
 - [ ] Convertire output JSON in report Markdown strutturato per l'AI
 - [ ] Profiling sistematico VRAM/latency per modello
 
