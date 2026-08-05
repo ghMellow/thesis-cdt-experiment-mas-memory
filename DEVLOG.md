@@ -2,6 +2,15 @@
 
 ---
 
+## 2026-08-05 — `docs/index.md`: link espliciti a codice e file per ogni tabella del paper  [sessione: 3aca399a-165d-4b86-9d40-4c66a64f5502]
+
+**Intent:** richiesta iniziale "aggiungi nell'index i riferimenti al file dove c'è scritto topk" → poi, di fronte al link aggiunto solo per Precision@K, l'utente ha chiesto esplicitamente "quindi ok buildati dal py ma i dati sono nel comparison quindi? metti il link così basta premere", poi "ci sono altre tabelle in questo file che il materiale andrebbe linkato in index? come fatto per precisionK?" — richiesta di generalizzare lo stesso pattern (link a codice + dato) a tutte le voci non ancora linkate
+**Divergenze:** ho esteso il lavoro oltre Precision@K a tutti gli altri file/cartelle menzionati in `docs/index.md` senza link cliccabile (codemap/, cve_experiment/, sgv_protocol/00, expert_review/00-03, results_reference/, sast_tools/, tasks/task1-9, supporto/calls/, chat_exports/, i result_task*.md/comparison.md/consistency.md in results/evaluation/) — non solo le tabelle CVSS richieste, verificando prima con `[ -e ... ]` che ogni path esistesse realmente prima di linkarlo
+**Decisioni:** utente ha confermato il pattern "codice `utils/cvss_eval.py::funzione` / `utils/evaluation_utils.py::funzione`" per tutte le Tab.1-8 della mappa Overleaf in `docs/index.md`; nessun rifiuto, solo richieste di estensione progressiva
+**Esito/Problemi:** mappate a codice: Tab.1 `aggregate_detection_metrics`/`_build_detection_metrics_section`, Tab.2-3 `aggregate_severity_metrics`/`_build_severity_metrics_section`, Tab.4 `_build_cost_metrics_section` (nessuna funzione dedicata in `cvss_eval.py`), Tab.5 `aggregate_precision_at_k`/`_build_precision_at_k_section`, Tab.6 `compute_repetition_variability`/`_build_variability_section`, Tab.7 stessa `aggregate_detection_metrics` di Tab.1 su first-attempt vs final-answer, Tab.8 `_build_retry_channel_section`. Tutti i link verificati con un pass finale (`[ -e "$p" ]` su ogni match `](...)` estratto da grep)
+
+---
+
 ## 2026-08-05 — Match spurio CVE-2026-40249/40343 su UDR: correzione leggera via dataset duplicato  [sessione: d48a574e-7588-4f66-bd72-ee0682545a17]
 
 **Intent:** l'utente ha chiesto se in `docs/sgv_protocol/10_dati_paper_no_sonarqube.tex`/`12_dati_paper_sast_hint.tex` i TP andrebbero corretti in base alla review esperta di Lorenzo (`docs/expert_review/03_CVE_CVSS_sast.md`) quando un TP del giudice automatico non è in realtà un match valido; poi, di fronte alla mia proposta di modificare `utils/cvss_eval.py`/`evaluation_utils.py`, ha chiesto esplicitamente un approccio "light": file duplicati, non modifiche strutturali al codice di produzione
