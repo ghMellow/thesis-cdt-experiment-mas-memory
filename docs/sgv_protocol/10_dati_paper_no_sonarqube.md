@@ -148,7 +148,7 @@ Avg. judge tokens (in/out) & n/a$^{*}$ \\
 
 ## Numeri grezzi (per la narrativa dei Risultati, non tabella)
 
-- 9 CVE target totali (5 su task5/7/8, 1 ciascuna; 6 su task6) × 3 ripetizioni = 27 (CVE × rep) attese sui 4 task con GT.
+- 9 CVE target totali (3 su task5/7/8, 1 ciascuna; 6 su task6) × 3 ripetizioni = 27 (CVE × rep) attese sui 4 task con GT.
 - **TP = 15** → 5 CVE distinte su 9 trovate almeno una volta, e sempre in tutte e 3 le ripetizioni quando trovate (nessuna instabilità di campionamento — vedi CVE×repetition matrix).
 - **FN = 12** → le 4 CVE di UDR mai trovate, ×3 ripetizioni. Miss sistematico, non rumore.
 - **FP = 84** totali (63 sui 4 task con GT + 21 su task9 senza GT mappata) → tutti da validazione manuale (§2 doc 08: la precision riportata è un *floor*, non un valore assoluto).
