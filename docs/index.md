@@ -95,7 +95,7 @@ Report grezzi sottostanti, per task (`sast_hint` = con hint, `no_hint`/baseline 
 
 ---
 
-## Per il relatore: dati tabelle in LaTeX pronti per Overleaf
+## `sgv_protocol/` — cosa guardare per primo: i dati tabelle in LaTeX
 
 `sgv_protocol/` è la cartella più densa di `docs/` (16 documenti, verbali + implementazione + dati) — non è pensata per essere letta tutta. Se serve solo il **codice LaTeX delle tabelle del paper**, i due file da linkare direttamente sono:
 
