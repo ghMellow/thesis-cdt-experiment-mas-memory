@@ -2,6 +2,16 @@
 
 ---
 
+## 2026-08-05 — Correzione direzione provenienza: chi ha deduplicato i 63 FP  [sessione: 198b2f92-dec7-485f-b7ce-31e92c27b4fd]
+
+**Intent:** utente segnala due volte un fraintendimento nella mia spiegazione di ieri (`10_dati_paper_no_sonarqube.md`, `08_guida_metriche.md`): avevo scritto che il team aveva mandato a Lorenzo una lista *già deduplicata* (`docs/expert_review/02_CVE_CVSS.docx.md`); l'utente chiarisce che quel file **non** è mai stato inviato a Lorenzo — è il documento che **Lorenzo stesso** ha prodotto e rimandato al team (confermato da `01_chat_comments.md` §4: "vi condivido... CVE_CVSS.docx"), e che ciò che gli è stato dato in origine è "il flag ai results dei report" (accesso ai report grezzi in `results/evaluation/`)
+**Divergenze:** nessuna proposta oltre la correzione richiesta
+**Decisioni:** utente conferma la correzione (non chiede altro); ho corretto entrambi i documenti invertendo la direzione: dedup 63→20 e validazione 20→10 sono opera di Lorenzo stesso sui report grezzi, non un pre-filtro del team
+**Esito/Problemi:** nessun impatto sui numeri (63/20/10 restano invariati), solo sulla narrativa di chi ha fatto cosa — rilevante perché altrimenti nel paper si sarebbe attribuita al sistema/team una fase di dedup manuale che invece è validazione esperta esterna
+**Lesson learned:** quando si documenta un flusso multi-attore (chi manda cosa a chi), verificare la direzione con la fonte primaria (qui: il messaggio di chat di Lorenzo che dichiara di "condividere" il file) prima di scriverla nella doc — un'inferenza plausibile ("questo file sembra la lista pronta per la validazione") può avere la freccia invertita
+
+---
+
 ## 2026-08-04 — Chiarimento 63 FP grezzi vs 20 deduplicati vs 10 CVE; Tabella 1bis con SAST guidance  [sessione: 198b2f92-dec7-485f-b7ce-31e92c27b4fd]
 
 **Intent:** utente riporta due messaggi ricevuti dal team (verifica numeri per Lorenzo: FP totali 63 vs 10 CVE nuove confermate; richiesta di come cambia Tabella 1 con SAST guidance), poi chiede "vai lancia" per produrre la tabella guided mancante, poi "ok quindi se dovessi rispondere ai messaggi cosa scrivo?" e infine di mettere le modifiche nella "guida metriche"
