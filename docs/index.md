@@ -87,16 +87,13 @@ Non sono in una cartella fisica, ma appartengono concettualmente allo stesso gru
 
 Sintesi già pronta, non serve ricostruirla dai report grezzi: **[sgv_protocol/11_sast_hint_noise_test_2026-07-21.md](sgv_protocol/11_sast_hint_noise_test_2026-07-21.md)** — conclusione: su excerpt l'hint non fa danni misurabili (pooled 31.0% vs 30.5% precision); su file `_full` l'effetto è reale ma **task-dipendente** (UDR migliora, AMF peggiora nettamente, UDM identico), poi confermato a n=10 rep su UDR.
 
-Report grezzi sottostanti, per task (`sast_hint` = con hint, `no_hint`/baseline `_1A` = senza):
+Report grezzi sottostanti — solo le versioni `_full`, quelle effettivamente usate come dati per le tabelle LaTeX (`sast_hint` = con hint, `no_hint`/baseline `_1A` = senza). Gli excerpt (`_excerpt`, non elencati qui) sono stati solo di test preliminare, mai la fonte dei numeri riportati — vedi nota sopra: "su excerpt l'hint non fa danni misurabili... su file `_full` l'effetto è reale":
 
 | Task | Con hint | Senza hint |
 | --- | --- | --- |
-| PCF (task5, unica versione = full) | `result_task5_vuln_pcf_1A_sast_hint.md` | `result_task5_vuln_pcf_1A_no_hint_excerpt.md` |
-| UDR excerpt (task6) | `result_task6_vuln_udr_1A_sast_hint.md` | `result_task6_vuln_udr_1A_no_hint_excerpt.md` |
+| PCF (task5, unica versione = full) | `result_task5_vuln_pcf_1A_sast_hint.md` | `result_task5_vuln_pcf_1A.md` |
 | UDR full (task6, esteso a n=10) | `result_task6_vuln_udr_full_1A_sast_hint_full.md` | `result_task6_vuln_udr_full_1A_no_hint_full.md` |
-| AMF excerpt (task7) | `result_task7_vuln_amf_1A_sast_hint.md` | `result_task7_vuln_amf_1A_no_hint_excerpt.md` |
 | AMF full (task7) | `result_task7_vuln_amf_full_1A_sast_hint_full.md` | `result_task7_vuln_amf_full_1A.md` (baseline 1A riusato, non un file `_no_hint` dedicato) |
-| UDM excerpt (task8) | `result_task8_vuln_udm_1A_sast_hint.md` | `result_task8_vuln_udm_1A_no_hint_excerpt.md` |
 | UDM full (task8) | `result_task8_vuln_udm_full_1A_sast_hint_full.md` | `result_task8_vuln_udm_full_1A.md` (baseline 1A riusato) |
 
 ---
