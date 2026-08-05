@@ -109,6 +109,32 @@ Entrambi: numeri rigenerati dai payload grezzi con le stesse funzioni di `utils/
 
 **Prima di incollare i numeri**, leggi la versione prosa della condizione no-SAST — **[sgv_protocol/10_dati_paper_no_sonarqube.md](sgv_protocol/10_dati_paper_no_sonarqube.md)** — non solo il `.tex`: contiene le note di lettura per ogni tabella (es. "effetto non uniforme, non sempre meglio" su Tab.1bis) e il box di chiusura sulla riconciliazione dei numeri di Lorenzo (`docs/expert_review/02` vs `03`, 10 vs 10+2 nuove CVE — due conteggi reali distinti, uno per condizione, non un fraintendimento). Il `.tex` da solo non basta a evitare lo stesso giro di dubbi emerso in call sul 29/07.
 
+### Associazione tabelle locali ↔ tabelle su Overleaf
+
+I due `.tex` sopra sono la fonte dei dati; il paper vero vive su Overleaf e la sua struttura (numerazione, quali tabelle restano nel main body vs finiscono in appendice) **può cambiare nel tempo** senza che questi file lo riflettano subito — quindi questa mappa va trattata come "ultimo aggiornamento noto", non come verità sincronizzata automaticamente. Se una `\label{...}` qui sotto non esiste più su Overleaf, fidati di Overleaf e segnala la voce come da correggere.
+
+| Tabella (contenuto) | Label locale (`no_sonarqube` / `sast_hint`) | Sezione/numero su Overleaf | Divergenze note |
+| --- | --- | --- | --- |
+| Precision & alerts-per-TP per NF | `tab:detection-no-sast` / `tab:detection-sast-hint` | §IV.B, Tab. 1 / Tab. 1bis (SAST hint) | **Sì, vedi nota sotto** — Tab. 1 su Overleaf è stata modificata a mano |
+| Exact CVSS v4.0 vector match (S1) vs baseline modale (S3) | `tab:s1-s3` / `tab:s1-s3-hint` | §IV.B / RQ3, Tab. 2 | — |
+| Accuratezza per-metrica CVSS (S2) | `tab:s2` / `tab:s2-hint` | §IV.B / RQ3, Tab. 3 | — |
+| Costo computazionale (wall-clock) | `tab:cost` / `tab:cost-hint` | §IV.B, Tab. 4 | — |
+| Precision@K | `tab:precision-at-k` / `tab:precision-at-k-hint` | §IV.B / RQ2, Tab. 5 | — |
+| Variabilità run-to-run (TP/FP, mean±std, CI95) | `tab:variability` / `tab:variability-hint` | §IV.B, Tab. 6 | — |
+| Ablation retry loop (first attempt vs final answer) | `tab:ablation-retry` / `tab:ablation-retry-hint` | §IV.B, Tab. 7 | — |
+| Attribuzione per canale di retry (SGV vs rubrica) | `tab:ablation-channel` / `tab:ablation-channel-hint` | §IV.B, Tab. 8 | — |
+
+**Nota su Tab. 1 (`tab:detection-no-sast`, 2026-08-05):** la versione su Overleaf non è più una copia 1:1 del `.tex` locale. Modifiche a mano:
+
+- TP normalizzato a conteggio **per CVE distinta** (1 per NF), non più il pooled raw su 3 ripetizioni (`utils/evaluation_utils.py` dava TP=3/6/3/3 — qui diventa 1/1/1/1) — quindi niente più "×3 ripetizioni" nel conteggio mostrato.
+- Aggiunta colonna **New CVE**: candidati tra i finding non matchati, de-duplicati across le 3 ripetizioni (non conteggio per-ripetizione) e confermati genuini da review umana, ma senza CVE catalogata — sottoinsieme della colonna FP, non contano come TP e non entrano in Precision.
+- FN mostrato solo su UDR (5, in grassetto nell'originale) — le altre righe a 0.
+- Precision e Alerts/TP azzerate/non ricalcolate nella tabella incollata (valori a 0% / 0 in tutte le righe) — probabile placeholder in attesa di rifare il calcolo sul TP normalizzato, da verificare prima della submission.
+
+Questa tabella richiede quindi lettura diretta da Overleaf per i numeri effettivi, non dal `.tex` locale — il file locale resta la fonte per Tab. 2-8 e per il dato grezzo pre-normalizzazione di Tab. 1.
+
+Quando si aggiorna il paper su Overleaf (rinumerazione tabelle, spostamento in appendice, split/merge, altre modifiche a mano come questa), **aggiorna questa mappa nello stesso passaggio** — non aspettare un audit successivo.
+
 ---
 
 > Questo file è un indice *di orientamento*, non la fonte di verità sui contenuti — se un file viene spostato/rinominato e questa tabella non è stata aggiornata, fidati della struttura reale di `docs/` e di [README.md](README.md).

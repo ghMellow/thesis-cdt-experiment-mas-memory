@@ -2,6 +2,16 @@
 
 ---
 
+## 2026-08-05 — Prep call con team: refuso GT 5→3, indice solo file `_full`, CVE-2026-47780 mai matchata  [sessione: 3bed3cfa-2b15-4697-94a2-f8591f0c7407]
+
+**Intent:** l'utente ha incollato una discussione Slack del team (Andrea/Lorenzo) sui numeri delle tabelle in vista di una call imminente, chiedendo di riconciliare le cifre (26 vs 13 nuove CVE, 54 vs 63 FP, "5 CVE su 9 GT") prima di parlarne a voce; poi tre domande mirate: (1) l'indice `docs/index.md` elenca sia i report `_excerpt` sia `_full` come se fossero entrambi dati per le tabelle LaTeX, ma solo i `_full` lo sono; (2) "5+6 non fa 9" sulla frase "9 CVE target (5 su task5/7/8, 1 ciascuna; 6 su task6)"; (3) se la regex `|.+` (CVE-2026-47780, l'esperimento "singolarità") compare tra i finding non matchati nei run hint/no-hint di task6_vuln_udr
+**Divergenze:** nessuna proposta oltre le verifiche richieste, ma le verifiche hanno prodotto scoperte non richieste esplicitamente: (a) il documento di Lorenzo `03_CVE_CVSS_sast.md` contiene *tre* raggruppamenti di conteggio (10, 10+2=12, matrice-classe=13) con breakdown per-NF incoerenti tra loro (UDR 4 vs 4 vs 5, UDM 4 vs 6 vs 6) — non risolvibile da questo repo, segnalato come domanda da fare a Lorenzo in call, non modificato nulla; (b) `CVE-2026-47780` è presente in `File_Free5gc_Vulnerabili/cve_metrics_normalized.json` ma con `handler_functions`/`network_function`/`in_task_excerpt` tutti `None` — il matching deterministico (`utils/cvss_eval.py::_match_finding`) non può mai agganciarla, quindi ogni volta che l'agente la segnala (14/13/3 occorrenze nei report UDR full no-hint/hint/baseline) finisce sempre negli unmatched/FP, anche se è una CVE reale già pubblicata
+**Decisioni:** utente ha confermato "si dico è spuntata... come se non la vedessimo" — nessuna richiesta di correggere il wiring della ground truth per ora, solo di verificare il comportamento attuale; la GT resta invariata (decisione implicita: non contare 47780 come target per il matching, coerente con come è già trattata altrove, come "secondary finding" a rubrica in `task6_vuln_udr_sol.md`)
+**Esito/Problemi:** corretto refuso in `docs/sgv_protocol/10_dati_paper_no_sonarqube.md:151` ("5" → "3" su task5/7/8, 1 CVE ciascuno + 6 su UDR = 9, verificato sommando TP+FN per NF); tabella in `docs/index.md` ridotta ai soli report `_full` con nota esplicita che gli excerpt sono stati solo di test preliminare; nessuna modifica al codice di matching (la lacuna su CVE-2026-47780 resta documentata solo qui, non ancora in un file di `docs/`)
+**Lesson learned:** un numero "9 = 5+6" scritto in prosa può restare sbagliato per settimane se nessuno lo risomma contro i dati grezzi (TP+FN) della stessa sezione — vale la pena, quando si cita un totale, ricalcolarlo dai conteggi sottostanti invece di fidarsi della frase discorsiva già scritta
+
+---
+
 ## 2026-08-05 — Riorganizzazione feedback esperto: nuovo round SAST scoperto, file grezzi rimossi da File_Free5gc_Vulnerabili  [sessione: 3bed3cfa-2b15-4697-94a2-f8591f0c7407]
 
 **Intent:** partito da una revisione della call 2026-07-29 (trascrizione in `tesi-vault`, fuori da questo repo) e dell'indice `docs/index.md` creato per il relatore; l'utente ha chiesto "possibile che il due sia questo file?" indicando `File_Free5gc_Vulnerabili/Correzzione_Esperto_2.md`
