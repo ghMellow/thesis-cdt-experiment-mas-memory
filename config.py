@@ -57,6 +57,14 @@ FULL_TASK_TIMEOUT_MULTIPLIER = 2.0
 OLLAMA_BASE_URL = "http://localhost:11434"
 # Max tokens per response — 1024 is sufficient for a full JSON with reasoning.
 OLLAMA_NUM_PREDICT = 1024
+# Native thinking mode (models that support it, e.g. deepseek-r1, qwq — see
+# https://ollama.com/search?c=thinking). True = always request reasoning mode;
+# captured separately in AIMessage.additional_kwargs["reasoning_content"] and
+# saved as "native_thinking" alongside the existing prompt-requested "reasoning"
+# field (which is just prose the model is asked to write, not real thinking
+# tokens). No-op for models without native thinking support (e.g. the gemma
+# models currently in MODELS) — safe to leave True regardless of model choice.
+OLLAMA_REASONING = True
 # Max time to wait for a single Ollama response (seconds).
 # Keep this >= TASK_TIMEOUT_SECONDS to avoid client timeouts before task timeouts.
 # If --task-timeout is higher, runtime bumps this to ~10% above task_timeout.

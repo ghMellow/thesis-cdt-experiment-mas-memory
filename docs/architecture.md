@@ -74,10 +74,13 @@ I task security review (`task5`–`task9`) forniscono codice Go di network funct
 - `utils/evaluation_utils.py`: aggregazione risultati e generazione report anomaly-focused in `results/evaluation/`; include `_detect_inconsistencies` (fase 1: string equality, fase 2: LLM semantic check sui flagged con modello `MODELS["semantic_check"]`, obbligatorio) e `_brier_score` (calibrazione confidence)
 - `agents/agent_runner.py`: chiamata LLM via Ollama + parsing Markdown in output (fallback JSON); logga token in/out quando disponibili
 - `agents/judge_agent.py`: chiamata LLM judge + parsing Markdown + logging token in/out; include `run_semantic_equivalence_check` (verifica equivalenza semantica tra reasoning string)
-- `agents/_llm_utils.py`: helper condivisi tra agent e judge (spinner, Markdown parsing, fallback JSON, error handling Ollama)
+- `agents/_llm_utils.py`: helper condivisi tra agent e judge (spinner, Markdown parsing, fallback JSON, error handling Ollama); `build_llm` passa `reasoning=config.OLLAMA_REASONING` a `ChatOllama` (solo locale) per i modelli con thinking nativo (es. deepseek-r1, qwq — no-op sui modelli gemma attuali); `extract_native_thinking` legge `response.additional_kwargs["reasoning_content"]`, distinto dal campo `reasoning` testuale scritto dal modello dentro il prompt
 - `agents/prompts.py`: system prompt dell'agente (`SYSTEM_PROMPTS` dict, chiave unica `agent`)
 - `utils/cvss_utils.py`: blocco prompt `CVSS Estimate` iniettato nei task vuln + estrazione della stima dall'output agente
 - `utils/cvss_eval.py`: valutazione deterministica della stima CVSS (Blocco B): matching finding↔CVE per handler function, prossimità score a fasce (vs score pubblicato e vs base B), vector match exploitability/impatto; dataset GT in `File_Free5gc_Vulnerabili/cve_metrics_normalized.json`
+
+> ✅ **Implementato (2026-08-05):** cattura del reasoning nativo Ollama (era assente: solo il campo `reasoning` chiesto via prompt veniva salvato). `run_agent` e `run_judge_textual`/`run_semantic_equivalence_check` aggiungono `parsed["native_thinking"]` quando il provider lo restituisce; propagato in `history` e whitelistato in `final_answer` (`utils/experiment_utils.py`). `config.OLLAMA_REASONING = True` di default (sempre richiesto, se il modello lo supporta — no-op sui gemma attuali). Vale solo per l'endpoint locale (`ChatOllama`) — l'hosted via `ChatOpenAI` non estrae `reasoning_content` di provider non-OpenAI.
+> ✅ **Implementato (2026-08-05):** i report per-finding (`_write_matched_finding_file`/`_write_unmatched_finding_file`, `utils/evaluation_utils.py`) mostrano ora, in quest'ordine: Answer → Native thinking (se presente, output diretto del modello) → Prompt inviato (collassabile) → Reasoning (campo testuale chiesto dal prompt, non thinking reale). Prima gli elementi prodotti dal modello, poi ciò che è testuale/derivato dal prompt.
 
 ---
 

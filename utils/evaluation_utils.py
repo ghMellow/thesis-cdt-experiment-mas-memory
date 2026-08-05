@@ -1400,9 +1400,10 @@ def _compute_finding_groups(
 
 def _final_answer_with_prompt(p: Dict[str, Any]) -> Dict[str, Any]:
     """final_answer as saved on disk is a whitelisted view (answer/reasoning/
-    confidence/cvss_estimate only, utils/experiment_utils.py:_save_result:344)
-    — prompt_system/prompt_user live on the full history entry instead
-    (history is saved unfiltered). Merge them back in for display purposes."""
+    confidence/cvss_estimate/native_thinking only, utils/experiment_utils.py:
+    _save_result) — prompt_system/prompt_user live on the full history entry
+    instead (history is saved unfiltered). Merge them back in for display
+    purposes."""
     final_answer = dict(p.get("final_answer") or {})
     history = p.get("history") or []
     if history and isinstance(history[-1], dict):
@@ -1463,6 +1464,7 @@ def _write_unmatched_finding_file(
     function = u.get("function") or "—"
     answer = _highlight_function(str(final_answer.get("answer") or "").strip(), function)
     reasoning = _highlight_function(str(final_answer.get("reasoning") or "").strip(), function)
+    native_thinking = _highlight_function(str(final_answer.get("native_thinking") or "").strip(), function)
 
     lines = [
         f"# Unmatched finding — {task_id} ({experiment_id}) — {role}, rep {rep}",
@@ -1481,11 +1483,17 @@ def _write_unmatched_finding_file(
         f"of `{function}` are **bolded** below to help locate the relevant passage._",
         "",
     ]
+    # Model output first (answer, native thinking if the provider returned any),
+    # then the textual/prompt-derived material: prompt sent, then the
+    # prompt-elicited "Reasoning" field (prose the model was asked to write,
+    # not the same thing as native thinking).
     if answer:
         lines += ["**Answer:**", "", answer, ""]
-    if reasoning:
-        lines += ["**Reasoning:**", "", reasoning, ""]
+    if native_thinking:
+        lines += ["**Native thinking (model, unprompted):**", "", native_thinking, ""]
     lines += _build_prompt_detail_block(final_answer)
+    if reasoning:
+        lines += ["**Reasoning (prompt-elicited):**", "", reasoning, ""]
     lines += [
         "---",
         f"_Source: `results/{task_id}/{experiment_id}/{role}/*.json`, run_id "
@@ -1515,6 +1523,7 @@ def _write_matched_finding_file(
     function = m.get("function") or "—"
     answer = _highlight_function(str(final_answer.get("answer") or "").strip(), function)
     reasoning = _highlight_function(str(final_answer.get("reasoning") or "").strip(), function)
+    native_thinking = _highlight_function(str(final_answer.get("native_thinking") or "").strip(), function)
 
     lines = [
         f"# Matched finding — {m.get('cve_id', '—')} — {task_id} ({experiment_id}) — {role}, rep {rep}",
@@ -1535,11 +1544,17 @@ def _write_matched_finding_file(
         f"of `{function}` are **bolded** below to help locate the relevant passage._",
         "",
     ]
+    # Model output first (answer, native thinking if the provider returned any),
+    # then the textual/prompt-derived material: prompt sent, then the
+    # prompt-elicited "Reasoning" field (prose the model was asked to write,
+    # not the same thing as native thinking).
     if answer:
         lines += ["**Answer:**", "", answer, ""]
-    if reasoning:
-        lines += ["**Reasoning:**", "", reasoning, ""]
+    if native_thinking:
+        lines += ["**Native thinking (model, unprompted):**", "", native_thinking, ""]
     lines += _build_prompt_detail_block(final_answer)
+    if reasoning:
+        lines += ["**Reasoning (prompt-elicited):**", "", reasoning, ""]
     lines += [
         "---",
         f"_Source: `results/{task_id}/{experiment_id}/{role}/*.json`, run_id "

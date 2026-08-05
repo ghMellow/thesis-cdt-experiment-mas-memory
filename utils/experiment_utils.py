@@ -393,7 +393,7 @@ def _save_result(state: ExperimentState) -> ExperimentState:
         "attempts": state["attempts"],
         "history": state["history"],
         # final_answer: clean field view of history[-1] for quick access without full history traversal
-        "final_answer": {k: state["final_answer"][k] for k in ("answer", "reasoning", "confidence", "cvss_estimate") if k in state["final_answer"]},
+        "final_answer": {k: state["final_answer"][k] for k in ("answer", "reasoning", "confidence", "cvss_estimate", "native_thinking") if k in state["final_answer"]},
         # --- judge ---
         "verdict": state["verdict"],
         "judge_score": state.get("judge_score", {}),

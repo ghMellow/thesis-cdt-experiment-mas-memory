@@ -13,6 +13,7 @@ from agents._llm_utils import (
     _raise_ollama_unavailable,
     _start_spinner,
     build_llm,
+    extract_native_thinking,
 )
 
 logger = logging.getLogger(__name__)
@@ -67,4 +68,7 @@ def run_agent(
                 "reasoning": "model produced no valid Markdown or JSON output",
                 "confidence": 0.0,
             }
+    native_thinking = extract_native_thinking(response)
+    if native_thinking:
+        parsed["native_thinking"] = native_thinking
     return parsed, in_tok, out_tok

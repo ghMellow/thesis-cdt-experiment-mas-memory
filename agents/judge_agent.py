@@ -15,6 +15,7 @@ from agents._llm_utils import (
     _raise_ollama_unavailable,
     _start_spinner,
     build_llm,
+    extract_native_thinking,
 )
 from agents.prompts import SEMANTIC_CHECK_SYSTEM_PROMPT
 
@@ -125,6 +126,9 @@ def run_judge_textual(
         parsed = _extract_judge_scores_markdown(response.content, expected_fields)
     except ValueError:
         parsed = _extract_json_from_text(response.content)
+    native_thinking = extract_native_thinking(response)
+    if native_thinking:
+        parsed["native_thinking"] = native_thinking
     elapsed = time.perf_counter() - t0
     meta = getattr(response, "response_metadata", {}) or {}
     in_tok = meta.get("prompt_eval_count")
@@ -169,4 +173,7 @@ def run_semantic_equivalence_check(
     parsed = _extract_json_from_text(response.content)
     if not isinstance(parsed, dict) or "equivalent" not in parsed:
         raise ValueError(f"Unexpected semantic check response for {task_id}: {response.content!r}")
+    native_thinking = extract_native_thinking(response)
+    if native_thinking:
+        parsed["native_thinking"] = native_thinking
     return parsed

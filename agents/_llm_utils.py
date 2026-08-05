@@ -40,7 +40,19 @@ def build_llm(model: str, temperature: float, base_url: str, is_hosted: bool = F
         base_url=base_url,
         timeout=config.OLLAMA_TIMEOUT_SECONDS,
         model_kwargs={"num_predict": tokens},
+        reasoning=config.OLLAMA_REASONING,
     )
+
+
+def extract_native_thinking(response: Any) -> Optional[str]:
+    """Return the model's native reasoning/thinking content, if the provider
+    returned any (e.g. ChatOllama with reasoning=True, on models that support
+    it — see config.OLLAMA_REASONING). None if absent, unlike the "reasoning"
+    field elsewhere in this module, which is prose the prompt asks the model
+    to produce, not a distinct API-level thinking channel."""
+    additional_kwargs = getattr(response, "additional_kwargs", {}) or {}
+    thinking = additional_kwargs.get("reasoning_content")
+    return thinking or None
 
 
 def _extract_json_from_text(text: str) -> Dict[str, Any]:
