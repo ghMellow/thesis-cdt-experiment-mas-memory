@@ -322,5 +322,21 @@
   "unmatched/task6_vuln_udr_full/agent/handlequeryeesubscriptions/2436a3d573bd0833": {
     "equivalent": false,
     "explanation": "The reasoning passages provide different CVSS vectors, varying in privilege requirements (PR:H vs PR:L) and impact metrics (VI, SI, VC)."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlepolicydatasubstonotifypost/e5436654e6bb3893": {
+    "equivalent": false,
+    "explanation": "The two reasonings provide different CVSS vectors, specifically differing in Privileges Required (PR:H vs PR:L) and Impact levels (VI:H/SI:H vs VI:L/SI:N)."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlepolicydatasubstonotifysubsidput/b23cecba28678f02": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in Privilege Required (PR:H vs PR:L), Confidentiality/Integrity impact (VI:H/SI:H vs VI:L/SI:N), and overall severity."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlepolicydatasubstonotifypost/9cc0995e29ea6559": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ significantly across the passages, particularly in the Privileges Required (PR), Confidentiality (VC), Integrity (VI), and Availability (VA) metrics."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlepolicydatasubstonotifysubsidput/d54968053074900d": {
+    "equivalent": false,
+    "explanation": "The reasoning passages provide different CVSS vectors, specifically varying in privilege requirements (PR), confidentiality (VC), availability (VA), and integrity (VI) metrics."
   }
 }

@@ -1,0 +1,37 @@
+% =====================================================================
+% Tabella 1 CORRETTA (solo M2/M3, SAST-hint) — 2026-08-05
+% Copia di lavoro derivata da 12_dati_paper_sast_hint.tex, NON lo
+% sostituisce: stessa portata e stesso metodo di
+% 10b_dati_paper_no_sonarqube_corretto_UDR.tex (vedi quel file per la
+% derivazione completa) — qui solo la Tabella 1.
+%
+% CVE × repetizione (dopo correzione, prime 3 rep su 10 disponibili,
+% stessa granularità del resto del documento 12_):
+%   40245 ✗✗✗   40246 ✓✗✗   40247 ✓✗✗   40248 ✓✗✗   40249 ✗✗✗   40343 ✗✗✗
+% I 3 TP superstiti di UDR sono tutti e soli in rep 1 (le tre CVE
+% "difficili" 40246/247/248, root_cause allineato al finding riportato
+% dall'agente in quella ripetizione) — non toccati dalla correzione,
+% perché il loro match non dipende dalle due CVE con handler_functions
+% nullato.
+% =====================================================================
+
+\begin{table}[t]
+\centering
+\caption{CORRETTA — Precision and analyst workload of the agentic LLM with SonarQube-alert guidance in the prompt, pooled over 3 repetitions per network function. Confronta con Tabella~\ref{tab:detection-sast-hint} (non corretta).}
+\label{tab:detection-sast-hint-corretta}
+\begin{tabular}{lrrrrr}
+\toprule
+NF & TP & FP & FN & Prec. & Alerts/TP \\
+\midrule
+PCF & 3  & 4  & 0  & 42.9\% & 2.3 \\
+UDR & 3  & 20 & 15 & 13.0\% & 7.7 \\
+AMF & 3  & 29 & 0  & 9.4\%  & 10.7 \\
+UDM & 3  & 34 & 0  & 8.1\%  & 12.3 \\
+\midrule
+Pooled (micro) & 12 & 87 & 15 & 12.1\% & 8.25 \\
+Pooled (macro) & 12 & 87 & 15 & 18.3\% & 8.25 \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize{Rispetto alla Tabella~\ref{tab:detection-sast-hint} originale (UDR 9/14/9, 39.1\%): 6 dei 9 TP originali erano lo stesso match spurio di CVE-2026-40249/40343 descritto in 10b\_..., qui ricorrente in ogni ripetizione (10/10 sulle 10 rep estese, non solo le 3 di questa tabella). Corretto: UDR ha 3 TP genuini (le tre CVE 40246/247/248, trovate solo in rep 1). \textbf{Lettura qualitativa invariata o rinforzata, non ribaltata}: nella condizione no-hint (Tabella~\ref{tab:detection-no-sast-corretta}) UDR ha 0 TP genuini in queste stesse 3 ripetizioni — l'unico segnale reale di detection su UDR, in entrambe le condizioni corrette, viene dall'hint SAST. Prima della correzione questo beneficio era mascherato da un match identico e ugualmente spurio presente in entrambe le condizioni (6 TP fittizi ciascuna), che gonfiava simmetricamente entrambe le baseline senza alterare il confronto relativo -- ora che è rimosso, il confronto relativo tra le due condizioni non cambia di segno, ma i valori assoluti di precisione sono molto più bassi di quanto riportato finora.}
+\end{table}

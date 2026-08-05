@@ -1,0 +1,55 @@
+% =====================================================================
+% Tabella 1 CORRETTA (solo M2/M3, no-hint) — 2026-08-05
+% Copia di lavoro derivata da 10_dati_paper_no_sonarqube.tex, NON lo
+% sostituisce: qui è corretta solo la Tabella 1 (Precision/Alerts-per-TP),
+% le altre 7 tabelle di 10_ (S1/S2/S3, costo, P@K, variability, ablation)
+% NON sono ancora state ricalcolate con questa correzione — vedi nota
+% finale.
+%
+% Origine della correzione: docs/expert_review/03_CVE_CVSS_sast.md,
+% righe 49-55 — Lorenzo segnala che il finding matchato a CVE-2026-40249
+% ("HandlePolicyDataSubsToNotifySubsIdPut") è in realtà il bug di
+% deserializzazione (puntatore mancante in openapi.Deserialize), non il
+% bug descritto da root_cause GT ("missing return statement") per quella
+% CVE. Verificato leggendo per intero (non solo grep) il narrative delle
+% 3 repliche di task6_vuln_udr_full/1A (agent) in
+% results/evaluation/matched_findings/task6_vuln_udr_full_1A_agent_rep{1,2,3}_CVE-2026-40249.md:
+% nessuna delle tre menziona un missing-return su quell'handler. Lo
+% stesso conflitto ricorre su CVE-2026-40343 (stesso finding, stessa
+% funzione "gemella" HandlePolicyDataSubsToNotifyPost).
+%
+% Metodo (non strutturale, nessun file di produzione toccato):
+% 1. Copia di File_Free5gc_Vulnerabili/cve_metrics_normalized.json con
+%    handler_functions -> null per le sole CVE-2026-40249/40343 (root_cause,
+%    cvss, tutto il resto invariato).
+% 2. Copia di results/task{5,6,7,8}_vuln_*full?/1A* in un albero separato
+%    (scratchpad), MAI results/ di produzione.
+% 3. cvss_eval.recompute_saved_results() sul solo albero duplicato, col
+%    dataset corretto puntato via config.CVSS_DATASET_PATH (già
+%    parametrizzabile, nessuna modifica a cvss_eval.py/evaluation_utils.py).
+% 4. cvss_eval.aggregate_detection_metrics() sui cvss_eval ricalcolati
+%    (stessa funzione di libreria usata per i numeri originali — nessun
+%    conteggio a mano).
+% Script one-off (non nel repo, throwaway): vedi sessione 2026-08-05.
+% =====================================================================
+
+\begin{table}[t]
+\centering
+\caption{CORRETTA — Precision and analyst workload of the unguided agentic LLM (no SAST guidance), pooled over 3 repetitions per network function. Confronta con Tabella~\ref{tab:detection-no-sast} (non corretta).}
+\label{tab:detection-no-sast-corretta}
+\begin{tabular}{lrrrrr}
+\toprule
+NF & TP & FP & FN & Prec. & Alerts/TP \\
+\midrule
+PCF & 3  & 0  & 0  & 100.0\% & 1.0 \\
+UDR & 0  & 19 & 18 & 0.0\%   & n/a \\
+AMF & 3  & 16 & 0  & 15.8\%  & 6.3 \\
+UDM & 3  & 34 & 0  & 8.1\%   & 12.3 \\
+\midrule
+Pooled (micro) & 9 & 69 & 18 & 11.5\% & 8.67 \\
+Pooled (macro)$^{*}$ & 9 & 69 & 18 & 31.0\% & 6.56 \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize{Rispetto alla Tabella~\ref{tab:detection-no-sast} originale (UDR 6/13/12, 31.6\%): i 6 TP di UDR nella tabella originale provenivano interamente da CVE-2026-40249 e CVE-2026-40343 (3/3 ripetizioni ciascuna), un match spurio per coincidenza di nome-funzione, non per corrispondenza del meccanismo reale (verificato riga per riga sopra). Corretto: UDR non ha nessuna detection genuina in queste 3 ripetizioni no-hint (le altre 4 CVE, 40245-40248, restano 0/3 anche qui, invariato). $^{*}$Macro Alerts/TP è la media sulle 3 NF con TP$>0$ (UDR esclusa, stessa convenzione "n/a se TP=0" delle altre tabelle di questo documento).}
+\end{table}
