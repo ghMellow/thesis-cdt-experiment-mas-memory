@@ -1,4 +1,4 @@
-> altro responso dopo aver fornito i report all'esperto
+Secondo round di feedback di Lorenzo (2026-08-04), successivo a `02_CVE_CVSS.docx.md`: estende la stessa validazione manuale dei findings aggiungendo, per ogni NF, la condizione "ANALISI LLM + ANALISI STATICA DEL CODICE" (con hint SAST). Chiude con due totali distinti — 10 nuove CVE (no-SAST) e 10+2=12 (con SAST, +2 su UDM) — e un commento di Lorenzo sul possibile effetto confondente delle ripetizioni extra vs l'hint SAST in sé. Ricevuto originariamente come `File_Free5gc_Vulnerabili/Correzzione_Esperto_2.md` — rimosso da lì il 2026-08-05 (era una valutazione a monte, non dato grezzo da analizzare, vedi `docs/tasks_provenance.md`); questa è la copia autoritativa.
 
 ---
 
@@ -363,7 +363,3 @@ Totale
 2
 6
 13
-
-
-
-

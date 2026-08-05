@@ -1,6 +1,6 @@
 # Analisi Vulnerabilità — free5GC SBI Handlers
 
-> ⚠️ **Provenienza:** documento scritto da Claude durante la primissima sessione di analisi del corpus free5GC (non `CVE_CVSS.md`/`Patch_Spiegazione.md`/`Correzzione_Esperto.md`, quelli sono i dati grezzi ricevuti dal relatore/esperto). Non è materiale ricevuto direttamente — trattarlo come elaborazione, non come ground truth primaria.
+> ⚠️ **Provenienza:** documento scritto da Claude durante la primissima sessione di analisi del corpus free5GC (non `CVE_CVSS.md`/`Patch_Spiegazione.md`, quelli sono i dati grezzi ricevuti dal relatore/esperto). Non è materiale ricevuto direttamente — trattarlo come elaborazione, non come ground truth primaria. I feedback di Lorenzo (`Correzzione_Esperto.md`/`_2.md`) non vivono più in questa cartella — sono valutazioni a monte, non dato grezzo da analizzare — e sono in `docs/expert_review/00` e `03` (vedi `docs/tasks_provenance.md`).
 >
 > Documento vivo. Sezione 1–3: analisi statica manuale. Sezione 4: piano sperimentale per testare il judge LLM.
 
