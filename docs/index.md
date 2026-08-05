@@ -2,12 +2,20 @@
 
 Vista rapida: per ogni cartella (reale o virtuale) e per ogni md sparso in `docs/`, il perché esiste e cosa contiene. Per il dettaglio file-per-file vedi [README.md](README.md); questo file è un livello sopra, per orientarsi in 30 secondi.
 
+- [Cartelle](#cartelle)
+- [`codemap/` — cosa guardare per primo](#codemap--cosa-guardare-per-primo-mappa_sistemamd)
+- [md singoli a livello radice](#md-singoli-a-livello-radice)
+  - [Cartella virtuale — md di esperimento/processo](#cartella-virtuale--md-di-esperimentoprocesso-sparsi-in-docs)
+- [Report di run — `results/evaluation/*.md`](#report-di-run--resultsevaluationmd)
+  - [Caso specifico: run con vs senza hint SAST](#caso-specifico-run-con-vs-senza-hint-sast-sonarqube)
+- **[`sgv_protocol/` — dati tabelle in LaTeX per il paper](#sgv_protocol--cosa-guardare-per-primo-i-dati-tabelle-in-latex)**
+
 ---
 
 ## Cartelle
 
 | Cartella | Perché esiste | Cosa si trova |
-|---|---|---|
+| --- | --- | --- |
 | [codemap/](codemap/) | "Code-as-truth": sapere cosa fa il codice *oggi*, senza fidarsi delle note di processo che possono essere disallineate | Un file per modulo generato solo da codice+git log, indice `00_indice.md`, vista trasversale `flusso.md`/`mappa_sistema.md`, doppio narrativo in `narrativa/` |
 | [cve_experiment/](cve_experiment/) | Documentare l'esperimento "singolarità": riprodurre la scoperta spontanea della regex `\|.+` (GHSA-6gxq-gpr8-xgjp) in free5GC | Presentazione (`README.md`), guida pratica (`hands_on.md`), log autoritativo di tutti i tentativi (`attempts/log.md` + `attempts/<N>/`), dati di scan gestiti dalle skill `/cve-attempt`, `/cve-branch-scan`, `/task-branch-map` |
 | [sgv_protocol/](sgv_protocol/) | Tracciare la proposta del relatore (sostituire il retry guidato da giudice con un verificatore sintattico deterministico) dalla discussione all'implementazione | Proposta originale, discussioni di team, implementazione G1–G4 (`utils/sgv.py`), metriche M/S, guida di lettura, tabelle dati per il paper |
@@ -38,27 +46,25 @@ Regola di lettura (da `CLAUDE.md`): tutto qui è "cosa fa il codice oggi", fonte
 
 ---
 
-## Cartella virtuale — md di esperimento/processo sparsi in `docs/`
-
-Non sono in una cartella fisica, ma appartengono concettualmente allo stesso gruppo "processo/esperimento" delle cartelle sopra (vedi `CLAUDE.md`: fonte primaria per "perché si è deciso", non per "cosa fa il codice oggi").
-
-| File | Perché esiste | Cosa contiene |
-|---|---|---|
-| [findings.md](findings.md) | Registro trasversale di tutte le osservazioni empiriche che hanno causato una correzione — copre l'intero progetto, non un singolo esperimento | F1–F23: bug di template, formato output, temperatura, framing expert/beginner, timeout, matching CVE↔handler, ecc. Cross-referenziato da quasi tutte le altre cartelle |
-| [experiments_framing.md](experiments_framing.md) | Coda di esperimenti autocontenuta e **chiusa** (2026-07-10): il paradosso "beginner batte expert" su task7, framing vs capacità del modello | Protocollo di esecuzione, esperimenti A1–A3 (framing) e B1–B3 (capacità/scaling), tabelle comparative, risultati — i finding sintetizzati vivono anche in `findings.md` F16–F22 |
-
----
-
-## md singoli a livello radice (non esperimento/processo)
+## md singoli a livello radice
 
 | File | Descrizione |
-|---|---|
+| --- | --- |
 | [README.md](README.md) | Punto di ingresso ufficiale della documentazione — indice dettagliato file-per-file, con tre aree (sistema, esperimento CVE, supporto) |
 | [status.md](status.md) | Stato/snapshot attuale del sistema: modelli, task, CLI, checklist funzionalità |
 | [architecture.md](architecture.md) | Riferimento stabile: mappa del codice, flusso LangGraph, valutazione, report |
 | [changelog.md](changelog.md) | Storico modifiche |
 | [tasks_provenance.md](tasks_provenance.md) | Provenienza dei file task5-9: cosa è dato grezzo ricevuto vs elaborazione di Claude — tenuto fuori da `tasks/` apposta per non inquinare il prompt verbatim |
 | [risultati_template.md](risultati_template.md) | Scheletro da copiare per il prossimo doc `0N_risultati_*.md`: cosa non ripetere, checklist |
+
+### Cartella virtuale — md di esperimento/processo sparsi in `docs/`
+
+Non sono in una cartella fisica, ma appartengono concettualmente allo stesso gruppo "processo/esperimento" delle cartelle sopra (vedi `CLAUDE.md`: fonte primaria per "perché si è deciso", non per "cosa fa il codice oggi").
+
+| File | Perché esiste | Cosa contiene |
+| --- | --- | --- |
+| [findings.md](findings.md) | Registro trasversale di tutte le osservazioni empiriche che hanno causato una correzione — copre l'intero progetto, non un singolo esperimento | F1–F23: bug di template, formato output, temperatura, framing expert/beginner, timeout, matching CVE↔handler, ecc. Cross-referenziato da quasi tutte le altre cartelle |
+| [experiments_framing.md](experiments_framing.md) | Coda di esperimenti autocontenuta e **chiusa** (2026-07-10): il paradosso "beginner batte expert" su task7, framing vs capacità del modello | Protocollo di esecuzione, esperimenti A1–A3 (framing) e B1–B3 (capacità/scaling), tabelle comparative, risultati — i finding sintetizzati vivono anche in `findings.md` F16–F22 |
 
 ---
 
