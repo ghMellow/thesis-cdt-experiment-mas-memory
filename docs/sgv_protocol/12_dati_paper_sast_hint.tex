@@ -1,0 +1,291 @@
+% =====================================================================
+% Dati per il paper — configurazione con SonarQube hint (2026-08-05)
+% Fonte: doc 11 (docs/sgv_protocol/11_sast_hint_noise_test_2026-07-21.md),
+% esperimenti `1A_sast_hint` (task5_vuln_pcf) e `1A_sast_hint_full`
+% (task6_vuln_udr_full/task7_vuln_amf_full/task8_vuln_udm_full).
+% Tutti i numeri qui sotto sono stati rigenerati direttamente dai payload
+% grezzi (results/task*/1A_sast_hint*/agent/*.json) con le stesse funzioni
+% di aggregazione di utils/evaluation_utils.py usate per comparison.md —
+% non ricalcolati a mano — per garantire coerenza esatta col resto della
+% pipeline di valutazione.
+% Granularità: 3 ripetizioni per NF, esattamente come 10_dati_paper_no_sonarqube.tex,
+% per un confronto punto-a-punto. UDR è stata poi estesa a n=10 ripetizioni
+% (doc 11, "portato a n=10") per verificare che il suo effetto non fosse
+% rumore campionario: qui si usano SOLO le prime 3 ripetizioni di
+% quell'estensione (identiche a quelle già riportate come "Tabella 1bis"
+% in 10_dati_paper_no_sonarqube.md), la versione a n=10 è citata solo in
+% nota, non nelle tabelle principali, per non mischiare granularità diverse
+% nello stesso pooled.
+% Copre le stesse sezioni di 10_dati_paper_no_sonarqube.tex: Precision +
+% Alerts-per-TP (Tab.1), Exact vector match (Tab.2), Per-metric accuracy
+% (Tab.3), Computational cost (Tab.4), Precision@K (Tab.5), Run-to-run
+% variability (Tab.6), Ablation del retry loop SGV/rubric (Tab.7-8).
+% NON copre il task cross-NF (task9): non è un task a vulnerabilità nota,
+% non ha un file di alert SonarQube associato, non è mai stato eseguito
+% sotto questa condizione — omesso ovunque, non "escluso dal pooled" come
+% nel doc no-hint.
+% NON copre RQ1 lato SAST-alone (M4, serve SonarQube come strumento
+% standalone, non come hint nel prompt — cosa diversa, ancora rimandata).
+% Richiede \usepackage{booktabs} e \usepackage{multirow} nel preambolo.
+% =====================================================================
+
+We repeat the evaluation of Sec.~IV.B under one experimental variation:
+before generating its answer, the agent is given a block of
+\emph{unfiltered} static-analysis alerts for the target file, produced by
+SonarQube and injected verbatim into the prompt ahead of the CVSS
+instructions, with explicit framing that most of them describe code-style
+issues, not vulnerabilities, and should be used ``only if and where
+actually relevant''. This is not SAST used as a standalone detector (RQ1,
+still blocked on tooling) but SAST output folded into the same agentic
+pipeline as noisy context. The setup, hypothesis, and full qualitative
+verification are in \S\ref{sec:sast-hint-appendix} (project doc
+\texttt{11\_sast\_hint\_noise\_test}); this section reports only the
+resulting numbers, on the same four network functions, same
+ground-truth-aware judge, and the same 3-repetitions-per-NF granularity as
+the no-hint baseline (Table~\ref{tab:detection-no-sast}), so the two
+conditions can be read side by side. The cross-NF task has no mapped
+SonarQube alert file and was never run under this condition; it is
+therefore absent from every table below, not pooled-and-excluded as in the
+no-hint tables.
+
+% ---------------------------------------------------------------------
+% Tabella 1 — Precision & analyst workload per network function, hint ON.
+% Stessa granularità (3 rep/NF) e stessa esclusione di Recall/F1 del doc
+% no-hint (§IV.B, review 2026-07-21) — la GT resta limitata alle CVE
+% mappate, l'argomento vale identico qui.
+% ---------------------------------------------------------------------
+
+For the same reason given in the no-hint condition (Table~\ref{tab:detection-no-sast}'s
+preceding discussion): Recall and F1 are not reported as headline metrics
+here either, for the identical reason (an incomplete, CVE-only ground
+truth cannot support a completeness claim) — only Precision and its
+inverse, Alerts-per-TP, are.
+
+\begin{table}[t]
+\centering
+\caption{Precision and analyst workload of the agentic LLM with SonarQube-alert guidance in the prompt, pooled over 3 repetitions per network function.}
+\label{tab:detection-sast-hint}
+\begin{tabular}{lrrrrr}
+\toprule
+NF & TP & FP & FN & Prec. & Alerts/TP \\
+\midrule
+PCF & 3  & 4  & 0 & 42.9\% & 2.3 \\
+UDR & 9  & 14 & 9 & 39.1\% & 2.6 \\
+AMF & 3  & 29 & 0 & 9.4\%  & 10.7 \\
+UDM & 3  & 34 & 0 & 8.1\%  & 12.3 \\
+\midrule
+Pooled (micro) & 18 & 81 & 9 & 18.2\% & 5.5 \\
+Pooled (macro) & 18 & 81 & 9 & 24.9\% & 7.0 \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize{No task is excluded from this pooled row (unlike Table~\ref{tab:detection-no-sast}'s micro row, which excludes the cross-NF task): there is no hint-condition run of that task to exclude in the first place. Macro-average: simple arithmetic mean of the four per-NF precision/alerts-per-TP values (equal weight per NF); TP/FP/FN shown are the same raw counts as the micro row. Against the no-hint baseline (Table~\ref{tab:detection-no-sast}, TP/FP per NF: PCF 3/0, UDR 6/13, AMF 3/16, UDM 3/34): PCF keeps the same single TP but goes from zero FP to four, precision dropping from 100.0\% to 42.9\% -- the one NF where the hint introduces noise where there was none before; UDR gains 3 TP (from 6 to 9, all three ``hard'' CVEs newly surfaced within these 3 repetitions) at the cost of 1 extra FP, precision actually improving (31.6\%$\to$39.1\%); AMF keeps the same single TP but nearly doubles its FP count (16$\to$29, precision 15.8\%$\to$9.4\%); UDM keeps both the same TP and the identical final FP count (34$\to$34, precision unchanged at 8.1\%) even though its first-attempt trajectory differs between conditions (18 vs.\ 21 FP, Table~\ref{tab:ablation-retry-hint}) -- the hint changes the retry path, not the endpoint, for this NF. The effect is not uniform across NFs: it depends on where the noisy alerts happen to fall relative to the real vulnerability (\S\ref{sec:sast-hint-appendix}).}
+\end{table}
+
+% ---------------------------------------------------------------------
+% Tabella 2 — Severity: exact match (S1) contro baseline a vettore modale
+% (S3), hint ON. Stessa struttura del doc no-hint (Tabella 2): degenerata
+% su PCF/AMF/UDM (1 sola CVE target), informativa solo su UDR e sul
+% pooled.
+% ---------------------------------------------------------------------
+\begin{table}[t]
+\centering
+\caption{Exact CVSS v4.0 vector match on true positives (S1) with SonarQube-alert guidance, against a null-model baseline that always predicts the modal target vector (S3).}
+\label{tab:s1-s3-hint}
+\begin{tabular}{lrrr}
+\toprule
+NF & n (TP) & S1 exact match & S3 baseline \\
+\midrule
+PCF & 3  & 0.0\% & 100.0\%$^{*}$ \\
+UDR & 9  & 0.0\% & 0.0\%  \\
+AMF & 3  & 0.0\% & 100.0\%$^{*}$ \\
+UDM & 3  & 0.0\% & 100.0\%$^{*}$ \\
+\midrule
+Pooled & 18 & 0.0\% & 0.0\% \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize{$^{*}$Degenerate for the same reason as Table~\ref{tab:s1-s3}: a single target CVE in scope makes the modal vector its own vector by construction. S1 exact match is 0.0\% in both conditions on every NF -- the hint changes how many true positives are surfaced and how noisy the surrounding findings are, not whether the agent gets the full CVSS vector exactly right once it does find something.}
+\end{table}
+
+% ---------------------------------------------------------------------
+% Tabella 3 — Severity: accuratezza per metrica CVSS (S2), hint ON.
+% Pooled (n=18) + UDR only (n=9, unico NF con CVE eterogenee anche in
+% questa condizione).
+% ---------------------------------------------------------------------
+\begin{table}[t]
+\centering
+\caption{Per-metric accuracy and average ordinal distance on the CVSS v4.0 base metrics with SonarQube-alert guidance, pooled over all matched findings ($n=18$) and on UDR alone ($n=9$), against the S3 baseline.}
+\label{tab:s2-hint}
+\begin{tabular}{lrrrrr}
+\toprule
+& \multicolumn{2}{c}{Pooled ($n=18$)} & \multicolumn{2}{c}{UDR only ($n=9$)} & \\
+Metric & Acc. & Base. & Acc. & Base. & Ord. dist. (pooled) \\
+\midrule
+AV & 100.0\% & 100.0\% & 100.0\% & 100.0\% & 0.00 \\
+AC & 100.0\% & 100.0\% & 100.0\% & 100.0\% & 0.00 \\
+AT & 100.0\% & 100.0\% & 100.0\% & 100.0\% & 0.00 \\
+PR & 22.2\%  & 100.0\% & 0.0\%   & 100.0\% & 0.50 \\
+UI & 83.3\%  & 100.0\% & 100.0\% & 100.0\% & 0.08 \\
+VC & 38.9\%  & 77.8\%  & 44.4\%  & 88.9\%  & 0.44 \\
+VI & 22.2\%  & 44.4\%  & 0.0\%   & 22.2\%  & 0.39 \\
+VA & 50.0\%  & 77.8\%  & 88.9\%  & 88.9\%  & 0.44 \\
+SC & 72.2\%  & 100.0\% & 100.0\% & 100.0\% & 0.14 \\
+SI & 66.7\%  & 83.3\%  & 55.6\%  & 66.7\%  & 0.19 \\
+SA & 83.3\%  & 100.0\% & 100.0\% & 100.0\% & 0.14 \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize{Ordinal distance column is pooled-only. As in the no-hint table (Table~\ref{tab:s2}), the largest error concentrates on PR (privileges required): UDR stays at 0.0\% accuracy in both conditions (the systematic overestimate of required privileges is unaffected by the hint), and the pooled figure is essentially flat (22.2\% vs.\ 20.0\% no-hint). VC and VA are visibly worse pooled than in the no-hint condition (VC 38.9\% vs.\ 66.7\%, VA 50.0\% vs.\ 60.0\%), but not for the same reason on both metrics: VC is dragged down mainly by PCF and UDM (both 0.0\% accuracy on VC under the hint, vs.\ AMF's 100.0\% and UDR's 44.4\%), while VA is dragged down by PCF and AMF (both 0.0\%, vs.\ UDR's 88.9\% and UDM's 33.3\%) -- no single NF explains the pooled drop on its own, and UDR's own accuracy on both metrics is in fact lower than its no-hint value (VC 100.0\%$\to$44.4\%, VA 100.0\%$\to$88.9\%, per-NF data not shown), so the regression is not confined to the two noisiest NFs either.}
+\end{table}
+
+% ---------------------------------------------------------------------
+% Tabella 4 — Costo computazionale (M5), hint ON. Pooled sui 4 task con
+% GT (12 ripetizioni, 3 per NF) — nessun task cross-NF da includere in
+% questa condizione, a differenza del doc no-hint.
+% ---------------------------------------------------------------------
+\begin{table}[t]
+\centering
+\caption{Wall-clock cost per repetition (including every SGV/rubric retry) with SonarQube-alert guidance, averaged over 12 repetitions (4 tasks $\times$ 3 reps each).}
+\label{tab:cost-hint}
+\begin{tabular}{lr}
+\toprule
+Metric & Value \\
+\midrule
+Avg. elapsed time (s) & 432.2 \\
+Avg. agent tokens (in/out) & n/a$^{*}$ \\
+Avg. judge tokens (in/out) & n/a$^{*}$ \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize{$^{*}$Same hosted-backend limitation as Table~\ref{tab:cost}. The roughly 8$\times$ increase over the no-hint condition (56.2s$\to$432.2s) is not uniform across NFs: PCF (110.7s) and UDM (150.5s) are close to their no-hint order of magnitude, while UDR (609.0s, 3-rep subset) and especially AMF (858.7s) are far higher -- both are the \texttt{\_full} (long-context) file variants with the SonarQube block injected on top, and both also triggered the most rubric retries (Table~\ref{tab:ablation-channel-hint}). The extra wall-clock cost tracks retry volume and prompt length, not a fixed per-call overhead of the hint block itself.}
+\end{table}
+
+% ---------------------------------------------------------------------
+% Tabella 5 — Precision@K, hint ON. Stessa costruzione del doc no-hint
+% (ranking sulla severità stimata dall'agente, mai la ground truth).
+% ---------------------------------------------------------------------
+\begin{table}[t]
+\centering
+\caption{Precision@K on the final answer with SonarQube-alert guidance: share of true positives among the top-$K$ findings of each repetition, ranked by the agent's own recomputed CVSS severity (never the ground truth). Values are the mean across repetitions with $\geq K$ findings; the fraction in parentheses shows how many of the 3 repetitions had enough findings to fill that $K$.}
+\label{tab:precision-at-k-hint}
+\begin{tabular}{lrrr}
+\toprule
+NF & P@1 & P@3 & P@5 \\
+\midrule
+PCF & 0.0\% (3/3)   & 33.3\% (1/3) & n/a (0/3) \\
+UDR & 100.0\% (3/3) & 77.8\% (3/3) & 60.0\% (3/3) \\
+AMF & 100.0\% (3/3) & 33.3\% (3/3) & 20.0\% (3/3) \\
+UDM & 66.7\% (3/3)  & 33.3\% (3/3) & 20.0\% (3/3) \\
+\midrule
+Pooled (4 NF) & 66.7\% (12/12) & 46.7\% (10/12) & 33.3\% (9/12) \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize{No cross-NF row to exclude here (unlike Table~\ref{tab:precision-at-k}), since that task was never run under this condition. PCF is the one NF where the hint visibly hurts triage: P@1 drops from 100.0\% (no-hint) to 0.0\% -- with the SonarQube block in the prompt, the single most severe finding by the agent's own estimate is, in every one of the 3 repetitions, a false positive rather than the one real CVE, even though the CVE itself is still always found (Table~\ref{tab:detection-sast-hint}, FN=0). UDR moves the opposite direction, from 33.3\%/66.7\%/40.0\% (no-hint) to 100.0\%/77.8\%/60.0\% -- consistent with the hint's genuine detection benefit on this NF (Table~\ref{tab:detection-sast-hint}) also making the agent's own severity ranking more reliable, not just its raw recall. Pooled P@1 (66.7\%) is lower than the no-hint pooled P@1 (75.0\%), driven entirely by PCF's collapse; P@3/P@5 pooled are modestly higher instead (46.7\% vs.\ 40.7\%, 33.3\% vs.\ 26.7\%), driven by UDR's gain outweighing PCF's loss at those $K$ -- a small net change at the pooled level that masks one NF getting much worse and one getting much better.}
+\end{table}
+
+% ---------------------------------------------------------------------
+% Tabella 6 — Run-to-run variability, hint ON. Stessa costruzione del doc
+% no-hint: non pooled tra NF diversi.
+% ---------------------------------------------------------------------
+\begin{table}[t]
+\centering
+\caption{Mean $\pm$ sample standard deviation of TP and FP counts across the 3 repetitions of each network function with SonarQube-alert guidance, with 95\% confidence intervals (Student's $t$, $df=2$).}
+\label{tab:variability-hint}
+\begin{tabular}{lrr}
+\toprule
+NF & TP (mean $\pm$ std, CI95) & FP (mean $\pm$ std, CI95) \\
+\midrule
+PCF & $1.00 \pm 0.00$ ($\pm 0.00$) & $1.33 \pm 0.58$ ($\pm 1.43$) \\
+UDR & $3.00 \pm 1.73$ ($\pm 4.30$) & $4.67 \pm 0.58$ ($\pm 1.43$) \\
+AMF & $1.00 \pm 0.00$ ($\pm 0.00$) & $9.67 \pm 1.53$ ($\pm 3.79$) \\
+UDM & $1.00 \pm 0.00$ ($\pm 0.00$) & $11.33 \pm 1.15$ ($\pm 2.87$) \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize{No cross-NF row (never run under this condition, unlike Table~\ref{tab:variability}). Unlike the no-hint condition, TP is no longer perfectly stable everywhere: UDR's TP count swings between 2 and 5 CVEs per repetition (std 1.73, CI95 $\pm$4.30 -- wide, as with any $n=3$ bound) as the three ``hard'' CVEs (40246/247/248) are found only in some repetitions (\S\ref{sec:sast-hint-appendix} documents this directly: found in rep~1, absent in reps~2--3, at this 3-rep granularity -- resolved as a genuine, non-noise effect only once extended to $n=10$ per condition). PCF, AMF and UDM keep the same TP stability as the no-hint condition; FP volume is comparably noisy across both conditions on every NF.}
+\end{table}
+
+% ---------------------------------------------------------------------
+% Tabella 7 — Ablation del retry loop, hint ON. Stessa struttura del doc
+% no-hint: "first attempt" (cvss_eval_pass1) vs "final answer" (= Tabella
+% 1 sopra).
+% Tabella 8 — breakdown per canale di retry (SGV vs rubric), hint ON.
+% ---------------------------------------------------------------------
+\begin{table}[t]
+\centering
+\caption{Ablation of the Selection \& Correction retry loop with SonarQube-alert guidance: detection performance before any retry (first attempt) vs.\ after (final answer, same as Table~\ref{tab:detection-sast-hint}), pooled over 3 repetitions per network function.}
+\label{tab:ablation-retry-hint}
+\begin{tabular}{llrrrrr}
+\toprule
+NF & Stage & TP & FP & FN & Prec. & Alerts/TP \\
+\midrule
+\multirow{2}{*}{PCF} & first attempt & 3 & 4  & 0 & 42.9\% & 2.3 \\
+                      & final answer   & 3 & 4  & 0 & 42.9\% & 2.3 \\
+\midrule
+\multirow{2}{*}{UDR} & first attempt & 5 & 8  & 13 & 38.5\% & 2.6 \\
+                      & final answer   & 9 & 14 & 9  & 39.1\% & 2.6 \\
+\midrule
+\multirow{2}{*}{AMF} & first attempt & 3 & 20 & 0  & 13.0\% & 7.7 \\
+                      & final answer   & 3 & 29 & 0  & 9.4\%  & 10.7 \\
+\midrule
+\multirow{2}{*}{UDM} & first attempt & 3 & 18 & 0  & 14.3\% & 7.0 \\
+                      & final answer   & 3 & 34 & 0  & 8.1\%  & 12.3 \\
+\midrule
+\multirow{2}{*}{Pooled (micro)} & first attempt & 14 & 50 & 13 & 21.9\% & 4.6 \\
+                                 & final answer   & 18 & 81 & 9  & 18.2\% & 5.5 \\
+\multirow{2}{*}{Pooled (macro)} & first attempt & 14 & 50 & 13 & 27.2\% & 4.9 \\
+                                 & final answer   & 18 & 81 & 9  & 24.9\% & 7.0 \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize{No cross-NF row to exclude (never run under this condition). Unlike the no-hint condition (Table~\ref{tab:ablation-retry}), the loop now moves \emph{every} NF, not just PCF and UDR: UDM again gains FP-only (+16, same TP), as it already did in the no-hint run (+13 FP there); AMF, which triggered zero retries in the no-hint run (first attempt = final answer, Table~\ref{tab:ablation-retry}), now also gains FP-only (+9) under the hint condition -- the extra prompt content changes not just how much the loop corrects, but whether it fires at all on this NF. UDR gains both TP (+4, recovering two of the three ``hard'' CVEs it initially missed within these 3 repetitions) and FP (+6). Pooled, the loop adds 4 TP and 31 FP (matching Table~\ref{tab:ablation-channel-hint} exactly): micro precision drops (21.9\%$\to$18.2\%) more sharply than in the no-hint condition (20.7\%$\to$19.2\%), and macro precision drops as well (27.2\%$\to$24.9\%, vs.\ an essentially flat 39.8\%$\to$38.9\% no-hint) -- with the SonarQube block already in context, the retry loop's corrections skew more toward adding noise than in the unguided condition.}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Attribution of the first-attempt-to-final-answer delta (Table~\ref{tab:ablation-retry-hint}, pooled row) to the retry channel that caused it, with SonarQube-alert guidance: SGV (deterministic syntactic checks) vs.\ the LLM rubric judge, neither with ground-truth access.}
+\label{tab:ablation-channel-hint}
+\begin{tabular}{lrrr}
+\toprule
+Retry channel & Transitions & $\Delta$TP & $\Delta$FP \\
+\midrule
+SGV     & 4  & +1 & +5  \\
+Rubric  & 15 & +3 & +26 \\
+\bottomrule
+\end{tabular}
+\\[2pt]
+\footnotesize{Same attribution rule as Table~\ref{tab:ablation-channel}: each retry is attributed to whichever gate rejected the previous attempt, SGV checked first. The two channels sum to exactly the pooled first-attempt$\to$final-answer gap in Table~\ref{tab:ablation-retry-hint} (TP $+4$, FP $+31$). All 4 SGV transitions and 2 of the 15 rubric transitions come from UDR (SGV +1TP/+5FP, rubric +3TP/+1FP there); the remaining 13 rubric transitions are split between AMF (6, +0TP/+9FP) and UDM (5, +0TP/+16FP), i.e.\ pure noise addition on those two NFs -- consistent with the no-hint condition's own finding (Table~\ref{tab:ablation-channel}) that the rubric channel does real but noisy work, here amplified by the extra context the SonarQube block already added.}
+\end{table}
+
+% =====================================================================
+% Nota metodologica su UDR e granularità n=3 vs n=10 (2026-08-05)
+% =====================================================================
+
+\paragraph{A note on UDR's repetition count.} All tables above use 3
+repetitions per NF for a direct, same-$n$ comparison against the no-hint
+baseline (Table~\ref{tab:detection-no-sast} and its siblings). UDR's hint
+condition was later extended to 10 repetitions (doc 11,
+\S~``UDR \_full portato a n=10'') specifically because, at $n=3$, the
+apparent benefit on the three ``hard'' CVEs (40246/247/248, found only in
+repetition 1 of the 3 shown here) was indistinguishable from sampling
+noise. At $n=10$ the benefit is confirmed, not noise: recall
+$35.0\%\to50.0\%$ and precision $29.6\%\to42.9\%$ against a matched
+10-repetition no-hint baseline (\emph{not} the 3-repetition canonical
+baseline of Table~\ref{tab:detection-no-sast}, which was not re-run at
+$n=10$). That $n=10$ figure is not pooled into any table above, to avoid
+mixing repetition counts silently within the same pooled row; it should
+be cited separately, as the robustness check for UDR's row in
+Table~\ref{tab:detection-sast-hint}, not as a replacement for it.
+
+% =====================================================================
+% APERTO — non ancora risolto, da chiudere prima della submission:
+% Le 81 FP pooled qui (come le 63/84 del doc no-hint) sono conteggio
+% grezzo per-ripetizione, non deduplicato — stessa cautela di lettura
+% della nota di chiusura in cima a 10_dati_paper_no_sonarqube.md. Nessun
+% dedup manuale equivalente a quello di Lorenzo è stato fatto su questa
+% condizione.
+% RQ1 (SAST-alone, M4) non coperta qui: questo documento riguarda SAST
+% come hint nel prompt di un agente, non SAST come strumento standalone.
+% =====================================================================
