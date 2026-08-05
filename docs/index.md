@@ -95,4 +95,15 @@ Report grezzi sottostanti, per task (`sast_hint` = con hint, `no_hint`/baseline 
 
 ---
 
+## Per il relatore: dati tabelle in LaTeX pronti per Overleaf
+
+`sgv_protocol/` è la cartella più densa di `docs/` (16 documenti, verbali + implementazione + dati) — non è pensata per essere letta tutta. Se serve solo il **codice LaTeX delle tabelle del paper**, i due file da linkare direttamente sono:
+
+- **[sgv_protocol/10_dati_paper_no_sonarqube.tex](sgv_protocol/10_dati_paper_no_sonarqube.tex)** — condizione baseline, senza hint SAST (run `20260714T152535Z`): Tab.1 precision/alerts-per-TP, Tab.2 exact vector match, Tab.3 accuratezza per-metrica CVSS, Tab.4 costo computazionale, Tab.5 Precision@K, Tab.6 variabilità run-to-run, Tab.7-8 ablation del retry loop (SGV vs rubrica).
+- **[sgv_protocol/12_dati_paper_sast_hint.tex](sgv_protocol/12_dati_paper_sast_hint.tex)** — stessa identica struttura di tabelle (Tab.1-8), condizione con hint SAST attivo, per il confronto punto-a-punto affiancato al file precedente.
+
+Entrambi: numeri rigenerati dai payload grezzi con le stesse funzioni di `utils/evaluation_utils.py` (non ricalcolati a mano), richiedono `\usepackage{booktabs}` e `\usepackage{multirow}`. Nessuno dei due copre RQ1 (SAST come strumento standalone, serve ancora SonarQube integrato) né il task cross-NF nel caso hint (mai eseguito in quella condizione).
+
+---
+
 > Questo file è un indice *di orientamento*, non la fonte di verità sui contenuti — se un file viene spostato/rinominato e questa tabella non è stata aggiornata, fidati della struttura reale di `docs/` e di [README.md](README.md).
