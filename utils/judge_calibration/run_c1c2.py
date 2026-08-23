@@ -9,7 +9,7 @@ complessivo, e il tasso di promozione di C2 alle soglie 0.7 e 0.65.
 Uso:
     python utils/judge_calibration/run_c1c2.py [--model <m>] [--local] [-k 3]
 Output:
-    results/evaluation/judge_calibration/c1c2_<model>.md (+ .json)
+    results/reports/judge_calibration/c1c2_<model>.md (+ .json)
 """
 
 import argparse
@@ -32,7 +32,7 @@ from utils.experiment_utils import build_judge_prompt  # noqa: E402
 from utils.task_utils import _extract_json_blocks, _model_slug  # noqa: E402
 
 C1C2_DIR = Path("docs/judge_rubric/calibration_c1c2")
-OUT_DIR = os.path.join(config.RESULTS_PATH, "evaluation", "judge_calibration")
+OUT_DIR = os.path.join(config.REPORTS_PATH, "judge_calibration")
 
 
 def normalize_total(judge_score, rubric):

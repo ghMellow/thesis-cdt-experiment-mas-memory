@@ -7,7 +7,7 @@ deterministico M1 (almeno una CVE target trovata in cvss_eval.matched).
 Uso:
     python utils/judge_calibration/calibrate_threshold.py
 Output:
-    results/evaluation/judge_calibration/threshold_calibration.md (+ .json)
+    results/reports/judge_calibration/threshold_calibration.md (+ .json)
 """
 
 import glob
@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 import config  # noqa: E402
 
-OUT_DIR = os.path.join(config.RESULTS_PATH, "evaluation", "judge_calibration")
+OUT_DIR = os.path.join(config.REPORTS_PATH, "judge_calibration")
 
 
 def collect_repetitions():

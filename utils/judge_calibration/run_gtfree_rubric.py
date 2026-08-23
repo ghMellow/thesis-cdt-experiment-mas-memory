@@ -17,7 +17,7 @@ Uso:
     python utils/judge_calibration/run_gtfree_rubric.py --set c1c2 [-k 3] \
         [--rubric docs/judge_rubric/gtfree/rubric_v2_draft.json --coverage surfaces]
 Output:
-    results/evaluation/judge_calibration/<prefix>_<set>_<model>.md (+ .json)
+    results/reports/judge_calibration/<prefix>_<set>_<model>.md (+ .json)
     dove <prefix> = gtfree (v1) o gtfree_v<N> (rubrica vN, dal nome file)
 """
 
@@ -43,7 +43,7 @@ from utils.task_utils import _model_slug  # noqa: E402
 
 RUBRIC_PATH = Path("docs/judge_rubric/gtfree/rubric_v1.json")
 C1C2_DIR = Path("docs/judge_rubric/calibration_c1c2")
-OUT_DIR = os.path.join(config.RESULTS_PATH, "evaluation", "judge_calibration")
+OUT_DIR = os.path.join(config.REPORTS_PATH, "judge_calibration")
 
 COVERAGE_MAX = 2
 # Effective denominator cap: on _full files with ~100 functions an absolute

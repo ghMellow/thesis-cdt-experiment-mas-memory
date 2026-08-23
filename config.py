@@ -72,7 +72,8 @@ OLLAMA_TIMEOUT_SECONDS = TASK_TIMEOUT_SECONDS * 1.1
 
 # Input tasks and output results directories.
 TASKS_PATH = "docs/tasks/"
-RESULTS_PATH = "results/"
+RESULTS_PATH = "results/rawJson/"
+REPORTS_PATH = "results/reports/"
 
 # ── CVSS estimate (experiment 2b, Blocco B) ──────────────────────────────────
 # On security-review tasks the agent also emits a structured CVSS 4.0 estimate,
