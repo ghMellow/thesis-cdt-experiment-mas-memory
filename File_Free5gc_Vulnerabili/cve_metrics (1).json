@@ -1,0 +1,692 @@
+[
+  {
+    "id": "CVE-2026-40245",
+    "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-40245",
+    "network_function": "UDR",
+    "root_cause": "Missing return statement (return non messo dopo error response)",
+    "cvss": {
+      "version": "4.0",
+      "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+      "base_score": 8.7,
+      "severity": "High",
+      "base_metrics": {
+        "AV": {
+          "name": "Attack Vector",
+          "value": "N",
+          "value_label": "Network"
+        },
+        "AC": {
+          "name": "Attack Complexity",
+          "value": "L",
+          "value_label": "Low"
+        },
+        "AT": {
+          "name": "Attack Requirements",
+          "value": "N",
+          "value_label": "None"
+        },
+        "PR": {
+          "name": "Privileges Required",
+          "value": "N",
+          "value_label": "None"
+        },
+        "UI": {
+          "name": "User Interaction",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VC": {
+          "name": "Confidentiality Impact to the Vulnerable System",
+          "value": "H",
+          "value_label": "High"
+        },
+        "VI": {
+          "name": "Integrity Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VA": {
+          "name": "Availability Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SC": {
+          "name": "Confidentiality Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SI": {
+          "name": "Integrity Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SA": {
+          "name": "Availability Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        }
+      }
+    }
+  },
+  {
+    "id": "CVE-2026-40246",
+    "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-40246",
+    "network_function": "UDR",
+    "root_cause": "Missing return statement (return non messo dopo error response)",
+    "cvss": {
+      "version": "4.0",
+      "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+      "base_score": 8.7,
+      "severity": "High",
+      "base_metrics": {
+        "AV": {
+          "name": "Attack Vector",
+          "value": "N",
+          "value_label": "Network"
+        },
+        "AC": {
+          "name": "Attack Complexity",
+          "value": "L",
+          "value_label": "Low"
+        },
+        "AT": {
+          "name": "Attack Requirements",
+          "value": "N",
+          "value_label": "None"
+        },
+        "PR": {
+          "name": "Privileges Required",
+          "value": "N",
+          "value_label": "None"
+        },
+        "UI": {
+          "name": "User Interaction",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VC": {
+          "name": "Confidentiality Impact to the Vulnerable System",
+          "value": "H",
+          "value_label": "High"
+        },
+        "VI": {
+          "name": "Integrity Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VA": {
+          "name": "Availability Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SC": {
+          "name": "Confidentiality Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SI": {
+          "name": "Integrity Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SA": {
+          "name": "Availability Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        }
+      }
+    }
+  },
+  {
+    "id": "CVE-2026-40247",
+    "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-40247",
+    "network_function": "UDR",
+    "root_cause": "Missing return statement (return non messo dopo error response)",
+    "cvss": {
+      "version": "4.0",
+      "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+      "base_score": 8.7,
+      "severity": "High",
+      "base_metrics": {
+        "AV": {
+          "name": "Attack Vector",
+          "value": "N",
+          "value_label": "Network"
+        },
+        "AC": {
+          "name": "Attack Complexity",
+          "value": "L",
+          "value_label": "Low"
+        },
+        "AT": {
+          "name": "Attack Requirements",
+          "value": "N",
+          "value_label": "None"
+        },
+        "PR": {
+          "name": "Privileges Required",
+          "value": "N",
+          "value_label": "None"
+        },
+        "UI": {
+          "name": "User Interaction",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VC": {
+          "name": "Confidentiality Impact to the Vulnerable System",
+          "value": "H",
+          "value_label": "High"
+        },
+        "VI": {
+          "name": "Integrity Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VA": {
+          "name": "Availability Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SC": {
+          "name": "Confidentiality Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SI": {
+          "name": "Integrity Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SA": {
+          "name": "Availability Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        }
+      }
+    }
+  },
+  {
+    "id": "CVE-2026-40248",
+    "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-40248",
+    "network_function": "UDR",
+    "root_cause": "Missing return statement (return non messo dopo error response)",
+    "cvss": {
+      "version": "4.0",
+      "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+      "base_score": 8.7,
+      "severity": "High",
+      "base_metrics": {
+        "AV": {
+          "name": "Attack Vector",
+          "value": "N",
+          "value_label": "Network"
+        },
+        "AC": {
+          "name": "Attack Complexity",
+          "value": "L",
+          "value_label": "Low"
+        },
+        "AT": {
+          "name": "Attack Requirements",
+          "value": "N",
+          "value_label": "None"
+        },
+        "PR": {
+          "name": "Privileges Required",
+          "value": "N",
+          "value_label": "None"
+        },
+        "UI": {
+          "name": "User Interaction",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VC": {
+          "name": "Confidentiality Impact to the Vulnerable System",
+          "value": "H",
+          "value_label": "High"
+        },
+        "VI": {
+          "name": "Integrity Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VA": {
+          "name": "Availability Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SC": {
+          "name": "Confidentiality Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SI": {
+          "name": "Integrity Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SA": {
+          "name": "Availability Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        }
+      }
+    }
+  },
+  {
+    "id": "CVE-2026-40249",
+    "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-40249",
+    "network_function": "UDR",
+    "root_cause": "Missing return statement (return non messo dopo error response)",
+    "cvss": {
+      "version": "4.0",
+      "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N",
+      "base_score": 6.9,
+      "severity": "Medium",
+      "base_metrics": {
+        "AV": {
+          "name": "Attack Vector",
+          "value": "N",
+          "value_label": "Network"
+        },
+        "AC": {
+          "name": "Attack Complexity",
+          "value": "L",
+          "value_label": "Low"
+        },
+        "AT": {
+          "name": "Attack Requirements",
+          "value": "N",
+          "value_label": "None"
+        },
+        "PR": {
+          "name": "Privileges Required",
+          "value": "N",
+          "value_label": "None"
+        },
+        "UI": {
+          "name": "User Interaction",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VC": {
+          "name": "Confidentiality Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VI": {
+          "name": "Integrity Impact to the Vulnerable System",
+          "value": "L",
+          "value_label": "Low"
+        },
+        "VA": {
+          "name": "Availability Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SC": {
+          "name": "Confidentiality Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SI": {
+          "name": "Integrity Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SA": {
+          "name": "Availability Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        }
+      }
+    }
+  },
+  {
+    "id": "CVE-2026-40343",
+    "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-40343",
+    "network_function": "UDR",
+    "root_cause": "Missing return statement (return non messo dopo error response)",
+    "cvss": {
+      "version": "4.0",
+      "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N",
+      "base_score": 6.9,
+      "severity": "Medium",
+      "base_metrics": {
+        "AV": {
+          "name": "Attack Vector",
+          "value": "N",
+          "value_label": "Network"
+        },
+        "AC": {
+          "name": "Attack Complexity",
+          "value": "L",
+          "value_label": "Low"
+        },
+        "AT": {
+          "name": "Attack Requirements",
+          "value": "N",
+          "value_label": "None"
+        },
+        "PR": {
+          "name": "Privileges Required",
+          "value": "N",
+          "value_label": "None"
+        },
+        "UI": {
+          "name": "User Interaction",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VC": {
+          "name": "Confidentiality Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VI": {
+          "name": "Integrity Impact to the Vulnerable System",
+          "value": "L",
+          "value_label": "Low"
+        },
+        "VA": {
+          "name": "Availability Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SC": {
+          "name": "Confidentiality Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SI": {
+          "name": "Integrity Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SA": {
+          "name": "Availability Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        }
+      }
+    }
+  },
+  {
+    "id": "CVE-2026-47780",
+    "url": "https://github.com/advisories/GHSA-6gxq-gpr8-xgjp",
+    "network_function": "PCF",
+    "root_cause": "CORS misconfiguration -> DoS",
+    "cvss": {
+      "version": "4.0",
+      "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:H/VA:N/SC:N/SI:L/SA:N/E:U",
+      "base_score": 4.9,
+      "severity": "Medium",
+      "base_metrics": {
+        "AV": {
+          "name": "Attack Vector",
+          "value": "N",
+          "value_label": "Network"
+        },
+        "AC": {
+          "name": "Attack Complexity",
+          "value": "L",
+          "value_label": "Low"
+        },
+        "AT": {
+          "name": "Attack Requirements",
+          "value": "N",
+          "value_label": "None"
+        },
+        "PR": {
+          "name": "Privileges Required",
+          "value": "L",
+          "value_label": "Low"
+        },
+        "UI": {
+          "name": "User Interaction",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VC": {
+          "name": "Confidentiality Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VI": {
+          "name": "Integrity Impact to the Vulnerable System",
+          "value": "H",
+          "value_label": "High"
+        },
+        "VA": {
+          "name": "Availability Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SC": {
+          "name": "Confidentiality Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SI": {
+          "name": "Integrity Impact to the Subsequent System",
+          "value": "L",
+          "value_label": "Low"
+        },
+        "SA": {
+          "name": "Availability Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        }
+      }
+    }
+  },
+  {
+    "id": "CVE-2026-41135",
+    "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-41135",
+    "network_function": "AMF",
+    "root_cause": "Missing default case (switch senza default)",
+    "cvss": {
+      "version": "4.0",
+      "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+      "base_score": 8.7,
+      "severity": "High",
+      "base_metrics": {
+        "AV": {
+          "name": "Attack Vector",
+          "value": "N",
+          "value_label": "Network"
+        },
+        "AC": {
+          "name": "Attack Complexity",
+          "value": "L",
+          "value_label": "Low"
+        },
+        "AT": {
+          "name": "Attack Requirements",
+          "value": "N",
+          "value_label": "None"
+        },
+        "PR": {
+          "name": "Privileges Required",
+          "value": "N",
+          "value_label": "None"
+        },
+        "UI": {
+          "name": "User Interaction",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VC": {
+          "name": "Confidentiality Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VI": {
+          "name": "Integrity Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VA": {
+          "name": "Availability Impact to the Vulnerable System",
+          "value": "H",
+          "value_label": "High"
+        },
+        "SC": {
+          "name": "Confidentiality Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SI": {
+          "name": "Integrity Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SA": {
+          "name": "Availability Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        }
+      }
+    }
+  },
+  {
+    "id": "CVE-2026-41136",
+    "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-41136",
+    "network_function": "UDM",
+    "root_cause": "Missing validator.IsValidSupi()",
+    "cvss": {
+      "version": "4.0",
+      "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N/E:P",
+      "base_score": 5.5,
+      "severity": "Medium",
+      "base_metrics": {
+        "AV": {
+          "name": "Attack Vector",
+          "value": "N",
+          "value_label": "Network"
+        },
+        "AC": {
+          "name": "Attack Complexity",
+          "value": "L",
+          "value_label": "Low"
+        },
+        "AT": {
+          "name": "Attack Requirements",
+          "value": "N",
+          "value_label": "None"
+        },
+        "PR": {
+          "name": "Privileges Required",
+          "value": "N",
+          "value_label": "None"
+        },
+        "UI": {
+          "name": "User Interaction",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VC": {
+          "name": "Confidentiality Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VI": {
+          "name": "Integrity Impact to the Vulnerable System",
+          "value": "L",
+          "value_label": "Low"
+        },
+        "VA": {
+          "name": "Availability Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SC": {
+          "name": "Confidentiality Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SI": {
+          "name": "Integrity Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SA": {
+          "name": "Availability Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        }
+      }
+    }
+  },
+  {
+    "id": "CVE-2026-42459",
+    "url": "https://www.cve.org/CVERecord?id=CVE-2026-42459",
+    "network_function": null,
+    "root_cause": "Non specificata",
+    "cvss": {
+      "version": "4.0",
+      "vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N/E:P",
+      "base_score": 7.7,
+      "severity": "High",
+      "base_metrics": {
+        "AV": {
+          "name": "Attack Vector",
+          "value": "N",
+          "value_label": "Network"
+        },
+        "AC": {
+          "name": "Attack Complexity",
+          "value": "L",
+          "value_label": "Low"
+        },
+        "AT": {
+          "name": "Attack Requirements",
+          "value": "N",
+          "value_label": "None"
+        },
+        "PR": {
+          "name": "Privileges Required",
+          "value": "N",
+          "value_label": "None"
+        },
+        "UI": {
+          "name": "User Interaction",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VC": {
+          "name": "Confidentiality Impact to the Vulnerable System",
+          "value": "H",
+          "value_label": "High"
+        },
+        "VI": {
+          "name": "Integrity Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "VA": {
+          "name": "Availability Impact to the Vulnerable System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SC": {
+          "name": "Confidentiality Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SI": {
+          "name": "Integrity Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        },
+        "SA": {
+          "name": "Availability Impact to the Subsequent System",
+          "value": "N",
+          "value_label": "None"
+        }
+      }
+    }
+  }
+]
