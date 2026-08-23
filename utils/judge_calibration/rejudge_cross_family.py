@@ -6,7 +6,7 @@ stessa temperatura del giudice di sistema: cambia solo il modello. Nessuna
 run nuova degli agenti.
 
 Uso:
-    python scripts/judge_calibration/rejudge_cross_family.py [--model gpt-oss:20b] [--local]
+    python utils/judge_calibration/rejudge_cross_family.py [--model gpt-oss:20b] [--local]
 Output:
     results/evaluation/judge_calibration/cross_family_<model>.md (+ .json)
 """

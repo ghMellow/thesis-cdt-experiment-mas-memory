@@ -1,8 +1,8 @@
-# Narrativa 08 — `scripts/judge_calibration/`
+# Narrativa 08 — `utils/judge_calibration/`
 
 ## Cosa sono, e cosa non sono
 
-I quattro script dentro `scripts/judge_calibration/` non fanno parte del flusso automatico dell'esperimento. Se si cerca `judge_calibration`, `calibrate_threshold`, `rejudge_cross_family` o `run_c1c2` dentro `main.py`, non si trova nulla: nessuno dei quattro viene importato o richiamato dal programma principale. Sono strumenti a sé stanti, lanciabili solo da riga di comando (`python scripts/judge_calibration/<script>.py [...]`), ciascuno con il proprio `if __name__ == "__main__": main()`. La loro funzione è analizzare *a posteriori* ciò che il flusso agenti → giudice → report ha già prodotto, oppure mettere alla prova il giudice stesso su materiale costruito apposta, e scrivere i risultati in una cartella separata, `results/evaluation/judge_calibration/`, così da non toccare né sporcare gli artefatti sperimentali originali in `results/`.
+I quattro script dentro `utils/judge_calibration/` non fanno parte del flusso automatico dell'esperimento. Se si cerca `judge_calibration`, `calibrate_threshold`, `rejudge_cross_family` o `run_c1c2` dentro `main.py`, non si trova nulla: nessuno dei quattro viene importato o richiamato dal programma principale. Sono strumenti a sé stanti, lanciabili solo da riga di comando (`python utils/judge_calibration/<script>.py [...]`), ciascuno con il proprio `if __name__ == "__main__": main()`. La loro funzione è analizzare *a posteriori* ciò che il flusso agenti → giudice → report ha già prodotto, oppure mettere alla prova il giudice stesso su materiale costruito apposta, e scrivere i risultati in una cartella separata, `results/evaluation/judge_calibration/`, così da non toccare né sporcare gli artefatti sperimentali originali in `results/`.
 
 Sono nati tutti nello stesso commit (`0e1bd50`, 16 luglio), con l'eccezione di `run_gtfree_rubric.py` che arriva più tardi (se ne parla al punto 5). Condividono un'impronta comune: stesso trucco di `sys.path.insert` per raggiungere la root del progetto e importare `config`, stessa doppia uscita `.json` (dati grezzi, per rielaborazioni successive) più `.md` (report leggibile con tabelle), stessa directory di destinazione.
 
@@ -66,4 +66,4 @@ In sintesi, un consolidamento ragionevole avrebbe tre livelli di priorità decre
 
 ---
 
-Fonte: docs/codemap/08_script_calibrazione.md (verificato contro scripts/judge_calibration/*.py).
+Fonte: docs/codemap/08_script_calibrazione.md (verificato contro utils/judge_calibration/*.py).

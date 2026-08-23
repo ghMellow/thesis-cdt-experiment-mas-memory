@@ -5,7 +5,7 @@ misura l'accordo tra il verdetto a soglia variabile e il match
 deterministico M1 (almeno una CVE target trovata in cvss_eval.matched).
 
 Uso:
-    python scripts/judge_calibration/calibrate_threshold.py
+    python utils/judge_calibration/calibrate_threshold.py
 Output:
     results/evaluation/judge_calibration/threshold_calibration.md (+ .json)
 """

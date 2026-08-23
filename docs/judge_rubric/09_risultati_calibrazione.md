@@ -57,4 +57,4 @@ Protocollo del doc 07 §3 (trasposto da arXiv:2607.12885): per ogni task, un rep
 1. **Soglia**: portare `TEXTUAL_PASS_RATIO` a **0.65** (o 0.55): a 0.7 si boccia un task con copertura CVE completa. Decidere anche il riferimento dichiarato della rubrica: copertura completa (M1-strict) o detection (M1@any).
 2. **task9 senza CVE target**: aggiungere il mapping delle CVE al task cross-file nel dataset normalizzato, o dichiararlo fuori dalle metriche deterministiche.
 3. **Il giudice attuale è affidabile** (CGP +0.948, robusto cross-family, zero false pass): la debolezza del sistema oggi non è il giudizio ma la sua **dipendenza dalla GT** — confermato che il lavoro va investito sulla rubrica GT-free (docs 04/05), con questo test come metro.
-4. **Asset riusabili**: `scripts/judge_calibration/` (3 script) e `calibration_c1c2/` (10 report) sono il banco di prova permanente per qualunque rubrica candidata.
+4. **Asset riusabili**: `utils/judge_calibration/` (3 script) e `calibration_c1c2/` (10 report) sono il banco di prova permanente per qualunque rubrica candidata.
