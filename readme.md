@@ -3,8 +3,7 @@
 Controlled multi-agent experiment on 5G network scenarios using LangGraph and local LLMs via Ollama.
 A single agent answers the tasks across two experimental setups (`1A` same model for agent and judge, `1B` different models).
 
-For full documentation see **[docs/README.md](docs/README.md)**.  
-For recent changes see **[docs/changelog.md](docs/changelog.md)**.
+The task set the agent is evaluated against is in [docs/tasks/](docs/tasks/).
 
 ---
 
@@ -25,7 +24,5 @@ poetry run python main.py
 ```bash
 poetry run python main.py --experiment 1A --task task3_anomaly
 poetry run python main.py --repetitions 1 --task-timeout 300
-poetry run python main.py --export-graph docs/graph.png
+poetry run python main.py --export-graph graph.png
 ```
-
-Full flag reference and resume/skip behavior in [docs/status.md](docs/status.md).
