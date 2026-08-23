@@ -56,7 +56,7 @@
                                         └───────────┬────────────┘  volta), aggrega Blocco B
                                                      │              (CVSS) + C (SGV) + A
                                                      ▼              (rubrica) in result_*.md
-                                        results/evaluation/*.md
+                                        results/reports/*.md
 ```
 
 ## Il flusso, in breve

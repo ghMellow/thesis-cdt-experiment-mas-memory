@@ -6,7 +6,7 @@ Vista rapida: per ogni cartella (reale o virtuale) e per ogni md sparso in `docs
 - [`codemap/` — cosa guardare per primo](#codemap--cosa-guardare-per-primo-mappa_sistemamd)
 - [md singoli a livello radice](#md-singoli-a-livello-radice)
   - [Cartella virtuale — md di esperimento/processo](#cartella-virtuale--md-di-esperimentoprocesso-sparsi-in-docs)
-- [Report di run — `results/evaluation/*.md`](#report-di-run--resultsevaluationmd)
+- [Report di run — `results/reports/*.md`](#report-di-run--resultsevaluationmd)
   - [Caso specifico: run con vs senza hint SAST](#caso-specifico-run-con-vs-senza-hint-sast-sonarqube)
 - **[`sgv_protocol/` — dati tabelle in LaTeX per il paper](#sgv_protocol--cosa-guardare-per-primo-i-dati-tabelle-in-latex)**
 
@@ -68,11 +68,11 @@ Non sono in una cartella fisica, ma appartengono concettualmente allo stesso gru
 
 ---
 
-## Report di run — `results/evaluation/*.md`
+## Report di run — `results/reports/*.md`
 
-**Non sono in `docs/`** (deliberatamente: non versionati salvo richiesta esplicita, vedi `CLAUDE.md`) — vivono in `results/evaluation/`, un file per combinazione `task × experiment_id`, generati automaticamente dalla pipeline di valutazione a partire dai JSON grezzi in `results/<task>/<experiment_id>/`.
+**Non sono in `docs/`** (deliberatamente: non versionati salvo richiesta esplicita, vedi `CLAUDE.md`) — vivono in `results/reports/`, un file per combinazione `task × experiment_id`, generati automaticamente dalla pipeline di valutazione a partire dai JSON grezzi in `results/<task>/<experiment_id>/`.
 
-**Nome file** → `result_<task>_<experiment_id>.md` (es. `result_task7_vuln_amf_1A_sast_hint.md` = task7, experiment_id `1A_sast_hint`). C'è anche [comparison.md](../results/evaluation/comparison.md) (pooled 1A vs 1B su tutti i task) e [consistency.md](../results/evaluation/consistency.md) a livello root di `results/evaluation/`.
+**Nome file** → `result_<task>_<experiment_id>.md` (es. `result_task7_vuln_amf_1A_sast_hint.md` = task7, experiment_id `1A_sast_hint`). C'è anche [comparison.md](../results/reports/comparison.md) (pooled 1A vs 1B su tutti i task) e [consistency.md](../results/reports/consistency.md) a livello root di `results/reports/`.
 
 **Come si leggono:**
 
@@ -82,7 +82,7 @@ Non sono in una cartella fisica, ma appartengono concettualmente allo stesso gru
 - Sezione **Rubric evaluation** → verdetto del giudice LLM (correct/wrong) per ripetizione, breakdown per criterio.
 - Ogni tabella ha una **Legend** subito sotto che spiega le colonne — leggerla è più affidabile che indovinare dal nome colonna.
 - Guida completa alla lettura (unità di analisi, perché precision è un floor, checklist anti-fraintendimento): [sgv_protocol/08_guida_metriche.md](sgv_protocol/08_guida_metriche.md). Definizioni formali M/S: [sgv_protocol/07_metriche_M_S_2026-07-14.md](sgv_protocol/07_metriche_M_S_2026-07-14.md).
-- **Precision@K** (P@1/P@3/P@5, "se mi fido solo dei top-K alert più severi quanti sono veri") → codice in `utils/cvss_eval.py::aggregate_precision_at_k` (calcolo) e `utils/evaluation_utils.py::_build_precision_at_k_section` (sezione report); dato pooled in [../results/evaluation/comparison.md](../results/evaluation/comparison.md) §Precision@K e nella sezione omonima di ogni `result_task*.md`; tabella LaTeX Tab.5 (vedi mappa Overleaf sotto).
+- **Precision@K** (P@1/P@3/P@5, "se mi fido solo dei top-K alert più severi quanti sono veri") → codice in `utils/cvss_eval.py::aggregate_precision_at_k` (calcolo) e `utils/evaluation_utils.py::_build_precision_at_k_section` (sezione report); dato pooled in [../results/reports/comparison.md](../results/reports/comparison.md) §Precision@K e nella sezione omonima di ogni `result_task*.md`; tabella LaTeX Tab.5 (vedi mappa Overleaf sotto).
 
 ### Caso specifico: run con vs senza hint SAST (SonarQube)
 
@@ -92,10 +92,10 @@ Report grezzi sottostanti — solo le versioni `_full`, quelle effettivamente us
 
 | Task | Con hint | Senza hint |
 | --- | --- | --- |
-| PCF (task5, unica versione = full) | [result_task5_vuln_pcf_1A_sast_hint.md](../results/evaluation/result_task5_vuln_pcf_1A_sast_hint.md) | [result_task5_vuln_pcf_1A.md](../results/evaluation/result_task5_vuln_pcf_1A.md) |
-| UDR full (task6, esteso a n=10) | [result_task6_vuln_udr_full_1A_sast_hint_full.md](../results/evaluation/result_task6_vuln_udr_full_1A_sast_hint_full.md) | [result_task6_vuln_udr_full_1A_no_hint_full.md](../results/evaluation/result_task6_vuln_udr_full_1A_no_hint_full.md) |
-| AMF full (task7) | [result_task7_vuln_amf_full_1A_sast_hint_full.md](../results/evaluation/result_task7_vuln_amf_full_1A_sast_hint_full.md) | [result_task7_vuln_amf_full_1A.md](../results/evaluation/result_task7_vuln_amf_full_1A.md) (baseline 1A riusato, non un file `_no_hint` dedicato) |
-| UDM full (task8) | [result_task8_vuln_udm_full_1A_sast_hint_full.md](../results/evaluation/result_task8_vuln_udm_full_1A_sast_hint_full.md) | [result_task8_vuln_udm_full_1A.md](../results/evaluation/result_task8_vuln_udm_full_1A.md) (baseline 1A riusato) |
+| PCF (task5, unica versione = full) | [result_task5_vuln_pcf_1A_sast_hint.md](../results/reports/result_task5_vuln_pcf_1A_sast_hint.md) | [result_task5_vuln_pcf_1A.md](../results/reports/result_task5_vuln_pcf_1A.md) |
+| UDR full (task6, esteso a n=10) | [result_task6_vuln_udr_full_1A_sast_hint_full.md](../results/reports/result_task6_vuln_udr_full_1A_sast_hint_full.md) | [result_task6_vuln_udr_full_1A_no_hint_full.md](../results/reports/result_task6_vuln_udr_full_1A_no_hint_full.md) |
+| AMF full (task7) | [result_task7_vuln_amf_full_1A_sast_hint_full.md](../results/reports/result_task7_vuln_amf_full_1A_sast_hint_full.md) | [result_task7_vuln_amf_full_1A.md](../results/reports/result_task7_vuln_amf_full_1A.md) (baseline 1A riusato, non un file `_no_hint` dedicato) |
+| UDM full (task8) | [result_task8_vuln_udm_full_1A_sast_hint_full.md](../results/reports/result_task8_vuln_udm_full_1A_sast_hint_full.md) | [result_task8_vuln_udm_full_1A.md](../results/reports/result_task8_vuln_udm_full_1A.md) (baseline 1A riusato) |
 
 ---
 

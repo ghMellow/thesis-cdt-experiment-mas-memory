@@ -71,7 +71,7 @@ I task security review (`task5`–`task9`) forniscono codice Go di network funct
 - `config.py`: mapping modelli + parametri globali (temperature, retry, ripetizioni, soglie)
 - `utils/experiment_utils.py`: stato e grafo LangGraph; nodi `load_task`, `run_agent`, `check_answer`, `save_result`; include valutazione deterministica math, logica di retry e scrittura risultati; contiene `_fetch_model_context_window` e `_build_judge_prompt`
 - `utils/task_utils.py`: parsing dei metadata (`**ID:**`, `**Tipo:**`) e lettura dei JSON dai file `_sol.md`; include `_result_exists` (skip run gia' completate) e `_answers_equal`
-- `utils/evaluation_utils.py`: aggregazione risultati e generazione report anomaly-focused in `results/evaluation/`; include `_detect_inconsistencies` (fase 1: string equality, fase 2: LLM semantic check sui flagged con modello `MODELS["semantic_check"]`, obbligatorio) e `_brier_score` (calibrazione confidence)
+- `utils/evaluation_utils.py`: aggregazione risultati e generazione report anomaly-focused in `results/reports/`; include `_detect_inconsistencies` (fase 1: string equality, fase 2: LLM semantic check sui flagged con modello `MODELS["semantic_check"]`, obbligatorio) e `_brier_score` (calibrazione confidence)
 - `agents/agent_runner.py`: chiamata LLM via Ollama + parsing Markdown in output (fallback JSON); logga token in/out quando disponibili
 - `agents/judge_agent.py`: chiamata LLM judge + parsing Markdown + logging token in/out; include `run_semantic_equivalence_check` (verifica equivalenza semantica tra reasoning string)
 - `agents/_llm_utils.py`: helper condivisi tra agent e judge (spinner, Markdown parsing, fallback JSON, error handling Ollama); `build_llm` passa `reasoning=config.OLLAMA_REASONING` a `ChatOllama` (solo locale) per i modelli con thinking nativo (es. deepseek-r1, qwq — no-op sui modelli gemma attuali); `extract_native_thinking` legge `response.additional_kwargs["reasoning_content"]`, distinto dal campo `reasoning` testuale scritto dal modello dentro il prompt
@@ -262,7 +262,7 @@ Dentro il JSON di risultato (campi principali):
 
 Il campo `judge_score` nei task textual include anche `normalized_score` (float in [0,1]) oltre ai campi `*_score` per categoria, `total_score` e `feedback`.
 
-### Report aggregati (`results/evaluation/`)
+### Report aggregati (`results/reports/`)
 
 Alla fine di una run, `utils/evaluation_utils.py` genera:
 

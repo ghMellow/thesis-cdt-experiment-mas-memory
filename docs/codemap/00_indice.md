@@ -39,7 +39,7 @@ utils/task_utils.py ──── load_task ────▶ utils/experiment_util
                                                   ▼
                                           utils/evaluation_utils.py
                                           (reporting: aggrega i JSON grezzi in
-                                           results/evaluation/*.md)
+                                           results/reports/*.md)
 
 utils/judge_calibration/*.py — standalone, non richiamati da main.py,
 leggono risultati già salvati o materiale di calibrazione fisso per

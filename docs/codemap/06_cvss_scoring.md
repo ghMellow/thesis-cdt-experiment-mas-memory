@@ -50,7 +50,7 @@ I due moduli implementano la valutazione "Blocco B" (esperimento 2b): un secondo
 - `compute_repetition_variability(evals)` (`:457-483`) — media/std/intervallo di confidenza 95% (Student t, df=n-1) sui conteggi TP/FP tra le ripetizioni di un singolo task; `None` se n<2.
 - `_modal_vector(vectors)` (`:486-499`) — baseline S3: valore più frequente per metrica tra un insieme di vettori GT (usa `collections.Counter`).
 - `aggregate_severity_metrics(task_ids, evals)` (`:502-572`) — S1 (exact match esatto), S2 (accuracy + distanza ordinale per metrica), S3 (baseline "modello nullo" che indovina sempre il vettore modale) calcolati solo sui TP (`matched`).
-- `recompute_saved_results(results_path=None)` (`:575-614`) — ricalcola in-place `cvss_eval`/`cvss_eval_pass1` su ogni file JSON salvato in `results/task*/*/*/*.json` (esclusi `*_solution.json`), leggendo `final_answer.cvss_estimate` (pass@k) e `history[0].cvss_estimate` (pass@1). Permette di applicare retroattivamente nuova logica di valutazione senza rilanciare l'esperimento.
+- `recompute_saved_results(results_path=None)` (`:575-614`) — ricalcola in-place `cvss_eval`/`cvss_eval_pass1` su ogni file JSON salvato in `results/rawJson/task*/*/*/*.json` (esclusi `*_solution.json`), leggendo `final_answer.cvss_estimate` (pass@k) e `history[0].cvss_estimate` (pass@1). Permette di applicare retroattivamente nuova logica di valutazione senza rilanciare l'esperimento.
 - Blocco `if __name__ == "__main__"` (`:617-631`) — entry point CLI: `poetry run python -m utils.cvss_eval` ricalcola tutti i risultati salvati e rigenera i report chiamando `utils.evaluation_utils._write_evaluation_reports`.
 
 ## 4. Chi chiama queste funzioni

@@ -17,7 +17,7 @@ Come è fatto e come gira il progetto di sperimentazione.
 | **[codemap/00_indice.md](codemap/00_indice.md)** | **"Code-as-truth"**: documentazione tecnica generata leggendo solo il codice sorgente + git log (mai le discussioni), un file per modulo, con riferimenti `file:riga` e razionale di design dove deducibile. Usa questa se devi discutere/modificare/interrogare il funzionamento reale del codice; usa `architecture.md`/le cartelle sotto per il processo e le decisioni di gruppo. Versione discorsiva (stessa profondità, prosa continua, per possedere davvero la conoscenza e argomentare): **[codemap/narrativa/00_indice.md](codemap/narrativa/00_indice.md)** |
 | [findings.md](findings.md) | Registro empirico: osservazioni che hanno causato correzioni al codice/metodo |
 | [tasks_provenance.md](tasks_provenance.md) | Provenienza dei file task5-9/`File_Free5gc_Vulnerabili`: cosa è dato grezzo ricevuto vs elaborazione di Claude — tenuto **fuori** da `docs/tasks/` apposta, perché quella cartella è letta verbatim come prompt per l'agente sotto test |
-| [risultati_template.md](risultati_template.md) | **Template** da copiare per il prossimo doc `0N_risultati_*.md`: cosa NON ripetere (già in `results/evaluation/*.md`), scheletro, checklist |
+| [risultati_template.md](risultati_template.md) | **Template** da copiare per il prossimo doc `0N_risultati_*.md`: cosa NON ripetere (già in `results/reports/*.md`), scheletro, checklist |
 | [experiments_framing.md](experiments_framing.md) | Coda di esperimenti framing (expert vs beginner) |
 | [changelog.md](changelog.md) | Storico modifiche |
 | [tasks/](tasks/) | I task di code review usati dagli agenti |

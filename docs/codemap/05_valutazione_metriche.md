@@ -4,12 +4,12 @@
 
 ## 1. Ruolo del modulo nella pipeline
 
-`utils/evaluation_utils.py` è il livello di **reporting**: prende i risultati grezzi salvati su disco da ogni repetizione di ogni task/ruolo/esperimento (file JSON sotto `results/<task>/<experiment>/<role>/*.json`), li carica in memoria, calcola metriche aggregate (accuratezza rubrica, consistenza cross-repetizione, costo, e — quando il task è di tipo vulnerabilità — le metriche di detection/severity M1-M5/S1-S3) e scrive i report Markdown finali in `results/evaluation/`. Il modulo **non calcola** la logica di matching finding↔CVE né la matematica CVSS: quella vive in `utils/cvss_eval.py` ed è importata qui (dentro le funzioni, con import locali) — `evaluation_utils.py` la aggrega e la presenta. Il file non contiene classi: è un insieme di funzioni quasi tutte prefissate `_` (private al modulo) tranne `list_runs` e le funzioni chiamate da `main.py`/CLI (`_write_evaluation_reports`, esposta anche come modulo eseguibile).
+`utils/evaluation_utils.py` è il livello di **reporting**: prende i risultati grezzi salvati su disco da ogni repetizione di ogni task/ruolo/esperimento (file JSON sotto `results/rawJson/<task>/<experiment>/<role>/*.json`), li carica in memoria, calcola metriche aggregate (accuratezza rubrica, consistenza cross-repetizione, costo, e — quando il task è di tipo vulnerabilità — le metriche di detection/severity M1-M5/S1-S3) e scrive i report Markdown finali in `results/reports/`. Il modulo **non calcola** la logica di matching finding↔CVE né la matematica CVSS: quella vive in `utils/cvss_eval.py` ed è importata qui (dentro le funzioni, con import locali) — `evaluation_utils.py` la aggrega e la presenta. Il file non contiene classi: è un insieme di funzioni quasi tutte prefissate `_` (private al modulo) tranne `list_runs` e le funzioni chiamate da `main.py`/CLI (`_write_evaluation_reports`, esposta anche come modulo eseguibile).
 
 ## 2. Mappa di alto livello: dal risultato grezzo al report
 
 ```
-results/<task>/<experiment>/<role>/*.json
+results/rawJson/<task>/<experiment>/<role>/*.json
         │
         ▼
 _collect_results()               # scansiona results/, normalizza formato nuovo/vecchio → {experiment_id: {role: [payload...]}}
@@ -38,7 +38,7 @@ _build_experiment_report()       # assembla un report .md per un singolo task_id
         └─ anomalies_section              → wrong verdicts / retry / inconsistenze vere (testo libero)
         │
         ▼
-result_<task_id>_<experiment_id>.md   scritto in results/evaluation/
+result_<task_id>_<experiment_id>.md   scritto in results/reports/
         (+ comparison.md se sia 1A che 1B sono nello scope: accuracy 1A vs 1B + rollup pooled M1-M3/S1-S3/M5)
 ```
 
@@ -50,8 +50,8 @@ Punto cruciale sull'architettura dei dati: il matching finding↔CVE e il calcol
 
 | Funzione | Riga | Cosa fa |
 | --- | --- | --- |
-| `_record_consistency_finding(lines)` | `utils/evaluation_utils.py:16` | Appende righe a `results/evaluation/consistency.md` (append semplice, nessuna deduplicazione). |
-| `_collect_results(results_path, run_id=None)` | `utils/evaluation_utils.py:26` | Scansiona ricorsivamente `results/<task>/<experiment>/<role>/*.json`, esclude la cartella `evaluation`. Gestisce due formati di file: nuovo (`{run_config..., "repetitions": [...]}`, dove ogni ripetizione eredita i campi di `run_config`) e vecchio (un file per repetizione, senza `run_id` — se si filtra per `run_id` questi non passano mai il filtro). Ritorna `{experiment_id: {role: [payload,...]}}`. |
+| `_record_consistency_finding(lines)` | `utils/evaluation_utils.py:16` | Appende righe a `results/reports/consistency.md` (append semplice, nessuna deduplicazione). |
+| `_collect_results(results_path, run_id=None)` | `utils/evaluation_utils.py:26` | Scansiona ricorsivamente `results/rawJson/<task>/<experiment>/<role>/*.json` (i report vivono ora in `results/reports/`, cartella separata — non serve più escluderla dalla scansione). Gestisce due formati di file: nuovo (`{run_config..., "repetitions": [...]}`, dove ogni ripetizione eredita i campi di `run_config`) e vecchio (un file per repetizione, senza `run_id` — se si filtra per `run_id` questi non passano mai il filtro). Ritorna `{experiment_id: {role: [payload,...]}}`. |
 | `list_runs(results_path)` | `utils/evaluation_utils.py:70` | Enumera tutte le combinazioni distinte `(task_id, experiment_id, role, run_id)` con conteggio repetizioni e timestamp più vecchio — usata dal flag CLI `--list-runs`. |
 
 ### 3.2 Utility numeriche/di formattazione generiche
@@ -68,7 +68,7 @@ Punto cruciale sull'architettura dei dati: il matching finding↔CVE e il calcol
 
 `_detect_inconsistencies(roles, semantic_check=True, task_filter=None)` (`:122`) — due fasi:
 1. **Fase stringa** (sempre): per ogni ruolo/task raggruppa i `reasoning` delle repetizioni; se ci sono ≥2 stringhe distinte, il task è "surface different".
-2. **Fase LLM** (se `semantic_check=True`): chiama `agents.judge_agent.run_semantic_equivalence_check` (import locale, quindi dipendenza solo a runtime) per capire se le differenze testuali sono parafrasi equivalenti o conclusioni realmente diverse. Risultati cachati in `results/evaluation/semantic_cache.json`, chiave = hash SHA-256 dei reasoning concatenati. Solleva `ValueError` se `config.MODELS["semantic_check"]` non è impostato — nessun fallback silenzioso.
+2. **Fase LLM** (se `semantic_check=True`): chiama `agents.judge_agent.run_semantic_equivalence_check` (import locale, quindi dipendenza solo a runtime) per capire se le differenze testuali sono parafrasi equivalenti o conclusioni realmente diverse. Risultati cachati in `results/reports/semantic_cache.json`, chiave = hash SHA-256 dei reasoning concatenati. Solleva `ValueError` se `config.MODELS["semantic_check"]` non è impostato — nessun fallback silenzioso.
 
 Ritorna `(truly_inconsistent, n_surface_equiv)`.
 
@@ -93,7 +93,7 @@ In `evaluation_utils.py`, il gruppo funzionale che presenta questi dati:
 
 | Funzione | Riga | Cosa fa |
 | --- | --- | --- |
-| `_build_cvss_section(roles, experiment_id, results_path)` | `:445` | Entry point Blocco B: verifica presenza di `cvss_eval`, calcola le etichette di ricorrenza una volta sola (`_compute_finding_groups`), poi concatena vector-detail, unmatched, e tutte le sotto-sezioni di metriche (M1-M5/S1-S3), con un'intestazione che distingue esplicitamente "headline metrics" da "legacy diagnostics" (commit `74963d8`, feedback 2026-07-16: "Aggregate metrics" da solo si leggeva come *gli* aggregati, come se M/S fossero altro). |
+| `_build_cvss_section(roles, experiment_id)` | `:445` | Entry point Blocco B: verifica presenza di `cvss_eval`, calcola le etichette di ricorrenza una volta sola (`_compute_finding_groups`), poi concatena vector-detail, unmatched, e tutte le sotto-sezioni di metriche (M1-M5/S1-S3), con un'intestazione che distingue esplicitamente "headline metrics" da "legacy diagnostics" (commit `74963d8`, feedback 2026-07-16: "Aggregate metrics" da solo si leggeva come *gli* aggregati, come se M/S fossero altro). |
 | `_normalize_function_name(function)` | `:1163` | Rimuove annotazioni finali tipo `"(PCF)"`/`"(Cross-NF ...)"` che l'agente talvolta appende al nome funzione, per non trattare la stessa funzione come due location diverse. |
 | `_highlight_function(text, function)` | `:1148` | Grassetta ogni occorrenza del nome funzione nel testo (gestisce sia il caso backtick-wrapped che plain) per i file di dettaglio. |
 | `_letter_label(n)` | `:1175` | Converte un intero in etichetta stile foglio di calcolo (a, b, ..., z, aa, ab, ...) per le lettere di ricorrenza. |
@@ -104,8 +104,8 @@ In `evaluation_utils.py`, il gruppo funzionale che presenta questi dati:
 | `_build_prompt_detail_block(final_answer)` | `:1427` | Blocco `<details>` collassabile col prompt esatto inviato al modello. |
 | `_write_unmatched_finding_file(...)` | `:1449` | Scrive un file `.md` autonomo per ogni finding senza CVE GT (dati strutturati + narrativa dell'agente). |
 | `_write_matched_finding_file(...)` | `:1498` | Analogo per i finding matchati (aggiunge CVE ID, vettore pubblicato). |
-| `_build_cvss_unmatched(roles, experiment_id, results_path, unmatched_markers=None)` | `:1552` | Tabella markdown di tutti i finding unmatched, ordinata per `computed_score_B` decrescente (triage order); crea `results/evaluation/unmatched_findings/*.md`. |
-| `_build_cvss_vector_detail(roles, experiment_id, results_path, matched_labels=None)` | `:1657` | Tabella per-CVE (stimato vs pubblicato, metrica per metrica) per ogni finding matchato; crea `results/evaluation/matched_findings/*.md`. |
+| `_build_cvss_unmatched(roles, experiment_id, unmatched_markers=None)` | `:1552` | Tabella markdown di tutti i finding unmatched, ordinata per `computed_score_B` decrescente (triage order); crea `results/reports/unmatched_findings/*.md`. |
+| `_build_cvss_vector_detail(roles, experiment_id, matched_labels=None)` | `:1657` | Tabella per-CVE (stimato vs pubblicato, metrica per metrica) per ogni finding matchato; crea `results/reports/matched_findings/*.md`. |
 
 ### 3.6 Metriche aggregate M1-M5 / S1-S3
 
@@ -133,8 +133,8 @@ Tutte importano funzioni da `utils/cvss_eval.py` e si limitano ad aggregare/pres
 | Funzione | Riga | Cosa fa |
 | --- | --- | --- |
 | `_build_run_id_note(all_payloads)` | `:1746` | Riga di intestazione con i `run_id` inclusi nel report, per ruolo — per non dover incrociare a mano nomi di cartella/timestamp. |
-| `_build_experiment_report(experiment_id, roles, task_filter=None, per_task_id=None, results_path=RESULTS_PATH)` | `:1760` | Assembla l'intero documento Markdown di un task/esperimento: calcola summary/anomalie (Blocco A), richiama tutte le sezioni CVSS/SGV, costruisce una tabella dei contenuti (TOC) dinamica basata sugli anchor `<a id=...>` effettivamente presenti. **Ordine dei blocchi deliberato** (commento nel codice, commit `74963d8`, feedback 2026-07-16): Blocco B (CVSS deterministico) apre il report, Blocco C (SGV) segue, Blocco A (rubrica LLM) chiude; dentro il Blocco B il dettaglio per-finding precede i roll-up aggregati (commit `3a2b430`/feedback 2026-07-13: un lettore calibra prima "l'agente dice cose sensate" sul dettaglio, poi usa gli aggregati per la visione globale). |
-| `_write_evaluation_reports(results_path, task_filter=None, experiment_ids=None, run_id=None)` | `:1954` | Entry point pubblico: chiama `_collect_results`, poi per ogni `experiment_id` (default `["1A", "1B"]`) e ogni `task_id` scrive `results/evaluation/result_<task_id>_<experiment_id>.md`. Se sia "1A" che "1B" sono nello scope, scrive anche `comparison.md`: tabella accuracy 1A vs 1B per ruolo, più un rollup pooled cross-task delle metriche M1-M3/S1-S3/M5 (motivazione nel commento: le cifre per-task sono rumorose con n=3 ripetizioni e poche CVE per task — es. S3 baseline degenera a 100% su task a singola CVE — mentre il pooling su tutti i task vuln dà il numero headline statisticamente significativo). |
+| `_build_experiment_report(experiment_id, roles, task_filter=None, per_task_id=None)` | `:1760` | Assembla l'intero documento Markdown di un task/esperimento: calcola summary/anomalie (Blocco A), richiama tutte le sezioni CVSS/SGV, costruisce una tabella dei contenuti (TOC) dinamica basata sugli anchor `<a id=...>` effettivamente presenti. **Ordine dei blocchi deliberato** (commento nel codice, commit `74963d8`, feedback 2026-07-16): Blocco B (CVSS deterministico) apre il report, Blocco C (SGV) segue, Blocco A (rubrica LLM) chiude; dentro il Blocco B il dettaglio per-finding precede i roll-up aggregati (commit `3a2b430`/feedback 2026-07-13: un lettore calibra prima "l'agente dice cose sensate" sul dettaglio, poi usa gli aggregati per la visione globale). |
+| `_write_evaluation_reports(results_path, task_filter=None, experiment_ids=None, run_id=None)` | `:1954` | Entry point pubblico: chiama `_collect_results`, poi per ogni `experiment_id` (default `["1A", "1B"]`) e ogni `task_id` scrive `results/reports/result_<task_id>_<experiment_id>.md`. Se sia "1A" che "1B" sono nello scope, scrive anche `comparison.md`: tabella accuracy 1A vs 1B per ruolo, più un rollup pooled cross-task delle metriche M1-M3/S1-S3/M5 (motivazione nel commento: le cifre per-task sono rumorose con n=3 ripetizioni e poche CVE per task — es. S3 baseline degenera a 100% su task a singola CVE — mentre il pooling su tutti i task vuln dà il numero headline statisticamente significativo). |
 
 ### 3.9 CLI
 

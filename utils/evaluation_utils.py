@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import config
-from config import RESULTS_PATH
+from config import REPORTS_PATH, RESULTS_PATH
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 def _record_consistency_finding(lines: List[str]) -> None:
     if not lines:
         return
-    eval_path = Path(RESULTS_PATH) / "evaluation" / "consistency.md"
+    eval_path = Path(REPORTS_PATH) / "consistency.md"
     eval_path.parent.mkdir(parents=True, exist_ok=True)
     existing = eval_path.read_text(encoding="utf-8") if eval_path.exists() else ""
     content = existing + "\n" + "\n".join(lines) + "\n"
@@ -38,8 +38,7 @@ def _collect_results(
     data: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
     if not base.exists():
         return data
-    _SKIP = {"evaluation"}
-    for task_dir in sorted(p for p in base.iterdir() if p.is_dir() and p.name not in _SKIP):
+    for task_dir in sorted(p for p in base.iterdir() if p.is_dir()):
         for experiment_dir in sorted(p for p in task_dir.iterdir() if p.is_dir()):
             experiment_id = experiment_dir.name
             data.setdefault(experiment_id, {})
@@ -77,7 +76,7 @@ def list_runs(results_path: str) -> List[Tuple[str, str, str, str, int, str]]:
     groups: Dict[Tuple[str, str, str, str], List[str]] = {}
     if not base.exists():
         return []
-    for task_dir in sorted(p for p in base.iterdir() if p.is_dir() and p.name != "evaluation"):
+    for task_dir in sorted(p for p in base.iterdir() if p.is_dir()):
         for experiment_dir in sorted(p for p in task_dir.iterdir() if p.is_dir()):
             for role_dir in sorted(p for p in experiment_dir.iterdir() if p.is_dir()):
                 for f in sorted(role_dir.glob("*.json")):
@@ -162,7 +161,7 @@ def _detect_inconsistencies(
     from agents.judge_agent import run_semantic_equivalence_check
     from agents._llm_utils import resolve_model_config
 
-    cache_path = Path(RESULTS_PATH) / "evaluation" / "semantic_cache.json"
+    cache_path = Path(REPORTS_PATH) / "semantic_cache.json"
     cache: Dict[str, Any] = {}
     if cache_path.exists():
         try:
@@ -443,7 +442,7 @@ def _build_sgv_section(all_payloads: List[Dict[str, Any]]) -> List[str]:
 
 
 def _build_cvss_section(
-    roles: Dict[str, List[Dict[str, Any]]], experiment_id: str, results_path: str
+    roles: Dict[str, List[Dict[str, Any]]], experiment_id: str
 ) -> List[str]:
     """CVSS sub-scores (Blocco B, deterministic) — reported separately from the
     rubric judge scores, never merged into accuracy."""
@@ -471,8 +470,8 @@ def _build_cvss_section(
     # Recurrence labels computed once so the letters are consistent between the
     # matched (vector detail) and unmatched tables (call 13 follow-up).
     matched_labels, unmatched_markers = _compute_finding_groups(roles)
-    lines += _build_cvss_vector_detail(roles, experiment_id, results_path, matched_labels=matched_labels)
-    lines += _build_cvss_unmatched(roles, experiment_id, results_path, unmatched_markers=unmatched_markers)
+    lines += _build_cvss_vector_detail(roles, experiment_id, matched_labels=matched_labels)
+    lines += _build_cvss_unmatched(roles, experiment_id, unmatched_markers=unmatched_markers)
 
     # All the tables below are roll-ups over every repetition of the task —
     # M1-M3/S1-S3 included (per-role rows, TP pooled across reps), not
@@ -1227,7 +1226,7 @@ def _cluster_unmatched_findings(
     from agents.judge_agent import run_semantic_equivalence_check
     from agents._llm_utils import resolve_model_config
 
-    cache_path = Path(RESULTS_PATH) / "evaluation" / "semantic_cache.json"
+    cache_path = Path(REPORTS_PATH) / "semantic_cache.json"
     cache: Dict[str, Any] = {}
     if cache_path.exists():
         try:
@@ -1567,7 +1566,6 @@ def _write_matched_finding_file(
 def _build_cvss_unmatched(
     roles: Dict[str, List[Dict[str, Any]]],
     experiment_id: str,
-    results_path: str,
     unmatched_markers: Optional[Dict[Tuple[str, str, Any, int], str]] = None,
 ) -> List[str]:
     """Findings with no ground-truth CVE, ranked most-severe-first by the
@@ -1603,7 +1601,7 @@ def _build_cvss_unmatched(
     if unmatched_markers is None:
         _, unmatched_markers = _compute_finding_groups(roles)
 
-    out_dir = Path(results_path) / "evaluation" / "unmatched_findings"
+    out_dir = Path(REPORTS_PATH) / "unmatched_findings"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     lines = [
@@ -1672,7 +1670,6 @@ def _build_cvss_unmatched(
 def _build_cvss_vector_detail(
     roles: Dict[str, List[Dict[str, Any]]],
     experiment_id: str,
-    results_path: str,
     matched_labels: Optional[Dict[Tuple[str, str, Any, str], str]] = None,
 ) -> List[str]:
     """Per-finding estimated vs. published CVSS vector, one compact table per
@@ -1710,7 +1707,7 @@ def _build_cvss_vector_detail(
     legend = load_cvss_dataset().get("_meta", {}).get("legenda_metriche", {})
     metrics = EXPLOITABILITY_METRICS + IMPACT_METRICS
 
-    out_dir = Path(results_path) / "evaluation" / "matched_findings"
+    out_dir = Path(REPORTS_PATH) / "matched_findings"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     if matched_labels is None:
@@ -1777,7 +1774,6 @@ def _build_experiment_report(
     roles: Dict[str, List[Dict[str, Any]]],
     task_filter: Optional[List[str]] = None,
     per_task_id: Optional[str] = None,
-    results_path: str = RESULTS_PATH,
 ) -> str:
     """Generate evaluation report.
 
@@ -1786,7 +1782,6 @@ def _build_experiment_report(
         roles: dict of {role: [payloads]}
         task_filter: optional list of task_ids to include (None = all)
         per_task_id: if set, generate report for only this task_id; else aggregate
-        results_path: where to write companion files (e.g. unmatched-finding detail pages)
     """
     lines = [f"# Evaluation Report: {experiment_id}", ""]
 
@@ -1918,7 +1913,7 @@ def _build_experiment_report(
     # first, then uses the aggregates for a global summary — not the other
     # way around (2026-07-13 feedback).
     sgv_lines = _build_sgv_section(all_payloads)
-    cvss_lines = _build_cvss_section(filtered_roles, experiment_id, results_path)
+    cvss_lines = _build_cvss_section(filtered_roles, experiment_id)
 
     toc = ['<a id="toc"></a>', "**Contents**", ""]
     if '<a id="vector-detail"></a>' in cvss_lines:
@@ -1973,7 +1968,7 @@ def _write_evaluation_reports(
     run_id: Optional[str] = None,
 ) -> None:
     data = _collect_results(results_path, run_id=run_id)
-    eval_dir = Path(results_path) / "evaluation"
+    eval_dir = Path(REPORTS_PATH)
     eval_dir.mkdir(parents=True, exist_ok=True)
 
     ids_to_report = experiment_ids if experiment_ids else ["1A", "1B"]
@@ -1994,7 +1989,7 @@ def _write_evaluation_reports(
         task_ids = sorted(set(p.get("task_id") for p in all_payloads if p.get("task_id")))
         for task_id in task_ids:
             task_report = _build_experiment_report(
-                experiment_id, roles, task_filter=task_filter, per_task_id=task_id, results_path=results_path
+                experiment_id, roles, task_filter=task_filter, per_task_id=task_id
             )
             filename = f"result_{task_id}_{experiment_id}.md"
             (eval_dir / filename).write_text(task_report, encoding="utf-8")

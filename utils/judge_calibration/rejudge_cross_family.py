@@ -8,7 +8,7 @@ run nuova degli agenti.
 Uso:
     python utils/judge_calibration/rejudge_cross_family.py [--model gpt-oss:20b] [--local]
 Output:
-    results/evaluation/judge_calibration/cross_family_<model>.md (+ .json)
+    results/reports/judge_calibration/cross_family_<model>.md (+ .json)
 """
 
 import argparse
@@ -29,7 +29,7 @@ from agents.judge_agent import run_judge_textual  # noqa: E402
 from utils.experiment_utils import build_judge_prompt  # noqa: E402
 from utils.task_utils import _extract_json_blocks, _model_slug  # noqa: E402
 
-OUT_DIR = os.path.join(config.RESULTS_PATH, "evaluation", "judge_calibration")
+OUT_DIR = os.path.join(config.REPORTS_PATH, "judge_calibration")
 
 
 def load_rubric_and_task(task_path: str, sol_path: str):
