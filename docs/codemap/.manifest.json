@@ -45,10 +45,10 @@
     },
     "08_script_calibrazione.md": {
       "sources": {
-        "scripts/judge_calibration/calibrate_threshold.py": "0e1bd50c57138c4f6b60678c2b7459a85ef917bf",
-        "scripts/judge_calibration/rejudge_cross_family.py": "0e1bd50c57138c4f6b60678c2b7459a85ef917bf",
-        "scripts/judge_calibration/run_c1c2.py": "0e1bd50c57138c4f6b60678c2b7459a85ef917bf",
-        "scripts/judge_calibration/run_gtfree_rubric.py": "8803cb9507f749163cec87cf5d6ead9549bb4d77"
+        "utils/judge_calibration/calibrate_threshold.py": "0e1bd50c57138c4f6b60678c2b7459a85ef917bf",
+        "utils/judge_calibration/rejudge_cross_family.py": "0e1bd50c57138c4f6b60678c2b7459a85ef917bf",
+        "utils/judge_calibration/run_c1c2.py": "0e1bd50c57138c4f6b60678c2b7459a85ef917bf",
+        "utils/judge_calibration/run_gtfree_rubric.py": "8803cb9507f749163cec87cf5d6ead9549bb4d77"
       }
     },
     "flusso.md": {

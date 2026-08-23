@@ -57,7 +57,7 @@ Costruzione materiali, **salvati verbatim prima di giudicare** (in `docs/judge_r
 ## 5. Note per l'orchestratore
 
 - **Esecutore**: gli script e l'analisi li fa l'orchestratore direttamente (sono corti e toccano convenzioni di progetto). Delegabile a un subagent (famiglia sonnet, `general-purpose`): la **stesura dei 10 report C1/C2**, che è generazione di testo parallela e ben specificata — nel prompt del subagent includere il `_sol.md` del task, il file di codice, e le regole del §4. La verifica finale dei materiali resta all'orchestratore.
-- Script in `scripts/judge_calibration/` (nuova cartella): `calibrate_threshold.py` (1a), `rejudge_cross_family.py` (1b), `run_c1c2.py` (1-bis). Riusare `agents/judge_agent.py` e `build_judge_prompt` — non duplicare la logica del giudice.
+- Script in `utils/judge_calibration/` (nuova cartella): `calibrate_threshold.py` (1a), `rejudge_cross_family.py` (1b), `run_c1c2.py` (1-bis). Riusare `agents/judge_agent.py` e `build_judge_prompt` — non duplicare la logica del giudice.
 - Modelli sempre presi da `config.py` o parametro CLI — mai hardcoded (regola di progetto).
 - Il giudice **non riceve mai la ground truth testuale** — vale anche per questi script: solo rubrica.
 - Dopo ogni passo: aggiornare la tabella *Stato* qui sotto e il DEVLOG se c'è una decisione/divergenza.

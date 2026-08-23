@@ -14,7 +14,7 @@ Due set:
                   accordo con M1-strict)
 
 Uso:
-    python scripts/judge_calibration/run_gtfree_rubric.py --set c1c2 [-k 3] \
+    python utils/judge_calibration/run_gtfree_rubric.py --set c1c2 [-k 3] \
         [--rubric docs/judge_rubric/gtfree/rubric_v2_draft.json --coverage surfaces]
 Output:
     results/evaluation/judge_calibration/<prefix>_<set>_<model>.md (+ .json)

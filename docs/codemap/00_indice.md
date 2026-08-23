@@ -41,7 +41,7 @@ utils/task_utils.py ──── load_task ────▶ utils/experiment_util
                                           (reporting: aggrega i JSON grezzi in
                                            results/evaluation/*.md)
 
-scripts/judge_calibration/*.py — standalone, non richiamati da main.py,
+utils/judge_calibration/*.py — standalone, non richiamati da main.py,
 leggono risultati già salvati o materiale di calibrazione fisso per
 validare/calibrare il giudice a posteriori.
 ```
@@ -57,7 +57,7 @@ validare/calibrare il giudice a posteriori.
 | [05_valutazione_metriche.md](05_valutazione_metriche.md) | `utils/evaluation_utils.py` | Livello di reporting: da JSON grezzi a report Markdown, tutte le metriche M1-M5/S1-S3 definite riga per riga | [narrativa/05_valutazione_metriche.md](narrativa/05_valutazione_metriche.md) |
 | [06_cvss_scoring.md](06_cvss_scoring.md) | `utils/cvss_eval.py`, `utils/cvss_utils.py` | Matching finding↔ground truth CVE e matematica CVSS — la logica che `05` si limita ad aggregare | [narrativa/06_cvss_scoring.md](narrativa/06_cvss_scoring.md) |
 | [07_sgv_gate.md](07_sgv_gate.md) | `utils/sgv.py`, `utils/sast_hint.py` | Gate sintattico deterministico G1-G4 e iniezione hint SAST nel prompt | [narrativa/07_sgv_gate.md](narrativa/07_sgv_gate.md) |
-| [08_script_calibrazione.md](08_script_calibrazione.md) | `scripts/judge_calibration/*.py` | Strumenti standalone di validazione/calibrazione del giudice, fuori dal flusso automatico | [narrativa/08_script_calibrazione.md](narrativa/08_script_calibrazione.md) |
+| [08_script_calibrazione.md](08_script_calibrazione.md) | `utils/judge_calibration/*.py` | Strumenti standalone di validazione/calibrazione del giudice, fuori dal flusso automatico | [narrativa/08_script_calibrazione.md](narrativa/08_script_calibrazione.md) |
 
 ## Come leggere questi file
 

@@ -6,7 +6,7 @@
 
 Il giudice del flusso principale usa una rubrica **scritta a partire dalla ground truth** del task (`docs/judge_rubric/01_stato_attuale_giudice_rubrica.md` §4): i descrittori nominano la funzione vulnerabile, il tipo di bug, il fix atteso. Questo funziona bene per misurare l'esperimento attuale, ma non generalizza: per usare il sistema su codice *nuovo*, di cui non si conosce già la vulnerabilità, non si può scrivere una rubrica che presuppone di conoscerla. La rubrica GT-free è il tentativo di costruire un giudice a rubrica che funzioni **senza** sapere in anticipo quale sia la vulnerabilità cercata: una sola rubrica generica, applicabile a qualunque report di security review, indipendente dal task.
 
-Non è (ancora) usata da nessun run reale: vive come traccia di calibrazione a parte, invocata solo a mano via `scripts/judge_calibration/run_gtfree_rubric.py` (dettaglio del confine col codice: `docs/codemap/mappa_sistema.md` §4 e ADR-11).
+Non è (ancora) usata da nessun run reale: vive come traccia di calibrazione a parte, invocata solo a mano via `utils/judge_calibration/run_gtfree_rubric.py` (dettaglio del confine col codice: `docs/codemap/mappa_sistema.md` §4 e ADR-11).
 
 ## 2. Come si misura se una rubrica GT-free è "abbastanza buona"
 

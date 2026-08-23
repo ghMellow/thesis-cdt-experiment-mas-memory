@@ -30,7 +30,7 @@ Regole anti-leakage rispettate: le classi sono di livello alto (coprono qualunqu
 
 ## 3. Esecuzione
 
-Script `scripts/judge_calibration/run_gtfree_rubric.py`, riusa `run_judge_textual`/`build_judge_prompt` con la rubrica caricata da file invece che dal `_sol.md`:
+Script `utils/judge_calibration/run_gtfree_rubric.py`, riusa `run_judge_textual`/`build_judge_prompt` con la rubrica caricata da file invece che dal `_sol.md`:
 
 1. **Set C1/C2** (10 report × K=3 = 30 chiamate): CGP GT-free, confronto per task con doc 09 §3.
 2. **Set report reali** (15 final_answer × K=3 = 45 chiamate): score GT-free vs GT-derivato, flip rate a t=0.65 e 0.7, accordo con M1-strict (sui 12 con M1 definito).

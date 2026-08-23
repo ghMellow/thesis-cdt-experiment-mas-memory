@@ -7,7 +7,7 @@ Calcola il Calibration Gap CGP = mean(score C1) - mean(score C2) per task e
 complessivo, e il tasso di promozione di C2 alle soglie 0.7 e 0.65.
 
 Uso:
-    python scripts/judge_calibration/run_c1c2.py [--model <m>] [--local] [-k 3]
+    python utils/judge_calibration/run_c1c2.py [--model <m>] [--local] [-k 3]
 Output:
     results/evaluation/judge_calibration/c1c2_<model>.md (+ .json)
 """
