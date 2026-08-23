@@ -39,5 +39,5 @@ Il limite che nessuna rubrica GT-free chiude è la **completezza**: sapere se il
 
 - Per il dettaglio di ciascun passaggio: doc 10 (impostazione + v1), 11 (risultati v1), 12 (proposta v2), 13 (risultati v2), 14 (proposta e rifiuto v3).
 - Per il confine col codice (cosa è wired, cosa è calibrazione a parte): `docs/codemap/mappa_sistema.md` §4 e ADR-11.
-- Dati grezzi di ogni run: `results/evaluation/judge_calibration/gtfree*.{md,json}`.
+- Dati grezzi di ogni run: `results/reports/judge_calibration/gtfree*.{md,json}` (path aggiornato 2026-08-23, split rawJson/reports — vedi DEVLOG).
 - Prossimo passo aperto, se si vuole andare oltre v2: l'enumeratore esterno di candidate (G5/SAST), non un'altra iterazione di rubrica — è la conclusione esplicita di doc 13 §4 e doc 14 §4.

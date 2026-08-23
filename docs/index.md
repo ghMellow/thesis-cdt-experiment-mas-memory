@@ -6,7 +6,7 @@ Vista rapida: per ogni cartella (reale o virtuale) e per ogni md sparso in `docs
 - [`codemap/` — cosa guardare per primo](#codemap--cosa-guardare-per-primo-mappa_sistemamd)
 - [md singoli a livello radice](#md-singoli-a-livello-radice)
   - [Cartella virtuale — md di esperimento/processo](#cartella-virtuale--md-di-esperimentoprocesso-sparsi-in-docs)
-- [Report di run — `results/reports/*.md`](#report-di-run--resultsevaluationmd)
+- [Report di run — `results/reports/*.md`](#report-di-run--resultsreportsmd)
   - [Caso specifico: run con vs senza hint SAST](#caso-specifico-run-con-vs-senza-hint-sast-sonarqube)
 - **[`sgv_protocol/` — dati tabelle in LaTeX per il paper](#sgv_protocol--cosa-guardare-per-primo-i-dati-tabelle-in-latex)**
 
@@ -70,7 +70,7 @@ Non sono in una cartella fisica, ma appartengono concettualmente allo stesso gru
 
 ## Report di run — `results/reports/*.md`
 
-**Non sono in `docs/`** (deliberatamente: non versionati salvo richiesta esplicita, vedi `CLAUDE.md`) — vivono in `results/reports/`, un file per combinazione `task × experiment_id`, generati automaticamente dalla pipeline di valutazione a partire dai JSON grezzi in `results/<task>/<experiment_id>/`.
+**Non sono in `docs/`** (deliberatamente: non versionati salvo richiesta esplicita, vedi `CLAUDE.md`) — vivono in `results/reports/`, un file per combinazione `task × experiment_id`, generati automaticamente dalla pipeline di valutazione a partire dai JSON grezzi in `results/rawJson/<task>/<experiment_id>/`.
 
 **Nome file** → `result_<task>_<experiment_id>.md` (es. `result_task7_vuln_amf_1A_sast_hint.md` = task7, experiment_id `1A_sast_hint`). C'è anche [comparison.md](../results/reports/comparison.md) (pooled 1A vs 1B su tutti i task) e [consistency.md](../results/reports/consistency.md) a livello root di `results/reports/`.
 

@@ -1,10 +1,10 @@
 # Template — documento di risultati per una run
 
-> Non è un report di run: è lo **scheletro** da copiare per scrivere il prossimo `docs/0N_risultati_*.md` (finora 02→07). Nato dal problema del doc 07: due domande dell'utente ("questi numeri si evincono dal doc?" / "la gestione dei risultati è un po' problematica") hanno mostrato che (a) affermazioni puntuali finivano nel testo senza modo di riverificarle, (b) capire quali dati appartenessero a quale run richiedeva script ad hoc. Con `run_id` (vedi `architecture.md` §7) il punto (b) è ormai automatico; questo template codifica cosa aggiungere di *proprio* oltre a `results/evaluation/*.md`, che ora si genera da solo.
+> Non è un report di run: è lo **scheletro** da copiare per scrivere il prossimo `docs/0N_risultati_*.md` (finora 02→07). Nato dal problema del doc 07: due domande dell'utente ("questi numeri si evincono dal doc?" / "la gestione dei risultati è un po' problematica") hanno mostrato che (a) affermazioni puntuali finivano nel testo senza modo di riverificarle, (b) capire quali dati appartenessero a quale run richiedeva script ad hoc. Con `run_id` (vedi `architecture.md` §7) il punto (b) è ormai automatico; questo template codifica cosa aggiungere di *proprio* oltre a `results/reports/*.md`, che ora si genera da solo.
 
 ---
 
-## Cosa fa GIÀ `results/evaluation/*.md` — non ripeterlo qui
+## Cosa fa GIÀ `results/reports/*.md` — non ripeterlo qui
 
 Prima di scrivere il doc, apri i report rilevanti (`result_<task>_<exp>.md`, `comparison.md`) e guarda cosa contengono già:
 
@@ -71,7 +71,7 @@ Comando `main.py` esatto. Se la run richiede uno stato particolare (cartelle spo
 
 - [ ] Ogni numero puntuale (non aggregato) ha un modo dichiarato di essere riverificato (percorso JSON, comando, o riferimento al report evaluation)
 - [ ] Il `run_id`/intervallo di questa run è scritto in testa — se i dati sono "legacy" (pre-`run_id`), dillo esplicitamente
-- [ ] Nessuna tabella duplicata da `results/evaluation/*.md` — solo interpretazione o dati che quei report non calcolano (es. confronto tra run diverse, causalità ipotizzata)
+- [ ] Nessuna tabella duplicata da `results/reports/*.md` — solo interpretazione o dati che quei report non calcolano (es. confronto tra run diverse, causalità ipotizzata)
 - [ ] I findings continuano la numerazione della run precedente, non ripartono da F1
 - [ ] Le cautele/limiti del campione sono dichiarati, non solo le conclusioni positive
 - [ ] `docs/README.md` e `docs/status.md` aggiornati con il puntatore al nuovo doc
