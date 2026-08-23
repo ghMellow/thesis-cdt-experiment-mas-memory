@@ -2,6 +2,15 @@
 
 ---
 
+## 2026-08-23 — `results/` split in `rawJson/` + `reports/`  [sessione: 4fdfad41-9e13-4bf0-b8e2-b311b3294df5]
+
+**Intent:** utente, spostato su `dev`, segnala che aprendo `results/` non è chiaro dove guardare: JSON grezzi e report `.md` (dentro `evaluation/`) stanno mischiati. Chiede una valutazione di quanto codice andrebbe toccato prima di agire: "il problema di ciò è che bisogna toccare molto codice vero? vedi altri modi migliori di fare ciò?"
+**Divergenze:** nessuna — proposta di due costanti config (`RESULTS_PATH` = raw, nuova `REPORTS_PATH` = report) discussa e approvata dall'utente prima di implementare ("si poi sposta-muovi le cartelle attuali. Verifichiamo che tutto funzioni e poi pushi e fai il cherry pick su main").
+**Esito/Problemi:** `config.py`: `RESULTS_PATH` ora `results/rawJson/` (invariato per tutto il codice che già lo usava come root raw — nessuna modifica lì), nuova `REPORTS_PATH = results/reports/`. Sostituiti i ~12 punti che derivavano la cartella report come `RESULTS_PATH + "evaluation"` (`evaluation_utils.py`, `cvss_eval.py`, i 4 script `judge_calibration`); rimossi i parametri `results_path` diventati morti in `_build_cvss_unmatched`/`_build_cvss_vector_detail`/`_build_cvss_section`/`_build_experiment_report` (servivano solo a costruire quel path). Cartelle fisiche spostate con `git mv` (`results/evaluation` → `results/reports`, le 8 cartelle task sotto `results/rawJson/`). Verificato rigenerando i report dal nuovo `rawJson/` (con lo LLM semantic-check stubbato per evitare rete/credenziali nel test): output identico al committato, unica differenza attesa nelle righe dipendenti dallo stub. Aggiornati anche i riferimenti `results/evaluation/...` nei doc "vivi" (`status.md`, `README.md`, `architecture.md`, `index.md`, `docs/codemap/*`) — non toccati i verbali di call/discussione (verbatim, per regola CLAUDE.md). Commit `caaf69c` su `dev`.
+**Lesson learned:** conveniva verificare prima quanti call-site condividessero davvero la stessa costante (`grep` mirato) invece di assumere "sposto cartella = tocco tutto": `RESULTS_PATH` era già usato in modo uniforme per il raw ovunque, quindi il refactor reale si è ridotto ai soli punti che derivavano `"evaluation"` da esso.
+
+---
+
 ## 2026-08-23 — Split `dev`/`main`: pulizia repo prima della generalizzazione  [sessione: 4fdfad41-9e13-4bf0-b8e2-b311b3294df5]
 
 **Intent:** l'utente ha riportato la call del relatore del 2026-08-20 (`.../_Tesi/tesi-vault/raw/calls/2026-08-20-diciottesima-call.md`): il progetto è arrivato a un punto conclusivo, prima di generalizzarlo (puntare a directory/git diversi, obiettivo vero del CDT) va fatto ciò che si fa "una volta chiusa una parte consistente": pulire e rendere presentabile il repo. Richiesta con ampio margine decisionale: "io inizierei creando un branch dev in cui ci spostiamo e teniamo questa copia del codice e poi in main andiamo a prunare tutto ciò che non serve [...] altra cosa la cartella docs da tenere completa nel dev [...] mentre in main esponiamo solo i tasks"
