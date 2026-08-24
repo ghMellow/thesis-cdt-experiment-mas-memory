@@ -2,6 +2,16 @@
 
 ---
 
+## 2026-08-24 — Registro tag `results-*` + regola per i tag futuri  [sessione: 4fdfad41-9e13-4bf0-b8e2-b311b3294df5]
+
+**Intent:** utente ipotizza che `results-2026-07-13b` sia il tag dato a Lorenzo per la review CVE/CVSS, chiede di verificarlo su .md/DEVLOG/commit e di ricostruire una descrizione raggruppata di tutti i 10 tag `results-*` esistenti (data → a cosa puntava → scopo); poi: "segna queste cose da qualche parte e in futuro quando si crea un tag fai si che si salvi anche il motivo (vedi tu se in devlog o file già esistenti oppure un file dedicato per i tag)"
+**Divergenze:** creato `docs/results_tags.md` come file dedicato (non solo DEVLOG) perché è un registro vivo da consultare/aggiornare a ogni nuovo tag, non un racconto di processo one-shot — la scelta tra le opzioni lasciate libere dall'utente
+**Decisioni:** confermato via fonte primaria (`DEVLOG.md` entry 2026-07-18, sessione `e68b2265`, citazione verbatim "review completa dell'esperto sul tag results-2026-07-14") che il tag corretto è **`results-2026-07-14`**, non `results-2026-07-13b` come ipotizzato dall'utente
+**Esito/Problemi:** creato `docs/results_tags.md` con la ricostruzione raggruppata in 4 fasi (formato report 13-14/07, calibrazione giudice 16/07, test SAST 21-23/07, consolidamento pre-call 04/08) e nota di verifica sul tag Lorenzo; agganciato in `docs/README.md`; aggiunta regola in `CLAUDE.md` §Note operative: ogni tag `results-*` va accompagnato subito da una riga in `docs/results_tags.md` col motivo
+**Lesson learned:** un tag creato "a caldo" senza annotare subito il destinatario/motivo diventa ricostruzione forense settimane dopo (qui: incrociare 3 fonti — annotazioni git, DEVLOG, commit di `docs/expert_review/`) — il costo di scriverlo al momento della creazione è minimo rispetto al costo di ricostruirlo dopo
+
+---
+
 ## 2026-08-23 — `results/` split in `rawJson/` + `reports/`  [sessione: 4fdfad41-9e13-4bf0-b8e2-b311b3294df5]
 
 **Intent:** utente, spostato su `dev`, segnala che aprendo `results/` non è chiaro dove guardare: JSON grezzi e report `.md` (dentro `evaluation/`) stanno mischiati. Chiede una valutazione di quanto codice andrebbe toccato prima di agire: "il problema di ciò è che bisogna toccare molto codice vero? vedi altri modi migliori di fare ciò?"

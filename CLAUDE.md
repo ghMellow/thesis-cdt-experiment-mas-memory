@@ -58,3 +58,4 @@ Se la documentazione non rispecchia il codice, segnalalo prima di procedere.
 - I task sono in `docs/tasks/` → 2 math (`task1_math_int`, `task2_math_real`), 2 textual (`task3_anomaly`, `task4_rootcause`).
 - I risultati sono in `results/` → non commitarli salvo richiesta esplicita.
 - Il judge non riceve la `ground_truth` testuale — la rubrica è la definizione operativa di "corretto".
+- **Ogni volta che crei un tag `results-*`**, aggiungi subito una riga in `docs/results_tags.md` con motivo/destinatario dello snapshot (checkpoint interno, condivisione con un esperto, ultimo snapshot pre-call, ecc.) — non rimandare, il motivo si perde in fretta.

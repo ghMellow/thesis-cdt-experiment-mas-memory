@@ -18,6 +18,7 @@ Come è fatto e come gira il progetto di sperimentazione.
 | [findings.md](findings.md) | Registro empirico: osservazioni che hanno causato correzioni al codice/metodo |
 | [tasks_provenance.md](tasks_provenance.md) | Provenienza dei file task5-9/`File_Free5gc_Vulnerabili`: cosa è dato grezzo ricevuto vs elaborazione di Claude — tenuto **fuori** da `docs/tasks/` apposta, perché quella cartella è letta verbatim come prompt per l'agente sotto test |
 | [risultati_template.md](risultati_template.md) | **Template** da copiare per il prossimo doc `0N_risultati_*.md`: cosa NON ripetere (già in `results/reports/*.md`), scheletro, checklist |
+| [results_tags.md](results_tags.md) | **Registro dei tag git `results-*`**: cosa conteneva ogni snapshot e perché è stato creato (condivisione con un esperto, checkpoint pre-call, ecc.) — aggiornalo appena crei un nuovo tag |
 | [experiments_framing.md](experiments_framing.md) | Coda di esperimenti framing (expert vs beginner) |
 | [changelog.md](changelog.md) | Storico modifiche |
 | [tasks/](tasks/) | I task di code review usati dagli agenti |
