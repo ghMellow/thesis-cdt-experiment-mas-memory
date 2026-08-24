@@ -21,7 +21,17 @@ Lo script riusa `utils/cvss_eval.py::evaluate_cvss_estimate` / `aggregate_detect
 da `docs/expert_review/03_CVE_CVSS_sast.md:306-320`, con un caveat esplicito nello script
 (vedi sotto).
 
-## Output (2026-08-24)
+## Output (2026-08-24) — due unità di misura, entrambe generate dallo stesso script
+
+Lo script stampa **due viste sugli stessi dati grezzi**, non due esperimenti diversi: la
+domanda "diviso 3?" del 2026-08-24 ha chiarito che la tabella del relatore sembra usare
+un'unità di conteggio diversa dalla pipeline esistente (report di run, `10b_/12b_`).
+Invece di scegliere una sola convenzione, lo script calcola entrambe così sono confrontabili
+fianco a fianco.
+
+### Pooled — unità = CVE × ripetizione (stessa convenzione dei report di run/`10b_/12b_`)
+
+Una CVE trovata in 3/3 ripetizioni conta 3 TP, non 1.
 
 | NF | Config | TP | FP | Cand. | FN | Prec. | DR |
 |---|---|---|---|---|---|---|---|
@@ -40,6 +50,32 @@ Precisione pooled (11.5% / 12.1%) combacia esattamente con i numeri già verific
 `10b_dati_paper_no_sonarqube_corretto_UDR.tex` / `12b_dati_paper_sast_hint_corretto_UDR.tex`
 (commit `bd0dcc0`) — questo script è la versione persistita e riproducibile dello stesso
 calcolo, che finora esisteva solo come script usa-e-getta.
+
+### Distinct — unità = CVE distinta trovata almeno una volta
+
+TP = numero di CVE target diverse trovate in almeno 1 ripetizione su 3 (non sommato per
+ripetizione). FP = numero di nomi-funzione distinti tra i finding non matchati, dedup
+grezzo per funzione — **non** lo stesso dedup (con controllo LLM sui residui) usato dai
+report di run (`_compute_finding_groups`), quindi va letto come limite superiore, non
+come numero esatto di FP "veramente distinti".
+
+| NF | Config | TP | FP | Cand. | FN | Prec. | DR |
+|---|---|---|---|---|---|---|---|
+| PCF | No-hint | 1 | 0 | 0 | 0 | 1.000 | 0.000 |
+| PCF | SAST-hint | 1 | 2 | 0 | 0 | 0.333 | 0.000 |
+| UDR | No-hint | 0 | 11 | 4 | 6 | 0.000 | 0.364 |
+| UDR | SAST-hint | 3 | 7 | 4 | 3 | 0.300 | 0.400 |
+| AMF | No-hint | 1 | 9 | 2 | 0 | 0.100 | 0.200 |
+| AMF | SAST-hint | 1 | 9 | 2 | 0 | 0.100 | 0.200 |
+| UDM | No-hint | 1 | 14 | 4 | 0 | 0.067 | 0.267 |
+| UDM | SAST-hint | 1 | 13 | 6 | 0 | 0.071 | 0.429 |
+| **Tot.** | No-hint | **3** | **34** | **10** | **6** | **0.081** | **0.270** |
+| **Tot.** | SAST-hint | **6** | **31** | **12** | **3** | **0.162** | **0.324** |
+
+**Osservazione**: in questa vista TP/FN di PCF, AMF, UDM No-hint combaciano esattamente
+con la tabella del relatore (TP=1, FN=0 su tutte e tre) — l'unità "CVE distinta" sembra
+quella giusta. FP resta diverso (qui più alto: 0/9/14 vs 1/5/5 nella sua tabella) e UDR
+resta il caso non riconciliato (qui TP=0 dopo la correzione, la sua tabella ha TP=1).
 
 ## Provenienza dei dati grezzi per NF (perché non è ambiguo)
 
@@ -61,15 +97,24 @@ per cui rigenerare i report dalla pipeline oggi mostra ancora i 6 TP spuri. Ques
 applica la stessa correzione (`_corrected_dataset()`, handler_functions nullato per le due
 CVE) in modo esplicito e riproducibile ogni volta che gira.
 
-## ⚠️ Confronto con la tabella del relatore — non riconciliato
+## ⚠️ Confronto con la tabella del relatore — parzialmente riconciliato
 
-I numeri sopra **non combaciano** con la tabella che il relatore ha condiviso (rifatta a
-mano con Lorenzo): quella ha TP molto più bassi per ogni NF (es. PCF TP=1 qui è TP=3,
-AMF FP=5 qui è FP=16) e un'unità di misura diversa (sembra "CVE distinta trovata almeno
-una volta", non CVE×ripetizione). Non è stato possibile ricostruire la formula esatta —
-il relatore stesso l'ha definita una ricostruzione a mano "per sembrare coerente", non un
-ricalcolo deterministico. Questa tabella è la proposta di sostituzione robusta, da
-validare col gruppo prima di rimpiazzare la Tabella 3 nel paper.
+Con l'unità "CVE distinta" (sopra), **TP e FN di PCF/AMF/UDM No-hint combaciano
+esattamente** con la sua tabella (TP=1, FN=0 su tutte e tre) — quindi l'unità di misura
+è quasi certamente quella giusta, non è più un mistero. Restano due differenze aperte:
+
+- **FP**: qui più alto (PCF 0/AMF 9/UDM 14 vs la sua 1/5/5) — il dedup usato qui
+  (nome-funzione grezzo) è più permissivo del dedup con controllo LLM dei report di run;
+  probabile che la sua tabella usi quel dedup più fine, non riproducibile qui senza
+  richiamare il giudice semantico (fuori scope per uno script offline).
+- **UDR**: qui TP=0 dopo la correzione (le uniche CVE mai matchate erano le due spurie),
+  la sua tabella ha TP=1 — l'unico NF ancora non spiegato.
+
+Il relatore stesso ha definito la sua Tabella 3 una ricostruzione a mano "per sembrare
+coerente", non un ricalcolo deterministico — quindi un allineamento a 1 differenza
+residua (FP dedup) più un NF (UDR) è già un buon risultato. Questa tabella resta la
+proposta di sostituzione robusta, da validare col gruppo prima di rimpiazzare la
+Tabella 3 nel paper.
 
 ## Caveat aperto: colonna Candidates
 

@@ -98,7 +98,7 @@ def _load_repetitions(task_id: str, experiment_id: str, max_reps: Optional[int])
     return reps[:max_reps] if max_reps else reps
 
 
-def _aggregate(task_id: str, reps: List[Dict[str, Any]], dataset: Dict[str, Any]) -> Dict[str, Any]:
+def _evals(task_id: str, reps: List[Dict[str, Any]], dataset: Dict[str, Any]) -> List[Dict[str, Any]]:
     # Swap the module-level cache so evaluate_cvss_estimate/_candidate_cves
     # see `dataset` for this call only, then restore — avoids a permanent
     # monkeypatch leaking into anything else that imports cvss_eval.
@@ -110,32 +110,63 @@ def _aggregate(task_id: str, reps: List[Dict[str, Any]], dataset: Dict[str, Any]
             cvss_eval.evaluate_cvss_estimate(task_id, (r.get("final_answer") or {}).get("cvss_estimate"))
             for r in reps
         ]
-        evals = [e for e in evals if e is not None]
-        return cvss_eval.aggregate_detection_metrics(evals)
+        return [e for e in evals if e is not None]
     finally:
         cvss_eval.load_cvss_dataset = original
         cvss_eval.load_cvss_dataset.cache_clear()
 
 
-def build_table() -> Dict[str, Dict[str, Dict[str, Any]]]:
+def _aggregate_distinct(evals: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Alternate unit of analysis: distinct CVE recovered at least once across
+    all repetitions pooled (vs the pooled CVE-x-repetition unit above). Every
+    repetition draws from the same fixed candidate set, so n_target_cves is
+    read off the first eval — TP/FN don't multiply by rep count here.
+
+    FP (distinct) dedups unmatched findings by function name across every
+    repetition — a simpler, fully deterministic proxy for "the same
+    underlying finding reported again" than the report pipeline's grouping
+    (utils/evaluation_utils.py::_compute_finding_groups), which additionally
+    runs an LLM semantic check on leftovers. This script stays offline/fast
+    on purpose, so that check is intentionally not reproduced here — treat
+    FP (distinct) as an upper bound on truly distinct false positives, not
+    an exact figure.
+    """
+    n_target = evals[0]["n_target_cves"] if evals else 0
+    matched_cve_ids = {m["cve_id"] for e in evals for m in e.get("matched", [])}
+    unmatched_functions = {
+        (u.get("function") or f"<no-function>#{i}")
+        for e in evals
+        for i, u in enumerate(e.get("unmatched", []))
+    }
+    tp = len(matched_cve_ids)
+    fn = n_target - tp
+    fp = len(unmatched_functions)
+    precision = tp / (tp + fp) if (tp + fp) else None
+    return {"tp": tp, "fp": fp, "fn": fn, "precision": precision}
+
+
+def build_table() -> Dict[str, Dict[str, Dict[str, Dict[str, Any]]]]:
     corrected = _corrected_dataset()
-    rows: Dict[str, Dict[str, Dict[str, Any]]] = {}
+    rows: Dict[str, Dict[str, Dict[str, Dict[str, Any]]]] = {}
     for nf, cfg in NF_CONFIG.items():
         no_hint_reps = _load_repetitions(cfg["task_id"], cfg["no_hint"], None)
         sast_hint_reps = _load_repetitions(cfg["task_id"], cfg["sast_hint"], cfg["sast_hint_max_reps"])
-        rows[nf] = {
-            "no_hint": _aggregate(cfg["task_id"], no_hint_reps, corrected),
-            "sast_hint": _aggregate(cfg["task_id"], sast_hint_reps, corrected),
-        }
+        rows[nf] = {}
+        for cond_key, reps in (("no_hint", no_hint_reps), ("sast_hint", sast_hint_reps)):
+            evals = _evals(cfg["task_id"], reps, corrected)
+            rows[nf][cond_key] = {
+                "pooled": cvss_eval.aggregate_detection_metrics(evals),
+                "distinct": _aggregate_distinct(evals),
+            }
     return rows
 
 
-def _fmt(rows: Dict[str, Dict[str, Dict[str, Any]]]) -> str:
+def _fmt_variant(rows: Dict[str, Dict[str, Dict[str, Dict[str, Any]]]], variant: str) -> str:
     lines = ["NF | Config | TP | FP | Cand. | FN | Prec. | DR", "---|---|---|---|---|---|---|---"]
     totals = {"no_hint": {"tp": 0, "fp": 0, "fn": 0, "cand": 0}, "sast_hint": {"tp": 0, "fp": 0, "fn": 0, "cand": 0}}
     for nf, by_cond in rows.items():
         for cond_key, cond_label in (("no_hint", "No-hint"), ("sast_hint", "SAST-hint")):
-            m = by_cond[cond_key]
+            m = by_cond[cond_key][variant]
             cand = CANDIDATES[cond_key][nf]
             tp, fp, fn = m["tp"], m["fp"], m["fn"]
             prec = m["precision"] or 0.0
@@ -151,6 +182,15 @@ def _fmt(rows: Dict[str, Dict[str, Dict[str, Any]]]) -> str:
         dr = t["cand"] / (t["tp"] + t["fp"]) if (t["tp"] + t["fp"]) else 0.0
         lines.append(f"**Tot.** | {cond_label} | **{t['tp']}** | **{t['fp']}** | **{t['cand']}** | **{t['fn']}** | **{prec:.3f}** | **{dr:.3f}**")
     return "\n".join(lines)
+
+
+def _fmt(rows: Dict[str, Dict[str, Dict[str, Dict[str, Any]]]]) -> str:
+    return (
+        "## Pooled (unit = CVE x repetition, TP/FP/FN summed across reps)\n\n"
+        + _fmt_variant(rows, "pooled")
+        + "\n\n## Distinct (unit = distinct CVE recovered at least once; FP = distinct unmatched function names)\n\n"
+        + _fmt_variant(rows, "distinct")
+    )
 
 
 if __name__ == "__main__":
