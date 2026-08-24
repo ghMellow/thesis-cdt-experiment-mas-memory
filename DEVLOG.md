@@ -2,6 +2,16 @@
 
 ---
 
+## 2026-08-24 — Script riproducibile per la Detection Table del paper  [sessione: 4fdfad41-9e13-4bf0-b8e2-b311b3294df5]
+
+**Intent:** utente incolla la tabella LaTeX "Detection Performance by NF and Configuration" del paper e chiede di verificarne i numeri contro il tag `results-2026-07-14`; poi, dopo che verifico che non torna con nessun dato del repo, chiede di testare l'ipotesi "diviso 3 per normalizzare le ripetizioni"; infine, avendo confermato dalla trascrizione della call che il relatore l'ha ricostruita a mano con Lorenzo ("cercato di creare una storia che sembrasse coerente"), chiede esplicitamente: "creaiamo un file specifico per riprodurre la generazione di questi valori... perché appena gli condivido la tabella sicuro mi chiede come l'ho creata"
+**Divergenze:** oltre allo script richiesto, ho scoperto (non richiesto) che la correzione UDR di `bd0dcc0` non era mai stata persistita come dataset/script riutilizzabile — solo l'output LaTeX (`10b_/12b_`) sopravvive, la copia corretta del dataset era usa-e-getta. Ho quindi reso quella correzione stessa parte permanente e documentata dello script invece di limitarmi a nuovi calcoli
+**Decisioni:** creato `utils/generate_detection_table.py` (riusa `utils.cvss_eval.evaluate_cvss_estimate`/`aggregate_detection_metrics`, nessun matching reimplementato) + `docs/sgv_protocol/13_detection_table_robusta.md` con l'output e la provenienza dei dati grezzi per NF documentata esplicitamente (ambiguità risolta: UDR ha più run sovrapposti sul disco, `1A_sast_hint_full` ha 10 rep invece delle 3 canoniche — le prime 3 riproducono esattamente TP=9→3 di `bd0dcc0`, confermando la scelta)
+**Esito/Problemi:** output pooled (Prec. 11.5% no-hint / 12.1% SAST-hint) combacia esattamente con `10b_/12b_dati_paper...corretto_UDR.tex` già verificati — la tabella del relatore resta **non riconciliata** (unità di misura diversa, probabile ricostruzione a mano non deterministica) e serve validazione col gruppo prima di sostituire la Tabella 3 nel paper; colonna Candidates ha ancora un caveat aperto (10/12 da Lorenzo vs "13" citato dal relatore in call, probabile round di conferma successivo non documentato)
+**Lesson learned:** una correzione "via light, nessuna modifica a codice di produzione" (bd0dcc0) è un compromesso ragionevole nell'immediato ma silenzioso nel tempo — se il calcolo che produce un numero del paper non è mai persistito come script versionato, la domanda "come l'hai fatto" diventa forense mesi dopo, anche quando la correzione originale era corretta
+
+---
+
 ## 2026-08-24 — Registro tag `results-*` + regola per i tag futuri  [sessione: 4fdfad41-9e13-4bf0-b8e2-b311b3294df5]
 
 **Intent:** utente ipotizza che `results-2026-07-13b` sia il tag dato a Lorenzo per la review CVE/CVSS, chiede di verificarlo su .md/DEVLOG/commit e di ricostruire una descrizione raggruppata di tutti i 10 tag `results-*` esistenti (data → a cosa puntava → scopo); poi: "segna queste cose da qualche parte e in futuro quando si crea un tag fai si che si salvi anche il motivo (vedi tu se in devlog o file già esistenti oppure un file dedicato per i tag)"
