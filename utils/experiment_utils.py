@@ -154,8 +154,12 @@ class ExperimentState(TypedDict, total=False):
     # Dynamic mode (--source-dir): task built in memory from a source file, no
     # ground truth and no known-CVE dataset entry — see utils/dynamic_task.py.
     gtfree: bool
-    # Which review instruction built the dynamic prompt ("base"/"exhaustive").
+    # Which review instruction built the dynamic prompt, plus whether the SAST
+    # arm was on ("base", "exhaustive", "base+sast", "exhaustive+sast").
     prompt_variant: str
+    # Alerts injected into this file's prompt. None = SAST arm off; 0 = arm on
+    # but nothing matched this file, i.e. it ran as the baseline.
+    sast_alerts: Optional[int]
     # True on security-review tasks (CVSS block injected, SGV gate active).
     # Derived from the task id/type on static tasks, always True on dynamic ones.
     is_security_review: bool
@@ -460,6 +464,7 @@ def _save_result(state: ExperimentState) -> ExperimentState:
             "sol_path": state["sol_path"],
             "gtfree": state.get("gtfree", False),
             "prompt_variant": state.get("prompt_variant"),
+            "sast_alerts": state.get("sast_alerts"),
             "repetitions": [rep_payload],
         }
 

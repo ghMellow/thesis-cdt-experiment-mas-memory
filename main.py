@@ -8,13 +8,21 @@ import logging
 import sys
 import time
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import config
 from agents._llm_utils import resolve_model_config
 from config import FULL_TASK_SUFFIX, FULL_TASK_TIMEOUT_MULTIPLIER, MODELS, OLLAMA_BASE_URL, REPETITIONS, RESULTS_PATH, TASK_TIMEOUT_SECONDS, TASKS_PATH
 from agents._llm_utils import LLMTimeout
-from utils.dynamic_task import build_dynamic_tasks, load_gtfree_rubric
+from utils.dynamic_task import (
+    build_dynamic_tasks,
+    discover_source_files,
+    is_candidate,
+    load_gtfree_rubric,
+)
+from utils.git_diff import GitSelectionError, changed_files, describe_range
+from utils import sast_ingest
 from utils.gtfree_report import write_gtfree_report
 from utils.evaluation_utils import _record_consistency_finding, _write_evaluation_reports
 from utils.experiment_utils import ExperimentState, _build_graph, _fetch_model_context_window, _time_limit
@@ -33,8 +41,102 @@ class _SpinnerClearHandler(logging.StreamHandler):
         super().emit(record)
 
 
+def _select_source_files(source_dir: str, changed_since: Optional[str]) -> List[Path]:
+    """Files to review: the whole tree (mode A) or just what a git range touched (mode B).
+
+    Mode B is a selector on top of mode A, not a different pipeline — see
+    `utils/git_diff.py` for why the agent still receives the whole file rather
+    than the diff hunk.
+    """
+    root = Path(source_dir)
+    if not changed_since:
+        return discover_source_files(
+            root, config.DYNAMIC_SOURCE_EXTENSIONS, config.DYNAMIC_EXCLUDE_PATTERNS
+        )
+    try:
+        return changed_files(root, changed_since)
+    except GitSelectionError as exc:
+        logger.error("--changed-since could not be resolved: %s", exc)
+        raise SystemExit(1)
+
+
+def _resolve_sast_alerts(
+    source_dir: str,
+    files: List[Path],
+    report_path: str,
+    path_map_path: Optional[str],
+) -> Tuple[Dict[str, List[Dict[str, Any]]], Dict[str, Any]]:
+    """Join a frozen SAST report to the files under review.
+
+    Files with no unambiguous path match are resolved by asking the user, one by
+    one (`utils/sast_ingest.py`): an unmatched file means the "with SAST" arm
+    silently collapses to the baseline for that file, and a comparison corrupted
+    that quietly is worse than a run that stops to ask.
+    """
+    root = Path(source_dir)
+    root_abs = root.resolve()
+    rel_paths = []
+    for path in files:
+        resolved = Path(path).resolve()
+        if not resolved.is_relative_to(root_abs):
+            continue
+        rel = str(resolved.relative_to(root_abs))
+        if is_candidate(
+            rel, config.DYNAMIC_SOURCE_EXTENSIONS, config.DYNAMIC_EXCLUDE_PATTERNS
+        ):
+            rel_paths.append(rel)
+    alerts, fmt, digest = sast_ingest.load_alerts(report_path)
+    matched, ambiguous, absent = sast_ingest.match_alerts(alerts, rel_paths)
+
+    path_map: Dict[str, Optional[str]] = {}
+    if path_map_path and Path(path_map_path).is_file():
+        path_map = sast_ingest.load_path_map(path_map_path)
+        preset = sast_ingest.apply_path_map(
+            {k: v for k, v in path_map.items() if k in dict.fromkeys(rel_paths)}, alerts
+        )
+        matched.update(preset)
+        known = set(path_map)
+        ambiguous = [(rel, cands) for rel, cands in ambiguous if rel not in known]
+        absent = [rel for rel in absent if rel not in known]
+        logger.info("SAST path map %s applied (%s entries)", path_map_path, len(path_map))
+
+    unresolved = ambiguous + sast_ingest.confirm_absent(
+        absent, len({a["path"] for a in alerts})
+    )
+    if unresolved:
+        answers = sast_ingest.resolve_interactively(unresolved, alerts)
+        matched.update(sast_ingest.apply_path_map(answers, alerts))
+        path_map.update(answers)
+        if path_map_path:
+            sast_ingest.save_path_map(path_map_path, path_map)
+
+    if not matched:
+        logger.error(
+            "SAST arm requested but not one reviewed file matched an alert path in %s — "
+            "refusing to run: it would be the baseline under a different name.",
+            report_path,
+        )
+        raise SystemExit(1)
+
+    meta = {
+        "report": report_path,
+        "format": fmt,
+        "sha256": digest,
+        "alerts_total": len(alerts),
+        "files_with_alerts": sum(1 for v in matched.values() if v),
+        "files_total": len(rel_paths),
+        "files_absent": len(absent),
+    }
+    return matched, meta
+
+
 def _build_dynamic_task_specs(
-    source_dir: str, experiment: Dict[str, Any], exhaustive: bool
+    source_dir: str,
+    experiment: Dict[str, Any],
+    exhaustive: bool,
+    only_files: Optional[List[Path]] = None,
+    sast_alerts_by_file: Optional[Dict[str, List[Dict[str, Any]]]] = None,
+    sast_tool: str = "SonarQube",
 ) -> Tuple[List[Dict[str, Any]], List[str]]:
     """Build one task spec per source file under `source_dir` (generic mode A).
 
@@ -73,6 +175,9 @@ def _build_dynamic_task_specs(
         max_prompt_tokens=max_prompt_tokens,
         chars_per_token=config.DYNAMIC_CHARS_PER_TOKEN,
         exhaustive=exhaustive,
+        only_files=only_files,
+        sast_alerts_by_file=sast_alerts_by_file,
+        sast_tool=sast_tool,
     )
 
 
@@ -98,6 +203,33 @@ def main() -> None:
              "One file = one task, prompt built in memory (utils/dynamic_task.py), no ground "
              "truth and no CVE matching — judged only by the GT-free rubric v2. "
              "See docs/generalizzazione/00_costruzione_dinamica_task.md.",
+    )
+    parser.add_argument(
+        "--changed-since",
+        dest="changed_since",
+        default=None,
+        help="Generic mode B: review only the files changed between <ref> and HEAD "
+             "(e.g. --changed-since HEAD~1), instead of every file under --source-dir. "
+             "The agent still receives the whole file, not the diff hunk. Requires "
+             "--source-dir to be inside a git repository. See utils/git_diff.py.",
+    )
+    parser.add_argument(
+        "--sast-report",
+        dest="sast_report",
+        default=None,
+        help="Generic mode: path to a frozen SAST report (project-normalized, gosec or "
+             "semgrep JSON) whose alerts get injected per file. Required to run the "
+             "'with SAST' arm in generic mode — SAST_HINT_ENABLED alone does nothing "
+             "here, it is keyed on the four known static task ids.",
+    )
+    parser.add_argument(
+        "--sast-path-map",
+        dest="sast_path_map",
+        default=None,
+        help="JSON file mapping a path relative to --source-dir to the corresponding "
+             "path in the SAST report (null = no alerts for that file). Read if present "
+             "and rewritten with whatever gets resolved interactively, so a repeated run "
+             "of the same pair never prompts twice.",
     )
     parser.add_argument(
         "--exhaustive-prompt",
@@ -177,14 +309,60 @@ def main() -> None:
 
     dynamic_mode = bool(args.source_dir)
     not_analyzed: List[str] = []
+    diff_range: Optional[str] = None
+    sast_meta: Optional[Dict[str, Any]] = None
+    for flag, value in (("--changed-since", args.changed_since),
+                        ("--sast-report", args.sast_report),
+                        ("--sast-path-map", args.sast_path_map)):
+        if value and not dynamic_mode:
+            logger.error("%s only applies together with --source-dir", flag)
+            raise SystemExit(1)
+    # Fail loud instead of running the baseline under the SAST arm's name: the
+    # static hint path returns early for gtfree tasks (utils/task_utils.py) and
+    # is keyed on _TASK_NF_MAP, so in generic mode the env flag alone injects
+    # nothing at all and nothing would say so.
+    if dynamic_mode and config.SAST_HINT_ENABLED and not args.sast_report:
+        logger.error(
+            "SAST_HINT_ENABLED=true has no effect in generic mode: the static hint is "
+            "keyed on the four known task ids (utils/sast_hint.py::_TASK_NF_MAP). "
+            "Pass --sast-report <file> to run the SAST arm on a pointed directory, or "
+            "unset SAST_HINT_ENABLED to run the baseline deliberately."
+        )
+        raise SystemExit(1)
+
     if dynamic_mode:
         exhaustive = (
             args.exhaustive_prompt
             if args.exhaustive_prompt is not None
             else config.DYNAMIC_EXHAUSTIVE_PROMPT
         )
+        selected = _select_source_files(args.source_dir, args.changed_since)
+        if args.changed_since:
+            try:
+                diff_range = describe_range(Path(args.source_dir), args.changed_since)
+            except GitSelectionError:
+                diff_range = f"{args.changed_since}..HEAD"
+            if not selected:
+                # The normal case in a perception loop: nothing relevant moved.
+                logger.info(
+                    "No file under %s changed in %s — nothing to review.",
+                    args.source_dir, diff_range,
+                )
+                return
+        sast_alerts_by_file = None
+        if args.sast_report:
+            sast_alerts_by_file, sast_meta = _resolve_sast_alerts(
+                args.source_dir, selected, args.sast_report, args.sast_path_map
+            )
         tasks, not_analyzed = _build_dynamic_task_specs(
-            args.source_dir, experiments[0], exhaustive
+            args.source_dir,
+            experiments[0],
+            exhaustive,
+            only_files=selected,
+            sast_alerts_by_file=sast_alerts_by_file,
+            sast_tool=sast_ingest.TOOL_LABEL.get(
+                (sast_meta or {}).get("format", ""), "a static analyzer"
+            ),
         )
     else:
         tasks = [
@@ -315,6 +493,7 @@ def main() -> None:
                             "task_content": spec["task_content"],
                             "rubric": spec["rubric"],
                             "prompt_variant": spec["prompt_variant"],
+                            "sast_alerts": spec.get("sast_alerts"),
                         }
                     )
                 # Tasks with FULL_TASK_SUFFIX in the name get an extended timeout
@@ -380,6 +559,8 @@ def main() -> None:
                 run_id=run_id,
                 skipped=not_analyzed,
                 source_dir=args.source_dir,
+                diff_range=diff_range,
+                sast_meta=sast_meta,
             )
     else:
         logger.info("Writing evaluation reports")

@@ -87,12 +87,16 @@ def _by_task(payloads: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
 
 
 def _build_files_table(payloads: List[Dict[str, Any]]) -> List[str]:
+    sast_on = any(r.get("sast_alerts") is not None for r in payloads)
+    sast_col = " SAST alerts |" if sast_on else ""
+    sast_sep = " --- |" if sast_on else ""
     lines = [
         '<a id="files"></a>',
         "## Files analyzed",
         "",
-        "| task_id | source file | reps | correct | mean rubric (0–1) | mean attempts | findings/rep |",
-        "| --- | --- | --- | --- | --- | --- | --- |",
+        "| task_id | source file | reps | correct | mean rubric (0–1) | mean attempts | "
+        f"findings/rep |{sast_col}",
+        f"| --- | --- | --- | --- | --- | --- | --- |{sast_sep}",
     ]
     for task_id, reps in _by_task(payloads).items():
         norms = [
@@ -102,11 +106,17 @@ def _build_files_table(payloads: List[Dict[str, Any]]) -> List[str]:
         ]
         n_correct = sum(1 for r in reps if r.get("verdict") == "correct")
         n_findings = _avg([float(len(_findings_of(r))) for r in reps])
+        n_alerts = reps[0].get("sast_alerts")
+        alerts_cell = ""
+        if sast_on:
+            # 0 is not cosmetic here: it marks a file where the "with SAST" arm
+            # ran identically to the baseline.
+            alerts_cell = " n/a |" if n_alerts is None else f" {n_alerts} |"
         lines.append(
             f"| `{task_id}` | `{reps[0].get('task_path', '')}` | {len(reps)} | "
             f"{n_correct}/{len(reps)} | {_fmt(_avg(norms), 3)} | "
             f"{_fmt(_avg([float(r.get('attempts', 1)) for r in reps]), 2)} | "
-            f"{_fmt(n_findings, 1)} |"
+            f"{_fmt(n_findings, 1)} |{alerts_cell}"
         )
     lines += [
         "",
@@ -352,6 +362,8 @@ def write_gtfree_report(
     run_id: Optional[str] = None,
     skipped: Optional[List[str]] = None,
     source_dir: Optional[str] = None,
+    diff_range: Optional[str] = None,
+    sast_meta: Optional[Dict[str, Any]] = None,
 ) -> Optional[Path]:
     data = _collect_results(results_path, run_id=run_id)
     roles = data.get(experiment_id, {})
@@ -385,8 +397,20 @@ def write_gtfree_report(
         f"| agent model | `{first.get('model', 'n/a')}` |",
         f"| judge model | `{first.get('judge_model', 'n/a')}` |",
         f"| temperature | {first.get('temperature', 'n/a')} |",
-        "",
     ]
+    if diff_range:
+        lines.append(
+            f"| selection | git diff `{diff_range}` (mode B) — only changed files, "
+            "each still reviewed in full |"
+        )
+    if sast_meta:
+        lines += [
+            f"| SAST report | `{sast_meta['report']}` ({sast_meta['format']}, "
+            f"sha256:`{sast_meta['sha256']}`) |",
+            f"| SAST alerts | {sast_meta['alerts_total']} in the report, matched to "
+            f"{sast_meta['files_with_alerts']}/{sast_meta['files_total']} reviewed file(s) |",
+        ]
+    lines.append("")
     lines += _build_run_id_note(payloads)
     lines += [
         "> **Not measured here: completeness.** Every section below judges what the "
@@ -395,6 +419,14 @@ def write_gtfree_report(
         "G5/SAST, never implemented) — declared limit, not an omission.",
         "",
     ]
+    if sast_meta and sast_meta["files_with_alerts"] < sast_meta["files_total"]:
+        lines += [
+            f"> **Partial SAST arm.** {sast_meta['files_total'] - sast_meta['files_with_alerts']} "
+            "of the reviewed files carried no alert, so for those this run is the "
+            "baseline, not the SAST arm. The per-file count is in the table below — "
+            "do not read the totals as a clean A/B.",
+            "",
+        ]
     lines += _build_files_table(payloads)
     lines += _build_findings_inventory(payloads)
     lines += _build_stability_section(payloads)

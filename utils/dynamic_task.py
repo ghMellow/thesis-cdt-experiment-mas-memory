@@ -112,6 +112,20 @@ def estimate_tokens(text: str, chars_per_token: float) -> int:
     return int(len(text) / chars_per_token)
 
 
+def is_candidate(
+    rel: str, extensions: List[str], exclude_patterns: List[str]
+) -> bool:
+    """Single predicate deciding whether a file is reviewable.
+
+    Shared by directory discovery (mode A) and by the git-diff selector (mode B)
+    so the two can never drift into filtering differently — which would make
+    A-runs and B-runs quietly incomparable.
+    """
+    if Path(rel).suffix not in extensions:
+        return False
+    return not any(pattern in rel for pattern in exclude_patterns)
+
+
 def discover_source_files(
     source_dir: Path,
     extensions: List[str],
@@ -119,10 +133,10 @@ def discover_source_files(
 ) -> List[Path]:
     files: List[Path] = []
     for path in sorted(source_dir.rglob("*")):
-        if not path.is_file() or path.suffix not in extensions:
+        if not path.is_file():
             continue
         rel = str(path.relative_to(source_dir))
-        if any(pattern in rel for pattern in exclude_patterns):
+        if not is_candidate(rel, extensions, exclude_patterns):
             continue
         files.append(path)
     return files
@@ -148,8 +162,22 @@ def build_dynamic_tasks(
     max_prompt_tokens: Optional[int],
     chars_per_token: float,
     exhaustive: bool = False,
+    only_files: Optional[List[Path]] = None,
+    sast_alerts_by_file: Optional[Dict[str, List[Dict[str, Any]]]] = None,
+    sast_tool: str = "SonarQube",
 ) -> Tuple[List[Dict[str, Any]], List[str]]:
     """One task spec per source file under `source_dir`.
+
+    `only_files` restricts the run to a pre-selected list (mode B, git diff)
+    instead of scanning the whole tree; the same `is_candidate` filter still
+    applies, so a changed `.md` or `_test.go` is dropped exactly as it would be
+    in mode A.
+
+    `sast_alerts_by_file` maps a path relative to `source_dir` to the alerts to
+    inject for it (`utils/sast_ingest.py`). Passing it — even as an empty dict —
+    marks the run as the "with SAST" arm. The hint block is appended *before*
+    the token estimate, because those tokens are really in the prompt and a gate
+    that ignored them would be measuring the wrong thing.
 
     Returns (specs, skipped): files whose estimated prompt size exceeds
     `max_prompt_tokens` are never sent to the model — they are logged AND
@@ -157,14 +185,43 @@ def build_dynamic_tasks(
     reporting on a subset. Pass None to disable the gate.
     """
     variant = "exhaustive" if exhaustive else "base"
+    if sast_alerts_by_file is not None:
+        variant += "+sast"
     instruction = REVIEW_INSTRUCTION_EXHAUSTIVE if exhaustive else REVIEW_INSTRUCTION_BASE
     root = Path(source_dir)
     if not root.is_dir():
         raise NotADirectoryError(f"--source-dir is not a directory: {source_dir}")
 
+    if only_files is None:
+        candidates = discover_source_files(root, extensions, exclude_patterns)
+    else:
+        # `only_files` arrives resolved and absolute (the git selector works from
+        # the repo root), while `root` is whatever the caller passed on the CLI.
+        # Re-express them under `root` so `task_path` keeps the same shape in
+        # both modes — the report's "source file" column must not silently
+        # change form depending on how the run was selected.
+        root_abs = root.resolve()
+        rebased = []
+        for path in only_files:
+            resolved = Path(path).resolve()
+            if not resolved.is_relative_to(root_abs):
+                logger.warning("Ignoring %s: outside --source-dir", resolved)
+                continue
+            rebased.append(root / resolved.relative_to(root_abs))
+        candidates = [
+            p for p in rebased
+            if is_candidate(str(p.relative_to(root)), extensions, exclude_patterns)
+        ]
+        filtered_out = len(rebased) - len(candidates)
+        if filtered_out:
+            logger.info(
+                "%s changed file(s) dropped by extension/exclude filters (%s, %s)",
+                filtered_out, extensions, exclude_patterns,
+            )
+
     specs: List[Dict[str, Any]] = []
     skipped: List[str] = []
-    for path in discover_source_files(root, extensions, exclude_patterns):
+    for path in candidates:
         rel = path.relative_to(root)
         try:
             code = path.read_text(encoding="utf-8")
@@ -175,6 +232,12 @@ def build_dynamic_tasks(
         task_content = TASK_TEMPLATE.format(
             rel_path=rel, code=code, review_instruction=instruction
         )
+        file_alerts: List[Dict[str, Any]] = []
+        if sast_alerts_by_file is not None:
+            from utils.sast_hint import build_sast_hint_block_from_alerts
+
+            file_alerts = sast_alerts_by_file.get(str(rel), [])
+            task_content += build_sast_hint_block_from_alerts(file_alerts, tool=sast_tool)
         estimated = estimate_tokens(task_content, chars_per_token)
         if max_prompt_tokens and estimated > max_prompt_tokens:
             skipped.append(
@@ -196,6 +259,11 @@ def build_dynamic_tasks(
                 # result so a report can never misattribute an A/B arm.
                 "prompt_variant": variant,
                 "estimated_tokens": estimated,
+                # How many SAST alerts this file's prompt actually carried.
+                # None = SAST arm not active; 0 = active but nothing matched
+                # this file, which must stay visible: it is a file where the
+                # "with SAST" arm degenerates into the baseline.
+                "sast_alerts": None if sast_alerts_by_file is None else len(file_alerts),
             }
         )
 
@@ -209,4 +277,18 @@ def build_dynamic_tasks(
         "Dynamic tasks built from %s: %s file(s) | prompt variant: %s",
         source_dir, len(specs), variant,
     )
+    if sast_alerts_by_file is not None:
+        with_alerts = sum(1 for spec in specs if spec["sast_alerts"])
+        total_alerts = sum(spec["sast_alerts"] or 0 for spec in specs)
+        logger.info(
+            "SAST arm: %s/%s file(s) carry alerts (%s alert(s) injected in total)",
+            with_alerts, len(specs), total_alerts,
+        )
+        if with_alerts < len(specs):
+            logger.warning(
+                "%s file(s) got NO SAST alerts — for those the 'with SAST' arm is "
+                "identical to the baseline: %s",
+                len(specs) - with_alerts,
+                ", ".join(f"`{s['task_id']}`" for s in specs if not s["sast_alerts"]),
+            )
     return specs, skipped

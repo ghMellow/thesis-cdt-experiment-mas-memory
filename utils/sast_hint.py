@@ -51,6 +51,18 @@ def build_sast_hint_block(task_id: str, dataset_path: str) -> str:
     if not nf:
         return ""
     alerts = [a for a in _load_alerts(dataset_path) if a.get("nf_abbr") == nf]
+    return build_sast_hint_block_from_alerts(alerts, tool="SonarQube")
+
+
+def build_sast_hint_block_from_alerts(alerts: List[Dict], tool: str = "SonarQube") -> str:
+    """Same hint block, from an already-selected list of alerts.
+
+    Path-keyed entry point used by the generic mode (`--source-dir`), where
+    there is no task_id to map to an NF: `utils/sast_ingest.py` decides *which*
+    alerts belong to the file, this only renders them. Kept identical in format
+    to the static path on purpose — a difference in the block would confound any
+    comparison between the two modes.
+    """
     if not alerts:
         return ""
     lines = [
@@ -62,4 +74,4 @@ def build_sast_hint_block(task_id: str, dataset_path: str) -> str:
         )
         for a in sorted(alerts, key=lambda a: a.get("line") or 0)
     ]
-    return SAST_HINT_HEADER + "\n".join(lines) + SAST_HINT_FOOTER
+    return SAST_HINT_HEADER.format(tool=tool) + "\n".join(lines) + SAST_HINT_FOOTER
