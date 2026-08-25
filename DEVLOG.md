@@ -2,6 +2,32 @@
 
 ---
 
+## 2026-08-25 — Call 18: gap analysis + modalità B (diff) e braccio SAST generico  [sessione: c99d9a72-5b40-46d9-8eb9-417fec0213ef]
+
+**Intent:** "rispetto le cose discusse in call abbiamo fatto tutto o manca qualcosa?" (call 2026-08-20, trascritta nel vault `tesi-vault/raw/calls/`, **non** in `docs/supporto/calls/`). Poi: "il punto 1 lo possiamo implementare no? ... come si potrebbe fare questo collegamento" e "punto 2 ... procedi come meglio credi".
+
+**Divergenze:**
+- Gap analysis: 5 richieste della call risultano fatte (pulizia git, causa delle incongruenze numeriche, generatore Detection Table, modalità A, anomalia n=10), 3 aperte nel codice, 4 fuori dal codice (CVSS impact, commenti al paper, decisione repo pubblico/riservato, scrittura tesi). Segnalato che il verbale della 18ª call non è in `docs/supporto/calls/` (ci sono solo call_1/2/3) — convenzione CLAUDE.md non rispettata, non risolto in questa sessione.
+- Trovato un **bug silenzioso** non previsto da nessuna delle due parti: `SAST_HINT_ENABLED=true` con `--source-dir` girava senza iniettare niente e senza un rigo di log.
+- Proposto per il punto 2 di implementare B come *selettore* sopra A (file intero, non hunk), rinunciando esplicitamente al vantaggio "diff più piccolo" che il doc `00_` prometteva.
+
+**Decisioni:**
+- Utente: accetta il design del punto 1, ma **corregge il livello 3** — l'ambiguità di path non va sui log, si chiede esplicitamente all'utente per ogni file senza corrispondenza. Accettato il resto ("il resto che dicevi di comunque esporre nei log rendere rumoroso okk").
+- Utente: punto 2 approvato così com'era proposto, incluso l'accantonamento dello stato "ultimo commit valutato" come future work e l'esecuzione manuale.
+- Raffinamento **mio, emerso da un test e non concordato prima**: la richiesta "chiedi per ogni file senza corrispondenza" è stata implementata separando *ambiguo* (chiesto uno per uno, come richiesto) da *assente* (una sola domanda aggregata). Motivo: il primo test end-to-end ha mostrato che un report SAST elenca solo i file **con** finding, quindi "assente" è la norma e chiedere per file sarebbe inutilizzabile su una repo vera. Rispondere `n` all'aggregata riporta alla risoluzione per file. Da confermare con l'utente se la scelta regge alla prova su repo grande.
+
+**Esito/Problemi:**
+- Nuovi: `utils/git_diff.py` (selettore diff), `utils/sast_ingest.py` (ingest 3 formati + match per suffisso di path + risoluzione interattiva + path map). Modificati: `dynamic_task` (predicato `is_candidate` condiviso, `only_files`, iniezione SAST prima della stima token), `sast_hint`/`prompts` (nome tool parametrico), `main` (3 flag + guard), `experiment_utils` (campo `sast_alerts`), `gtfree_report` (header diff/SAST + colonna per file).
+- Due bug trovati **dai test, non a tavolino**: (1) `changed_files` restituisce path assoluti mentre `build_dynamic_tasks` lavorava su root relativa → `relative_to` esplodeva; (2) la risoluzione interattiva avrebbe chiesto per ogni file senza alert.
+- Verificato senza rete: repo git di prova (add/modify/delete/rename), report semgrep e gosec sintetici, LLM stubbati. Blocco SAST statico confermato **byte-identico** (562 char, stesso sha) → nessuna run passata invalidata. Regressione statica ok (`gtfree=False`, `cvss_eval` popolato, report scritti).
+- **Mai lanciato contro un modello vero**: i numeri della prima run reale restano quelli della sola modalità A.
+
+**Follow-up — run reali (stessa sessione):** suite offline consolidata in `verify_all.py` (28 check, 0 fail). Poi lanciate contro il modello: `dyn_B_real` (modalità B, 4/4 corrette) e `dyn_1A_sast` (braccio SAST, 3 rip.). **Risultato non previsto:** il braccio SAST non aggiunge TP (atteso, 0/54 alert su CVE target) ma degrada il report **monotonicamente col numero di alert iniettati** — PCF 2 alert → rubrica 1.000, AMF 4 → 1.000, UDM 13 → 0.867, UDR 35 → **0.433 con 0/3 corrette e retry esauriti**. Su UDR sopravvive un solo finding, ancorato (SGV passa): non si rompe la groundedness, sparisce il resto del report. Cautela registrata: il calo di FP (54→47) viene in buona parte dal modello che dice meno, e AMF va in direzione opposta (25→33 FP); n=3, un modello solo. Il baseline `dyn_1A` ricalcolato riproduce esattamente 9 TP / 54 FP / 14.3% → harness di confronto coerente. Nessun tag creato, `results/` non committata.
+
+**Lesson learned:** il join key per appaiare alert e file (`vuln_file`, identico al `rel_path` della modalità dinamica) esisteva già nel dataset da mesi senza essere usato — `_task_nf` + `_TASK_NF_MAP` erano un modo indiretto e hardcoded di fare ciò che un campo path faceva direttamente. Prima di progettare un matching, guardare cosa il dato porta già.
+
+---
+
 ## 2026-08-25 — Verifica potatura docs/ su main: dati judge_rubric mancanti  [sessione: a4c95a91-377b-409b-8c71-5a6ff5ec3da8]
 
 **Intent:** "guarda il branch main e il codice presente li, usa file presenti nel branch completo dev che nel minimale main non abbiamo riportato? perchè se si allora fai cherry peak su main di quelli. Main deve essere la versione minimale funzionante"
