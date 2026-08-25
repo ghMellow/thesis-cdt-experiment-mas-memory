@@ -44,3 +44,21 @@
 - 1A_no_hint_full agent task6_vuln_udr_full: rep 8 differs from rep 7
 - 1A_no_hint_full agent task6_vuln_udr_full: rep 9 differs from rep 8
 - 1A_no_hint_full agent task6_vuln_udr_full: rep 10 differs from rep 9
+
+- dyn_1A agent amf_api_communication_go: rep 2 differs from rep 1
+- dyn_1A agent amf_api_communication_go: rep 3 differs from rep 2
+- dyn_1A agent pcf_api_oam_go: rep 2 differs from rep 1
+- dyn_1A agent pcf_api_oam_go: rep 3 differs from rep 2
+- dyn_1A agent udm_api_subscriberdatamanagement_go: rep 2 differs from rep 1
+- dyn_1A agent udm_api_subscriberdatamanagement_go: rep 3 differs from rep 2
+- dyn_1A agent udr_api_datarepository_go: rep 2 differs from rep 1
+- dyn_1A agent udr_api_datarepository_go: rep 3 differs from rep 2
+
+- dyn_1A_exh agent amf_api_communication_go: rep 2 differs from rep 1
+- dyn_1A_exh agent amf_api_communication_go: rep 3 differs from rep 2
+- dyn_1A_exh agent pcf_api_oam_go: rep 2 differs from rep 1
+- dyn_1A_exh agent pcf_api_oam_go: rep 3 differs from rep 2
+- dyn_1A_exh agent udm_api_subscriberdatamanagement_go: rep 2 differs from rep 1
+- dyn_1A_exh agent udm_api_subscriberdatamanagement_go: rep 3 differs from rep 2
+- dyn_1A_exh agent udr_api_datarepository_go: rep 2 differs from rep 1
+- dyn_1A_exh agent udr_api_datarepository_go: rep 3 differs from rep 2
