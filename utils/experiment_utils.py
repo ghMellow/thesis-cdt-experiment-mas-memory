@@ -28,7 +28,6 @@ from config import (
 )
 from utils.task_utils import _load_task
 from utils.cvss_eval import evaluate_cvss_estimate
-from utils.cvss_utils import is_cvss_task
 from utils.sgv import run_sgv
 
 
@@ -152,6 +151,14 @@ class ExperimentState(TypedDict, total=False):
     start_perf: float
     sgv_passed: bool
     sgv_feedback: Optional[str]
+    # Dynamic mode (--source-dir): task built in memory from a source file, no
+    # ground truth and no known-CVE dataset entry — see utils/dynamic_task.py.
+    gtfree: bool
+    # Which review instruction built the dynamic prompt ("base"/"exhaustive").
+    prompt_variant: str
+    # True on security-review tasks (CVSS block injected, SGV gate active).
+    # Derived from the task id/type on static tasks, always True on dynamic ones.
+    is_security_review: bool
 
 
 @contextmanager
@@ -263,7 +270,7 @@ def _check_sgv(state: ExperimentState) -> ExperimentState:
     """SGV gate (docs/sgv_protocol/): deterministic, no ground truth, applied
     once per finding before the rubric/CVSS branches split. Only runs on
     security-review tasks that carry a CVSS Estimate; a no-op otherwise."""
-    if not (getattr(config, "SGV_ENABLED", False) and is_cvss_task(state["task_id"], state["task_type"])):
+    if not (getattr(config, "SGV_ENABLED", False) and state.get("is_security_review", False)):
         state.update({"sgv_passed": True, "sgv_feedback": None})
         return state
 
@@ -364,7 +371,15 @@ def _save_result(state: ExperimentState) -> ExperimentState:
     # Blocco B: deterministic CVSS evaluation on vuln tasks (never affects verdict).
     cvss_eval = None
     cvss_eval_pass1 = None
-    if config.CVSS_ESTIMATE_ENABLED and is_cvss_task(state["task_id"], state["task_type"]):
+    # Skipped in dynamic mode: utils/cvss_eval.py matches findings against the
+    # normalized CVE dataset keyed by known task_id — an arbitrary source file
+    # has no entry there, so completeness/detection metrics are out of reach by
+    # construction (declared limit, see docs/generalizzazione/).
+    if (
+        config.CVSS_ESTIMATE_ENABLED
+        and state.get("is_security_review", False)
+        and not state.get("gtfree")
+    ):
         try:
             cvss_eval = evaluate_cvss_estimate(
                 state["task_id"], state["final_answer"].get("cvss_estimate")
@@ -443,6 +458,8 @@ def _save_result(state: ExperimentState) -> ExperimentState:
             "is_hosted": state.get("is_hosted", False),
             "task_path": state["task_path"],
             "sol_path": state["sol_path"],
+            "gtfree": state.get("gtfree", False),
+            "prompt_variant": state.get("prompt_variant"),
             "repetitions": [rep_payload],
         }
 

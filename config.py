@@ -111,3 +111,34 @@ SGV_SNIPPET_ENABLED = True
 # Soglia di similarità Jaccard sui token per il fallback di G3 quando lo
 # snippet non combacia per substring esatto (differenze di whitespace/formato).
 SGV_SNIPPET_JACCARD_THRESHOLD = 0.8
+
+# ── Modalità generica: cartella puntata, un file = un task ────────────────────
+# docs/generalizzazione/00_costruzione_dinamica_task.md (modalità A). Attivata
+# da `python main.py --source-dir <path>`: il task_content è costruito in
+# memoria dal file sorgente invece di essere letto da docs/tasks/. Niente
+# ground truth e niente matching CVSS deterministico (il dataset CVE è keyed
+# per task_id noto) — il giudizio passa dalla rubrica GT-free v2.
+DYNAMIC_RUBRIC_PATH = "docs/judge_rubric/gtfree/rubric_v2_draft.json"
+# Estensioni scansionate sotto --source-dir.
+DYNAMIC_SOURCE_EXTENSIONS = [".go"]
+# Sottostringhe del path relativo che escludono un file (test, dipendenze).
+DYNAMIC_EXCLUDE_PATTERNS = ["_test.go", "vendor/", ".pb.go"]
+# Stima statica pre-flight: caratteri per token (proxy, nessuna tokenizzazione
+# reale). Sopra la soglia il file viene saltato e loggato, mai eseguito a vuoto.
+DYNAMIC_CHARS_PER_TOKEN = 4.0
+# Frazione della context window utilizzabile dal prompt (il resto resta per la
+# risposta e per l'addendum di retry).
+DYNAMIC_PROMPT_CTX_RATIO = 0.6
+# Istruzione di review nel template dinamico. False = variante "base" (default,
+# `REVIEW_INSTRUCTION_BASE`); True = variante "exhaustive", che chiede di leggere
+# il file per intero funzione per funzione senza limite al numero di finding.
+# A/B misurato il 2026-08-25 sui 4 file free5GC (correzione match spuri UDR
+# applicata): stessi 9 TP, la variante exhaustive costa 6 FP in piu
+# (precision 14.3% -> 13.0%) ma fa esaminare piu funzioni di un file grande —
+# copertura, che su una run GT-free non e misurabile. Override da CLI:
+# `--exhaustive-prompt`. Vedi docs/generalizzazione/.
+DYNAMIC_EXHAUSTIVE_PROMPT = False
+# Context window assunta per i modelli hosted: /api/show interroga solo Ollama
+# locale, quindi su modelli hosted (MODELS[*]["use_hosted"] = True) non c'è
+# nessun valore da cui derivare la soglia. 0 = gate disattivato.
+HOSTED_CONTEXT_WINDOW_FALLBACK = 128000

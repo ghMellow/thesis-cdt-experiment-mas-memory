@@ -42,6 +42,24 @@ def _load_task(state: "ExperimentState") -> "ExperimentState":
     from utils.cvss_utils import inject_cvss_instructions, is_cvss_task
     from utils.sast_hint import build_sast_hint_block
 
+    # Dynamic mode (--source-dir, docs/generalizzazione/): task_content, task_id
+    # and rubric are already in the state, built in memory by
+    # utils/dynamic_task.py — there is no docs/tasks/<task>.md to read and no
+    # _sol.md, so ground truth stays empty and the GT-free rubric v2 carried in
+    # the state is used as-is. The CVSS block is still injected (it is what the
+    # SGV gate and the rubric's severity criterion read); only the deterministic
+    # evaluation against the known-CVE dataset is skipped downstream.
+    if state.get("gtfree"):
+        task_content = state["task_content"]
+        if config.CVSS_ESTIMATE_ENABLED:
+            task_content = inject_cvss_instructions(task_content)
+        state.update({
+            "task_content": task_content,
+            "ground_truth": {},
+            "is_security_review": True,
+        })
+        return state
+
     task_path = Path(state["task_path"])
     sol_path = Path(state["sol_path"])
 
@@ -60,7 +78,8 @@ def _load_task(state: "ExperimentState") -> "ExperimentState":
     if config.SAST_HINT_ENABLED:
         task_content += build_sast_hint_block(metadata["task_id"], config.SAST_HINT_DATASET_PATH)
 
-    if config.CVSS_ESTIMATE_ENABLED and is_cvss_task(metadata["task_id"], metadata["task_type"]):
+    is_security_review = is_cvss_task(metadata["task_id"], metadata["task_type"])
+    if config.CVSS_ESTIMATE_ENABLED and is_security_review:
         task_content = inject_cvss_instructions(task_content)
 
     state.update(
@@ -70,6 +89,7 @@ def _load_task(state: "ExperimentState") -> "ExperimentState":
             "task_content": task_content,
             "ground_truth": ground_truth,
             "rubric": rubric,
+            "is_security_review": is_security_review,
         }
     )
     return state

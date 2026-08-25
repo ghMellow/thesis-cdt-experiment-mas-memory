@@ -9,6 +9,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 import config
 from agents._llm_utils import (
+    LLMTimeout,
     _expected_score_fields,
     _extract_judge_scores_markdown,
     _extract_json_from_text,
@@ -117,7 +118,7 @@ def run_judge_textual(
             "Ollama request timed out after %ss. Increase OLLAMA_TIMEOUT_SECONDS if needed.",
             config.OLLAMA_TIMEOUT_SECONDS,
         )
-        raise SystemExit(1)
+        raise LLMTimeout(f"Ollama call timed out after {config.OLLAMA_TIMEOUT_SECONDS}s")
     finally:
         stop_event.set()
         spinner.join()
@@ -169,7 +170,7 @@ def run_semantic_equivalence_check(
             "Ollama request timed out after %ss during semantic check.",
             config.OLLAMA_TIMEOUT_SECONDS,
         )
-        raise SystemExit(1)
+        raise LLMTimeout(f"Ollama call timed out after {config.OLLAMA_TIMEOUT_SECONDS}s")
     parsed = _extract_json_from_text(response.content)
     if not isinstance(parsed, dict) or "equivalent" not in parsed:
         raise ValueError(f"Unexpected semantic check response for {task_id}: {response.content!r}")

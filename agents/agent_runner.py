@@ -8,6 +8,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 import config
 from agents._llm_utils import (
+    LLMTimeout,
     _extract_agent_response_markdown,
     _extract_json_from_text,
     _raise_ollama_unavailable,
@@ -41,7 +42,7 @@ def run_agent(
             "Ollama request timed out after %ss. Increase OLLAMA_TIMEOUT_SECONDS if needed.",
             config.OLLAMA_TIMEOUT_SECONDS,
         )
-        raise SystemExit(1)
+        raise LLMTimeout(f"Ollama call timed out after {config.OLLAMA_TIMEOUT_SECONDS}s")
     finally:
         stop_event.set()
         spinner.join()

@@ -12,6 +12,18 @@ from typing import Any, Dict, List, Optional, Tuple
 logger = logging.getLogger(__name__)
 
 
+class LLMTimeout(RuntimeError):
+    """An Ollama call exceeded OLLAMA_TIMEOUT_SECONDS.
+
+    Raised instead of SystemExit so the caller decides the policy: main.py
+    still aborts the run on the static benchmark (a timeout there means Ollama
+    needs a manual restart), but in dynamic mode (--source-dir, one task per
+    file) it marks that single file as skipped and moves on — file 47 of 200
+    timing out must not take the other 153 with it.
+    """
+
+
+
 def resolve_model_config(role_key: str) -> tuple:
     """Return (model_name, is_hosted) for a MODELS role key."""
     import config

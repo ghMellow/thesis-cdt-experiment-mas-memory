@@ -8,11 +8,14 @@ import logging
 import sys
 import time
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import config
 from agents._llm_utils import resolve_model_config
 from config import FULL_TASK_SUFFIX, FULL_TASK_TIMEOUT_MULTIPLIER, MODELS, OLLAMA_BASE_URL, REPETITIONS, RESULTS_PATH, TASK_TIMEOUT_SECONDS, TASKS_PATH
+from agents._llm_utils import LLMTimeout
+from utils.dynamic_task import build_dynamic_tasks, load_gtfree_rubric
+from utils.gtfree_report import write_gtfree_report
 from utils.evaluation_utils import _record_consistency_finding, _write_evaluation_reports
 from utils.experiment_utils import ExperimentState, _build_graph, _fetch_model_context_window, _time_limit
 from utils.task_utils import _answers_equal, _list_tasks, _result_exists
@@ -30,6 +33,49 @@ class _SpinnerClearHandler(logging.StreamHandler):
         super().emit(record)
 
 
+def _build_dynamic_task_specs(
+    source_dir: str, experiment: Dict[str, Any], exhaustive: bool
+) -> Tuple[List[Dict[str, Any]], List[str]]:
+    """Build one task spec per source file under `source_dir` (generic mode A).
+
+    Sizes the pre-flight token gate against the agent model's context window.
+    `_fetch_model_context_window` queries the local Ollama /api/show, so on a
+    hosted model there is nothing to query — falls back to the configured
+    HOSTED_CONTEXT_WINDOW_FALLBACK (0 disables the gate).
+    """
+    if experiment["is_hosted"]:
+        ctx_window = config.HOSTED_CONTEXT_WINDOW_FALLBACK
+        ctx_source = "config.HOSTED_CONTEXT_WINDOW_FALLBACK (hosted model)"
+    else:
+        ctx_window = _fetch_model_context_window(experiment["model"], OLLAMA_BASE_URL)
+        ctx_source = "Ollama /api/show"
+        if not ctx_window:
+            ctx_window = config.HOSTED_CONTEXT_WINDOW_FALLBACK
+            ctx_source = "config.HOSTED_CONTEXT_WINDOW_FALLBACK (/api/show gave nothing)"
+
+    max_prompt_tokens = int(ctx_window * config.DYNAMIC_PROMPT_CTX_RATIO) if ctx_window else None
+    if max_prompt_tokens:
+        logger.info(
+            "Pre-flight token gate: %s tok (%.0f%% of ctx_window=%s from %s)",
+            f"{max_prompt_tokens:,}",
+            config.DYNAMIC_PROMPT_CTX_RATIO * 100,
+            f"{ctx_window:,}",
+            ctx_source,
+        )
+    else:
+        logger.warning("Pre-flight token gate disabled (no context window available)")
+
+    return build_dynamic_tasks(
+        source_dir=source_dir,
+        rubric=load_gtfree_rubric(config.DYNAMIC_RUBRIC_PATH),
+        extensions=config.DYNAMIC_SOURCE_EXTENSIONS,
+        exclude_patterns=config.DYNAMIC_EXCLUDE_PATTERNS,
+        max_prompt_tokens=max_prompt_tokens,
+        chars_per_token=config.DYNAMIC_CHARS_PER_TOKEN,
+        exhaustive=exhaustive,
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run multi-agent experiments")
     parser.add_argument(
@@ -43,6 +89,24 @@ def main() -> None:
         action="append",
         dest="tasks",
         help="Filter by task id (can be repeated)",
+    )
+    parser.add_argument(
+        "--source-dir",
+        dest="source_dir",
+        default=None,
+        help="Generic mode: point at a directory of source files instead of docs/tasks/. "
+             "One file = one task, prompt built in memory (utils/dynamic_task.py), no ground "
+             "truth and no CVE matching — judged only by the GT-free rubric v2. "
+             "See docs/generalizzazione/00_costruzione_dinamica_task.md.",
+    )
+    parser.add_argument(
+        "--exhaustive-prompt",
+        dest="exhaustive_prompt",
+        action="store_true",
+        default=None,
+        help="Dynamic mode only: use the exhaustive review instruction "
+             "(read the file in full, no limit on findings) instead of the base one. "
+             "Default from config.DYNAMIC_EXHAUSTIVE_PROMPT.",
     )
     parser.add_argument(
         "--repetitions",
@@ -97,16 +161,6 @@ def main() -> None:
         graph.get_graph().draw_mermaid_png(output_file_path=args.export_graph)
         logger.info("LangGraph exported to %s", args.export_graph)
         return
-    tasks = _list_tasks(TASKS_PATH)
-    if args.tasks:
-        available = {task.stem for task in tasks}
-        requested = set(args.tasks)
-        missing = sorted(requested - available)
-        if missing:
-            logger.error("Unknown task ids: %s", ", ".join(missing))
-            raise SystemExit(1)
-        tasks = [task for task in tasks if task.stem in requested]
-
     # 1B disabilitato (2026-07-13): il progetto ora esegue solo il framing 1A.
     # Per riattivarlo, scommentare "1B" nella lista sottostante.
     experiments = []
@@ -121,15 +175,48 @@ def main() -> None:
         for exp in experiments:
             exp["id"] = args.experiment_id
 
+    dynamic_mode = bool(args.source_dir)
+    not_analyzed: List[str] = []
+    if dynamic_mode:
+        exhaustive = (
+            args.exhaustive_prompt
+            if args.exhaustive_prompt is not None
+            else config.DYNAMIC_EXHAUSTIVE_PROMPT
+        )
+        tasks, not_analyzed = _build_dynamic_task_specs(
+            args.source_dir, experiments[0], exhaustive
+        )
+    else:
+        tasks = [
+            {
+                "task_id": path.stem,
+                "task_path": str(path),
+                "sol_path": str(path.with_name(path.stem + "_sol.md")),
+                "gtfree": False,
+            }
+            for path in _list_tasks(TASKS_PATH)
+        ]
+    if args.tasks:
+        available = {spec["task_id"] for spec in tasks}
+        requested = set(args.tasks)
+        missing = sorted(requested - available)
+        if missing:
+            logger.error("Unknown task ids: %s", ", ".join(missing))
+            raise SystemExit(1)
+        tasks = [spec for spec in tasks if spec["task_id"] in requested]
+    if not tasks:
+        logger.error("No tasks to run")
+        raise SystemExit(1)
+
     remaining_repetitions = 0
     for experiment in experiments:
-        for task_path in tasks:
+        for spec in tasks:
             for repetition in range(1, args.repetitions + 1):
                 if _result_exists(
                     RESULTS_PATH,
                     experiment["id"],
                     experiment["role"],
-                    task_path.stem,
+                    spec["task_id"],
                     repetition,
                     experiment["model"],
                     experiment["is_hosted"],
@@ -139,7 +226,7 @@ def main() -> None:
 
     # If any task in the run has FULL_TASK_SUFFIX in its name, it gets a higher timeout;
     # bump OLLAMA_TIMEOUT_SECONDS now so it covers the worst-case full-task timeout.
-    has_full_task = any(FULL_TASK_SUFFIX in t.stem for t in tasks) if args.task_timeout > 0 else False
+    has_full_task = any(FULL_TASK_SUFFIX in spec["task_id"] for spec in tasks) if args.task_timeout > 0 else False
     max_effective_timeout = int(args.task_timeout * FULL_TASK_TIMEOUT_MULTIPLIER) if has_full_task else args.task_timeout
     desired_ollama_timeout = int(max_effective_timeout * 1.1)
     if desired_ollama_timeout > config.OLLAMA_TIMEOUT_SECONDS:
@@ -159,6 +246,9 @@ def main() -> None:
     )
 
     consistency_lines: List[str] = []
+    # Files skipped after a timeout in dynamic mode — reported at the end so a
+    # partial batch says explicitly what is missing.
+    timed_out: List[str] = []
 
     ctx_cache: Dict[str, Any] = {}
 
@@ -178,10 +268,10 @@ def main() -> None:
             hosted_str,
             ctx_str,
         )
-        for task_path in tasks:
+        for spec in tasks:
+            task_id = spec["task_id"]
             logger.info("")
-            logger.info("---- Task %s ----", task_path.stem)
-            sol_path = task_path.with_name(task_path.stem + "_sol.md")
+            logger.info("---- Task %s ----", task_id)
             previous_answer: Optional[Dict[str, Any]] = None
 
             for repetition in range(1, args.repetitions + 1):
@@ -189,19 +279,19 @@ def main() -> None:
                     RESULTS_PATH,
                     experiment["id"],
                     experiment["role"],
-                    task_path.stem,
+                    task_id,
                     repetition,
                     experiment["model"],
                     experiment["is_hosted"],
                 ):
-                    logger.info("Skip %s rep %s (already exists)", task_path.stem, repetition)
+                    logger.info("Skip %s rep %s (already exists)", task_id, repetition)
                     continue
                 logger.info("Repetition %s/%s", repetition, args.repetitions)
                 started_at = datetime.now(timezone.utc).isoformat()
                 start_perf = time.perf_counter()
                 initial_state: ExperimentState = {
-                    "task_path": str(task_path),
-                    "sol_path": str(sol_path),
+                    "task_path": spec["task_path"],
+                    "sol_path": spec["sol_path"],
                     "agent_role": experiment["role"],
                     "model": experiment["model"],
                     "is_hosted": experiment["is_hosted"],
@@ -213,10 +303,24 @@ def main() -> None:
                     "start_perf": start_perf,
                     "run_id": run_id,
                 }
+                if spec["gtfree"]:
+                    # Dynamic mode: the task body, id, type and (GT-free) rubric are
+                    # carried in the state — utils/task_utils.py:_load_task returns
+                    # them untouched instead of reading docs/tasks/.
+                    initial_state.update(
+                        {
+                            "gtfree": True,
+                            "task_id": task_id,
+                            "task_type": spec["task_type"],
+                            "task_content": spec["task_content"],
+                            "rubric": spec["rubric"],
+                            "prompt_variant": spec["prompt_variant"],
+                        }
+                    )
                 # Tasks with FULL_TASK_SUFFIX in the name get an extended timeout
                 # because their prompts are much larger and each LLM call takes proportionally longer.
                 effective_timeout = args.task_timeout
-                if args.task_timeout > 0 and FULL_TASK_SUFFIX in task_path.stem:
+                if args.task_timeout > 0 and FULL_TASK_SUFFIX in task_id:
                     effective_timeout = int(args.task_timeout * FULL_TASK_TIMEOUT_MULTIPLIER)
                     logger.info(
                         "Full task detected ('%s') → timeout %ss → %ss",
@@ -225,19 +329,27 @@ def main() -> None:
                 try:
                     with _time_limit(effective_timeout):
                         result_state = graph.invoke(initial_state)
-                except TimeoutError:
+                except (TimeoutError, LLMTimeout) as exc:
                     logger.warning(
-                        "Timeout after %ss | %s rep %s",
-                        args.task_timeout,
-                        task_path.stem,
+                        "Timeout | %s rep %s | %s: %s (task limit %ss)",
+                        task_id,
                         repetition,
+                        type(exc).__name__,
+                        exc,
+                        effective_timeout,
                     )
+                    if dynamic_mode:
+                        # One slow file out of N must not take the whole batch
+                        # down: record it and move on to the next repetition/file.
+                        timed_out.append(f"{task_id} rep {repetition}")
+                        not_analyzed.append(f"`{task_id}` rep {repetition} — timeout")
+                        continue
                     logger.error("Exiting after timeout to allow manual restart of Ollama")
                     raise SystemExit(1)
                 final_answer = result_state.get("final_answer", {})
                 logger.info(
                     "Done %s rep %s | verdict=%s | attempts=%s",
-                    result_state.get("task_id", task_path.stem),
+                    result_state.get("task_id", task_id),
                     repetition,
                     result_state.get("verdict"),
                     result_state.get("attempts"),
@@ -251,10 +363,29 @@ def main() -> None:
                 previous_answer = final_answer
 
     _record_consistency_finding(consistency_lines)
-    logger.info("Writing evaluation reports")
-    executed_tasks = [task_path.stem for task_path in tasks] if tasks else None
-    executed_experiment_ids = list(dict.fromkeys(exp["id"] for exp in experiments))
-    _write_evaluation_reports(RESULTS_PATH, task_filter=executed_tasks, experiment_ids=executed_experiment_ids)
+    if timed_out:
+        logger.warning("Timed out and skipped (%s): %s", len(timed_out), ", ".join(timed_out))
+    if dynamic_mode:
+        # The regular reports (utils/evaluation_utils.py) need the known-CVE
+        # dataset for every section they build. The GT-free report keeps only
+        # what survives without a reference answer — findings inventory,
+        # repetition stability, rubric criteria, SGV, cost — and says in its
+        # own text what it cannot measure (completeness).
+        logger.info("Writing GT-free report (no ground truth in this mode)")
+        for experiment_id in dict.fromkeys(exp["id"] for exp in experiments):
+            write_gtfree_report(
+                RESULTS_PATH,
+                experiment_id,
+                task_filter=[spec["task_id"] for spec in tasks],
+                run_id=run_id,
+                skipped=not_analyzed,
+                source_dir=args.source_dir,
+            )
+    else:
+        logger.info("Writing evaluation reports")
+        executed_tasks = [spec["task_id"] for spec in tasks] if tasks else None
+        executed_experiment_ids = list(dict.fromkeys(exp["id"] for exp in experiments))
+        _write_evaluation_reports(RESULTS_PATH, task_filter=executed_tasks, experiment_ids=executed_experiment_ids)
     logger.info("Execution complete")
 
 
