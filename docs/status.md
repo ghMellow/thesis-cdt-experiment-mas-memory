@@ -117,6 +117,11 @@ python main.py --task task5_vuln_pcf --repetitions 1 --task-timeout 120
 
 # Export grafo LangGraph
 python main.py --export-graph docs/graph.png
+
+# Modalità generica (2026-08-25): punta una cartella, un file = un task.
+# Nessuna GT, nessun matching CVE — giudizio con la rubrica GT-free v2.
+# Vedi docs/generalizzazione/00_costruzione_dinamica_task.md
+python main.py --source-dir File_Free5gc_Vulnerabili --repetitions 1
 ```
 
 ---

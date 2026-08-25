@@ -22,6 +22,8 @@ Come è fatto e come gira il progetto di sperimentazione.
 | [experiments_framing.md](experiments_framing.md) | Coda di esperimenti framing (expert vs beginner) |
 | [changelog.md](changelog.md) | Storico modifiche |
 | [tasks/](tasks/) | I task di code review usati dagli agenti |
+| **[generalizzazione/01_stato_attuale.md](generalizzazione/01_stato_attuale.md)** | **Modalità generica — inizia da qui.** `python main.py --source-dir <path>`: un file sorgente = un task, nessuna GT, giudizio con la rubrica GT-free v2. Cosa cambia rispetto alla modalità statica, cosa misura e cosa **non** misura (completezza), configurazione, numeri della prima run, limiti aperti |
+| [generalizzazione/00_costruzione_dinamica_task.md](generalizzazione/00_costruzione_dinamica_task.md) | Traccia del processo (dal 2026-08-24): perché serve costruire dinamicamente task **e** GT/rubrica, le due modalità valutate (scan file-per-file vs diff tra push), la decisione di partire da A, i blocchi ✅ dell'implementazione e l'A/B sull'istruzione di review. Fonte primaria per il *perché* di ogni scelta |
 
 ## 🔬 Esperimento CVE — "la singolarità"
 
