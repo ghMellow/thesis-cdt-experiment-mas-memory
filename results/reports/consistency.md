@@ -62,3 +62,12 @@
 - dyn_1A_exh agent udm_api_subscriberdatamanagement_go: rep 3 differs from rep 2
 - dyn_1A_exh agent udr_api_datarepository_go: rep 2 differs from rep 1
 - dyn_1A_exh agent udr_api_datarepository_go: rep 3 differs from rep 2
+
+- dyn_1A_sast agent amf_api_communication_go: rep 2 differs from rep 1
+- dyn_1A_sast agent amf_api_communication_go: rep 3 differs from rep 2
+- dyn_1A_sast agent pcf_api_oam_go: rep 2 differs from rep 1
+- dyn_1A_sast agent pcf_api_oam_go: rep 3 differs from rep 2
+- dyn_1A_sast agent udm_api_subscriberdatamanagement_go: rep 2 differs from rep 1
+- dyn_1A_sast agent udm_api_subscriberdatamanagement_go: rep 3 differs from rep 2
+- dyn_1A_sast agent udr_api_datarepository_go: rep 2 differs from rep 1
+- dyn_1A_sast agent udr_api_datarepository_go: rep 3 differs from rep 2
