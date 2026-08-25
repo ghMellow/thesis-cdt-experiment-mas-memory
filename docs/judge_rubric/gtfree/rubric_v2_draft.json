@@ -1,0 +1,45 @@
+{
+  "rubrica": {
+    "presence_evidence_score": {
+      "max": 3,
+      "criteri": {
+        "3": "Every PRESENCE-type finding (a claim that some flawed code element exists: a weak regex, a misconfigured policy, a response written without terminating the handler, an unsafe operation) cites a snippet, function or configuration that actually exhibits the typical signature of the declared weakness class",
+        "2": "Exactly one presence-type finding cites evidence that is generic, missing, or does not exhibit the signature of the claimed class; all others verify",
+        "1": "More than one presence-type finding fails the evidence check, but at least one verifies",
+        "0": "No presence-type finding cites evidence exhibiting the claimed signature, or the cited evidence is incompatible with the declared classes"
+      }
+    },
+    "absence_claims_score": {
+      "max": 2,
+      "criteri": {
+        "2": "Every ABSENCE-type finding (a claim that a control is missing: missing input validation, missing authorization check, missing return/abort after error) identifies the concrete code path where the missing control should occur — i.e. it shows the external input or sensitive operation flowing through the cited code without the claimed control, so the absence is checkable against the snippet. Reports with no absence-type findings also score 2",
+        "1": "At least one absence-type finding asserts a missing control without showing the code path that would need it (the claim cannot be checked against any cited code), but at least one other absence claim is properly grounded",
+        "0": "Absence-type findings are asserted without any grounding in cited code paths — the claims are unfalsifiable from the report alone"
+      }
+    },
+    "finding_granularity_score": {
+      "max": 2,
+      "criteri": {
+        "2": "Each finding isolates exactly one weakness with its own class, evidence and impact; no finding bundles multiple distinct weaknesses together and no two findings duplicate the same weakness under different names",
+        "1": "At least one finding bundles distinct weaknesses into a single entry (mixed classes, mixed evidence) or duplicates another finding, but the majority are properly isolated",
+        "0": "The report is a single undifferentiated blob of weaknesses, or findings systematically mix classes and evidence so that individual weaknesses cannot be told apart"
+      }
+    },
+    "weakness_classification_score": {
+      "max": 2,
+      "criteri": {
+        "2": "Every finding declares a high-level weakness class plausible for its evidence. Reference vocabulary: improper input validation; improper access control; improper authentication; improper error/exception handling (including missing control-flow termination after an error response); improper resource control or consumption (DoS); exposure of sensitive information; insecure configuration (including CORS/security-header policy); injection/improper neutralization; incorrect calculation or logic error; concurrency/race condition",
+        "1": "At least one finding has no discernible class or a class implausible for its evidence, but the majority classify plausibly",
+        "0": "No finding declares a plausible weakness class"
+      }
+    },
+    "severity_consistency_score": {
+      "max": 1,
+      "criteri": {
+        "1": "Impact claims and CVSS vectors do not systematically contradict the declared weakness classes. Tolerated and NOT penalized: High vs Low on the correct impact dimension, and isolated confidentiality/integrity swaps — CVSS precision is a prioritization aid, not the goal",
+        "0": "Impact claims or CVSS vectors systematically contradict the declared classes (e.g. a pure availability weakness claiming high confidentiality impact across findings), or severity is asserted with no connection to the weakness described"
+      }
+    }
+  },
+  "total_max": 10
+}
