@@ -122,6 +122,15 @@ python main.py --export-graph docs/graph.png
 # Nessuna GT, nessun matching CVE — giudizio con la rubrica GT-free v2.
 # Vedi docs/generalizzazione/00_costruzione_dinamica_task.md
 python main.py --source-dir File_Free5gc_Vulnerabili --repetitions 1
+
+# Modalità B (2026-08-25): solo i file toccati da un range git.
+# L'agente vede comunque il file intero, non l'hunk. Uscita pulita se non cambia nulla.
+python main.py --source-dir <path> --changed-since HEAD~1
+
+# Braccio "con SAST" in modalità generica: alert appaiati per path di file da un report
+# congelato (project-normalized / gosec / semgrep). SAST_HINT_ENABLED da solo NON basta
+# qui — senza --sast-report la run si ferma invece di eseguire la baseline in silenzio.
+python main.py --source-dir <path> --sast-report gosec.json --sast-path-map sast_map.json
 ```
 
 ---

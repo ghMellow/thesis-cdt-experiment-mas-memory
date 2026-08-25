@@ -82,6 +82,22 @@ Vantaggi rispetto ad A:
   segnala nel diff è vero; sapere se il diff introduce/lascia scoperta *un'altra*
   debolezza che il modello non ha visto resta fuori portata senza enumeratore esterno.
 
+> ✅ **Implementato (2026-08-25): `--changed-since <ref>`** — `utils/git_diff.py`, B come
+> *selettore* sopra A e non come pipeline separata.
+>
+> ⚠️ **Divergenza da quanto scritto qui sopra, deliberata:** il vantaggio "dimensione
+> naturalmente limitata" **non** si ottiene, perché l'agente riceve comunque il **file
+> intero**, non l'hunk. Il diff decide *quali* file rivedere, non *cosa mostrare*. Due
+> ragioni: una modifica è giudicabile solo dentro la funzione che la contiene (un hunk di
+> tre righe non dice se il `return` mancante a valle è ancora mancante), e tenere il prompt
+> identico a quello di A è ciò che rende A e B confrontabili — altrimenti ogni differenza
+> nei risultati sarebbe indistinguibile da un effetto del prompt. Chi volesse il beneficio
+> di contesto ridotto deve considerarlo una **modalità C** ancora da progettare, non questa.
+>
+> Resta vero il secondo punto (framing vicino al caso d'uso del CDT) e resta invariato il
+> terzo (completezza fuori portata). Lo stato "ultimo commit valutato" non è persistito: il
+> ref si passa a mano, vedi `01_stato_attuale.md` §6.
+
 ## Domande aperte, non ancora decise
 
 1. Task per file, per diff-hunk, o per intero diff multi-file? Cambia la definizione di
@@ -302,3 +318,71 @@ i bracci lì si distinguono per `experiment_id`.
 benchmark. Su una repo arbitraria quel confronto non esiste — è proprio il buco della
 completezza (enumeratore G5/SAST) che resta aperto. Questo A/B è valido *perché* è stato
 fatto su file con GT nota; non è ripetibile in produzione sulla modalità generica.
+
+---
+
+## Modalità B e braccio SAST generico (2026-08-25, sessione successiva)
+
+**Intent (citazione):** *"per il punto 1 livello 3 al posto di andare silenziosamente sui
+log chiedi all'utente esplicitamente quali sono i path da passare per ogni singolo file di
+cui non hai trovato corrispondenza"* + *"punto 2 ok — procedi come meglio credi"*.
+
+Due funzionalità nate dal confronto tra la call 2026-08-20 e lo stato del repo:
+
+### 1. Il braccio SAST in modalità generica non esisteva (bug silenzioso)
+
+`SAST_HINT_ENABLED=true` con `--source-dir` girava **senza iniettare niente e senza dirlo**:
+il ramo `gtfree` di `_load_task` fa early-return prima del blocco SAST, e `_TASK_NF_MAP` è
+comunque una mappa hardcoded dei 4 task id statici. Non era una scelta di scope: la
+combinazione non era mai stata collegata, e non c'era nemmeno l'errore che l'avrebbe detto.
+
+Il join key però esisteva già nel dataset senza che venisse usato: ogni alert porta
+`component_path` (repo-root) **e** `vuln_file` (relativo alla cartella curata, cioè
+esattamente il `rel_path` della modalità dinamica). `_task_nf` + `_TASK_NF_MAP` erano un
+modo indiretto di fare ciò che il campo path fa direttamente.
+
+### 2. Divergenza sulla risoluzione dei path, decisa a metà
+
+Proposta iniziale: tre livelli di match (esatto → suffisso unico → ambiguo), con
+l'ambiguità loggata. **Decisione dell'utente:** l'ambiguità non va sui log, si chiede
+esplicitamente all'utente per ogni file senza corrispondenza.
+
+**Accettata, ma raffinata durante l'implementazione** (e la modifica è emersa da un test,
+non da un ragionamento a tavolino): il primo test end-to-end su un repo git di prova ha
+mostrato che "nessuna corrispondenza" copre due fatti diversi. Un file può non avere match
+perché il path ha forma diversa (va chiesto) oppure — molto più spesso — perché *il report
+SAST elenca solo i file che hanno finding*. Chiedere per ogni file senza alert sarebbe
+inutilizzabile su una repo di 500 file. Esito: gli **ambigui** si chiedono uno per uno come
+richiesto; gli **assenti** (basename che non compare da nessuna parte nel report) diventano
+**una domanda aggregata sola** — "sono N, li tratto tutti come 'nessun alert'? [Y/n]" — e
+rispondere `n` li fa ricadere nella risoluzione per file, quindi la richiesta originale
+resta raggiungibile. Le risposte si persistono in `--sast-path-map`.
+
+### Altre divergenze registrate
+
+- **Report congelato, tool mai lanciato dalla pipeline.** Versione del tool e ruleset sono
+  la condizione sperimentale: se la pipeline rilanciasse il tool, due run a distanza di un
+  mese smetterebbero di essere confrontabili senza segnali. Lo sha256 del report va
+  nell'header. Costo: il tool va lanciato a mano (si sposa col ledger `/sast-tools-lifecycle`).
+- **Nome del tool parametrico nel prompt.** L'header diceva "SonarQube" hardcoded; con un
+  report gosec avrebbe dichiarato al modello un tool falso. Verificato che il blocco
+  statico resta **byte-identico** (562 char, stesso sha) — nessuna run passata invalidata.
+- **`sast_alerts` per file, `0` incluso.** Un file senza alert nel braccio SAST ha girato
+  come baseline: se non fosse visibile, i totali della run sembrerebbero un A/B pulito
+  senza esserlo. Il report lo dichiara in testa quando succede.
+
+### Stato
+
+Tutto verificato end-to-end **senza rete** (repo git di prova con file aggiunti/modificati/
+cancellati/rinominati, report semgrep e gosec sintetici, LLM stubbati): selettore diff,
+filtri condivisi, iniezione per file, risoluzione interattiva, path map, JSON salvato,
+report generato, e regressione della modalità statica: **28 check, 0 fail**.
+
+Poi lanciato **contro il modello vero**: `dyn_B_real` (modalità B sui 4 file free5GC, 4/4
+corrette) e `dyn_1A_sast` (braccio SAST, 3 rip.). Numeri e lettura in
+`01_stato_attuale.md` §8. Il risultato non previsto: il braccio SAST non aggiunge TP (0/54
+alert corrispondono a una CVE target, era atteso) ma **degrada il report in modo monotòno
+rispetto al numero di alert iniettati**, fino a far collassare UDR (35 alert) a 0/3
+ripetizioni corrette con i retry esauriti. Il baseline `dyn_1A` ricalcolato in questa
+sessione riproduce esattamente 9 TP / 54 FP / 14.3% della sezione precedente — l'harness di
+confronto è coerente.
