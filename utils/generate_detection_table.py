@@ -157,6 +157,9 @@ def build_table() -> Dict[str, Dict[str, Dict[str, Dict[str, Any]]]]:
             rows[nf][cond_key] = {
                 "pooled": cvss_eval.aggregate_detection_metrics(evals),
                 "distinct": _aggregate_distinct(evals),
+                # kept for the Precision@K view, which needs the per-repetition
+                # ranking rather than the already-aggregated counts
+                "evals": evals,
             }
     return rows
 
@@ -184,12 +187,44 @@ def _fmt_variant(rows: Dict[str, Dict[str, Dict[str, Dict[str, Any]]]], variant:
     return "\n".join(lines)
 
 
+def _fmt_precision_at_k(rows: Dict[str, Dict[str, Dict[str, Dict[str, Any]]]]) -> str:
+    """Precision@K on the same corrected dataset as the tables above.
+
+    The published Tab.5 of `docs/sgv_protocol/10_/12_...tex` was computed on the
+    raw dataset, i.e. before the `bd0dcc0` correction, so its UDR row counts the
+    two spurious matches as true positives. Recomputing here keeps Precision@K
+    consistent with the detection tables instead of leaving two numbers in the
+    paper that disagree about what a UDR true positive is.
+    """
+
+    def _cell(entry: Dict[str, Any]) -> str:
+        mean = entry["mean_precision_at_k"]
+        frac = f"({entry['n_reps_with_k_findings']}/{entry['n_reps_total']})"
+        return f"n/a {frac}" if mean is None else f"{mean * 100:.1f}% {frac}"
+
+    lines = ["NF | Config | P@1 | P@3 | P@5", "---|---|---|---|---"]
+    for cond_key, cond_label in (("no_hint", "No-hint"), ("sast_hint", "SAST-hint")):
+        pooled_evals: List[Dict[str, Any]] = []
+        for nf, by_cond in rows.items():
+            evals = by_cond[cond_key]["evals"]
+            pooled_evals += evals
+            at_k = cvss_eval.aggregate_precision_at_k(evals)
+            lines.append(f"{nf} | {cond_label} | " + " | ".join(_cell(at_k[k]) for k in (1, 3, 5)))
+        at_k = cvss_eval.aggregate_precision_at_k(pooled_evals)
+        lines.append(
+            f"**Pooled** | {cond_label} | " + " | ".join(f"**{_cell(at_k[k])}**" for k in (1, 3, 5))
+        )
+    return "\n".join(lines)
+
+
 def _fmt(rows: Dict[str, Dict[str, Dict[str, Dict[str, Any]]]]) -> str:
     return (
         "## Pooled (unit = CVE x repetition, TP/FP/FN summed across reps)\n\n"
         + _fmt_variant(rows, "pooled")
         + "\n\n## Distinct (unit = distinct CVE recovered at least once; FP = distinct unmatched function names)\n\n"
         + _fmt_variant(rows, "distinct")
+        + "\n\n## Precision@K (final answer, ranked by the agent's own CVSS estimate)\n\n"
+        + _fmt_precision_at_k(rows)
     )
 
 

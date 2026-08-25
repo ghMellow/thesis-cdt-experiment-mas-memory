@@ -2,6 +2,28 @@
 
 ---
 
+## 2026-08-25 — Precision@K riproducibile e correzione UDR propagata  [sessione: c99d9a72-5b40-46d9-8eb9-417fec0213ef]
+
+**Intent:** "2. Precision@K pronta ... si possono ottenere ora giusto?" — domanda di fattibilità, non richiesta esplicita di implementare.
+
+**Divergenze:** invece di rispondere solo "sì", ho verificato empiricamente e ho esteso `utils/generate_detection_table.py` con una terza vista Precision@K. La verifica ha fatto emergere una cosa che la domanda non conteneva: la Tab.5 già nel `.tex` è **pre-`bd0dcc0`**, quindi conta i due match spuri UDR come veri positivi.
+
+**Esito/Problemi:**
+- Girando lo script sul dataset grezzo si riproduce la Tab.5 pubblicata cifra per cifra (UDR no-hint 33.3/66.7/40.0, hint 100.0/77.8/60.0, pooled 75.0/40.7/26.7 e 66.7/46.7/33.3) → è la stessa metrica, l'unica variabile è la correzione.
+- Con la correzione: UDR no-hint → 0.0% a ogni K (coerente con TP=0); pooled no-hint 75.0→66.7 a K=1; pooled hint 66.7→41.7.
+- Il footnote della Tab.5 hint è **da riscrivere**: costruisce l'argomento su "UDR passa a 100.0% P@1", che dopo la correzione non è più vero (0.0/11.1/20.0).
+- La conclusione pooled si rafforza: l'hint peggiora il triage a K=1 in modo più netto di prima — stessa direzione del degrado misurato indipendentemente nel braccio SAST generico.
+- Documentato in `docs/sgv_protocol/13_detection_table_robusta.md`, nuova sezione "Precision@K".
+
+**Seguito (stessa sessione, richiesta "si" al controllo proposto):** audit di *tutte* le tabelle del paper, ricalcolate due volte (grezzo vs corretto). Contaminate: Tab.1, Tab.2/3 (severità), Tab.5, Tab.6, Tab.7-8. Non contaminate: Tab.4 (costo, wall-clock) e le metriche SGV. In ogni tabella PCF/AMF/UDM sono identiche — cambia solo UDR e con essa i pooled. Tre correzioni testuali obbligate:
+- la frase "UDR peggiora VC 100%→44.4%, VA 100%→88.9%" (nota 2026-07-23 in `12_...tex`) **va eliminata**: UDR no-hint non ha più nessun TP, quel 100% era interamente spurio
+- S1 pooled no-hint *sale* 6.7%→11.1% togliendo TP mai esatti — miglioramento apparente, da spiegare
+- **Tab.7-8, impatto maggiore**: no-hint il retry loop su UDR non recupera più nessun TP (0→0, +6 FP); pooled passa da "+3 TP / +17 FP" a "**+1 TP / +19 FP**". Il beneficio sopravvive solo nella condizione SAST-hint (+3 TP): il doppio retry funziona **solo se guidato**. Il relatore ha citato il doppio retry tra le cose che gli piacciono — va detto prima che lo trovi un revisore.
+
+**Lesson learned:** ogni metrica derivata dai match CVE eredita la correzione `bd0dcc0`, non solo la Detection Table. Prima di ri-consegnare al relatore un numero "già pronto" nei `.tex`, va rigenerato — altrimenti si ri-condivide esattamente l'incongruenza che aveva reso irreplicabile la Tabella 3.
+
+---
+
 ## 2026-08-25 — Call 18: gap analysis + modalità B (diff) e braccio SAST generico  [sessione: c99d9a72-5b40-46d9-8eb9-417fec0213ef]
 
 **Intent:** "rispetto le cose discusse in call abbiamo fatto tutto o manca qualcosa?" (call 2026-08-20, trascritta nel vault `tesi-vault/raw/calls/`, **non** in `docs/supporto/calls/`). Poi: "il punto 1 lo possiamo implementare no? ... come si potrebbe fare questo collegamento" e "punto 2 ... procedi come meglio credi".
