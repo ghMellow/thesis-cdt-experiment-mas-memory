@@ -2,6 +2,26 @@
 
 ---
 
+## 2026-08-26 — Racconto dell'evoluzione del progetto dalle 20 call del vault  [sessione: f2182c58-7c9f-49c2-8f38-783e29d05a86]
+
+**Intent:** "voglio che tu guardi tutte le calls della cartella e scriva un documento md che racconta tutta l'evoluzione avuta ... il mio obiettivo sarà in futuro scrivere una tesi quindi devo tracciare bene tutto avere un racconto ben fatto" — concessione ampia sul formato e sull'organizzazione del documento.
+
+**Divergenze:**
+- Scelta la collocazione `tesi-vault/evoluzione-progetto.md` (root del vault) invece di `wiki/` — la convenzione del `CLAUDE.md` del vault vuole `wiki/` interamente in inglese e gestita dall'AI, mentre questo è un documento di lavoro in italiano; `raw/` è dichiarato immutabile. Non concordato prima.
+- Oltre alla cronologia richiesta, aggiunte tre sezioni non chieste: **fili rossi** (i temi tracciati trasversalmente sui 5 mesi), **cosa è stato abbandonato e perché**, **mappa verso i capitoli della tesi**. Motivo: per scrivere la tesi serve poter entrare dal tema, non solo dalla data.
+- Aggiunta §10 come "cerniera" sulla 19ª call, trattandola come apertura della fase nuova invece che come ultima entry cronologica (l'utente l'aveva indicata come tale).
+
+**Esito/Problemi:**
+- Lette integralmente tutte le 20 trascrizioni (~750 KB, 9106 righe), con note incrementali in scratchpad per non perdere il materiale nel corso della sessione.
+- Manca il verbale dell'8ª call (salto 09/06 → 07/07, coincide con gli esami di giugno): segnalato nel documento.
+- Il file `2026-07-29-z17-call.md` è già stato ri-annotato a posteriori con verifiche fatte sul codice del repo: usato come fonte privilegiata per i numeri, ed è il modello migliore di come si chiude un dubbio sollevato in call.
+- Le trascrizioni sono automatiche e molto rumorose (nomi storpiati, frasi troncate): le citazioni nel documento sono ripulite ma non inventate, e dove il senso è ricostruito è dichiarato.
+- Convenzione `CLAUDE.md` del repo non toccata: i verbali delle call 4–19 continuano a non essere in `docs/supporto/calls/` (ci sono solo call_1/2/3) — il disallineamento resta, già segnalato nell'entry del 2026-08-25.
+
+**Lesson learned:** il valore del vault non è nelle singole call ma nelle *ricorrenze*: la stessa obiezione ("è un esperimento chiuso", "serve un metodo per valutare senza GT") ricompare in 6 call diverse a distanza di mesi, e solo vedendole in fila si capisce che è quella la spina dorsale della tesi, non il 5G né le CVE.
+
+---
+
 ## 2026-08-25 — Precision@K riproducibile e correzione UDR propagata  [sessione: c99d9a72-5b40-46d9-8eb9-417fec0213ef]
 
 **Intent:** "2. Precision@K pronta ... si possono ottenere ora giusto?" — domanda di fattibilità, non richiesta esplicita di implementare.
