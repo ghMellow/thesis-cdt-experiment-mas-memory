@@ -12,7 +12,14 @@ import json
 from pathlib import Path
 from typing import Dict, List
 
-from agents.prompts import SAST_HINT_ALERT_LINE, SAST_HINT_FOOTER, SAST_HINT_HEADER
+from agents.prompts import (
+    SAST_HINT_ALERT_LINE,
+    SAST_HINT_FOOTER,
+    SAST_HINT_HEADER,
+    SAST_HINT_LINKED_HEADER,
+    SAST_HINT_LINKED_ITEM,
+    SAST_HINT_SONARQUBE_NOTE,
+)
 
 # task_id prefix -> nf_abbr in the alerts dataset
 _TASK_NF_MAP = {
@@ -30,12 +37,11 @@ def _task_nf(task_id: str) -> str:
     return ""
 
 
-def _load_alerts(dataset_path: str) -> List[Dict]:
+def _load_dataset(dataset_path: str) -> Dict:
     path = Path(dataset_path)
     if not path.exists():
-        return []
-    data = json.loads(path.read_text(encoding="utf-8"))
-    return data.get("alerts", [])
+        return {}
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def is_sast_hint_task(task_id: str) -> bool:
@@ -50,11 +56,29 @@ def build_sast_hint_block(task_id: str, dataset_path: str) -> str:
     nf = _task_nf(task_id)
     if not nf:
         return ""
-    alerts = [a for a in _load_alerts(dataset_path) if a.get("nf_abbr") == nf]
-    return build_sast_hint_block_from_alerts(alerts, tool="SonarQube")
+    data = _load_dataset(dataset_path)
+    alerts = [a for a in data.get("alerts", []) if a.get("nf_abbr") == nf]
+    # The SonarQube dataset predates these keys: its defaults keep that prompt
+    # byte-identical to the runs already published.
+    block = build_sast_hint_block_from_alerts(
+        alerts,
+        tool=data.get("tool", "SonarQube"),
+        dataset_note=data.get("prompt_note", SAST_HINT_SONARQUBE_NOTE),
+    )
+    linked = [c for c in data.get("linked_code", []) if c.get("nf_abbr") == nf]
+    if block and linked:
+        block += SAST_HINT_LINKED_HEADER + "".join(
+            SAST_HINT_LINKED_ITEM.format(
+                file=c["file"], line=c["line"], function=c["function"], code="\n".join(c["lines"])
+            )
+            for c in linked
+        )
+    return block
 
 
-def build_sast_hint_block_from_alerts(alerts: List[Dict], tool: str = "SonarQube") -> str:
+def build_sast_hint_block_from_alerts(
+    alerts: List[Dict], tool: str = "SonarQube", dataset_note: str = SAST_HINT_SONARQUBE_NOTE
+) -> str:
     """Same hint block, from an already-selected list of alerts.
 
     Path-keyed entry point used by the generic mode (`--source-dir`), where
@@ -74,4 +98,4 @@ def build_sast_hint_block_from_alerts(alerts: List[Dict], tool: str = "SonarQube
         )
         for a in sorted(alerts, key=lambda a: a.get("line") or 0)
     ]
-    return SAST_HINT_HEADER.format(tool=tool) + "\n".join(lines) + SAST_HINT_FOOTER
+    return SAST_HINT_HEADER.format(tool=tool, dataset_note=dataset_note) + "\n".join(lines) + SAST_HINT_FOOTER

@@ -1,0 +1,430 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1.0/schema/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "SonarQube Exporter",
+          "version": "1.0.0"
+        }
+      },
+      "results": [
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/consumer/bsf_service.go"
+                },
+                "region": {
+                  "startLine": 119
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/processor/notifier.go"
+                },
+                "region": {
+                  "startLine": 107
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/processor/smpolicy.go"
+                },
+                "region": {
+                  "startLine": 424
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G304",
+          "message": {
+            "text": "Potential file inclusion via variable"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pkg/factory/factory.go"
+                },
+                "region": {
+                  "startLine": 26
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/processor/smpolicy.go"
+                },
+                "region": {
+                  "startLine": 224
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/processor/smpolicy.go"
+                },
+                "region": {
+                  "startLine": 321
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G301",
+          "message": {
+            "text": "Expect directory permissions to be 0750 or less"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cmd/main.go"
+                },
+                "region": {
+                  "startLine": 116
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/context/context.go"
+                },
+                "region": {
+                  "startLine": 214
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/context/context.go"
+                },
+                "region": {
+                  "startLine": 396
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/context/context.go"
+                },
+                "region": {
+                  "startLine": 396
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/context/context.go"
+                },
+                "region": {
+                  "startLine": 397
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/context/context.go"
+                },
+                "region": {
+                  "startLine": 426
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/context/context.go"
+                },
+                "region": {
+                  "startLine": 426
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/context/context.go"
+                },
+                "region": {
+                  "startLine": 427
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/processor/smpolicy.go"
+                },
+                "region": {
+                  "startLine": 1043
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G109",
+          "message": {
+            "text": "Potential Integer overflow made by strconv.Atoi result conversion to int16/32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/processor/smpolicy.go"
+                },
+                "region": {
+                  "startLine": 1043
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/processor/smpolicy.go"
+                },
+                "region": {
+                  "startLine": 1056
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G109",
+          "message": {
+            "text": "Potential Integer overflow made by strconv.Atoi result conversion to int16/32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/processor/smpolicy.go"
+                },
+                "region": {
+                  "startLine": 1056
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G109",
+          "message": {
+            "text": "Potential Integer overflow made by strconv.Atoi result conversion to int16/32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/processor/smpolicy.go"
+                },
+                "region": {
+                  "startLine": 1117
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/processor/smpolicy.go"
+                },
+                "region": {
+                  "startLine": 1117
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/processor/smpolicy.go"
+                },
+                "region": {
+                  "startLine": 1130
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G109",
+          "message": {
+            "text": "Potential Integer overflow made by strconv.Atoi result conversion to int16/32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/processor/smpolicy.go"
+                },
+                "region": {
+                  "startLine": 1130
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/util/pcf_util.go"
+                },
+                "region": {
+                  "startLine": 241
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3548 @@
+{
+	"runs": [
+		{
+			"results": [
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/message/send.go"
+								},
+								"region": {
+									"endColumn": 17,
+									"endLine": 257,
+									"snippet": {
+										"text": "Value: int32(cause),"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 17,
+									"startLine": 257
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion uint64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 1734,
+									"snippet": {
+										"text": "Value: int32(causeValue),"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 1734
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion uint64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 1559,
+									"snippet": {
+										"text": "Value: int32(causeValue),"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 1559
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion uint64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/scheduler.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 145,
+									"snippet": {
+										"text": "return int(ueID % uint64(s.numWorkers))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 145
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion uint64 -\u003e int"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 49,
+									"endLine": 532,
+									"snippet": {
+										"text": "ranUe.RRCEstablishmentCause = strconv.Itoa(int(rRCEstablishmentCause.Value))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 49,
+									"startLine": 532
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion uint64 -\u003e int"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/sbi/processor/ue_context.go"
+								},
+								"region": {
+									"endColumn": 35,
+									"endLine": 402,
+									"snippet": {
+										"text": "mmContext.NasUplinkCount = int32(ue.ULCount.Get())"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 35,
+									"startLine": 402
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion uint32 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/sbi/processor/ue_context.go"
+								},
+								"region": {
+									"endColumn": 37,
+									"endLine": 401,
+									"snippet": {
+										"text": "mmContext.NasDownlinkCount = int32(ue.DLCount.Get())"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 37,
+									"startLine": 401
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion uint32 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/service/service.go"
+								},
+								"region": {
+									"endColumn": 26,
+									"endLine": 43,
+									"snippet": {
+										"text": "MaxInitTimeout: uint16(cfg.MaxInitTimeout),"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 26,
+									"startLine": 43
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion uint -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/service/service.go"
+								},
+								"region": {
+									"endColumn": 26,
+									"endLine": 42,
+									"snippet": {
+										"text": "MaxAttempts:    uint16(cfg.MaxAttempts),"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 26,
+									"startLine": 42
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion uint -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/service/service.go"
+								},
+								"region": {
+									"endColumn": 26,
+									"endLine": 41,
+									"snippet": {
+										"text": "MaxInstreams:   uint16(cfg.MaxInstreams),"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 26,
+									"startLine": 41
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion uint -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/service/service.go"
+								},
+								"region": {
+									"endColumn": 26,
+									"endLine": 40,
+									"snippet": {
+										"text": "NumOstreams:    uint16(cfg.NumOstreams),"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 26,
+									"startLine": 40
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion uint -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 390,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 390
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 381,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 381
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 372,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 372
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 363,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 363
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 340,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 340
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 331,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 331
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 322,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 322
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 313,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 313
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 304,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 304
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 295,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 295
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 286,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 286
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 277,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 277
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 268,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 268
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 244,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 244
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 235,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 235
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 226,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 226
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 217,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 217
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 208,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 208
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 199,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 199
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 190,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 190
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 181,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 181
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 172,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 172
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 163,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 163
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 154,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 154
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 145,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 145
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 136,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 136
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 127,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 127
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 118,
+									"snippet": {
+										"text": "return uint64(ie.Value.SourceAMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 118
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 109,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 109
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 100,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 100
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 91,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 91
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 82,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 82
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 73,
+									"snippet": {
+										"text": "return uint64(ie.Value.AMFUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 73
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/ue_id_extractor.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 62,
+									"snippet": {
+										"text": "return uint64(ie.Value.RANUENGAPID.Value), true"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 62
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 26,
+									"endLine": 1660,
+									"snippet": {
+										"text": "pduSessionID := int32(pDUSessionResourceHoItem.PDUSessionID.Value)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 26,
+									"startLine": 1660
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 25,
+									"endLine": 1476,
+									"snippet": {
+										"text": "pduSessionID := int32(item.PDUSessionID.Value)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 25,
+									"startLine": 1476
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 25,
+									"endLine": 1441,
+									"snippet": {
+										"text": "pduSessionID := int32(item.PDUSessionID.Value)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 25,
+									"startLine": 1441
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 25,
+									"endLine": 1337,
+									"snippet": {
+										"text": "pduSessionID := int32(item.PDUSessionID.Value)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 25,
+									"startLine": 1337
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 25,
+									"endLine": 1305,
+									"snippet": {
+										"text": "pduSessionID := int32(item.PDUSessionID.Value)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 25,
+									"startLine": 1305
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 27,
+									"endLine": 1096,
+									"snippet": {
+										"text": "pduSessionID := int32(pduSessionReourceItem.PDUSessionID.Value)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 27,
+									"startLine": 1096
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 25,
+									"endLine": 1038,
+									"snippet": {
+										"text": "pduSessionID := int32(item.PDUSessionID.Value)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 25,
+									"startLine": 1038
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 25,
+									"endLine": 978,
+									"snippet": {
+										"text": "pduSessionID := int32(item.PDUSessionID.Value)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 25,
+									"startLine": 978
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 25,
+									"endLine": 952,
+									"snippet": {
+										"text": "pduSessionID := int32(item.PDUSessionID.Value)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 25,
+									"startLine": 952
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 25,
+									"endLine": 897,
+									"snippet": {
+										"text": "pduSessionID := int32(item.PDUSessionID.Value)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 25,
+									"startLine": 897
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 25,
+									"endLine": 827,
+									"snippet": {
+										"text": "pduSessionID := int32(item.PDUSessionID.Value)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 25,
+									"startLine": 827
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 25,
+									"endLine": 768,
+									"snippet": {
+										"text": "pduSessionID := int32(item.PDUSessionID.Value)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 25,
+									"startLine": 768
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 25,
+									"endLine": 720,
+									"snippet": {
+										"text": "pduSessionID := int32(item.PDUSessionID.Value)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 25,
+									"startLine": 720
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 25,
+									"endLine": 696,
+									"snippet": {
+										"text": "pduSessionID := int32(item.PDUSessionID.Value)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 25,
+									"startLine": 696
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 25,
+									"endLine": 648,
+									"snippet": {
+										"text": "pduSessionID := int32(item.PDUSessionID.Value)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 25,
+									"startLine": 648
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 25,
+									"endLine": 623,
+									"snippet": {
+										"text": "pduSessionID := int32(item.PDUSessionID.Value)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 25,
+									"startLine": 623
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 25,
+									"endLine": 373,
+									"snippet": {
+										"text": "pduSessionID := int32(item.PDUSessionID.Value)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 25,
+									"startLine": 373
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 26,
+									"endLine": 295,
+									"snippet": {
+										"text": "pduSessionID := int32(pduSessionReourceItem.PDUSessionID.Value)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 26,
+									"startLine": 295
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/handler.go"
+								},
+								"region": {
+									"endColumn": 29,
+									"endLine": 1221,
+									"snippet": {
+										"text": "AnN2ApId:         int32(ue.RanUe[anType].RanUeNgapId),"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 29,
+									"startLine": 1221
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/context/context.go"
+								},
+								"region": {
+									"endColumn": 14,
+									"endLine": 206,
+									"snippet": {
+										"text": "return int32(tmsi)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 14,
+									"startLine": 206
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int64 -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/sbi/processor/n1n2message.go"
+								},
+								"region": {
+									"endColumn": 60,
+									"endLine": 195,
+									"snippet": {
+										"text": "BuildDLNASTransport(ue, anType, n1MsgType, n1Msg, uint8(requestData.PduSessionId), nil, nil, 0)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 60,
+									"startLine": 195
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int32 -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 14,
+									"endLine": 851,
+									"snippet": {
+										"text": "uint8(pduSessionID), nil, nil, 0)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 14,
+									"startLine": 851
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int32 -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 29,
+									"endLine": 791,
+									"snippet": {
+										"text": "pduSessionId := uint8(pduSessionID)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 29,
+									"startLine": 791
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int32 -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nas/testing/fake_nas_pdu.go"
+								},
+								"region": {
+									"endColumn": 37,
+									"endLine": 913,
+									"snippet": {
+										"text": "ulNasTransport.SNSSAI.SetSST(uint8(sNssai.Sst))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 37,
+									"startLine": 913
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int32 -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nas/testing/fake_nas_pdu.go"
+								},
+								"region": {
+									"endColumn": 37,
+									"endLine": 204,
+									"snippet": {
+										"text": "ulNasTransport.SNSSAI.SetSST(uint8(sNssai.Sst))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 37,
+									"startLine": 204
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int32 -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nas/testing/fake_nas_pdu.go"
+								},
+								"region": {
+									"endColumn": 37,
+									"endLine": 151,
+									"snippet": {
+										"text": "ulNasTransport.SNSSAI.SetSST(uint8(sNssai.Sst))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 37,
+									"startLine": 151
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int32 -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/send.go"
+								},
+								"region": {
+									"endColumn": 8,
+									"endLine": 43,
+									"snippet": {
+										"text": "uint8(pduSessionId), causePtr, backOffTimerUint, backOffTimer)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 8,
+									"startLine": 43
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int32 -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/handler.go"
+								},
+								"region": {
+									"endColumn": 27,
+									"endLine": 1905,
+									"snippet": {
+										"text": "pduSessionId := uint8(smInfo.PduSessionId)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 27,
+									"startLine": 1905
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int32 -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/handler.go"
+								},
+								"region": {
+									"endColumn": 51,
+									"endLine": 1478,
+									"snippet": {
+										"text": "errPduSessionId = append(errPduSessionId, uint8(requestData.PduSessionId))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 51,
+									"startLine": 1478
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int32 -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/handler.go"
+								},
+								"region": {
+									"endColumn": 50,
+									"endLine": 1462,
+									"snippet": {
+										"text": "errPduSessionId = append(errPduSessionId, uint8(requestData.PduSessionId))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 50,
+									"startLine": 1462
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int32 -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/handler.go"
+								},
+								"region": {
+									"endColumn": 51,
+									"endLine": 1371,
+									"snippet": {
+										"text": "errPduSessionId = append(errPduSessionId, uint8(pduSessionID))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 51,
+									"startLine": 1371
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int32 -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/handler.go"
+								},
+								"region": {
+									"endColumn": 51,
+									"endLine": 1341,
+									"snippet": {
+										"text": "errPduSessionId = append(errPduSessionId, uint8(pduSessionID))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 51,
+									"startLine": 1341
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int32 -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/handler.go"
+								},
+								"region": {
+									"endColumn": 42,
+									"endLine": 351,
+									"snippet": {
+										"text": "response.BinaryDataN1SmMessage, uint8(pduSessionID), nil, nil, 0)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 42,
+									"startLine": 351
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int32 -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/context/amf_ue.go"
+								},
+								"region": {
+									"endColumn": 17,
+									"endLine": 763,
+									"snippet": {
+										"text": "ue.NCC = uint8(seafData.Ncc)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 17,
+									"startLine": 763
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int32 -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/sbi/processor/n1n2message.go"
+								},
+								"region": {
+									"endColumn": 43,
+									"endLine": 373,
+									"snippet": {
+										"text": "pagingPriority.Value = aper.Enumerated(onGoing.Ppi)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 43,
+									"startLine": 373
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int32 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/sbi/processor/n1n2message.go"
+								},
+								"region": {
+									"endColumn": 43,
+									"endLine": 321,
+									"snippet": {
+										"text": "pagingPriority.Value = aper.Enumerated(onGoing.Ppi)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 43,
+									"startLine": 321
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int32 -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/context/amf_ue.go"
+								},
+								"region": {
+									"endColumn": 33,
+									"endLine": 853,
+									"snippet": {
+										"text": "overflow := uint16((uint32(mmContext.NasUplinkCount) \u0026 0x00ffff00) \u003e\u003e 8)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 33,
+									"startLine": 853
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int32 -\u003e uint32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/context/amf_ue.go"
+								},
+								"region": {
+									"endColumn": 33,
+									"endLine": 847,
+									"snippet": {
+										"text": "overflow := uint16((uint32(mmContext.NasDownlinkCount) \u0026 0x00ffff00) \u003e\u003e 8)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 33,
+									"startLine": 847
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int32 -\u003e uint32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nas/testing/fake_nas_pdu.go"
+								},
+								"region": {
+									"endColumn": 68,
+									"endLine": 603,
+									"snippet": {
+										"text": "authenticationFailure.AuthenticationFailureParameter.SetLen(uint8(len(authenticationFailureParam)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 68,
+									"startLine": 603
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nas/testing/fake_nas_pdu.go"
+								},
+								"region": {
+									"endColumn": 70,
+									"endLine": 564,
+									"snippet": {
+										"text": "authenticationResponse.AuthenticationResponseParameter.SetLen(uint8(len(authenticationResponseParam)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 70,
+									"startLine": 564
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 59,
+									"endLine": 825,
+									"snippet": {
+										"text": "configurationUpdateCommand.ServiceAreaList.SetLen(uint8(len(partialServiceAreaList)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 59,
+									"startLine": 825
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 51,
+									"endLine": 812,
+									"snippet": {
+										"text": "configurationUpdateCommand.TAIList.SetLen(uint8(len(taiListNas)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 51,
+									"startLine": 812
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 59,
+									"endLine": 789,
+									"snippet": {
+										"text": "configurationUpdateCommand.ConfiguredNSSAI.SetLen(uint8(len(buf)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 59,
+									"startLine": 789
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 56,
+									"endLine": 773,
+									"snippet": {
+										"text": "configurationUpdateCommand.AllowedNSSAI.SetLen(uint8(len(buf)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 56,
+									"startLine": 773
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 50,
+									"endLine": 654,
+									"snippet": {
+										"text": "registrationAccept.ServiceAreaList.SetLen(uint8(len(partialServiceAreaList)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 50,
+									"startLine": 654
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 50,
+									"endLine": 588,
+									"snippet": {
+										"text": "registrationAccept.ConfiguredNSSAI.SetLen(uint8(len(buf)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 50,
+									"startLine": 588
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 47,
+									"endLine": 569,
+									"snippet": {
+										"text": "registrationAccept.AllowedNSSAI.SetLen(uint8(len(buf)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 47,
+									"startLine": 569
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 42,
+									"endLine": 559,
+									"snippet": {
+										"text": "registrationAccept.TAIList.SetLen(uint8(len(taiListNas)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 42,
+									"startLine": 559
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 50,
+									"endLine": 552,
+									"snippet": {
+										"text": "registrationAccept.EquivalentPlmns.SetLen(uint8(len(buf)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 50,
+									"startLine": 552
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 41,
+									"endLine": 415,
+									"snippet": {
+										"text": "securityModeCommand.ABBA.SetLen(uint8(len(ue.ABBA)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 41,
+									"startLine": 415
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 41,
+									"endLine": 268,
+									"snippet": {
+										"text": "authenticationResult.ABBA.SetLen(uint8(len(ue.ABBA)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 41,
+									"startLine": 268
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 65,
+									"endLine": 153,
+									"snippet": {
+										"text": "authenticationRequest.AuthenticationParameterAUTN.SetLen(uint8(len(autn)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 65,
+									"startLine": 153
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 41,
+									"endLine": 125,
+									"snippet": {
+										"text": "authenticationRequest.ABBA.SetLen(uint8(len(ue.ABBA)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 41,
+									"startLine": 125
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/context/amf_ue.go"
+								},
+								"region": {
+									"endColumn": 43,
+									"endLine": 867,
+									"snippet": {
+										"text": "ue.UESecurityCapability.SetLen(uint8(len(buf)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 43,
+									"startLine": 867
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint8"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/scheduler.go"
+								},
+								"region": {
+									"endColumn": 26,
+									"endLine": 145,
+									"snippet": {
+										"text": "return int(ueID % uint64(s.numWorkers))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 26,
+									"startLine": 145
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint64"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nas/testing/fake_nas_pdu.go"
+								},
+								"region": {
+									"endColumn": 47,
+									"endLine": 918,
+									"snippet": {
+										"text": "ulNasTransport.PayloadContainer.SetLen(uint16(len(pduSessionReleaseRequest)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 47,
+									"startLine": 918
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nas/testing/fake_nas_pdu.go"
+								},
+								"region": {
+									"endColumn": 47,
+									"endLine": 865,
+									"snippet": {
+										"text": "ulNasTransport.PayloadContainer.SetLen(uint16(len(pduSessionReleaseRequest)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 47,
+									"startLine": 865
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nas/testing/fake_nas_pdu.go"
+								},
+								"region": {
+									"endColumn": 47,
+									"endLine": 834,
+									"snippet": {
+										"text": "ulNasTransport.PayloadContainer.SetLen(uint16(len(payload)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 47,
+									"startLine": 834
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nas/testing/fake_nas_pdu.go"
+								},
+								"region": {
+									"endColumn": 57,
+									"endLine": 673,
+									"snippet": {
+										"text": "securityModeComplete.NASMessageContainer.SetLen(uint16(len(nasMessageContainer)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 57,
+									"startLine": 673
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nas/testing/fake_nas_pdu.go"
+								},
+								"region": {
+									"endColumn": 61,
+									"endLine": 633,
+									"snippet": {
+										"text": "registrationComplete.SORTransparentContainer.SetLen(uint16(len(sorTransparentContainer)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 61,
+									"startLine": 633
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nas/testing/fake_nas_pdu.go"
+								},
+								"region": {
+									"endColumn": 50,
+									"endLine": 572,
+									"snippet": {
+										"text": "authenticationResponse.EAPMessage.SetLen(uint16(len(rawEapMsg)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 50,
+									"startLine": 572
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nas/testing/fake_nas_pdu.go"
+								},
+								"region": {
+									"endColumn": 47,
+									"endLine": 424,
+									"snippet": {
+										"text": "ulNasTransport.PayloadContainer.SetLen(uint16(len(payload)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 47,
+									"startLine": 424
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nas/testing/fake_nas_pdu.go"
+								},
+								"region": {
+									"endColumn": 47,
+									"endLine": 209,
+									"snippet": {
+										"text": "ulNasTransport.PayloadContainer.SetLen(uint16(len(pduSessionModificationRequest)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 47,
+									"startLine": 209
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nas/testing/fake_nas_pdu.go"
+								},
+								"region": {
+									"endColumn": 47,
+									"endLine": 156,
+									"snippet": {
+										"text": "ulNasTransport.PayloadContainer.SetLen(uint16(len(pduSessionEstablishmentRequest)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 47,
+									"startLine": 156
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nas/testing/fake_nas_pdu.go"
+								},
+								"region": {
+									"endColumn": 83,
+									"endLine": 102,
+									"snippet": {
+										"text": "pduSessionEstablishmentRequest.ExtendedProtocolConfigurationOptions.SetLen(uint16(pcoContentsLength))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 83,
+									"startLine": 102
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nas/testing/fake_nas_pdu.go"
+								},
+								"region": {
+									"endColumn": 56,
+									"endLine": 59,
+									"snippet": {
+										"text": "registrationRequest.NASMessageContainer.SetLen(uint16(len(nasMessageContainer)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 56,
+									"startLine": 59
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 60,
+									"endLine": 841,
+									"snippet": {
+										"text": "configurationUpdateCommand.LADNInformation.SetLen(uint16(len(buf)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 60,
+									"startLine": 841
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 51,
+									"endLine": 638,
+									"snippet": {
+										"text": "registrationAccept.LADNInformation.SetLen(uint16(len(buf)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 51,
+									"startLine": 638
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 74,
+									"endLine": 627,
+									"snippet": {
+										"text": "registrationAccept.PDUSessionReactivationResultErrorCause.SetLen(uint16(len(buf)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 74,
+									"startLine": 627
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 47,
+									"endLine": 410,
+									"snippet": {
+										"text": "securityModeCommand.EAPMessage.SetLen(uint16(len(rawEapMsg)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 47,
+									"startLine": 410
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 46,
+									"endLine": 340,
+									"snippet": {
+										"text": "registrationReject.EAPMessage.SetLen(uint16(len(rawEapMsg)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 46,
+									"startLine": 340
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 47,
+									"endLine": 263,
+									"snippet": {
+										"text": "authenticationResult.EAPMessage.SetLen(uint16(len(rawEapMsg)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 47,
+									"startLine": 263
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 48,
+									"endLine": 234,
+									"snippet": {
+										"text": "authenticationReject.EAPMessage.SetLen(uint16(len(rawEapMsg)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 48,
+									"startLine": 234
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 69,
+									"endLine": 209,
+									"snippet": {
+										"text": "serviceAccept.PDUSessionReactivationResultErrorCause.SetLen(uint16(len(buf)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 69,
+									"startLine": 209
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 49,
+									"endLine": 163,
+									"snippet": {
+										"text": "authenticationRequest.EAPMessage.SetLen(uint16(len(rawEapMsg)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 49,
+									"startLine": 163
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/gmm/message/build.go"
+								},
+								"region": {
+									"endColumn": 47,
+									"endLine": 39,
+									"snippet": {
+										"text": "dLNASTransport.PayloadContainer.SetLen(uint16(len(nasPdu)))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 47,
+									"startLine": 39
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e uint16"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/message/send.go"
+								},
+								"region": {
+									"endColumn": 17,
+									"endLine": 256,
+									"snippet": {
+										"text": "Group: int32(causePresent),"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 17,
+									"startLine": 256
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 1733,
+									"snippet": {
+										"text": "Group: int32(causePresent),"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 1733
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/ngap/handler.go"
+								},
+								"region": {
+									"endColumn": 19,
+									"endLine": 1558,
+									"snippet": {
+										"text": "Group: int32(causePresent),"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 19,
+									"startLine": 1558
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/context/timer.go"
+								},
+								"region": {
+									"endColumn": 43,
+									"endLine": 29,
+									"snippet": {
+										"text": "atomic.StoreInt32(\u0026t.maxRetryTimes, int32(maxRetryTimes))"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 43,
+									"startLine": 29
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/context/context.go"
+								},
+								"region": {
+									"endColumn": 24,
+									"endLine": 510,
+									"snippet": {
+										"text": "Port:        int32(context.SBIPort),"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 24,
+									"startLine": 510
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "integer overflow conversion int -\u003e int32"
+					},
+					"ruleId": "G115"
+				},
+				{
+					"fixes": [
+						{
+							"artifactChanges": [
+								{
+									"artifactLocation": {
+										"description": {
+											"text": "File requiring changes"
+										}
+									},
+									"replacements": [
+										{
+											"deletedRegion": {
+												"endColumn": 1,
+												"endLine": 1,
+												"startColumn": 1,
+												"startLine": 1
+											}
+										}
+									]
+								}
+							],
+							"description": {
+								"markdown": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal.",
+								"text": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+							}
+						}
+					],
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "pkg/factory/factory.go"
+								},
+								"region": {
+									"endColumn": 21,
+									"endLine": 26,
+									"snippet": {
+										"text": "if content, err := os.ReadFile(f); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 21,
+									"startLine": 26
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Potential file inclusion via variable"
+					},
+					"ruleId": "G304"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "cmd/main.go"
+								},
+								"region": {
+									"endColumn": 13,
+									"endLine": 100,
+									"snippet": {
+										"text": "if err := os.MkdirAll(tmpDir, 0o775); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 13,
+									"startLine": 100
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect directory permissions to be 0750 or less"
+					},
+					"ruleId": "G301"
+				}
+			],
+			"taxonomies": [
+				{
+					"downloadUri": "https://cwe.mitre.org/data/xml/cwec_v4.4.xml.zip",
+					"guid": "f2856fc0-85b7-373f-83e7-6f8582243547",
+					"informationUri": "https://cwe.mitre.org/data/published/cwe_v4.4.pdf/",
+					"isComprehensive": true,
+					"language": "en",
+					"minimumRequiredLocalizedDataSemanticVersion": "4.4",
+					"name": "CWE",
+					"organization": "MITRE",
+					"releaseDateUtc": "2021-03-15",
+					"shortDescription": {
+						"text": "The MITRE Common Weakness Enumeration"
+					},
+					"taxa": [
+						{
+							"fullDescription": {
+								"text": "The software performs a calculation that can produce an integer overflow or wraparound, when the logic assumes that the resulting value will always be larger than the original value. This can introduce other weaknesses when the calculation is used for resource management or execution control."
+							},
+							"guid": "c71e4fa0-720e-3e82-8b67-b2d44d0c604b",
+							"helpUri": "https://cwe.mitre.org/data/definitions/190.html",
+							"id": "190",
+							"shortDescription": {
+								"text": "Integer Overflow or Wraparound"
+							}
+						},
+						{
+							"fullDescription": {
+								"text": "The software uses external input to construct a pathname that is intended to identify a file or directory that is located underneath a restricted parent directory, but the software does not properly neutralize special elements within the pathname that can cause the pathname to resolve to a location that is outside of the restricted directory."
+							},
+							"guid": "3e718404-88bc-3f17-883e-e85e74078a76",
+							"helpUri": "https://cwe.mitre.org/data/definitions/22.html",
+							"id": "22",
+							"shortDescription": {
+								"text": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')"
+							}
+						},
+						{
+							"fullDescription": {
+								"text": "During installation, installed file permissions are set to allow anyone to modify those files."
+							},
+							"guid": "fca8970d-b44c-3162-a385-cc09266d12a4",
+							"helpUri": "https://cwe.mitre.org/data/definitions/276.html",
+							"id": "276",
+							"shortDescription": {
+								"text": "Incorrect Default Permissions"
+							}
+						}
+					],
+					"version": "4.4"
+				}
+			],
+			"tool": {
+				"driver": {
+					"guid": "8b518d5f-906d-39f9-894b-d327b1a421c5",
+					"informationUri": "https://github.com/securego/gosec/",
+					"name": "gosec",
+					"rules": [
+						{
+							"defaultConfiguration": {
+								"level": "error"
+							},
+							"fullDescription": {
+								"text": "Expect directory permissions to be 0750 or less"
+							},
+							"help": {
+								"text": "Expect directory permissions to be 0750 or less\nSeverity: MEDIUM\nConfidence: HIGH\n"
+							},
+							"id": "G301",
+							"name": "Incorrect Default Permissions",
+							"properties": {
+								"precision": "high",
+								"tags": [
+									"security",
+									"MEDIUM"
+								]
+							},
+							"relationships": [
+								{
+									"kinds": [
+										"superset"
+									],
+									"target": {
+										"guid": "fca8970d-b44c-3162-a385-cc09266d12a4",
+										"id": "276",
+										"toolComponent": {
+											"guid": "f2856fc0-85b7-373f-83e7-6f8582243547",
+											"name": "CWE"
+										}
+									}
+								}
+							],
+							"shortDescription": {
+								"text": "Expect directory permissions to be 0750 or less"
+							}
+						},
+						{
+							"defaultConfiguration": {
+								"level": "error"
+							},
+							"fullDescription": {
+								"text": "Potential file inclusion via variable"
+							},
+							"help": {
+								"text": "Potential file inclusion via variable\nSeverity: MEDIUM\nConfidence: HIGH\n"
+							},
+							"id": "G304",
+							"name": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
+							"properties": {
+								"precision": "high",
+								"tags": [
+									"security",
+									"MEDIUM"
+								]
+							},
+							"relationships": [
+								{
+									"kinds": [
+										"superset"
+									],
+									"target": {
+										"guid": "3e718404-88bc-3f17-883e-e85e74078a76",
+										"id": "22",
+										"toolComponent": {
+											"guid": "f2856fc0-85b7-373f-83e7-6f8582243547",
+											"name": "CWE"
+										}
+									}
+								}
+							],
+							"shortDescription": {
+								"text": "Potential file inclusion via variable"
+							}
+						},
+						{
+							"defaultConfiguration": {
+								"level": "error"
+							},
+							"fullDescription": {
+								"text": "integer overflow conversion uint64 -\u003e int32"
+							},
+							"help": {
+								"text": "integer overflow conversion uint64 -\u003e int32\nSeverity: HIGH\nConfidence: MEDIUM\n"
+							},
+							"id": "G115",
+							"name": "Integer Overflow or Wraparound",
+							"properties": {
+								"precision": "medium",
+								"tags": [
+									"security",
+									"HIGH"
+								]
+							},
+							"relationships": [
+								{
+									"kinds": [
+										"superset"
+									],
+									"target": {
+										"guid": "c71e4fa0-720e-3e82-8b67-b2d44d0c604b",
+										"id": "190",
+										"toolComponent": {
+											"guid": "f2856fc0-85b7-373f-83e7-6f8582243547",
+											"name": "CWE"
+										}
+									}
+								}
+							],
+							"shortDescription": {
+								"text": "integer overflow conversion uint64 -\u003e int32"
+							}
+						}
+					],
+					"semanticVersion": "2.26.1",
+					"supportedTaxonomies": [
+						{
+							"guid": "f2856fc0-85b7-373f-83e7-6f8582243547",
+							"name": "CWE"
+						}
+					],
+					"version": "v2.26.1"
+				}
+			}
+		}
+	],
+	"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1/schema/sarif-schema-2.1.0.json",
+	"version": "2.1.0"
+}

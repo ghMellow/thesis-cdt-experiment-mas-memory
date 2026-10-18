@@ -96,7 +96,9 @@ CVSS_CONTEXT_HINT_ENABLED = True
 # default — enable via env var so the baseline config stays the committed
 # default: SAST_HINT_ENABLED=true python main.py ...
 SAST_HINT_ENABLED = os.getenv("SAST_HINT_ENABLED", "false").lower() == "true"
-SAST_HINT_DATASET_PATH = "docs/sast_tools/ground_truth_vuln_files.json"
+# Overridable to run the same arm on another alerts dataset, e.g. the
+# multi-tool one built by utils/sast_unified_to_hint.py.
+SAST_HINT_DATASET_PATH = os.getenv("SAST_HINT_DATASET_PATH", "docs/sast_tools/ground_truth_vuln_files.json")
 
 # ── SGV: Syntactic Grounding Verifier (proposta relatore, doc docs/sgv_protocol/) ──
 # Filtro deterministico in-loop, senza accesso alla ground truth: valuta la

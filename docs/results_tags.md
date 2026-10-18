@@ -52,3 +52,9 @@ aggregati, TOC) già stabilizzato da `results-2026-07-13b` il giorno prima.
 |-----|-----------|----------------------|
 | `results-2026-08-04` | Chiarimento ripetizioni UDR_full n=10, documentazione semantica esplicita (call 15) | Checkpoint interno |
 | `results-2026-08-04b` | Aggiunto indice di navigazione a `docs/codemap/mappa_sistema.md` | **Ultimo tag condiviso col relatore.** Da qui `main` è andato avanti col commit `bd0dcc0` (correzione Tabella 1 UDR, match spurio CVE-2026-40249/40343 rimosso) mai ri-condiviso — causa identificata delle incongruenze numeriche lamentate nella call del 2026-08-20 (vedi `DEVLOG.md`, entry 2026-08-23 "Split dev/main") |
+
+## Gruppo 5 — ITASEC 2027, input SAST a 3 tool (ottobre)
+
+| Tag | Contenuto | Motivo/destinatario |
+|-----|-----------|----------------------|
+| `results-2026-10-18` | Input SAST a 3 tool (gosec, Semgrep, CodeQL) su UDR/UDM, con e senza codice collegato, più la corsa senza SAST dello stesso giorno: convertitore, dataset degli alert, corse grezze, report per finding, doc `sgv_protocol/14` | **Condiviso col team ITASEC** (Francesco, Mariano, Andrea) per la ripresentazione del paper |

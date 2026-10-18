@@ -2,6 +2,53 @@
 
 ---
 
+## 2026-10-16 — ITASEC 2027: braccio SAST a 3 tool, convertitore e corse  [sessione: a08af94f-f3ef-4807-becf-b09009bbcaf0]
+
+**Intent:** l'utente passa il paper inviato (`IEEE_ICAI_TEMS_2026_...pdf`, radice del repo) e dice: «per le altre cose non mi hanno risposto quindi direi che possiamo partire».
+**Decisioni:**
+- Niente codice del file collegato nel prompt: l'utente accetta la proposta della entry precedente («ok ok ci sta»). Gli smell indiretti hanno solo l'aggancio alla riga di origine e il punto d'arrivo nel messaggio.
+- Il team non ha risposto su indiretti e AMF/PCF: si procede con quanto proposto nel messaggio (aggancio all'origine, AMF/PCF non girati).
+**Divergenze:**
+- L'header del blocco SAST diceva «Most describe code-style issues [...] NOT security vulnerabilities», vero per SonarQube ma falso per questi alert (regole di sicurezza). Reso un pezzo variabile (`{dataset_note}`) letto dal JSON del dataset: vuoto per i 3 tool, testo originale per SonarQube. Il blocco SonarQube resta identico byte per byte (verificato sui 4 task contro `HEAD`). È comunque una differenza di prompt fra i due bracci, da dichiarare nel paper.
+- Il convertitore non legge il ridotto del team: riparte dal JSON completo (316), riapplica il filtro e fallisce se la selezione differisce dal ridotto (`--check-reduced`). Esce identica, 16 alert.
+- Il doppione gosec G115 (senza `origine_dato`) eredita l'aggancio del gemello CodeQL (L1842).
+**Esito/Problemi:**
+- Nuovo `utils/sast_unified_to_hint.py`, output `docs/sast_tools/analisi_statica_v4.2.1/hint_alerts_3tool.json` (UDR 12 righe, UDM 4, AMF/PCF 0). `config.SAST_HINT_DATASET_PATH` ora si sovrascrive da env var.
+- Righe di origine controllate sui file GT: sono tutte letture di parametri della richiesta (`c.Params.ByName`, `strconv.ParseInt(c.Param("pduSessionId"))`).
+- Dal paper: le ripetizioni non sono dichiarate; nel repo il braccio SonarQube è `1A_sast_hint_full` (UDR a 10 rip., prime 3 canoniche; UDM a 3). Corse lanciate con experiment-id `1A_sast3tool_full`, stessi numeri di ripetizioni.
+- Il servizio hosted oggi risponde in ~10–30 s a ripetizione (luglio: 4–16 min). Prompt verificato identico a luglio fuori dal blocco SAST, quindi non è input troncato.
+- **Divergenza:** visto il cambio di servizio, l'AI ha rifatto lo stesso giorno anche la corsa senza SAST (`1A_no_hint_full_rerun2610`) e quella SonarQube, senza chiedere: era il «baseline opzionale» proposto prima, e il costo era sceso da ~1 h a pochi minuti. Il primo lancio non è partito per un errore nel ciclo zsh (`set -- $t` non spezza le parole), rilanciato con comandi espliciti.
+- Esito (tabelle e lettura in `docs/sgv_protocol/14_braccio_sast_multitool.md`): su UDR a 10 rip. i 3 tool trovano almeno una CVE in 7/10 ripetizioni contro 3/10 senza SAST, precisione 0.200 contro 0.101, stesse CVE distinte. UDM: CVE trovata ovunque, FP distinti 11 → 8 con gli alert.
+- **Decisione del team (Francesco):** sugli smell indiretti chiede l'opposto della proposta: «aggiungiamo alla fine del file la porzione dei file collegati, poi mettiamo qualche frase di spiegazione»; AMF/PCF: «ci bastano i vecchi risultati». L'utente accetta di farlo come variante in più, tenendo la corsa senza codice collegato («si»).
+- Variante con codice collegato: `--with-linked-code` nel convertitore porta le ~11 righe di `contesto` del report attorno a ogni destinazione (6 snippet, deduplicati), accodate dopo gli alert con una frase che le dichiara contesto e chiede di riportare i finding sul file in revisione (**divergenza**: la frase è dell'AI). Gli snippet sono blocchi ```go, quindi SGV li conta come codice mostrato. Experiment-id `1A_sast3tool_linked_full`. Blocchi SonarQube e 3 tool riverificati identici.
+- Esito variante con codice collegato: su UDR 9/10 ripetizioni con almeno una CVE, precisione pooled 0.364 (3 tool senza codice 0.200, senza SAST 0.101); CVE distinte sempre 3/6; nessun finding sulle funzioni degli snippet. UDM invariato.
+- Nuovo `utils/generate_multitool_table.py`; aggiornati `status.md`, `architecture.md`, `docs/README.md`. Nessun commit né tag `results-*` (`results/` non si committa senza richiesta).
+- **Decisione sulla presentazione:** l'utente propone «dato che ormai l'altro documento lo hanno pubblicato per non mettere dubbi lascerei stare i risultati che abbiamo ottenuto oggi, usiamo quelli del paper e mostriamo le cose nuove solo». L'AI obietta che 3 tool di oggi contro baseline di luglio dà un guadagno falso (senza SAST: 1/6 a luglio, 3/6 oggi = 3 tool) e propone: 3 tool (con e senza codice collegato) confrontati solo col senza SAST dello stesso giorno, SonarQube citato come lavoro precedente senza confronto diretto. L'utente accetta («dammi il msg»).
+- **Decisione sulla pubblicazione** (repo pubblica, push con tag per condividere col team): l'utente sceglie di pubblicare solo il nuovo. La corsa SonarQube del 2026-10-16 e il confronto con la Tabella III restano in locale finché il team non decide; doc 14 e `utils/generate_multitool_table.py` riscritti sulle sole tre corse dello stesso giorno. Aggiunto `.notes/` a `.gitignore`.
+
+---
+
+## 2026-10-16 — ITASEC 2027: ricezione analisi statica a 3 tool, stima del rerun  [sessione: 74f260f4-fd3f-4a58-b470-5dede5ce5136]
+
+**Intent:** il team (Francesco, Mariano, Andrea) vuole ripresentare il paper SAST+LLM a ITASEC 2027 (scadenza 30 ottobre) con gli smell di gosec, Semgrep e CodeQL al posto dei soli SonarQube. Richiesta dell'utente: «capisci dove spostarla [...] prima di partire col lavoro vero cercherei di capire se dobbiamo allineare qualcosa, poi dare le stime».
+**Esito/Problemi:**
+- Zip estratta in `docs/sast_tools/analisi_statica_v4.2.1/` (accanto al vecchio dataset SonarQube). La zip resta nella radice, ignorata da git.
+- Il JSON unificato contiene **316** segnalazioni (non 326) e **solo gosec/Semgrep/CodeQL**: SonarQube è escluso perché per Go non ha regole di sicurezza (RELAZIONE §3). Nel messaggio al team si parlava di «3 tool più SonarQube».
+- La versione ridotta ha 16 smell (UDR 5 nel file + 6 indiretti più il doppione gosec, UDM 2+2, AMF/PCF 0). Le 7 righe nel file corrispondono **riga per riga** ai nostri file GT: la scansione v4.2.1 è sulla stessa versione dei task.
+- Gli smell «indiretti» stanno in file che l'agente non vede; il loro `origine_dato` invece è una riga del file GT. È la decisione di metodo da prendere prima di lanciare.
+- Tempi misurati sulla corsa vecchia (`task6_vuln_udr_full`, 1A_sast_hint_full): circa 16 minuti per 3 ripetizioni.
+- Dei 16 smell ridotti, 15 sono di CodeQL e 1 di gosec (indiretto); Semgrep non ne ha nessuno sui file GT.
+
+**Divergenze:** l'AI aveva scritto che SonarQube era stato «sostituito». L'utente corregge: è assente perché è già stato usato nel paper precedente.
+**Decisioni:**
+- AMF/PCF (0 smell): l'utente propone di non farli girare, per i tempi stretti. L'AI è d'accordo.
+- Task e ripetizioni: si chiede al team il paper finale inviato, invece di ricostruirli dall'Overleaf.
+- Braccio unico con gli alert dei tre tool insieme: **accettato**.
+- Smell indiretti agganciati alla riga di `origine_dato` nel file GT, con il punto d'arrivo nel messaggio: **accettato**. L'utente chiede se dare all'agente anche il codice collegato: l'AI consiglia di no, perché cambierebbe l'input rispetto al braccio SonarQube. In attesa di conferma.
+- Ricontrollo del ridotto: ricostruito dal JSON completo (316) con il filtro «file GT oppure `origine_dato` nel file GT», esce identico (15 CodeQL più il doppione gosec senza `origine_dato`).
+
+---
+
 ## 2026-08-26 — Racconto dell'evoluzione del progetto dalle 20 call del vault  [sessione: f2182c58-7c9f-49c2-8f38-783e29d05a86]
 
 **Intent:** "voglio che tu guardi tutte le calls della cartella e scriva un documento md che racconta tutta l'evoluzione avuta ... il mio obiettivo sarà in futuro scrivere una tesi quindi devo tracciare bene tutto avere un racconto ben fatto" — concessione ampia sul formato e sull'organizzazione del documento.

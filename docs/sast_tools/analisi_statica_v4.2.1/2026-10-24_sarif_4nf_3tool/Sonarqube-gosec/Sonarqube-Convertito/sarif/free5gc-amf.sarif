@@ -1,0 +1,2320 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1.0/schema/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "SonarQube Exporter",
+          "version": "1.0.0"
+        }
+      },
+      "results": [
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int32 -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/handler.go"
+                },
+                "region": {
+                  "startLine": 1462
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int32 -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/handler.go"
+                },
+                "region": {
+                  "startLine": 1341
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 118
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/scheduler.go"
+                },
+                "region": {
+                  "startLine": 145
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion uint64 -> int"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/scheduler.go"
+                },
+                "region": {
+                  "startLine": 145
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 208
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 217
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 226
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 235
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 244
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 340
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 62
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 73
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 82
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 91
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 100
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 109
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 127
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 136
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 145
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 154
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 163
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 172
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 181
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 190
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 199
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 268
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 277
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 286
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 295
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 304
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 313
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 322
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 331
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 363
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 372
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 381
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/ue_id_extractor.go"
+                },
+                "region": {
+                  "startLine": 390
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G304",
+          "message": {
+            "text": "Potential file inclusion via variable"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pkg/factory/factory.go"
+                },
+                "region": {
+                  "startLine": 26
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion uint32 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/processor/ue_context.go"
+                },
+                "region": {
+                  "startLine": 401
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion uint32 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/processor/ue_context.go"
+                },
+                "region": {
+                  "startLine": 402
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 812
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 841
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int32 -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/handler.go"
+                },
+                "region": {
+                  "startLine": 1371
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int32 -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/handler.go"
+                },
+                "region": {
+                  "startLine": 1478
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/nas/testing/fake_nas_pdu.go"
+                },
+                "region": {
+                  "startLine": 59
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/nas/testing/fake_nas_pdu.go"
+                },
+                "region": {
+                  "startLine": 102
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int32 -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/nas/testing/fake_nas_pdu.go"
+                },
+                "region": {
+                  "startLine": 151
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/nas/testing/fake_nas_pdu.go"
+                },
+                "region": {
+                  "startLine": 156
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int32 -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/nas/testing/fake_nas_pdu.go"
+                },
+                "region": {
+                  "startLine": 204
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/nas/testing/fake_nas_pdu.go"
+                },
+                "region": {
+                  "startLine": 209
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/nas/testing/fake_nas_pdu.go"
+                },
+                "region": {
+                  "startLine": 424
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/nas/testing/fake_nas_pdu.go"
+                },
+                "region": {
+                  "startLine": 564
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/nas/testing/fake_nas_pdu.go"
+                },
+                "region": {
+                  "startLine": 572
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/nas/testing/fake_nas_pdu.go"
+                },
+                "region": {
+                  "startLine": 603
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/nas/testing/fake_nas_pdu.go"
+                },
+                "region": {
+                  "startLine": 633
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/nas/testing/fake_nas_pdu.go"
+                },
+                "region": {
+                  "startLine": 673
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/nas/testing/fake_nas_pdu.go"
+                },
+                "region": {
+                  "startLine": 834
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/nas/testing/fake_nas_pdu.go"
+                },
+                "region": {
+                  "startLine": 865
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int32 -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/nas/testing/fake_nas_pdu.go"
+                },
+                "region": {
+                  "startLine": 913
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/nas/testing/fake_nas_pdu.go"
+                },
+                "region": {
+                  "startLine": 918
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int32 -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 851
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 1441
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 1476
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 1660
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion uint -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/service/service.go"
+                },
+                "region": {
+                  "startLine": 40
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion uint -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/service/service.go"
+                },
+                "region": {
+                  "startLine": 41
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion uint -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/service/service.go"
+                },
+                "region": {
+                  "startLine": 42
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion uint -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/service/service.go"
+                },
+                "region": {
+                  "startLine": 43
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int32 -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/processor/n1n2message.go"
+                },
+                "region": {
+                  "startLine": 195
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 623
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G301",
+          "message": {
+            "text": "Expect directory permissions to be 0750 or less"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cmd/main.go"
+                },
+                "region": {
+                  "startLine": 100
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int32 -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/context/amf_ue.go"
+                },
+                "region": {
+                  "startLine": 763
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int32 -> uint32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/context/amf_ue.go"
+                },
+                "region": {
+                  "startLine": 847
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int32 -> uint32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/context/amf_ue.go"
+                },
+                "region": {
+                  "startLine": 853
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/context/amf_ue.go"
+                },
+                "region": {
+                  "startLine": 867
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/context/context.go"
+                },
+                "region": {
+                  "startLine": 206
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/context/context.go"
+                },
+                "region": {
+                  "startLine": 510
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/context/timer.go"
+                },
+                "region": {
+                  "startLine": 29
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int32 -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/handler.go"
+                },
+                "region": {
+                  "startLine": 351
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/handler.go"
+                },
+                "region": {
+                  "startLine": 1221
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int32 -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/handler.go"
+                },
+                "region": {
+                  "startLine": 1905
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 39
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 125
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 153
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 163
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 209
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 234
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 263
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 268
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 340
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 410
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 415
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 552
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 559
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 569
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 588
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 627
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint16"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 638
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 654
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 773
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 789
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/build.go"
+                },
+                "region": {
+                  "startLine": 825
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int32 -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/gmm/message/send.go"
+                },
+                "region": {
+                  "startLine": 43
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 295
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 373
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion uint64 -> int"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 532
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 648
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 696
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 720
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 768
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int32 -> uint8"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 791
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 827
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 897
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 952
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 978
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 1038
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 1096
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 1305
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 1337
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 1558
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion uint64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 1559
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 1733
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion uint64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/handler.go"
+                },
+                "region": {
+                  "startLine": 1734
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/message/send.go"
+                },
+                "region": {
+                  "startLine": 256
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion uint64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/ngap/message/send.go"
+                },
+                "region": {
+                  "startLine": 257
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int32 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/processor/n1n2message.go"
+                },
+                "region": {
+                  "startLine": 321
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int32 -> uint64"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/processor/n1n2message.go"
+                },
+                "region": {
+                  "startLine": 373
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

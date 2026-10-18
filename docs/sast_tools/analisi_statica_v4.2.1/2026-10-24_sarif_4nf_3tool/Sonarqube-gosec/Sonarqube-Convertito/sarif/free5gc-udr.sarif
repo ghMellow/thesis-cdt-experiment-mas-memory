@@ -1,0 +1,142 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1.0/schema/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "SonarQube Exporter",
+          "version": "1.0.0"
+        }
+      },
+      "results": [
+        {
+          "ruleId": "external_gosec:G404",
+          "message": {
+            "text": "Use of weak random number generator (math/rand or math/rand/v2 instead of crypto/rand)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/context/context.go"
+                },
+                "region": {
+                  "startLine": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int64 -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/sbi/processor/smf_registration_document.go"
+                },
+                "region": {
+                  "startLine": 31
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G115",
+          "message": {
+            "text": "integer overflow conversion int -> int32"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/context/context.go"
+                },
+                "region": {
+                  "startLine": 182
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G304",
+          "message": {
+            "text": "Potential file inclusion via variable"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pkg/factory/factory.go"
+                },
+                "region": {
+                  "startLine": 25
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G404",
+          "message": {
+            "text": "Use of weak random number generator (math/rand or math/rand/v2 instead of crypto/rand)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/context/context.go"
+                },
+                "region": {
+                  "startLine": 119
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G404",
+          "message": {
+            "text": "Use of weak random number generator (math/rand or math/rand/v2 instead of crypto/rand)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "internal/context/context.go"
+                },
+                "region": {
+                  "startLine": 222
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "external_gosec:G301",
+          "message": {
+            "text": "Expect directory permissions to be 0750 or less"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cmd/main.go"
+                },
+                "region": {
+                  "startLine": 96
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

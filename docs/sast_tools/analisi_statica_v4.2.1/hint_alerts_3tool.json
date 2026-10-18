@@ -1,0 +1,172 @@
+{
+  "_meta": {
+    "source_format": "free5gc-sast-unificato v3.0",
+    "scan_date": "2026-10-10",
+    "selection": "alert on the NF ground-truth file, or with origine_dato on it (anchored to that line); gosec twin of an indirect CodeQL alert inherits its anchor",
+    "count": 16
+  },
+  "tool": "CodeQL, Semgrep, gosec",
+  "prompt_note": "",
+  "alerts": [
+    {
+      "nf_abbr": "UDM",
+      "line": 457,
+      "severity": "MEDIUM",
+      "rule_key": "CodeQL go/log-injection (CWE-117)",
+      "message": "This log entry depends on a user-provided value. Reported in another file of this NF, internal/sbi/processor/subscriber_data_management.go:396 (Processor.GetSmDataProcedure), reached by data flowing from this line",
+      "source_id": "28b50fbdcbb2",
+      "source_file": "internal/sbi/processor/subscriber_data_management.go",
+      "source_line": 396
+    },
+    {
+      "nf_abbr": "UDM",
+      "line": 459,
+      "severity": "MEDIUM",
+      "rule_key": "CodeQL go/log-injection (CWE-117)",
+      "message": "This log entry depends on a user-provided value. Reported in another file of this NF, internal/sbi/processor/subscriber_data_management.go:396 (Processor.GetSmDataProcedure), reached by data flowing from this line",
+      "source_id": "5166acbfc509",
+      "source_file": "internal/sbi/processor/subscriber_data_management.go",
+      "source_line": 396
+    },
+    {
+      "nf_abbr": "UDM",
+      "line": 589,
+      "severity": "MEDIUM",
+      "rule_key": "CodeQL go/log-injection (CWE-117)",
+      "message": "This log entry depends on a user-provided value (source at L586)",
+      "source_id": "4813c0a458fb",
+      "source_file": "internal/sbi/api_subscriberdatamanagement.go",
+      "source_line": 589
+    },
+    {
+      "nf_abbr": "UDM",
+      "line": 589,
+      "severity": "MEDIUM",
+      "rule_key": "CodeQL go/log-injection (CWE-117)",
+      "message": "This log entry depends on a user-provided value (source at L587)",
+      "source_id": "a8aa0f100e17",
+      "source_file": "internal/sbi/api_subscriberdatamanagement.go",
+      "source_line": 589
+    },
+    {
+      "nf_abbr": "UDR",
+      "line": 967,
+      "severity": "MEDIUM",
+      "rule_key": "CodeQL go/log-injection (CWE-117)",
+      "message": "This log entry depends on a user-provided value. Reported in another file of this NF, internal/sbi/processor/access_and_mobility_subscription_data_document.go:23 (Processor.QueryAmDataProcedure), reached by data flowing from this line",
+      "source_id": "171c1d5d4408",
+      "source_file": "internal/sbi/processor/access_and_mobility_subscription_data_document.go",
+      "source_line": 23
+    },
+    {
+      "nf_abbr": "UDR",
+      "line": 968,
+      "severity": "MEDIUM",
+      "rule_key": "CodeQL go/log-injection (CWE-117)",
+      "message": "This log entry depends on a user-provided value. Reported in another file of this NF, internal/sbi/processor/access_and_mobility_subscription_data_document.go:23 (Processor.QueryAmDataProcedure), reached by data flowing from this line",
+      "source_id": "4e17219a1eff",
+      "source_file": "internal/sbi/processor/access_and_mobility_subscription_data_document.go",
+      "source_line": 23
+    },
+    {
+      "nf_abbr": "UDR",
+      "line": 1071,
+      "severity": "MEDIUM",
+      "rule_key": "CodeQL go/log-injection (CWE-117)",
+      "message": "This log entry depends on a user-provided value. Reported in another file of this NF, internal/sbi/processor/authentication_data_document.go:27 (Processor.ModifyAuthenticationProcedure), reached by data flowing from this line",
+      "source_id": "411487b63df0",
+      "source_file": "internal/sbi/processor/authentication_data_document.go",
+      "source_line": 27
+    },
+    {
+      "nf_abbr": "UDR",
+      "line": 1334,
+      "severity": "MEDIUM",
+      "rule_key": "CodeQL go/log-injection (CWE-117)",
+      "message": "This log entry depends on a user-provided value (source at L1332)",
+      "source_id": "c19acd0bfce7",
+      "source_file": "internal/sbi/api_datarepository.go",
+      "source_line": 1334
+    },
+    {
+      "nf_abbr": "UDR",
+      "line": 1544,
+      "severity": "MEDIUM",
+      "rule_key": "CodeQL go/log-injection (CWE-117)",
+      "message": "This log entry depends on a user-provided value. Reported in another file of this NF, internal/database/mongodb/mongo_db_inplement.go:73 (MongoDbConnector.GetDataFromDBWithArg), reached by data flowing from this line",
+      "source_id": "3e3b371653b9",
+      "source_file": "internal/database/mongodb/mongo_db_inplement.go",
+      "source_line": 73
+    },
+    {
+      "nf_abbr": "UDR",
+      "line": 1842,
+      "severity": "HIGH",
+      "rule_key": "CodeQL go/incorrect-integer-conversion (CWE-190)",
+      "message": "Incorrect conversion of a signed 64-bit integer from strconv.ParseInt to a lower bit size type int32 without an upper bound check. Reported in another file of this NF, internal/sbi/processor/smf_registration_document.go:31 (Processor.CreateSmfContextNon3gppProcedure), reached by data flowing from this line",
+      "source_id": "7f310bd4b806",
+      "source_file": "internal/sbi/processor/smf_registration_document.go",
+      "source_line": 31
+    },
+    {
+      "nf_abbr": "UDR",
+      "line": 1842,
+      "severity": "HIGH",
+      "rule_key": "gosec G115 (CWE-190)",
+      "message": "integer overflow conversion int64 -> int32. Reported in another file of this NF, internal/sbi/processor/smf_registration_document.go:31 (Processor.CreateSmfContextNon3gppProcedure), reached by data flowing from this line",
+      "source_id": "9a0b881defb4",
+      "source_file": "internal/sbi/processor/smf_registration_document.go",
+      "source_line": 31
+    },
+    {
+      "nf_abbr": "UDR",
+      "line": 2423,
+      "severity": "MEDIUM",
+      "rule_key": "CodeQL go/log-injection (CWE-117)",
+      "message": "This log entry depends on a user-provided value. Reported in another file of this NF, internal/sbi/processor/query_identity_data_by_supi_or_gpsi_document.go:24 (Processor.GetIdentityDataProcedure), reached by data flowing from this line",
+      "source_id": "25be3706247c",
+      "source_file": "internal/sbi/processor/query_identity_data_by_supi_or_gpsi_document.go",
+      "source_line": 24
+    },
+    {
+      "nf_abbr": "UDR",
+      "line": 2490,
+      "severity": "MEDIUM",
+      "rule_key": "CodeQL go/log-injection (CWE-117)",
+      "message": "This log entry depends on a user-provided value (source at L2480)",
+      "source_id": "75058d6651ce",
+      "source_file": "internal/sbi/api_datarepository.go",
+      "source_line": 2490
+    },
+    {
+      "nf_abbr": "UDR",
+      "line": 2516,
+      "severity": "MEDIUM",
+      "rule_key": "CodeQL go/log-injection (CWE-117)",
+      "message": "This log entry depends on a user-provided value (source at L2507)",
+      "source_id": "f71b2ebd4b89",
+      "source_file": "internal/sbi/api_datarepository.go",
+      "source_line": 2516
+    },
+    {
+      "nf_abbr": "UDR",
+      "line": 2578,
+      "severity": "MEDIUM",
+      "rule_key": "CodeQL go/log-injection (CWE-117)",
+      "message": "This log entry depends on a user-provided value (source at L2564)",
+      "source_id": "4253fa312a2d",
+      "source_file": "internal/sbi/api_datarepository.go",
+      "source_line": 2578
+    },
+    {
+      "nf_abbr": "UDR",
+      "line": 2610,
+      "severity": "MEDIUM",
+      "rule_key": "CodeQL go/log-injection (CWE-117)",
+      "message": "This log entry depends on a user-provided value (source at L2596)",
+      "source_id": "1085a0049ed2",
+      "source_file": "internal/sbi/api_datarepository.go",
+      "source_line": 2610
+    }
+  ]
+}
