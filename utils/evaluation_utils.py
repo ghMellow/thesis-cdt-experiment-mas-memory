@@ -472,6 +472,7 @@ def _build_cvss_section(
     matched_labels, unmatched_markers = _compute_finding_groups(roles)
     lines += _build_cvss_vector_detail(roles, experiment_id, matched_labels=matched_labels)
     lines += _build_cvss_unmatched(roles, experiment_id, unmatched_markers=unmatched_markers)
+    lines += _build_distinct_findings_section(roles, matched_labels, unmatched_markers)
 
     # All the tables below are roll-ups over every repetition of the task —
     # M1-M3/S1-S3 included (per-role rows, TP pooled across reps), not
@@ -1159,6 +1160,136 @@ def _highlight_function(text: str, function: str) -> str:
     return text
 
 
+_LIST_ITEM_RE = re.compile(r"^(\s*)(?:\d+[.)]|[-*+])\s+")
+_HEADING_RE = re.compile(r"^(#{1,6})\s+")
+# "**1. Title:**" on its own line is a bold pseudo-heading, not a list item:
+# the plain bullets that follow it at column 0 belong to it.
+_BOLD_NUMBERED_RE = re.compile(r"^\*\*\d+[.)]\s")
+
+
+def _extract_finding_passages(text: str, function: Optional[str]) -> Optional[str]:
+    """The part of a multi-finding narrative that talks about `function`.
+
+    The agent writes one reasoning per repetition covering every finding, as a
+    (possibly nested) Markdown list or as headed sections; findings carry no
+    per-finding rationale of their own. Keep the innermost list items/sections
+    whose own text names the function, preceded by the first line of each
+    enclosing item so a nested bullet keeps its heading. Without list
+    structure, fall back to blank-line paragraphs. None = function not named.
+    """
+    name = _normalize_function_name(function)
+    if not text or not name or name == "—":
+        return None
+    pattern = re.compile(rf"(?<![A-Za-z0-9_]){re.escape(name)}(?![A-Za-z0-9_])", re.IGNORECASE)
+
+    lines = text.splitlines()
+    starts: List[Tuple[int, int]] = []  # (line index, nesting level; lower = outer)
+    for i, line in enumerate(lines):
+        h = _HEADING_RE.match(line)
+        if h:
+            starts.append((i, len(h.group(1)) - 100))  # headings enclose any list
+            continue
+        if _BOLD_NUMBERED_RE.match(line):
+            starts.append((i, -50))
+            continue
+        m = _LIST_ITEM_RE.match(line)
+        if m:
+            starts.append((i, len(m.group(1).expandtabs(4))))
+
+    if not starts:
+        paragraphs = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
+        hits = [p for p in paragraphs if pattern.search(p)]
+        return "\n\n".join(hits) if hits else None
+
+    items = []  # (start, end, level)
+    for k, (start, level) in enumerate(starts):
+        end = next((s for s, lv in starts[k + 1:] if lv <= level), len(lines))
+        items.append((start, end, level))
+
+    def _own_text(idx: int) -> str:
+        start, end, _ = items[idx]
+        covered = set()
+        for s, e, _lv in items[idx + 1:]:
+            if s >= end:
+                break
+            covered.update(range(s, e))
+        return "\n".join(lines[j] for j in range(start, end) if j not in covered)
+
+    preamble = "\n".join(lines[: starts[0][0]])
+    out: List[str] = []
+    if pattern.search(preamble):
+        out.append(preamble.strip())
+    emitted_heads: set = set()
+    covered_until = -1
+    for idx, (start, end, _level) in enumerate(items):
+        if start < covered_until or not pattern.search(_own_text(idx)):
+            continue
+        block: List[str] = []
+        for a_start, a_end, _ in items[:idx]:
+            if a_start < start < a_end and a_start not in emitted_heads:
+                block.append(lines[a_start])
+                emitted_heads.add(a_start)
+        block += lines[start:end]
+        out.append("\n".join(block).rstrip())
+        covered_until = end
+    return "\n\n".join(out) if out else None
+
+
+def _build_finding_narrative(final_answer: Dict[str, Any], function: str) -> List[str]:
+    """Narrative section of a finding detail file: the passage about this
+    finding in plain sight, the agent's whole multi-finding output collapsed
+    below it (kept verbatim, nothing is dropped)."""
+    answer = _highlight_function(str(final_answer.get("answer") or "").strip(), function)
+    reasoning_raw = str(final_answer.get("reasoning") or "").strip()
+    reasoning = _highlight_function(reasoning_raw, function)
+    native_thinking = _highlight_function(str(final_answer.get("native_thinking") or "").strip(), function)
+    passage = _extract_finding_passages(reasoning_raw, function)
+
+    lines = ["## Reasoning for this finding", ""]
+    if passage:
+        lines += [
+            f"_Passage of the agent's reasoning that names `{function}` — the agent "
+            "writes one reasoning per repetition covering every finding; the full "
+            "output is collapsed below._",
+            "",
+            _highlight_function(passage, function),
+            "",
+        ]
+    elif reasoning:
+        lines += [
+            f"_`{function}` is not named in the reasoning (e.g. covered by a phrase "
+            "like \"and Get/Put\") — full reasoning shown, every finding of the "
+            "repetition included._",
+            "",
+            reasoning,
+            "",
+        ]
+    else:
+        lines += ["_No reasoning saved for this repetition._", ""]
+
+    # Model output first (answer, native thinking if the provider returned any),
+    # then the prompt-elicited "Reasoning" field (prose the model was asked to
+    # write, not the same thing as native thinking).
+    full: List[str] = []
+    if answer:
+        full += ["**Answer:**", "", answer, ""]
+    if native_thinking:
+        full += ["**Native thinking (model, unprompted):**", "", native_thinking, ""]
+    if reasoning and passage:
+        full += ["**Reasoning (prompt-elicited):**", "", reasoning, ""]
+    if full:
+        lines += [
+            "<details>",
+            "<summary>Full agent output for this repetition (all findings)</summary>",
+            "",
+            *full,
+            "</details>",
+            "",
+        ]
+    lines += _build_prompt_detail_block(final_answer)
+    return lines
+
+
 def _normalize_function_name(function: Optional[str]) -> str:
     """Lowercase and strip trailing '(NF name)'/'(Cross-NF ...)' annotations the
     agent sometimes appends (e.g. 'setCorsHeader (PCF)' vs 'setCorsHeader') so
@@ -1461,9 +1592,6 @@ def _write_unmatched_finding_file(
     the agent's full narrative for that repetition, so an expert triaging it
     doesn't have to open the raw multi-repetition JSON at all."""
     function = u.get("function") or "—"
-    answer = _highlight_function(str(final_answer.get("answer") or "").strip(), function)
-    reasoning = _highlight_function(str(final_answer.get("reasoning") or "").strip(), function)
-    native_thinking = _highlight_function(str(final_answer.get("native_thinking") or "").strip(), function)
 
     lines = [
         f"# Unmatched finding — {task_id} ({experiment_id}) — {role}, rep {rep}",
@@ -1476,23 +1604,8 @@ def _write_unmatched_finding_file(
         f"| score computed (official CVSS 4.0 math) | {_fmt(u.get('computed_score_B'), 1)} |",
         f"| group (shared with matched table) | {group_label or '—'} |",
         "",
-        "## Agent narrative for this repetition",
-        "",
-        f"_Shared across every finding reported in the same repetition — occurrences "
-        f"of `{function}` are **bolded** below to help locate the relevant passage._",
-        "",
     ]
-    # Model output first (answer, native thinking if the provider returned any),
-    # then the textual/prompt-derived material: prompt sent, then the
-    # prompt-elicited "Reasoning" field (prose the model was asked to write,
-    # not the same thing as native thinking).
-    if answer:
-        lines += ["**Answer:**", "", answer, ""]
-    if native_thinking:
-        lines += ["**Native thinking (model, unprompted):**", "", native_thinking, ""]
-    lines += _build_prompt_detail_block(final_answer)
-    if reasoning:
-        lines += ["**Reasoning (prompt-elicited):**", "", reasoning, ""]
+    lines += _build_finding_narrative(final_answer, function)
     lines += [
         "---",
         f"_Source: `results/{task_id}/{experiment_id}/{role}/*.json`, run_id "
@@ -1520,9 +1633,6 @@ def _write_matched_finding_file(
     it that way (or misdiagnosed the root cause) without opening the raw
     multi-repetition JSON."""
     function = m.get("function") or "—"
-    answer = _highlight_function(str(final_answer.get("answer") or "").strip(), function)
-    reasoning = _highlight_function(str(final_answer.get("reasoning") or "").strip(), function)
-    native_thinking = _highlight_function(str(final_answer.get("native_thinking") or "").strip(), function)
 
     lines = [
         f"# Matched finding — {m.get('cve_id', '—')} — {task_id} ({experiment_id}) — {role}, rep {rep}",
@@ -1537,23 +1647,8 @@ def _write_matched_finding_file(
         f"| score computed (official CVSS 4.0 math) | {_fmt(m.get('computed_score_B'), 1)} |",
         f"| score published | {_fmt(m.get('published_score'), 1)} |",
         "",
-        "## Agent narrative for this repetition",
-        "",
-        f"_Shared across every finding reported in the same repetition — occurrences "
-        f"of `{function}` are **bolded** below to help locate the relevant passage._",
-        "",
     ]
-    # Model output first (answer, native thinking if the provider returned any),
-    # then the textual/prompt-derived material: prompt sent, then the
-    # prompt-elicited "Reasoning" field (prose the model was asked to write,
-    # not the same thing as native thinking).
-    if answer:
-        lines += ["**Answer:**", "", answer, ""]
-    if native_thinking:
-        lines += ["**Native thinking (model, unprompted):**", "", native_thinking, ""]
-    lines += _build_prompt_detail_block(final_answer)
-    if reasoning:
-        lines += ["**Reasoning (prompt-elicited):**", "", reasoning, ""]
+    lines += _build_finding_narrative(final_answer, function)
     lines += [
         "---",
         f"_Source: `results/{task_id}/{experiment_id}/{role}/*.json`, run_id "
@@ -1667,6 +1762,136 @@ def _build_cvss_unmatched(
     return lines
 
 
+def _build_distinct_findings_section(
+    roles: Dict[str, List[Dict[str, Any]]],
+    matched_labels: Dict[Tuple[str, str, Any, str], str],
+    unmatched_markers: Dict[Tuple[str, str, Any, int], str],
+) -> List[str]:
+    """Distinct findings, per repetition and for the whole report. Matched
+    rows collapse per CVE, and an unmatched row carrying a matched CVE's
+    letter joins that CVE. Every other unmatched row collapses by (task,
+    role, normalized function), ignoring the vector — the same location
+    identity used for CVEs, so a bug re-estimated with a different vector
+    is not counted twice. View only: TP/FP/FN and the tables above keep
+    their own rows and letters."""
+    cve_letters = set(matched_labels.values())
+    rows = []  # (role, task_id, rep, run_id, key, marker, cve_id or None, function, vector, score)
+    for role, payloads in sorted(roles.items()):
+        for p in payloads:
+            ce = p.get("cvss_eval")
+            if not isinstance(ce, dict):
+                continue
+            task_id, rep, run_id = p.get("task_id"), p.get("repetition"), p.get("run_id")
+            for m in ce.get("matched", []):
+                cve_id = m.get("cve_id")
+                label = matched_labels.get((task_id, role, rep, cve_id))
+                key = ("group", label) if label else ("cve", task_id, role, cve_id)
+                rows.append((role, task_id, rep, run_id, key, label or "—", cve_id, m.get("function"),
+                             m.get("estimated_vector"), m.get("computed_score_B")))
+            for idx, u in enumerate(ce.get("unmatched", [])):
+                marker = unmatched_markers.get((task_id, role, rep, idx), "—")
+                function_norm = _normalize_function_name(u.get("function"))
+                if marker in cve_letters:
+                    key = ("group", marker)
+                elif function_norm:
+                    key = ("function", task_id, role, function_norm)
+                else:
+                    key = ("row", task_id, role, rep, idx)
+                rows.append((role, task_id, rep, run_id, key, marker, None, u.get("function"),
+                             u.get("vector"), u.get("computed_score_B")))
+    if not rows:
+        return []
+
+    distinct: Dict[Tuple, Dict[str, Any]] = {}
+    for role, task_id, rep, _run, key, marker, cve_id, function, vector, score in rows:
+        d = distinct.setdefault(key, {
+            "markers": set(), "role": role, "cves": set(),
+            "functions": set(), "vectors": set(), "reps": [], "rows": 0, "score": None,
+        })
+        d["markers"].add(marker)
+        if cve_id:
+            d["cves"].add(cve_id)
+        if function:
+            d["functions"].add(function)
+        if vector:
+            d["vectors"].add(vector)
+        d["reps"].append(rep)
+        d["rows"] += 1
+        if isinstance(score, (int, float)) and (d["score"] is None or score > d["score"]):
+            d["score"] = score
+
+    matched_d = sorted((d for d in distinct.values() if d["cves"]), key=lambda d: sorted(d["cves"]))
+    unmatched_d = sorted(
+        (d for d in distinct.values() if not d["cves"]),
+        key=lambda d: -(d["score"] if d["score"] is not None else -1.0),
+    )
+    n_matched_rows = sum(1 for r in rows if r[6])
+    n_dup_of_cve = sum(d["rows"] for d in matched_d) - n_matched_rows
+
+    lines = [
+        '<a id="distinct-findings"></a>',
+        "### Distinct findings (matched per CVE, unmatched per function)",
+        "",
+        f"**{len(rows)} finding rows → {len(distinct)} distinct findings** "
+        f"({len(matched_d)} matched CVE(s), {len(unmatched_d)} unmatched). "
+        f"Of the {len(rows) - n_matched_rows} unmatched rows, {n_dup_of_cve} sit on the handler "
+        "of an already-matched CVE (probable duplicates of it).",
+        "",
+        "#### Per repetition",
+        "",
+        "| role | rep | run_id | finding rows | distinct | collapsed |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    per_rep: Dict[Tuple[str, str, Any, Any], List[Tuple]] = {}
+    for role, task_id, rep, run_id, key, *_ in rows:
+        per_rep.setdefault((role, str(task_id), rep, run_id), []).append(key)
+    for (role, _task, rep, run_id), keys in sorted(
+        per_rep.items(), key=lambda kv: (kv[0][0], kv[0][1], kv[0][2] if isinstance(kv[0][2], int) else 0)
+    ):
+        n_distinct = len(set(keys))
+        lines.append(
+            f"| {role} | {rep} | `{run_id or 'legacy'}` | {len(keys)} | {n_distinct} | {len(keys) - n_distinct} |"
+        )
+    lines += [
+        "",
+        "#### Whole report",
+        "",
+        "| # | group | role | CVE | function(s) | reps | rows | max score (from vector) |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for i, d in enumerate(matched_d + unmatched_d, 1):
+        functions = ", ".join(f"`{f}`" for f in sorted(d["functions"])) or "—"
+        lines.append(
+            f"| {i} | {', '.join(sorted(d['markers']))} | {d['role']} | {', '.join(sorted(d['cves'])) or 'unmatched'} | "
+            f"{functions} | {_compress_reps(d['reps'])} | {d['rows']} | {_fmt(d['score'], 1)} |"
+        )
+    lines += [
+        "",
+        "**Legend**",
+        "",
+        "- A matched CVE is one finding however many repetitions found it, whatever "
+        "vectors the agent estimated.",
+        "- An unmatched row joins a matched CVE when it carries that CVE's `group` "
+        "letter, i.e. it sits on one of the CVE's handler functions — a *probable* "
+        "duplicate (a handler can host two distinct bugs), to confirm in triage.",
+        "- Every other unmatched row collapses by **function** (same task and role, "
+        "name normalized: case and trailing `(NF)` annotations ignored), whatever "
+        "the vector: the same location rule used for CVEs, so one bug re-estimated "
+        "with different vectors across repetitions counts once. `group` lists the "
+        "letters/markers of the unmatched table that were merged into the row.",
+        "- What this rule cannot see: two different bugs in the same function are "
+        "counted as one (lower bound), and one bug reported on two different "
+        "functions (e.g. the same flawed check in two handlers) as two (upper "
+        "bound). Matched CVEs are exact (one per CVE).",
+        "- Per repetition: `collapsed` = rows of that repetition that repeat a finding "
+        "already counted in the same repetition.",
+        "- Whole report: `reps` = repetitions where the finding appears; `rows` = how "
+        "many rows (matched + unmatched) it collapses.",
+        "",
+    ]
+    return lines
+
+
 def _build_cvss_vector_detail(
     roles: Dict[str, List[Dict[str, Any]]],
     experiment_id: str,
@@ -1755,16 +1980,97 @@ def _build_cvss_vector_detail(
     return lines
 
 
-def _build_run_id_note(all_payloads: List[Dict[str, Any]]) -> List[str]:
-    """One line per (role, run_id) contributing to this report — so a reader
-    can tell straight from the file which run(s) it aggregates, without
-    cross-checking folder names or timestamps by hand (the doc-07 problem)."""
-    per_role_runs: Dict[str, set] = {}
+def _compress_reps(reps: List[Any]) -> str:
+    """[1, 2, 3, 5, 7, 8] -> '1–3, 5, 7–8' (non-integer reps listed as-is)."""
+    ints = sorted({r for r in reps if isinstance(r, int)})
+    parts: List[str] = []
+    i = 0
+    while i < len(ints):
+        j = i
+        while j + 1 < len(ints) and ints[j + 1] == ints[j] + 1:
+            j += 1
+        parts.append(str(ints[i]) if i == j else f"{ints[i]}–{ints[j]}")
+        i = j + 1
+    parts += sorted({str(r) for r in reps if not isinstance(r, int)})
+    return ", ".join(parts) or "—"
+
+
+def _run_date(payloads: List[Dict[str, Any]], run_id: str) -> str:
+    """Day(s) the run's repetitions started; legacy results without
+    started_at fall back to the date encoded in the run_id."""
+    days = sorted({str(p["started_at"])[:10] for p in payloads if p.get("started_at")})
+    if not days:
+        m = re.match(r"(\d{4})(\d{2})(\d{2})T", run_id)
+        return "-".join(m.groups()) if m else "date n/a"
+    return days[0] if len(days) == 1 else f"{days[0]} → {days[-1]}"
+
+
+def _build_run_id_note(
+    all_payloads: List[Dict[str, Any]], expected_repetitions: Optional[int] = None
+) -> List[str]:
+    """Which run(s) this report aggregates and which repetitions each one
+    contributed. A run is one main.py invocation (run_id); --repetitions is a
+    target and already-saved repetitions are skipped, so one report's
+    repetitions 1..N can come from several runs on different days.
+
+    expected_repetitions: when set, declare it and warn for every (task, role)
+    whose distinct repetition count differs — a report with fewer repetitions
+    than the others is not comparable with them."""
+    legacy = "legacy (no run_id)"
+    multi_exp = len({p.get("experiment_id") for p in all_payloads}) > 1
+
+    def _scope(p: Dict[str, Any]) -> str:
+        task = str(p.get("task_id"))
+        return f"{task} ({p.get('experiment_id')})" if multi_exp else task
+
+    multi_task = len({_scope(p) for p in all_payloads}) > 1
+    per_role: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
     for p in all_payloads:
-        per_role_runs.setdefault(p.get("_role", "?"), set()).add(p.get("run_id") or "legacy (no run_id)")
-    lines = ["> **Run(s) in this report:**"]
-    for role, runs in sorted(per_role_runs.items()):
-        lines.append(f"> - `{role}`: {', '.join(sorted(runs))}")
+        per_role.setdefault(p.get("_role", "?"), {}).setdefault(p.get("run_id") or legacy, []).append(p)
+
+    lines = ["> **Run(s) in this report** — a run is one `main.py` launch (`run_id`); "
+             "each run adds the repetitions still missing towards the target."]
+    if expected_repetitions is not None:
+        lines.append(
+            f"> Expected repetitions per task and role: **{expected_repetitions}** "
+            "(`config.REPETITIONS`, fixed for every task so per-task metrics are comparable)."
+        )
+    lines.append(">")
+    for role, runs in sorted(per_role.items()):
+        n_reps = len({(_scope(p), p.get("repetition")) for ps in runs.values() for p in ps})
+        lines.append(f"> - `{role}`: {n_reps} repetition(s) from {len(runs)} run(s)")
+        ordered = sorted(
+            runs.items(),
+            key=lambda kv: min((p.get("repetition") for p in kv[1] if isinstance(p.get("repetition"), int)), default=0),
+        )
+        for run_id, ps in ordered:
+            if multi_task:
+                by_task: Dict[str, List[Any]] = {}
+                for p in ps:
+                    by_task.setdefault(_scope(p), []).append(p.get("repetition"))
+                where = "; ".join(f"{t} reps {_compress_reps(r)}" for t, r in sorted(by_task.items()))
+            else:
+                where = f"reps {_compress_reps([p.get('repetition') for p in ps])}"
+            lines.append(f">   - `{run_id}` — {where} — {_run_date(ps, run_id)}")
+
+    if expected_repetitions is not None:
+        per_task_role: Dict[Tuple[str, str], List[Any]] = {}
+        for p in all_payloads:
+            per_task_role.setdefault((_scope(p), p.get("_role", "?")), []).append(p.get("repetition"))
+        off = []
+        for (task_id, role), reps in sorted(per_task_role.items()):
+            distinct = len(set(reps))
+            note = f" ({len(reps) - distinct} repeated repetition number(s))" if distinct != len(reps) else ""
+            if distinct != expected_repetitions or note:
+                label = f"{task_id} / `{role}`" if multi_task else f"`{role}`"
+                off.append(f"{label}: {distinct} (reps {_compress_reps(reps)}){note}")
+        if off:
+            lines += [
+                "",
+                f"> ⚠️ **Repetition count differs from the expected {expected_repetitions}** — "
+                "metrics here are not directly comparable with reports at "
+                f"{expected_repetitions}: " + "; ".join(off) + ".",
+            ]
     lines.append("")
     return lines
 
@@ -1798,7 +2104,7 @@ def _build_experiment_report(
         lines.append("No results found.")
         return "\n".join(lines) + "\n"
 
-    lines += _build_run_id_note(all_payloads)
+    lines += _build_run_id_note(all_payloads, expected_repetitions=config.REPETITIONS)
 
     total = len(all_payloads)
     correct = sum(1 for p in all_payloads if p.get("verdict") == "correct")
@@ -1920,6 +2226,8 @@ def _build_experiment_report(
         toc.append("- [Vector detail (estimated vs. published)](#vector-detail)")
     if '<a id="unmatched-findings"></a>' in cvss_lines:
         toc.append("- [Unmatched findings](#unmatched-findings)")
+    if '<a id="distinct-findings"></a>' in cvss_lines:
+        toc.append("- [Distinct findings](#distinct-findings)")
     if '<a id="metrics-across-reps"></a>' in cvss_lines:
         toc.append("- [Metrics across repetitions](#metrics-across-reps)")
     if '<a id="detection-metrics"></a>' in cvss_lines:
@@ -2004,7 +2312,7 @@ def _write_evaluation_reports(
             for p in payloads
         ]
         lines = ["# Comparison 1A vs 1B", ""]
-        lines += _build_run_id_note(all_payloads_both)
+        lines += _build_run_id_note(all_payloads_both, expected_repetitions=config.REPETITIONS)
         lines += [
             "| role | accuracy_1A | accuracy_1B | delta |",
             "| --- | --- | --- | --- |",
@@ -2095,6 +2403,8 @@ if __name__ == "__main__":
         logger.info("Reports regenerated for run_id=%s", args.run_id)
     else:
         # No filter: regenerate every result_*.md/comparison.md from all saved
-        # results, same as main.py does automatically at the end of a run.
-        _write_evaluation_reports(RESULTS_PATH)
+        # results. dyn_* ids are skipped: generic-mode runs have no GT and get
+        # their report from gtfree_report.
+        saved_ids = [e for e in _collect_results(RESULTS_PATH) if not e.startswith("dyn_")]
+        _write_evaluation_reports(RESULTS_PATH, experiment_ids=sorted(set(saved_ids) | {"1A", "1B"}))
         logger.info("Reports regenerated for all results")

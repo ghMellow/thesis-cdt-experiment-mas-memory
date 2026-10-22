@@ -42,8 +42,9 @@ OLLAMA_API_KEY = os.getenv("OLLAMA_API_KEY", "")
 TEMPERATURE = 0.3
 # Max attempts per task before stopping.
 MAX_RETRIES = 3
-# Repetitions per task for consistency checks.
-REPETITIONS = 3
+# Repetitions per task and role: main.py's default target and the count every
+# report expects — the same for every task, so per-task metrics are comparable.
+REPETITIONS = 10
 # Max wall time per task repetition (seconds).
 TASK_TIMEOUT_SECONDS = 600
 # Pass threshold for textual tasks (ratio of rubric max score).
