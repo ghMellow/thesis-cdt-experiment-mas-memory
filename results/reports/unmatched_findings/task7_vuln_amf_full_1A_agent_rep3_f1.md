@@ -8,21 +8,30 @@
 | score computed (official CVSS 4.0 math) | 5.3 |
 | group (shared with matched table) | d |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HTTPAMFStatusChangeSubscribeModify` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HTTPAMFStatusChangeSubscribeModify` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+1. **Information Exposure via Error Messages**: In multiple handlers (**`HTTPAMFStatusChangeSubscribeModify`**, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`), the code returns `err.Error()` or a concatenated string `reqbody + err.Error()` directly to the client in the `ProblemDetails` response. While the SBI is typically protected by mTLS, leaking internal deserialization errors or system failure details can provide an attacker with insights into the internal data structures and library versions (e.g., `openapi` package internals), facilitating further targeted attacks.
+
+3. **Inconsistent Context State Management**: In `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, and `HTTPUEContextTransfer`, the code calls `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)`. In other functions like **`HTTPAMFStatusChangeSubscribeModify`**, it calls `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)`. Passing the entire `ProblemDetails` struct into a context variable expected to be a string (based on the naming convention `_STR`) can lead to type assertion panics or corrupted logs in the middleware/processor that consumes this context.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The code exhibits systemic information leakage through verbose error responses and fragile HTTP header handling. Specifically, the `HTTPUEContextTransfer` handler fails to handle unsupported content types, allowing uninitialized data to reach the business logic processor. Additionally, inconsistent types are being stored in the Gin context, which may lead to runtime panics.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Information Exposure via Error Messages**: In multiple handlers (**`HTTPAMFStatusChangeSubscribeModify`**, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`), the code returns `err.Error()` or a concatenated string `reqbody + err.Error()` directly to the client in the `ProblemDetails` response. While the SBI is typically protected by mTLS, leaking internal deserialization errors or system failure details can provide an attacker with insights into the internal data structures and library versions (e.g., `openapi` package internals), facilitating further targeted attacks.
 
 2. **Improper Input Validation (Content-Type Handling)**: In `HTTPCreateUEContext`, `HTTPUEContextTransfer`, and `HTTPN1N2MessageTransfer`, the code performs `strings.Split(contentType, ";")` and accesses `str[0]` without checking if the `Content-Type` header is present or if the split resulted in at least one element. If the header is missing, `c.GetHeader` returns an empty string, and `strings.Split` returns a slice containing one empty string. While this doesn't cause a panic here, it leads to a "wrong content type" error. More critically, in `HTTPUEContextTransfer`, the `default` case in the switch is missing, meaning if an unsupported content type is provided, `err` remains `nil` (from the previous `GetRawData` check), and the code proceeds to call `s.Processor().HandleUEContextTransferRequest(c, ueContextTransferRequest)` with an uninitialized/empty request object, potentially causing a Null Pointer Dereference or logic error in the processor.
 
 3. **Inconsistent Context State Management**: In `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, and `HTTPUEContextTransfer`, the code calls `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail)`. In other functions like **`HTTPAMFStatusChangeSubscribeModify`**, it calls `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)`. Passing the entire `ProblemDetails` struct into a context variable expected to be a string (based on the naming convention `_STR`) can lead to type assertion panics or corrupted logs in the middleware/processor that consumes this context.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

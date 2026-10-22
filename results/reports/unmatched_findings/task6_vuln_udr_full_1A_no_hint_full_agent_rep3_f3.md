@@ -8,15 +8,20 @@
 | score computed (official CVSS 4.0 math) | 7.1 |
 | group (shared with matched table) | g |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleApplicationDataInfluenceDataGet` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleApplicationDataInfluenceDataGet` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+5. **NoSQL Resource Exhaustion (DoS)**: In **`HandleApplicationDataInfluenceDataGet`**, the handler accepts multiple query parameters (`influence-Ids`, `dnns`, etc.), splits them by commas, and passes them directly into MongoDB `$in` operators. There is no validation on the number of elements. An attacker (or a malfunctioning NF) could send a massive list of IDs, causing the MongoDB server to consume excessive memory and CPU, leading to a DoS of the data layer.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDR implementation contains critical flaws: missing `return` statements after error responses in policy handlers leading to potential panics, a regex bypass that nullifies `ueId` validation, and a severe logic error where SDM subscriptions are stored in the AMF Non-3GPP collection. Additionally, unsafe JSON unmarshaling of query parameters and lack of limits on query-based MongoDB filters expose the system to runtime panics and resource exhaustion.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Improper Error Handling (Execution Flow/Panic)**: In `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`, the code handles errors from `GetRawData()` and `Deserialize()` by sending a JSON response to the client, but it fails to `return` from the function. The execution continues to the `Processor` call with an uninitialized or zero-valued object. This will likely cause a panic (Null Pointer Dereference) in the processor layer, leading to a Denial of Service (DoS) of the UDR process.
 
@@ -27,6 +32,8 @@ The UDR implementation contains critical flaws: missing `return` statements afte
 4. **Unsafe JSON Unmarshaling (Potential Panic)**: In `HandlePolicyDataUesUeIdSmDataGet` and `HandleQuerySmData`, the code performs `json.Unmarshal` on query parameters (`sNssaiQuery` and `singleNssaiQuery`). If unmarshaling fails, it logs a warning but continues execution. If the `Processor` expects the resulting struct to be populated, this can lead to runtime panics or incorrect data processing.
 
 5. **NoSQL Resource Exhaustion (DoS)**: In **`HandleApplicationDataInfluenceDataGet`**, the handler accepts multiple query parameters (`influence-Ids`, `dnns`, etc.), splits them by commas, and passes them directly into MongoDB `$in` operators. There is no validation on the number of elements. An attacker (or a malfunctioning NF) could send a massive list of IDs, causing the MongoDB server to consume excessive memory and CPU, leading to a DoS of the data layer.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

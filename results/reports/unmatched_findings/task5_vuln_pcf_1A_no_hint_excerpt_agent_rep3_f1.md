@@ -8,15 +8,24 @@
 | score computed (official CVSS 4.0 math) | 9.2 |
 | group (shared with matched table) | a |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `setCorsHeader` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `setCorsHeader` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+1. **CORS Misconfiguration (Overly Permissive):** 
+   - **Location:** **`setCorsHeader`** function.
+
+2. **Inefficient/Incorrect Middleware Application:**
+   - **Location:** **`setCorsHeader`** function.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The code contains a critical CORS misconfiguration allowing all origins with credentials and a severe architectural flaw where middleware is registered inside a request handler, leading to a memory-leak-driven Denial of Service.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **CORS Misconfiguration (Overly Permissive):** 
    - **Location:** **`setCorsHeader`** function.
@@ -29,6 +38,8 @@ The code contains a critical CORS misconfiguration allowing all origins with cre
    - **Analysis:** The function calls `s.router.Use(cors.New(...))` inside a handler. In the Gin framework, `router.Use` registers global middleware. Calling this inside a request handler means the middleware is re-registered on every single request to `HTTPOAMGetAmPolicy`. This leads to a memory leak and performance degradation as the middleware chain grows indefinitely.
    - **5G Context Impact:** This is a Denial of Service (DoS) vulnerability. An attacker (or even normal operation) sending multiple requests to the OAM endpoint will eventually exhaust the PCF's memory or CPU, crashing the Policy Control Function and disrupting policy decisions for all attached UEs.
    - **Fix:** Move the CORS middleware configuration to the `getOamRoutes` or the main server initialization logic, ensuring it is registered only once.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

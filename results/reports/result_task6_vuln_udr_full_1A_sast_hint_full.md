@@ -1,13 +1,19 @@
 # 1A_sast_hint_full — task6_vuln_udr_full
 
-> **Run(s) in this report:**
-> - `agent`: 20260723T081003Z, 20260723T111819Z, 20260723T123725Z
+> **Run(s) in this report** — a run is one `main.py` launch (`run_id`); each run adds the repetitions still missing towards the target.
+> Expected repetitions per task and role: **10** (`config.REPETITIONS`, fixed for every task so per-task metrics are comparable).
+>
+> - `agent`: 10 repetition(s) from 3 run(s)
+>   - `20260723T081003Z` — reps 1–3 — 2026-07-23
+>   - `20260723T111819Z` — reps 4–7 — 2026-07-23
+>   - `20260723T123725Z` — reps 8–10 — 2026-07-23
 
 <a id="toc"></a>
 **Contents**
 
 - [Vector detail (estimated vs. published)](#vector-detail)
 - [Unmatched findings](#unmatched-findings)
+- [Distinct findings](#distinct-findings)
 - [Metrics across repetitions](#metrics-across-reps)
   - [Detection (M1, M2, M3 — final answer vs first attempt)](#detection-metrics)
   - [CVE × repetition](#cve-rep-matrix)
@@ -567,6 +573,54 @@ _`group` letter (when present) = this CVE recurs — same letter on other matche
 - `rep` = repetition index (1-based) — which run of that task/role produced this finding.
 - `vector` = the full CVSS 4.0 vector string the agent estimated.
 - `details` = link to a self-contained file with this finding's structured data plus the agent's full narrative for that repetition (function name bolded for quick scanning) — everything needed to review it without opening the raw JSON.
+
+<a id="distinct-findings"></a>
+### Distinct findings (matched per CVE, unmatched per function)
+
+**70 finding rows → 14 distinct findings** (6 matched CVE(s), 8 unmatched). Of the 40 unmatched rows, 0 sit on the handler of an already-matched CVE (probable duplicates of it).
+
+#### Per repetition
+
+| role | rep | run_id | finding rows | distinct | collapsed |
+| --- | --- | --- | --- | --- | --- |
+| agent | 1 | `20260723T081003Z` | 9 | 9 | 0 |
+| agent | 2 | `20260723T081003Z` | 7 | 7 | 0 |
+| agent | 3 | `20260723T081003Z` | 7 | 7 | 0 |
+| agent | 4 | `20260723T111819Z` | 7 | 7 | 0 |
+| agent | 5 | `20260723T111819Z` | 7 | 7 | 0 |
+| agent | 6 | `20260723T111819Z` | 6 | 6 | 0 |
+| agent | 7 | `20260723T111819Z` | 8 | 8 | 0 |
+| agent | 8 | `20260723T123725Z` | 7 | 7 | 0 |
+| agent | 9 | `20260723T123725Z` | 6 | 6 | 0 |
+| agent | 10 | `20260723T123725Z` | 6 | 6 | 0 |
+
+#### Whole report
+
+| # | group | role | CVE | function(s) | reps | rows | max score (from vector) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | — | agent | CVE-2026-40245 | `HandleApplicationDataInfluenceDataSubsToNotifyGet` | 4 | 1 | 5.1 |
+| 2 | c | agent | CVE-2026-40246 | `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete` | 1, 8–9 | 3 | 8.6 |
+| 3 | d | agent | CVE-2026-40247 | `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdGet` | 1, 8–9 | 3 | 7.1 |
+| 4 | e | agent | CVE-2026-40248 | `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdPut` | 1, 8–9 | 3 | 7.1 |
+| 5 | b | agent | CVE-2026-40249 | `HandlePolicyDataSubsToNotifySubsIdPut` | 1–10 | 10 | 8.6 |
+| 6 | a | agent | CVE-2026-40343 | `HandlePolicyDataSubsToNotifyPost` | 1–10 | 10 | 8.6 |
+| 7 | l, ≠ | agent | unmatched | `HandleApplicationDataInfluenceDataGet` | 2–3, 5–6, 8, 10 | 6 | 8.2 |
+| 8 | f, i, m, ≠ | agent | unmatched | `HandleCreateEeSubscriptions` | 1–9 | 9 | 7.1 |
+| 9 | g, n, ≠ | agent | unmatched | `HandleQueryeesubscriptions` | 1–7 | 7 | 5.3 |
+| 10 | h, j, ≠ | agent | unmatched | `HandlePolicyDataUesUeIdSmDataGet` | 1–7, 10 | 8 | 5.3 |
+| 11 | k, ≠ | agent | unmatched | `HandleQuerySmData` | 1–5, 7, 10 | 7 | 5.3 |
+| 12 | — | agent | unmatched | `HandleQueryAmfContext3gpp` | 10 | 1 | 5.1 |
+| 13 | — | agent | unmatched | `HandleCreateEeGroupSubscriptions` | 7 | 1 | 0.0 |
+| 14 | — | agent | unmatched | `HandleQueryEeGroupSubscriptions` | 7 | 1 | 0.0 |
+
+**Legend**
+
+- A matched CVE is one finding however many repetitions found it, whatever vectors the agent estimated.
+- An unmatched row joins a matched CVE when it carries that CVE's `group` letter, i.e. it sits on one of the CVE's handler functions — a *probable* duplicate (a handler can host two distinct bugs), to confirm in triage.
+- Every other unmatched row collapses by **function** (same task and role, name normalized: case and trailing `(NF)` annotations ignored), whatever the vector: the same location rule used for CVEs, so one bug re-estimated with different vectors across repetitions counts once. `group` lists the letters/markers of the unmatched table that were merged into the row.
+- What this rule cannot see: two different bugs in the same function are counted as one (lower bound), and one bug reported on two different functions (e.g. the same flawed check in two handlers) as two (upper bound). Matched CVEs are exact (one per CVE).
+- Per repetition: `collapsed` = rows of that repetition that repeat a finding already counted in the same repetition.
+- Whole report: `reps` = repetitions where the finding appears; `rows` = how many rows (matched + unmatched) it collapses.
 
 <a id="metrics-across-reps"></a>
 ### Metrics across repetitions

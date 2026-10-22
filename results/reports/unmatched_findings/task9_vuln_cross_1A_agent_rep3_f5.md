@@ -8,15 +8,21 @@
 | score computed (official CVSS 4.0 math) | 5.1 |
 | group (shared with matched table) | ≠ |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleGetSmfSelectData` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleGetSmfSelectData` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+**1. Cross-File Inconsistencies (UE Identifier Validation)**
+- **Omission in UDM:** In **UDM** (**`HandleGetSmfSelectData`** and others), the same `supi` parameter is accepted without any validation, creating an internal inconsistency within the same NF.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 Summary of findings: The analysis revealed several critical vulnerabilities including **CORS misconfiguration** (PCF), **Missing Return/Fall-through** (UDR), **Ineffective Regex** (UDR), and **Logic Errors** (AMF). Significant **cross-file inconsistencies** were identified regarding UE identifier (SUPI/UEID) validation, where UDM implements strict validation in some handlers but omits it in others, while PCF and UDR perform only null checks, potentially exposing the core to injection attacks.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 **1. Cross-File Inconsistencies (UE Identifier Validation)**
 There is a critical inconsistency in how SUPI/UEID path parameters are validated across the SBI.
@@ -38,6 +44,8 @@ There is a critical inconsistency in how SUPI/UEID path parameters are validated
 *   **UDR (`api_datarepository.go`):**
     *   **Missing Return (Fall-through):** In `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete` (and Get/Put), when `influenceId != "subs-to-notify"`, the code sends a 404 but does **not** return. The execution continues to the Processor, resulting in a "Superfluous response" error in Gin and, more importantly, executing a sensitive operation (Delete/Get/Put) despite the request being invalid.
     *   **Ineffective Regex (Trivial Bypass):** In `HandleCreateEeSubscriptions`, the regex ends with `|.+)$`. This means any string of length 1 or more will match, rendering the entire validation logic useless.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

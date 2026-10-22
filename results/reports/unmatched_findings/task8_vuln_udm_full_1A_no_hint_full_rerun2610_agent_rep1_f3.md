@@ -8,13 +8,47 @@
 | score computed (official CVSS 4.0 math) | 5.3 |
 | group (shared with matched table) | a |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleGetSmData` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleGetSmData` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+1. **Improper Input Validation (Missing SUPI Validation):**
+   - **Location:** `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetNssai`, **`HandleGetSmData`**, `HandleGetTraceData`, `HandleGetUeContextInSmfData`.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDM implementation suffers from inconsistent input validation (missing SUPI checks in multiple handlers), potential DoS via unsafe JSON unmarshaling of query parameters, and internal information leakage through verbose error responses. Additionally, manual parameter re-mapping in the path handlers introduces logic fragility.
+
+**Reasoning (prompt-elicited):**
+
+1. **Improper Input Validation (Missing SUPI Validation):**
+   - **Location:** `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetNssai`, **`HandleGetSmData`**, `HandleGetTraceData`, `HandleGetUeContextInSmfData`.
+   - **Pattern:** These handlers extract the `supi` parameter using `c.Params.ByName("supi")` but fail to call `validator.IsValidSupi(supi)` before passing it to the processor. In contrast, `HandleGetAmData` correctly performs this check.
+   - **Impact:** While the SBI is protected by mTLS/OAuth2, allowing malformed SUPIs into the internal processor can lead to unexpected behavior, database query errors, or potential injection if the processor does not sanitize inputs.
+   - **Fix:** Add `if !validator.IsValidSupi(supi) { ... return }` blocks to all handlers receiving a SUPI.
+
+2. **Unsafe JSON Unmarshaling (Potential DoS/Resource Exhaustion):**
+   - **Location:** `getPlmnIDStruct`.
+   - **Pattern:** The function takes a string directly from a URL query parameter (`values[0]`) and passes it to `json.Unmarshal([]byte(plmnIDJson), plmnIDStruct)`.
+   - **Impact:** Since the input comes from a query string, an attacker (or a compromised NF) could send an extremely large or deeply nested JSON string. While Gin has some limits, unmarshaling arbitrary user-provided JSON into a struct without size constraints can lead to high CPU/Memory usage (DoS).
+   - **Fix:** Validate the length of `plmnIDJson` before unmarshaling and use a decoder with a limit.
+
+3. **Information Exposure via Error Messages:**
+   - **Location:** `getPlmnIDStruct`, `HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, `HandleModifyForSharedData`.
+   - **Pattern:** The code returns `err.Error()` directly to the client in the `ProblemDetails` response (e.g., `Reason: err.Error()` or `Detail: err.Error()`).
+   - **Impact:** This leaks internal implementation details, such as Go package names, struct fields, or parsing logic, which aids an attacker in fingerprinting the system.
+   - **Fix:** Use generic error messages for the client and log the detailed error internally.
+
+4. **Logic Error / Parameter Mismanagement (Incorrect Param Mapping):**
+   - **Location:** `ThreeLayerPathHandlerFunc`.
+   - **Pattern:** In the `sdm-subscriptions` logic, the code maps `c.Param("supi")` to `ueId` and `c.Param("thirdLayer")` to `subscriptionId`.
+   - **Impact:** This is a fragile routing implementation. If the URL structure changes or if the `supi` parameter contains unexpected characters, the mapping to `ueId` might be incorrect, leading to unauthorized modification or deletion of subscriptions if the processor relies on these specific keys.
+   - **Fix:** Use a structured routing framework or a more robust mapping mechanism that doesn't rely on manual `gin.Params` slice manipulation.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>
@@ -968,32 +1002,6 @@ Replace each `_` in the vector with one of the allowed values:
 ````
 
 </details>
-
-**Reasoning (prompt-elicited):**
-
-1. **Improper Input Validation (Missing SUPI Validation):**
-   - **Location:** `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetNssai`, **`HandleGetSmData`**, `HandleGetTraceData`, `HandleGetUeContextInSmfData`.
-   - **Pattern:** These handlers extract the `supi` parameter using `c.Params.ByName("supi")` but fail to call `validator.IsValidSupi(supi)` before passing it to the processor. In contrast, `HandleGetAmData` correctly performs this check.
-   - **Impact:** While the SBI is protected by mTLS/OAuth2, allowing malformed SUPIs into the internal processor can lead to unexpected behavior, database query errors, or potential injection if the processor does not sanitize inputs.
-   - **Fix:** Add `if !validator.IsValidSupi(supi) { ... return }` blocks to all handlers receiving a SUPI.
-
-2. **Unsafe JSON Unmarshaling (Potential DoS/Resource Exhaustion):**
-   - **Location:** `getPlmnIDStruct`.
-   - **Pattern:** The function takes a string directly from a URL query parameter (`values[0]`) and passes it to `json.Unmarshal([]byte(plmnIDJson), plmnIDStruct)`.
-   - **Impact:** Since the input comes from a query string, an attacker (or a compromised NF) could send an extremely large or deeply nested JSON string. While Gin has some limits, unmarshaling arbitrary user-provided JSON into a struct without size constraints can lead to high CPU/Memory usage (DoS).
-   - **Fix:** Validate the length of `plmnIDJson` before unmarshaling and use a decoder with a limit.
-
-3. **Information Exposure via Error Messages:**
-   - **Location:** `getPlmnIDStruct`, `HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, `HandleModifyForSharedData`.
-   - **Pattern:** The code returns `err.Error()` directly to the client in the `ProblemDetails` response (e.g., `Reason: err.Error()` or `Detail: err.Error()`).
-   - **Impact:** This leaks internal implementation details, such as Go package names, struct fields, or parsing logic, which aids an attacker in fingerprinting the system.
-   - **Fix:** Use generic error messages for the client and log the detailed error internally.
-
-4. **Logic Error / Parameter Mismanagement (Incorrect Param Mapping):**
-   - **Location:** `ThreeLayerPathHandlerFunc`.
-   - **Pattern:** In the `sdm-subscriptions` logic, the code maps `c.Param("supi")` to `ueId` and `c.Param("thirdLayer")` to `subscriptionId`.
-   - **Impact:** This is a fragile routing implementation. If the URL structure changes or if the `supi` parameter contains unexpected characters, the mapping to `ueId` might be incorrect, leading to unauthorized modification or deletion of subscriptions if the processor relies on these specific keys.
-   - **Fix:** Use a structured routing framework or a more robust mapping mechanism that doesn't rely on manual `gin.Params` slice manipulation.
 
 ---
 _Source: `results/task8_vuln_udm_full/1A_no_hint_full_rerun2610/agent/*.json`, run_id `20261016T123849Z`, repetition 1._

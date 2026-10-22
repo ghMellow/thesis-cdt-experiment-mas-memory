@@ -8,15 +8,24 @@
 | score computed (official CVSS 4.0 math) | 7.1 |
 | group (shared with matched table) | ≠ |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HTTPReleaseUEContext` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HTTPReleaseUEContext` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+1. **Information Exposure (CWE-209):** Across almost all handlers (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, **`HTTPReleaseUEContext`**, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`), the code returns `err.Error()` directly to the client within the `ProblemDetails` response. In a 5G core, while SBI is protected by mTLS, leaking internal deserialization errors or system failures can provide an attacker who has compromised a peer NF with precise details about the AMF's internal state, library versions, or memory layout.
+
+2. **Type Inconsistency in Context Storage (CWE-704):** The code uses `c.Set(sbi.IN_PB_DETAILS_CTX_STR, ...)` inconsistently. 
+    - In `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, **`HTTPReleaseUEContext`**, and `HTTPUEContextTransfer`, it stores the **entire `models.ProblemDetails` struct**.
+    If any middleware or the `Processor` retrieves this value and performs a type assertion (e.g., `ctx.MustGet(...).(string)`), the application will trigger a runtime panic, leading to a Denial of Service (DoS).
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The code contains systemic information exposure via error messages and a critical type inconsistency when setting context variables that could lead to runtime panics (DoS). Additionally, it features unsafe HTTP header handling and a logic error that disables JSON support for N1N2 message transfers.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Information Exposure (CWE-209):** Across almost all handlers (e.g., `HTTPAMFStatusChangeSubscribeModify`, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, **`HTTPReleaseUEContext`**, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`), the code returns `err.Error()` directly to the client within the `ProblemDetails` response. In a 5G core, while SBI is protected by mTLS, leaking internal deserialization errors or system failures can provide an attacker who has compromised a peer NF with precise details about the AMF's internal state, library versions, or memory layout.
 
@@ -28,6 +37,8 @@ The code contains systemic information exposure via error messages and a critica
 3. **Unsafe Header Access (CWE-20):** In `HTTPCreateUEContext`, `HTTPUEContextTransfer`, and `HTTPN1N2MessageTransfer`, the code retrieves the `Content-Type` header and performs `strings.Split(contentType, ";")`. If the `Content-Type` header is missing, `c.GetHeader` returns an empty string. While `strings.Split("", ";")` returns a slice of length 1 (preventing an immediate index-out-of-bounds), the logic is fragile and lacks validation of the header's existence before processing.
 
 4. **Logic Error / Functional Disablement:** In `HTTPN1N2MessageTransfer`, the `applicationjson` case is explicitly hardcoded to return an error: `err = fmt.Errorf("N1 and N2 datas are both Empty in N1N2MessgeTransfer")`. This prevents the AMF from processing N1/N2 messages sent via JSON, which is a standard requirement for SBI communication, effectively breaking a core 5G signaling path.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

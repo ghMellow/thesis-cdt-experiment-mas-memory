@@ -8,15 +8,22 @@
 | score computed (official CVSS 4.0 math) | 5.1 |
 | group (shared with matched table) | ≠ |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleCreateEeSubscriptions` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleCreateEeSubscriptions` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+2. **Ineffective Input Validation (Regex Bypass):** In **`HandleCreateEeSubscriptions`** and `HandleQueryeesubscriptions`, the regular expression used to validate `ueId` ends with ` hypertext |.+)$`. The `.+` pattern matches any sequence of characters, effectively neutralizing all previous specific patterns (IMSI, MSISDN, etc.). This allows any string to be accepted as a valid UE identity, bypassing 3GPP format requirements.
+
+4. **Information Disclosure (Verbose Error Messages):** Multiple handlers (e.g., `HandleAmfContext3gpp`, `HandleCreateAmfContext3gpp`, `HandleCreateAuthenticationStatus`, `HandleCreateAuthenticationSoR`, `HandleCreateAMFSubscriptions`, `HandlePostSubscriptionDataSubscriptions`, `HandleCreateEeGroupSubscriptions`, **`HandleCreateEeSubscriptions`**, `HandleUpdateEesubscriptions`, `HandleUpdateEeGroupSubscriptions`, `HandleApplicationDataInfluenceDataSubsToNotifyPut`, `HandleApplicationDataInfluenceDataInfluenceIdPut`) return `err.Error()` directly in the `ProblemDetails` response. This leaks internal system details (e.g., MongoDB driver errors, file paths, or library versions) to the caller.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDR implementation contains critical logic errors where data is passed by value instead of pointer during deserialization, leading to the storage of empty records. Input validation for UE identities is bypassed by a "match-all" regex, and failed type conversions for PDU session IDs are ignored. Additionally, the API leaks internal system errors to callers via verbose error responses.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Logic Error (Pass-by-Value Deserialization):** In `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`, the variable `policyDataSubscription` is passed to `openapi.Deserialize` as a value rather than a pointer. In Go, `interface{}` arguments for deserialization must be pointers to be mutable. Consequently, the variable remains empty, and the UDR will store zero-valued objects in the database, leading to data loss or corruption of subscription data.
 
@@ -25,6 +32,8 @@ The UDR implementation contains critical logic errors where data is passed by va
 3. **Logic Error (Ignored Type Conversion Failure):** In `HandleCreateSmfContextNon3gpp`, `strconv.ParseInt` is used to convert `pduSessionId`. If the conversion fails, the error is logged, but the function continues execution. The `pduSessionId` variable defaults to `0`, causing the SMF context to be incorrectly mapped to PDU session 0 instead of rejecting the malformed request.
 
 4. **Information Disclosure (Verbose Error Messages):** Multiple handlers (e.g., `HandleAmfContext3gpp`, `HandleCreateAmfContext3gpp`, `HandleCreateAuthenticationStatus`, `HandleCreateAuthenticationSoR`, `HandleCreateAMFSubscriptions`, `HandlePostSubscriptionDataSubscriptions`, `HandleCreateEeGroupSubscriptions`, **`HandleCreateEeSubscriptions`**, `HandleUpdateEesubscriptions`, `HandleUpdateEeGroupSubscriptions`, `HandleApplicationDataInfluenceDataSubsToNotifyPut`, `HandleApplicationDataInfluenceDataInfluenceIdPut`) return `err.Error()` directly in the `ProblemDetails` response. This leaks internal system details (e.g., MongoDB driver errors, file paths, or library versions) to the caller.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

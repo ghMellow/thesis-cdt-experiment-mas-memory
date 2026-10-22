@@ -1,7 +1,12 @@
 # Comparison 1A vs 1B
 
-> **Run(s) in this report:**
-> - `agent`: 20260714T152535Z
+> **Run(s) in this report** — a run is one `main.py` launch (`run_id`); each run adds the repetitions still missing towards the target.
+> Expected repetitions per task and role: **10** (`config.REPETITIONS`, fixed for every task so per-task metrics are comparable).
+>
+> - `agent`: 15 repetition(s) from 1 run(s)
+>   - `20260714T152535Z` — task5_vuln_pcf reps 1–3; task6_vuln_udr_full reps 1–3; task7_vuln_amf_full reps 1–3; task8_vuln_udm_full reps 1–3; task9_vuln_cross reps 1–3 — 2026-07-14
+
+> ⚠️ **Repetition count differs from the expected 10** — metrics here are not directly comparable with reports at 10: task5_vuln_pcf / `agent`: 3 (reps 1–3); task6_vuln_udr_full / `agent`: 3 (reps 1–3); task7_vuln_amf_full / `agent`: 3 (reps 1–3); task8_vuln_udm_full / `agent`: 3 (reps 1–3); task9_vuln_cross / `agent`: 3 (reps 1–3).
 
 | role | accuracy_1A | accuracy_1B | delta |
 | --- | --- | --- | --- |

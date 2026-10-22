@@ -8,15 +8,20 @@
 | score computed (official CVSS 4.0 math) | 5.1 |
 | group (shared with matched table) | ≠ |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleQuerySmData` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleQuerySmData` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+3. **Improper Input Validation (Unsafe JSON Unmarshal from Query Params)**: In `HandlePolicyDataUesUeIdSmDataGet` and **`HandleQuerySmData`**, the code takes raw query parameters (`snssai` and `single-nssai`) and passes them directly to `json.Unmarshal`. This is a dangerous pattern as it allows an attacker to provide malformed or maliciously crafted JSON strings. While the impact is limited by the `S-NSSAI` struct's simplicity, this pattern generally exposes the system to resource exhaustion (DoS) or unexpected behavior when parsing untrusted input from the URL.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDR implementation contains critical logic errors where data is not deserialized due to missing pointers, a regex bypass that renders `ueId` validation useless, and unsafe handling of query parameters that could lead to NoSQL data enumeration or DoS via JSON unmarshaling.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Logic Error (Incorrect Pointer Passing during Deserialization)**: In `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`, the variable `policyDataSubscription` is passed by value to `openapi.Deserialize`. In Go, to populate a struct from a byte slice, a pointer must be passed. Because it is passed by value, the `Deserialize` function cannot modify the original variable, and the processor receives a zero-initialized struct. This leads to the corruption of subscription data in the database.
 
@@ -25,6 +30,8 @@ The UDR implementation contains critical logic errors where data is not deserial
 3. **Improper Input Validation (Unsafe JSON Unmarshal from Query Params)**: In `HandlePolicyDataUesUeIdSmDataGet` and **`HandleQuerySmData`**, the code takes raw query parameters (`snssai` and `single-nssai`) and passes them directly to `json.Unmarshal`. This is a dangerous pattern as it allows an attacker to provide malformed or maliciously crafted JSON strings. While the impact is limited by the `S-NSSAI` struct's simplicity, this pattern generally exposes the system to resource exhaustion (DoS) or unexpected behavior when parsing untrusted input from the URL.
 
 4. **Improper Input Validation (NoSQL Query Manipulation/Enumeration)**: In `HandleApplicationDataInfluenceDataGet`, the code constructs MongoDB filters by splitting comma-separated query parameters (e.g., `influence-Ids`, `supis`) and using the `$in` operator. This allows a requester to query for multiple identities simultaneously. In a 5G core, this can be used to enumerate valid SUPIs or Influence IDs, facilitating reconnaissance for further attacks.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

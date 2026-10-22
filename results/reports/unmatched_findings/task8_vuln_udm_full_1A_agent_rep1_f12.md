@@ -8,15 +8,20 @@
 | score computed (official CVSS 4.0 math) | 5.3 |
 | group (shared with matched table) | — |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `ThreeLayerPathHandlerFunc` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `ThreeLayerPathHandlerFunc` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+4. **Unsafe Context Parameter Manipulation:** In `TwoLayerPathHandlerFunc` and **`ThreeLayerPathHandlerFunc`**, the code manually modifies the `c.Params` slice (e.g., `c.Params = append(...)` or `c.Params = tmpParams`). This is a dangerous pattern in the Gin framework. Manually overwriting the parameters slice can lead to unpredictable routing behavior or logic errors where the wrong identifier is associated with a request, potentially leading to unauthorized data modification or access if the framework's internal state becomes inconsistent.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDM implementation suffers from inconsistent SUPI/UEID validation across multiple handlers, unsafe JSON unmarshaling of query parameters, and information leakage through raw error responses. Additionally, the manual manipulation of Gin's `c.Params` slice in routing functions introduces significant logic fragility and potential for incorrect resource targeting.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Missing Input Validation (SUPI/UEID):** In a 5G Core, the SUPI (Subscription Permanent Identifier) is a sensitive and strictly formatted identifier. While `HandleGetAmData` performs validation via `validator.IsValidSupi(supi)`, several other handlers that retrieve `supi` or `ueId` from the path parameters omit this check. Specifically, `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, and `HandleGetUeContextInSmfData` pass the raw path parameter directly to the processor. This can lead to downstream logic errors or potential injection vulnerabilities in the database layer if the processor assumes the input is already validated.
 
@@ -25,6 +30,8 @@ The UDM implementation suffers from inconsistent SUPI/UEID validation across mul
 3. **Information Exposure via Error Messages:** In handlers like `HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, and `HandleModifyForSharedData`, the code returns `err.Error()` directly to the client in the `ProblemDetails` response. This exposes internal system details, such as specific Go library errors or deserialization failure reasons. Even within a protected SBI (mTLS/OAuth2), this provides reconnaissance data to a compromised peer NF, violating the principle of least privilege.
 
 4. **Unsafe Context Parameter Manipulation:** In `TwoLayerPathHandlerFunc` and **`ThreeLayerPathHandlerFunc`**, the code manually modifies the `c.Params` slice (e.g., `c.Params = append(...)` or `c.Params = tmpParams`). This is a dangerous pattern in the Gin framework. Manually overwriting the parameters slice can lead to unpredictable routing behavior or logic errors where the wrong identifier is associated with a request, potentially leading to unauthorized data modification or access if the framework's internal state becomes inconsistent.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

@@ -8,15 +8,21 @@
 | score computed (official CVSS 4.0 math) | 5.3 |
 | group (shared with matched table) | a |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleGetUeContextInSmfData` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleGetUeContextInSmfData` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+2. **Affected Handlers:** 
+   - **`HandleGetUeContextInSmfData`**
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDM implementation suffers from inconsistent input validation where the `supi` identifier is validated in `HandleGetAmData` and `HandleUnsubscribe`, but completely ignored in six other data retrieval handlers. This allows unvalidated user input to reach the core processing logic, potentially enabling injection attacks or unauthorized data access from a compromised peer NF.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 The code exhibits a critical **Inconsistent Input Validation** vulnerability. In a 5G UDM, the `supi` (Subscription Permanent Identifier) is a sensitive primary key used to retrieve subscriber data. 
 
@@ -36,6 +42,8 @@ The code exhibits a critical **Inconsistent Input Validation** vulnerability. In
    - **Logic Errors/DoS:** Unexpected characters could cause the backend data store to crash or return incorrect data sets.
    - **Information Disclosure:** Bypassing expected SUPI formats might allow an attacker to probe for existing subscribers using wildcards or special characters if the backend supports them.
 5. **Proposed Fix:** Implement a consistent validation check at the start of every handler that accepts a `supi` or `ueId`. A helper function should be used to ensure all endpoints enforce the same regex/length constraints defined in `validator.IsValidSupi`.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

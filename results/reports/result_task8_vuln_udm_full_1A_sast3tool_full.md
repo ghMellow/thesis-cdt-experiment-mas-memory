@@ -1,13 +1,18 @@
 # 1A_sast3tool_full — task8_vuln_udm_full
 
-> **Run(s) in this report:**
-> - `agent`: 20261016T122710Z
+> **Run(s) in this report** — a run is one `main.py` launch (`run_id`); each run adds the repetitions still missing towards the target.
+> Expected repetitions per task and role: **10** (`config.REPETITIONS`, fixed for every task so per-task metrics are comparable).
+>
+> - `agent`: 10 repetition(s) from 2 run(s)
+>   - `20261016T122710Z` — reps 1–3 — 2026-10-16
+>   - `20261022T111742Z` — reps 4–10 — 2026-10-22
 
 <a id="toc"></a>
 **Contents**
 
 - [Vector detail (estimated vs. published)](#vector-detail)
 - [Unmatched findings](#unmatched-findings)
+- [Distinct findings](#distinct-findings)
 - [Metrics across repetitions](#metrics-across-reps)
   - [Detection (M1, M2, M3 — final answer vs first attempt)](#detection-metrics)
   - [CVE × repetition](#cve-rep-matrix)
@@ -78,33 +83,202 @@ _`group` letter (when present) = this CVE recurs — same letter on other matche
 | base score — declared / from vector (official math) | 5.1 / **5.3** | 7.7 |
 | [reasoning detail](matched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep3_CVE-2026-42459.md) | | |
 
+| **CVE-2026-42459** — agent, rep 4 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **L** | **H** |
+| VI — Integrity Impact to the Vulnerable System | N | N |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.3 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep4_CVE-2026-42459.md) | | |
+
+| **CVE-2026-42459** — agent, rep 5 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **L** | **H** |
+| VI — Integrity Impact to the Vulnerable System | N | N |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.3 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep5_CVE-2026-42459.md) | | |
+
+| **CVE-2026-42459** — agent, rep 6 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **L** | **H** |
+| VI — Integrity Impact to the Vulnerable System | N | N |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.3 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep6_CVE-2026-42459.md) | | |
+
+| **CVE-2026-42459** — agent, rep 7 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **N** | **H** |
+| VI — Integrity Impact to the Vulnerable System | **L** | **N** |
+| VA — Availability Impact to the Vulnerable System | **L** | **N** |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.3 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep7_CVE-2026-42459.md) | | |
+
+| **CVE-2026-42459** — agent, rep 8 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **L** | **H** |
+| VI — Integrity Impact to the Vulnerable System | N | N |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.3 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep8_CVE-2026-42459.md) | | |
+
+| **CVE-2026-42459** — agent, rep 9 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **L** | **H** |
+| VI — Integrity Impact to the Vulnerable System | **L** | **N** |
+| VA — Availability Impact to the Vulnerable System | **L** | **N** |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.3 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep9_CVE-2026-42459.md) | | |
+
+| **CVE-2026-42459** — agent, rep 10 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **L** | **H** |
+| VI — Integrity Impact to the Vulnerable System | **L** | **N** |
+| VA — Availability Impact to the Vulnerable System | **L** | **N** |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.3 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep10_CVE-2026-42459.md) | | |
+
 <a id="unmatched-findings"></a>
 ### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)
 
 | # | group | details | score (from vector) | declared | function | task | role | rep | vector |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep1_f1.md) | 7.1 | 7.1 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 2 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep1_f2.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 3 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep1_f3.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 4 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep1_f4.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 5 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep1_f5.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 6 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep1_f6.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 7 | b | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep1_f7.md) | 5.3 | 5.3 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
-| 8 | — | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep1_f8.md) | 5.3 | 5.3 | `ThreeLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
-| 9 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep2_f1.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 10 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep2_f2.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 11 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep2_f3.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 12 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep2_f4.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 13 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep2_f5.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 14 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep2_f6.md) | 5.3 | 5.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
-| 15 | b | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep2_f7.md) | 5.3 | 5.3 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
-| 16 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep3_f1.md) | 5.3 | 5.1 | `HandleGetSupi` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N` |
-| 17 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep3_f2.md) | 5.3 | 5.1 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N` |
-| 18 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep3_f3.md) | 5.3 | 5.1 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N` |
-| 19 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep3_f4.md) | 5.3 | 5.1 | `HandleGetNssai` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N` |
-| 20 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep3_f5.md) | 5.3 | 5.1 | `HandleGetSmData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N` |
-| 21 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep3_f6.md) | 5.3 | 4.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
-| 22 | b | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep3_f7.md) | 5.3 | 4.3 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 2 | b | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep4_f1.md) | 7.1 | 6.5 | `HandleSubscribe` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| 3 | b | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep7_f1.md) | 7.1 | 6.5 | `HandleSubscribe` | task8_vuln_udm_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| 4 | b | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep10_f1.md) | 7.1 | 5.3 | `HandleSubscribe` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| 5 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep1_f2.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 6 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep1_f3.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 7 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep1_f4.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 8 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep1_f5.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 9 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep1_f6.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 10 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep1_f7.md) | 5.3 | 5.3 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 11 | — | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep1_f8.md) | 5.3 | 5.3 | `ThreeLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 12 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep2_f1.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 13 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep2_f2.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 14 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep2_f3.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 15 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep2_f4.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 16 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep2_f5.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 17 | d | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep2_f6.md) | 5.3 | 5.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 18 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep2_f7.md) | 5.3 | 5.3 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 19 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep3_f1.md) | 5.3 | 5.1 | `HandleGetSupi` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 20 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep3_f2.md) | 5.3 | 5.1 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 21 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep3_f3.md) | 5.3 | 5.1 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 22 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep3_f4.md) | 5.3 | 5.1 | `HandleGetNssai` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 23 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep3_f5.md) | 5.3 | 5.1 | `HandleGetSmData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 24 | d | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep3_f6.md) | 5.3 | 4.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 25 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep3_f7.md) | 5.3 | 4.3 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 26 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep4_f2.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 27 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep4_f3.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 28 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep4_f4.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 29 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep4_f5.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 30 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep4_f6.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 31 | e | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep4_f7.md) | 5.3 | 5.3 | `HandleModifyForSharedData` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 32 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep4_f8.md) | 5.3 | 5.3 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 33 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep5_f1.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 34 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep5_f2.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 35 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep5_f3.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 36 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep5_f4.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 37 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep5_f5.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 38 | d | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep5_f6.md) | 5.3 | 5.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 39 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep5_f7.md) | 5.3 | 5.3 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 40 | f | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep5_f8.md) | 5.3 | 5.3 | `OneLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 41 | g | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep5_f9.md) | 5.3 | 5.3 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 42 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep6_f1.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 43 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep6_f2.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 44 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep6_f3.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 45 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep6_f4.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 46 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep6_f5.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 47 | d | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep6_f6.md) | 5.3 | 5.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 48 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep6_f7.md) | 5.3 | 5.3 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 49 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep6_f8.md) | 5.3 | 5.3 | `HandleSubscribe` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 50 | e | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep6_f9.md) | 5.3 | 5.3 | `HandleModifyForSharedData` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 51 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep7_f2.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 52 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep7_f3.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 53 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep7_f4.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 54 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep7_f5.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 55 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep7_f6.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 56 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep7_f7.md) | 5.3 | 5.3 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 57 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep8_f1.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 58 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep8_f2.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 59 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep8_f3.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 60 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep8_f4.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 61 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep8_f5.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 62 | e | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep8_f6.md) | 5.3 | 5.3 | `HandleModifyForSharedData` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 63 | d | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep8_f7.md) | 5.3 | 5.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 64 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep8_f8.md) | 5.3 | 5.3 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 65 | f | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep8_f9.md) | 5.3 | 5.3 | `OneLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 66 | g | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep8_f10.md) | 5.3 | 5.3 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 67 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep9_f1.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 9 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 68 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep9_f2.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 9 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 69 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep9_f3.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 9 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 70 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep9_f4.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 9 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 71 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep9_f5.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 9 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 72 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep9_f6.md) | 5.3 | 3.1 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 9 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 73 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep10_f2.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 74 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep10_f3.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 75 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep10_f4.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 76 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep10_f5.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 77 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep10_f6.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 78 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep10_f7.md) | 5.3 | 5.3 | `HandleModifyForSharedData` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 79 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_sast3tool_full_agent_rep10_f8.md) | 5.3 | 3.0 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
 
 **Legend**
 
@@ -118,6 +292,47 @@ _`group` letter (when present) = this CVE recurs — same letter on other matche
 - `vector` = the full CVSS 4.0 vector string the agent estimated.
 - `details` = link to a self-contained file with this finding's structured data plus the agent's full narrative for that repetition (function name bolded for quick scanning) — everything needed to review it without opening the raw JSON.
 
+<a id="distinct-findings"></a>
+### Distinct findings (matched per CVE, unmatched per function)
+
+**89 finding rows → 7 distinct findings** (1 matched CVE(s), 6 unmatched). Of the 79 unmatched rows, 50 sit on the handler of an already-matched CVE (probable duplicates of it).
+
+#### Per repetition
+
+| role | rep | run_id | finding rows | distinct | collapsed |
+| --- | --- | --- | --- | --- | --- |
+| agent | 1 | `20261016T122710Z` | 9 | 4 | 5 |
+| agent | 2 | `20261016T122710Z` | 8 | 3 | 5 |
+| agent | 3 | `20261016T122710Z` | 8 | 3 | 5 |
+| agent | 4 | `20261022T111742Z` | 9 | 4 | 5 |
+| agent | 5 | `20261022T111742Z` | 10 | 4 | 6 |
+| agent | 6 | `20261022T111742Z` | 10 | 5 | 5 |
+| agent | 7 | `20261022T111742Z` | 8 | 3 | 5 |
+| agent | 8 | `20261022T111742Z` | 11 | 5 | 6 |
+| agent | 9 | `20261022T111742Z` | 7 | 2 | 5 |
+| agent | 10 | `20261022T111742Z` | 9 | 4 | 5 |
+
+#### Whole report
+
+| # | group | role | CVE | function(s) | reps | rows | max score (from vector) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | a | agent | CVE-2026-42459 | `HandleGetNssai`, `HandleGetSmData`, `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetTraceData`, `HandleGetUeContextInSmfData` | 1–10 | 60 | 5.3 |
+| 2 | d, ≠ | agent | unmatched | `getPlmnIDStruct` | 1–3, 5–6, 8 | 6 | 7.1 |
+| 3 | b, ≠ | agent | unmatched | `HandleSubscribe` | 4, 6–7, 10 | 4 | 7.1 |
+| 4 | c, g | agent | unmatched | `TwoLayerPathHandlerFunc` | 1–10 | 12 | 5.3 |
+| 5 | — | agent | unmatched | `ThreeLayerPathHandlerFunc` | 1 | 1 | 5.3 |
+| 6 | e, ≠ | agent | unmatched | `HandleModifyForSharedData` | 4, 6, 8, 10 | 4 | 5.3 |
+| 7 | f | agent | unmatched | `OneLayerPathHandlerFunc` | 5, 8 | 2 | 5.3 |
+
+**Legend**
+
+- A matched CVE is one finding however many repetitions found it, whatever vectors the agent estimated.
+- An unmatched row joins a matched CVE when it carries that CVE's `group` letter, i.e. it sits on one of the CVE's handler functions — a *probable* duplicate (a handler can host two distinct bugs), to confirm in triage.
+- Every other unmatched row collapses by **function** (same task and role, name normalized: case and trailing `(NF)` annotations ignored), whatever the vector: the same location rule used for CVEs, so one bug re-estimated with different vectors across repetitions counts once. `group` lists the letters/markers of the unmatched table that were merged into the row.
+- What this rule cannot see: two different bugs in the same function are counted as one (lower bound), and one bug reported on two different functions (e.g. the same flawed check in two handlers) as two (upper bound). Matched CVEs are exact (one per CVE).
+- Per repetition: `collapsed` = rows of that repetition that repeat a finding already counted in the same repetition.
+- Whole report: `reps` = repetitions where the finding appears; `rows` = how many rows (matched + unmatched) it collapses.
+
 <a id="metrics-across-reps"></a>
 ### Metrics across repetitions
 
@@ -128,8 +343,8 @@ _Every table in this section aggregates over all repetitions of the task (one ro
 
 | role | answer | reps | detection rate | avg coverage | TP | FP | FN | precision | recall | F1 | alerts/TP |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | final answer | 3 | 100.0% | 100.0% | 3 | 22 | 0 | 12.0% | 100.0% | 21.4% | 8.3 |
-| agent | first attempt | 3 | 100.0% | 100.0% | 3 | 19 | 0 | 13.6% | 100.0% | 24.0% | 7.3 |
+| agent | final answer | 10 | 100.0% | 100.0% | 10 | 79 | 0 | 11.2% | 100.0% | 20.2% | 8.9 |
+| agent | first attempt | 10 | 100.0% | 100.0% | 10 | 76 | 0 | 11.6% | 100.0% | 20.8% | 8.6 |
 
 **Legend**
 
@@ -149,7 +364,7 @@ _Every table in this section aggregates over all repetitions of the task (one ro
 
 | role | P@1 | P@3 | P@5 |
 | --- | --- | --- | --- |
-| agent | 66.7% (3/3 reps) | 33.3% (3/3 reps) | 20.0% (3/3 reps) |
+| agent | 60.0% (10/10 reps) | 33.3% (10/10 reps) | 20.0% (10/10 reps) |
 
 **Legend**
 
@@ -163,7 +378,7 @@ _Every table in this section aggregates over all repetitions of the task (one ro
 
 | role | task | n reps | TP mean ± std | FP mean ± std |
 | --- | --- | --- | --- | --- |
-| agent | task8_vuln_udm_full | 3 | 1.00 ± 0.00 (CI95 ±0.00) | 7.33 ± 0.58 (CI95 ±1.43) |
+| agent | task8_vuln_udm_full | 10 | 1.00 ± 0.00 (CI95 ±0.00) | 7.90 ± 1.20 (CI95 ±0.86) |
 
 **Legend**
 
@@ -176,10 +391,10 @@ _Every table in this section aggregates over all repetitions of the task (one ro
 
 _✓ = CVE matched in that repetition, ✗ = missed. `unmatched (FP)` = findings with no GT CVE in that repetition — the per-rep noise. A CVE row that is all ✗ is a systematic miss (never found), one with mixed ✓/✗ is a sampling instability._
 
-| task8_vuln_udm_full — agent | rep 1 | rep 2 | rep 3 | hit rate |
-| --- | --- | --- | --- | --- |
-| CVE-2026-42459 | ✓ | ✓ | ✓ | 3/3 |
-| unmatched (FP) | 8 | 7 | 7 | 22 tot |
+| task8_vuln_udm_full — agent | rep 1 | rep 2 | rep 3 | rep 4 | rep 5 | rep 6 | rep 7 | rep 8 | rep 9 | rep 10 | hit rate |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| CVE-2026-42459 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 10/10 |
+| unmatched (FP) | 8 | 7 | 7 | 8 | 9 | 9 | 7 | 10 | 6 | 8 | 79 tot |
 
 <a id="retry-channel"></a>
 #### Detection delta by retry channel (doc 07, variation 1)
@@ -199,7 +414,7 @@ _✓ = CVE matched in that repetition, ✗ = missed. `unmatched (FP)` = findings
 
 | role | SGV status (final answer) | TP | FP | precision |
 | --- | --- | --- | --- | --- |
-| agent | conform | 3 | 22 | 12.0% |
+| agent | conform | 10 | 79 | 11.2% |
 
 **Legend**
 
@@ -212,23 +427,23 @@ _✓ = CVE matched in that repetition, ✗ = missed. `unmatched (FP)` = findings
 
 | role | n (TP) | S1 exact match | S3 baseline exact match |
 | --- | --- | --- | --- |
-| agent | 3 | 0.0% | 100.0% |
+| agent | 10 | 0.0% | 100.0% |
 
 ##### S2 — per-metric accuracy (agent vs. baseline), ordinal distance
 
 | role | metric | n | accuracy | baseline accuracy | avg ordinal distance |
 | --- | --- | --- | --- | --- | --- |
-| agent | AV | 3 | 100.0% | 100.0% | 0.00 |
-| agent | AC | 3 | 100.0% | 100.0% | 0.00 |
-| agent | AT | 3 | 100.0% | 100.0% | 0.00 |
-| agent | PR | 3 | 0.0% | 100.0% | 0.50 |
-| agent | UI | 3 | 100.0% | 100.0% | 0.00 |
-| agent | VC | 3 | 0.0% | 100.0% | 0.50 |
-| agent | VI | 3 | 100.0% | 100.0% | 0.00 |
-| agent | VA | 3 | 66.7% | 100.0% | 0.17 |
-| agent | SC | 3 | 100.0% | 100.0% | 0.00 |
-| agent | SI | 3 | 100.0% | 100.0% | 0.00 |
-| agent | SA | 3 | 100.0% | 100.0% | 0.00 |
+| agent | AV | 10 | 100.0% | 100.0% | 0.00 |
+| agent | AC | 10 | 100.0% | 100.0% | 0.00 |
+| agent | AT | 10 | 100.0% | 100.0% | 0.00 |
+| agent | PR | 10 | 0.0% | 100.0% | 0.50 |
+| agent | UI | 10 | 100.0% | 100.0% | 0.00 |
+| agent | VC | 10 | 0.0% | 100.0% | 0.55 |
+| agent | VI | 10 | 70.0% | 100.0% | 0.15 |
+| agent | VA | 10 | 60.0% | 100.0% | 0.20 |
+| agent | SC | 10 | 100.0% | 100.0% | 0.00 |
+| agent | SI | 10 | 100.0% | 100.0% | 0.00 |
+| agent | SA | 10 | 100.0% | 100.0% | 0.00 |
 
 **Legend**
 
@@ -250,7 +465,7 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 
 | role | estimates | matched | missed CVEs | unmatched findings | avg band vs published (0-3) | avg band vs B (0-3) | avg exploitability (0-5) | avg impact (0-3) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | 3/3 | 3 | 0 | 22 | 1.00 | 0.00 | 4.00 | 1.67 |
+| agent | 10/10 | 10 | 0 | 79 | 1.00 | 0.00 | 4.00 | 1.30 |
 
 **Legend**
 
@@ -266,7 +481,7 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 
 | role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg subseq. distance (0-1) | avg Hamming (0-8) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | 0.07 | 3.40 | 0.00 | 0.10 | 0.22 | 0.00 | 2.33 |
+| agent | 0.02 | 3.40 | 0.00 | 0.10 | 0.30 | 0.00 | 2.70 |
 
 **Legend**
 
@@ -299,8 +514,8 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 
 | metric | value |
 | --- | --- |
-| total results | 3 |
-| correct | 3 (100.0%) |
+| total results | 10 |
+| correct | 10 (100.0%) |
 | wrong | 0 |
 | retried (attempts > 1) | 1 |
 | truly inconsistent tasks | 1 |
@@ -316,7 +531,7 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 
 | role | accuracy | avg_confidence | brier_score | avg_attempts | avg_textual_norm |
 | --- | --- | --- | --- | --- | --- |
-| agent | 100.0% | 0.900 | 0.0100 | 1.33 | 0.778 |
+| agent | 100.0% | 0.900 | 0.0100 | 1.10 | 0.800 |
 
 **Legend**
 
@@ -334,7 +549,7 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 
 | role | n | avg elapsed (s) | avg agent tokens in | avg agent tokens out | avg judge tokens in | avg judge tokens out |
 | --- | --- | --- | --- | --- | --- | --- |
-| agent | 3 | 8.6 | n/a | n/a | n/a | n/a |
+| agent | 10 | 7.2 | n/a | n/a | n/a | n/a |
 
 **Legend**
 
@@ -362,7 +577,7 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 #### Truly inconsistent reasoning (1)
 
 **agent — task8_vuln_udm_full**
-> The reasonings differ on the fourth vulnerability: the first identifies a logic error in ThreeLayerPathHandlerFunc's parameter mapping, the second identifies a logic error in HandleGetSupi's string splitting of 'dataset-names', and the third identifies a fragile pattern in ThreeLayerPathHandlerFunc's mutation of gin.Context.
+> The reasonings identify different sets of vulnerabilities; some focus on JSON unmarshaling and route matching logic, while others focus on unbounded memory allocation via GetRawData and inconsistent UE ID validation.
 
 **rep 1:**
 
@@ -441,5 +656,181 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
    - **Pattern:** The function manually overrides `c.Params` using `tmpParams` for `HandleUnsubscribe` and `HandleModify`.
    - **Impact:** This is a fragile pattern. If the Gin context is reused or if other middlewares rely on the original params, this mutation can cause side effects. More importantly, it indicates a mismatch between the routing layer and the handler expectations.
    - **Fix:** Pass parameters as explicit arguments to the handler functions instead of mutating the `gin.Context` params slice.
+
+**rep 4:**
+
+1. **Missing Input Validation (SUPI/UE ID):**
+   - **Location:** `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, `HandleGetNssai`, `HandleGetSmData`, `HandleModifyForSharedData`.
+   - **Pattern:** These handlers extract `supi` or `ueId` from `c.Params.ByName()` but fail to call `validator.IsValidSupi()` or `validator.IsValidGpsi()` before passing the value to the processor.
+   - **Impact:** While the SBI is protected by mTLS/OAuth2, allowing unvalidated identifiers into the core logic can lead to unexpected behavior in the database layer or downstream processors (e.g., injection or logic bypasses if the processor assumes the input is already sanitized).
+   - **Fix:** Implement the same validation pattern used in `HandleGetAmData` or `HandleUnsubscribe`.
+
+2. **Log Injection (CWE-117):**
+   - **Location:** `TwoLayerPathHandlerFunc`.
+   - **Pattern:** `logger.ConsumerLog.Infoln("TwoLayerPathHandlerFunc, ", supi, op)` where `supi` and `op` are directly taken from URL parameters.
+   - **Impact:** An attacker (or a compromised NF) can inject CRLF characters into the logs to forge log entries, misleading administrators during forensic analysis or triggering alerts in log monitoring systems.
+   - **Fix:** Sanitize user-controlled inputs before logging or use structured logging that handles escaping.
+
+3. **Inconsistent Validation Logic (Logic Error):**
+   - **Location:** `HandleGetAmData` vs `HandleGetSmfSelectData` (and others).
+   - **Pattern:** `HandleGetAmData` strictly validates the SUPI format. `HandleGetSmfSelectData` (which performs a similar retrieval operation) does not.
+   - **Impact:** This creates an inconsistent security posture across the API. Some endpoints are hardened against malformed identifiers while others are not, increasing the attack surface.
+   - **Fix:** Centralize identifier validation in a middleware or ensure all handlers follow the same validation standard.
+
+4. **Potential Denial of Service (Resource Exhaustion):**
+   - **Location:** `HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, `HandleModifyForSharedData`.
+   - **Pattern:** `c.GetRawData()` reads the entire request body into memory without a size limit.
+   - **Impact:** A malicious NF could send an extremely large JSON payload, leading to memory exhaustion (OOM) of the UDM process, causing a Denial of Service for all subscribers.
+   - **Fix:** Use `http.MaxBytesReader` or a Gin middleware to limit the request body size.
+
+**rep 5:**
+
+1. **Missing Input Validation (SUPI/UE ID):**
+   - **Location:** `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`.
+   - **Pattern:** These handlers extract `supi := c.Params.ByName("supi")` but fail to call `validator.IsValidSupi(supi)` before passing the value to the Processor. In contrast, `HandleGetAmData` correctly performs this check.
+   - **Impact:** Malformed SUPIs are passed deeper into the core network logic. While the Processor might handle them, the lack of boundary validation at the API layer can lead to unexpected behavior, potential database query errors, or bypasses of logic that expects a specific SUPI format.
+   - **Fix:** Implement `if !validator.IsValidSupi(supi) { ... }` at the start of each handler.
+
+2. **Unsafe JSON Unmarshaling of Query Parameters:**
+   - **Location:** `getPlmnIDStruct`.
+   - **Pattern:** The code takes a raw string from a URL query parameter (`plmn-id`) and passes it directly to `json.Unmarshal([]byte(plmnIDJson), plmnIDStruct)`.
+   - **Impact:** While not a direct remote code execution (RCE) in Go, unmarshaling untrusted JSON from a query string without size limits or schema validation can be used for Denial of Service (DoS) via resource exhaustion (e.g., deeply nested objects or very large strings) if the `models.PlmnId` struct or the JSON parser is susceptible.
+   - **Fix:** Validate the length of the `plmnIDJson` string before unmarshaling and ensure the `models.PlmnId` struct has strict types.
+
+3. **Log Injection (CWE-117):**
+   - **Location:** `TwoLayerPathHandlerFunc`.
+   - **Pattern:** `logger.ConsumerLog.Infoln("TwoLayerPathHandlerFunc, ", supi, op)`.
+   - **Impact:** The variables `supi` and `op` are derived directly from URL parameters (`c.Param`). An attacker can inject CRLF characters into these parameters to forge log entries, misleading administrators or hiding malicious activity.
+   - **Fix:** Sanitize user-controlled inputs by removing newline characters or using a structured logging format that automatically escapes arguments.
+
+4. **Logic Error in Route Matching (Path Traversal/Ambiguity):**
+   - **Location:** `OneLayerPathHandlerFunc`, `TwoLayerPathHandlerFunc`, `ThreeLayerPathHandlerFunc`.
+   - **Pattern:** The code uses `strings.Contains(route.Pattern, supi)` or `strings.Contains(route.Pattern, op)` to match routes.
+   - **Impact:** `strings.Contains` is an incorrect way to match RESTful paths. If a user provides a `supi` value that happens to be a substring of another route pattern, the wrong handler might be triggered. This leads to unpredictable API behavior and potential unauthorized access to different functional endpoints.
+   - **Fix:** Use exact equality checks or a proper regex/router matching mechanism instead of `strings.Contains`.
+
+**rep 6:**
+
+1. **Missing Input Validation (SUPI)**:
+   - **Location**: `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`.
+   - **Pattern**: These handlers extract the `supi` parameter from the URL path using `c.Params.ByName("supi")` but fail to call `validator.IsValidSupi(supi)` before passing it to the processor.
+   - **Impact**: In a 5G Core, the SUPI is a sensitive identifier. Lack of validation allows malformed identifiers or potentially injection-style strings to reach the database/processor layer. While SBI is protected by mTLS, internal NF-to-NF trust should not bypass basic input sanitization.
+   - **Fix**: Implement `if !validator.IsValidSupi(supi) { ... return }` at the start of each handler.
+
+2. **JSON Unmarshal of User-Controlled Query Parameter**:
+   - **Location**: `getPlmnIDStruct`
+   - **Pattern**: The code takes a query parameter `plmn-id` and passes it directly into `json.Unmarshal([]byte(plmnIDJson), plmnIDStruct)`.
+   - **Impact**: This allows an attacker to send arbitrary JSON structures in the URL. Depending on the `models.PlmnId` struct definition, this could lead to resource exhaustion (DoS) via large JSON payloads or unexpected behavior if the struct contains complex types.
+   - **Fix**: Validate the length of the `plmn-id` string before unmarshaling and ensure the `PlmnId` model has strict constraints.
+
+3. **Log Injection (CWE-117)**:
+   - **Location**: `TwoLayerPathHandlerFunc`
+   - **Pattern**: `logger.ConsumerLog.Infoln("TwoLayerPathHandlerFunc, ", supi, op)` where `supi` and `op` are derived directly from `c.Param()`.
+   - **Impact**: An attacker can inject CRLF characters into the URL path to forge log entries, misleading administrators or hiding malicious activity.
+   - **Fix**: Sanitize input parameters by removing newline characters before logging.
+
+4. **Inconsistent Validation (UE ID)**:
+   - **Location**: `HandleUnsubscribe`, `HandleModify`, `HandleGetIdTranslationResult`.
+   - **Pattern**: These functions correctly validate `ueId` using `validator.IsValidGpsi(ueId) || validator.IsValidSupi(ueId)`. However, `HandleSubscribe` (which uses `supi` from params) and `HandleModifyForSharedData` (which uses `supi` from params) do not perform this validation.
+   - **Impact**: Inconsistent security posture across the API; some endpoints are protected against malformed IDs while others are not.
+   - **Fix**: Apply the same `IsValidGpsi || IsValidSupi` check to all endpoints accepting a UE identifier in the path.
+
+**rep 7:**
+
+1. **Missing Input Validation (SUPI/UE ID):**
+   - **Location:** `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, `HandleGetNssai`, `HandleGetSmData`.
+   - **Pattern:** These handlers extract the `supi` parameter from the URL path (`c.Params.ByName("supi")`) and pass it directly to the processor without calling `validator.IsValidSupi(supi)`.
+   - **Impact:** While the SBI is typically protected by mTLS, allowing malformed SUPIs to reach the processor can lead to unexpected behavior in the database layer or downstream logic, potentially causing crashes (DoS) or bypassing certain business logic checks.
+   - **Fix:** Implement `if !validator.IsValidSupi(supi) { ... return }` at the start of each handler.
+
+2. **Log Injection (CWE-117):**
+   - **Location:** `TwoLayerPathHandlerFunc`.
+   - **Pattern:** `logger.ConsumerLog.Infoln("TwoLayerPathHandlerFunc, ", supi, op)` where `supi` and `op` are derived directly from `c.Param`.
+   - **Impact:** An attacker (or a compromised NF) can inject CRLF characters into the logs to forge log entries, misleading administrators during forensic analysis or triggering false alerts in log monitoring systems.
+   - **Fix:** Sanitize input by removing newline characters or use structured logging that handles arguments as data rather than formatted strings.
+
+3. **Inconsistent Validation Logic (UE ID vs SUPI):**
+   - **Location:** `HandleUnsubscribe`, `HandleModify`, `HandleGetIdTranslationResult`.
+   - **Pattern:** These functions use `validator.IsValidGpsi(ueId) || validator.IsValidSupi(ueId)`.
+   - **Impact:** While this is a functional requirement for some endpoints, the lack of a unified validation wrapper across the file leads to "security by omission" where some endpoints strictly require SUPI and others allow GPSI, potentially leading to authorization bypasses if the processor assumes the ID type based on the handler.
+   - **Fix:** Use a consistent validation helper for all UE-identifying parameters.
+
+4. **Potential Denial of Service (Unbounded Memory Allocation):**
+   - **Location:** `HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, `HandleModifyForSharedData`.
+   - **Pattern:** `requestBody, err := c.GetRawData()`.
+   - **Impact:** `GetRawData()` reads the entire request body into memory. A malicious actor could send an extremely large JSON payload, leading to memory exhaustion (OOM) of the UDM process.
+   - **Fix:** Use `http.MaxBytesReader` or Gin's binding mechanisms with a defined limit to restrict the maximum request body size.
+
+**rep 8:**
+
+1. **Missing Input Validation (SUPI/UE ID):**
+   - **Location:** `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, `HandleGetNssai`, `HandleGetSmData`, `HandleModifyForSharedData`.
+   - **Pattern:** These handlers extract `supi` or `ueId` from `c.Params.ByName()` but fail to call `validator.IsValidSupi()` or `validator.IsValidGpsi()` before passing the value to the processor.
+   - **Impact:** In a 5G Core, the SUPI is a sensitive identifier. Lack of validation allows malformed strings or unexpected characters to reach the database/processor layer. While SBI is protected by mTLS, an internal compromised NF could use this to attempt injection attacks or cause unexpected behavior in the UDM backend.
+   - **Fix:** Implement the same validation pattern used in `HandleGetAmData` or `HandleUnsubscribe`.
+
+2. **Unsafe JSON Unmarshaling of Query Parameters:**
+   - **Location:** `getPlmnIDStruct`
+   - **Pattern:** The code takes a raw string from the `plmn-id` query parameter and passes it directly to `json.Unmarshal([]byte(plmnIDJson), plmnIDStruct)`.
+   - **Impact:** This is a dangerous pattern. While `PlmnId` is a simple struct, unmarshaling arbitrary user-provided JSON from a URL parameter can lead to resource exhaustion (DoS) if the input is specially crafted (e.g., deeply nested objects if the model allowed it) or unexpected type coercion. More importantly, it deviates from the 3GPP specification where these are typically simple strings or specific formats, not JSON blobs in a query string.
+   - **Fix:** Validate the format of the `plmn-id` string using a regex or a dedicated parser before attempting to unmarshal it as JSON.
+
+3. **Log Injection (CWE-117):**
+   - **Location:** `TwoLayerPathHandlerFunc`
+   - **Pattern:** `logger.ConsumerLog.Infoln("TwoLayerPathHandlerFunc, ", supi, op)` where `supi` and `op` are derived directly from `c.Param()`.
+   - **Impact:** An attacker (or a compromised NF) can inject CRLF characters into the URL parameters to forge log entries, misleading administrators during forensic analysis or triggering vulnerabilities in log aggregation systems (e.g., ELK/Splunk).
+   - **Fix:** Sanitize user-controlled inputs by removing newline characters or using structured logging with parameterized fields.
+
+4. **Logic Error in Route Matching (Path Traversal/Ambiguity):**
+   - **Location:** `OneLayerPathHandlerFunc`, `TwoLayerPathHandlerFunc`, `ThreeLayerPathHandlerFunc`
+   - **Pattern:** The use of `strings.Contains(route.Pattern, supi)` to match routes.
+   - **Impact:** This is logically flawed. If a `supi` value contains a substring that matches another route's pattern, it may trigger the wrong handler. For example, if a SUPI is "shared-data-123", it might match the `/shared-data` route incorrectly. This leads to unpredictable API behavior and potential unauthorized access to different data sets.
+   - **Fix:** Use the Gin framework's built-in routing capabilities (which handle parameters correctly) instead of manual string matching in custom handler functions.
+
+**rep 9:**
+
+1. **Missing Input Validation (SUPI/UE ID)**:
+   - **Location**: `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, `HandleGetNssai`, `HandleGetSmData`.
+   - **Pattern**: These handlers extract the `supi` parameter from the URL path (`c.Params.ByName("supi")`) but fail to call `validator.IsValidSupi(supi)` before passing it to the processor. In contrast, `HandleGetAmData` and `HandleUnsubscribe` correctly implement this validation.
+   - **Impact**: While the SBI is typically protected by mTLS, allowing malformed or excessively long SUPI strings to reach the processor/database layer can lead to unexpected behavior, potential injection attacks in the backend data store, or crashes (DoS).
+   - **Fix**: Add `if !validator.IsValidSupi(supi) { ... return }` at the start of each affected handler.
+
+2. **Log Injection (CWE-117)**:
+   - **Location**: `TwoLayerPathHandlerFunc`.
+   - **Pattern**: `logger.ConsumerLog.Infoln("TwoLayerPathHandlerFunc, ", supi, op)`. The variables `supi` and `op` are taken directly from `c.Param`, which is user-controlled input.
+   - **Impact**: An attacker can inject CRLF characters into the logs to forge log entries, mislead administrators, or exploit log-parsing vulnerabilities in centralized logging systems (e.g., ELK stack).
+   - **Fix**: Sanitize input by removing newline characters or use structured logging that handles arguments as data rather than part of the format string.
+
+3. **Inconsistent Validation Logic (UE ID vs SUPI)**:
+   - **Location**: `HandleGetIdTranslationResult`.
+   - **Pattern**: The handler validates `ueId` using `validator.IsValidGpsi(ueId) || validator.IsValidSupi(ueId)`. However, the routing logic in `TwoLayerPathHandlerFunc` maps the path parameter `:supi` to `ueId`.
+   - **Impact**: This is a logic inconsistency. If the API expects a SUPI in certain paths but allows GPSI in others without clear separation, it may lead to authorization bypasses or data leakage if the processor does not strictly distinguish between the two identifier types.
+   - **Fix**: Ensure the routing parameters and the validation logic are aligned with the 3GPP TS 29.503 specification for each specific operation.
+
+**rep 10:**
+
+1. **Missing Input Validation (SUPI/UEID)**:
+   - **Location**: `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, `HandleGetNssai`, `HandleGetSmData`, `HandleModifyForSharedData`.
+   - **Pattern**: These handlers extract `supi` or `ueId` from `c.Params.ByName()` but fail to call `validator.IsValidSupi()` or `validator.IsValidGpsi()` before passing the value to the processor.
+   - **Impact**: In a 5G Core, the SUPI is a sensitive identifier. Lack of validation allows malformed strings or unexpected characters to reach the database/processor layer. While SBI is protected by mTLS, this allows an authenticated but compromised NF to perform injection attacks or cause crashes (DoS) in the backend processor.
+   - **Fix**: Implement `if !validator.IsValidSupi(supi) { ... return }` at the start of each handler.
+
+2. **Log Injection (CWE-117)**:
+   - **Location**: `TwoLayerPathHandlerFunc`.
+   - **Pattern**: `logger.ConsumerLog.Infoln("TwoLayerPathHandlerFunc, ", supi, op)` where `supi` and `op` are direct user-controlled parameters from the URL.
+   - **Impact**: An attacker can inject CRLF characters into the logs to forge log entries, mislead administrators, or exploit log-parsing software.
+   - **Fix**: Sanitize input by removing newline characters or use structured logging that handles arguments as data rather than formatted strings.
+
+3. **Inconsistent Parameter Handling (Logic Error)**:
+   - **Location**: `HandleGetAmData`, `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetNssai`, `HandleGetSmData`.
+   - **Pattern**: The code creates a `url.Values` object (`query`), sets values from `c.Query()`, but then calls `s.getPlmnIDStruct(c.Request.URL.Query())`.
+   - **Impact**: This is redundant and confusing. More importantly, `getPlmnIDStruct` performs `json.Unmarshal` on a query parameter. If the `plmn-id` is provided as a plain string instead of a JSON object, it returns a 400 error. This creates a strict dependency on JSON-encoded query parameters which may deviate from standard 3GPP REST implementations if not strictly enforced across the SBI.
+   - **Fix**: Standardize how query parameters are extracted and validated.
+
+4. **Potential Denial of Service (Resource Exhaustion)**:
+   - **Location**: `HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, `HandleModifyForSharedData`.
+   - **Pattern**: Use of `c.GetRawData()` without specifying a maximum request body size.
+   - **Impact**: An attacker (authenticated NF) can send an extremely large HTTP request body, leading to memory exhaustion (OOM) on the UDM instance.
+   - **Fix**: Use a limited reader or Gin's middleware to enforce a `MaxRequestBodySize`.
 
 

@@ -8,15 +8,21 @@
 | score computed (official CVSS 4.0 math) | 5.3 |
 | group (shared with matched table) | a |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleGetNssai` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleGetNssai` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+1. **Missing Input Validation (SUPI/UEID):**
+   - **Location:** `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, **`HandleGetNssai`**, `HandleGetSmData`, and `HandleModifyForSharedData`.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDM implementation contains critical security flaws including inconsistent SUPI/UEID validation across multiple handlers, a DoS vulnerability via unsafe JSON unmarshaling of query parameters, and information leakage through raw error responses. Additionally, the custom routing logic in `OneLayerPathHandlerFunc` is fragile and could lead to incorrect handler execution.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Missing Input Validation (SUPI/UEID):**
    - **Location:** `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, **`HandleGetNssai`**, `HandleGetSmData`, and `HandleModifyForSharedData`.
@@ -41,6 +47,8 @@ The UDM implementation contains critical security flaws including inconsistent S
    - **Pattern:** The function iterates through routes and uses `strings.Contains(route.Pattern, supi)` to determine if a handler should be called.
    - **Impact:** This is a logic error. If the `supi` parameter contains a string that happens to be a substring of another route's pattern, the wrong handler may be triggered. While SUPIs are typically numeric, the lack of validation (Finding 1) makes this a viable path for request smuggling or unauthorized function execution within the NF.
    - **Fix:** Use exact matching or a proper regex-based router instead of `strings.Contains`.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

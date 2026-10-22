@@ -8,15 +8,22 @@
 | score computed (official CVSS 4.0 math) | 5.3 |
 | group (shared with matched table) | a |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleGetSupi` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleGetSupi` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+1. **Inconsistent Input Validation (SUPI/UEID):** The UDM manages sensitive subscriber data. While `HandleGetAmData` and `HandleUnsubscribe`/`HandleModify` validate the `supi` or `ueId` using `validator.IsValidSupi` or `validator.IsValidGpsi`, several other endpoints that retrieve sensitive data—`HandleGetSmfSelectData`, **`HandleGetSupi`**, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, and `HandleGetUeContextInSmfData`—extract the `supi` from the path but perform no validation. This allows malformed or oversized strings to reach the `Processor` layer, potentially leading to database injection, crashes (DoS), or unexpected behavior.
+
+4. **Inconsistent PLMN-ID Parsing:** The `getPlmnIDStruct` helper expects the `plmn-id` query parameter to be a JSON string. This is used in `HandleGetAmData`, `HandleGetSmfSelectData`, **`HandleGetSupi`**, `HandleGetNssai`, and `HandleGetSmData`. However, `HandleGetTraceData` uses `c.Query("plmn-id")` directly. This inconsistency means the `Processor` layer must handle two different formats for the same logical parameter, increasing the risk of logic errors or crashes in the backend.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDM implementation contains critical flaws including inconsistent SUPI/UEID validation across sensitive endpoints, a dangerous custom routing mechanism using substring matching that allows route hijacking, and information leakage through raw error responses. Additionally, inconsistent parsing of the `plmn-id` parameter creates logic discrepancies between service operations.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Inconsistent Input Validation (SUPI/UEID):** The UDM manages sensitive subscriber data. While `HandleGetAmData` and `HandleUnsubscribe`/`HandleModify` validate the `supi` or `ueId` using `validator.IsValidSupi` or `validator.IsValidGpsi`, several other endpoints that retrieve sensitive data—`HandleGetSmfSelectData`, **`HandleGetSupi`**, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, and `HandleGetUeContextInSmfData`—extract the `supi` from the path but perform no validation. This allows malformed or oversized strings to reach the `Processor` layer, potentially leading to database injection, crashes (DoS), or unexpected behavior.
 
@@ -25,6 +32,8 @@ The UDM implementation contains critical flaws including inconsistent SUPI/UEID 
 3. **Information Exposure via Error Messages:** In handlers processing request bodies (`HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, `HandleModifyForSharedData`), the code returns `err.Error()` from `c.GetRawData()` and `openapi.Deserialize` directly in the `ProblemDetails.Detail` field. This leaks internal system details and library-specific error messages to the caller, which can be used by an attacker to fingerprint the system or identify specific vulnerabilities in the deserialization logic.
 
 4. **Inconsistent PLMN-ID Parsing:** The `getPlmnIDStruct` helper expects the `plmn-id` query parameter to be a JSON string. This is used in `HandleGetAmData`, `HandleGetSmfSelectData`, **`HandleGetSupi`**, `HandleGetNssai`, and `HandleGetSmData`. However, `HandleGetTraceData` uses `c.Query("plmn-id")` directly. This inconsistency means the `Processor` layer must handle two different formats for the same logical parameter, increasing the risk of logic errors or crashes in the backend.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

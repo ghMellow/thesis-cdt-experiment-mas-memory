@@ -8,15 +8,23 @@
 | score computed (official CVSS 4.0 math) | 7.1 |
 | group (shared with matched table) | a |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleGetSmData` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleGetSmData` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+2. **Unvalidated Handlers:** `HandleGetSmfSelectData`, `HandleGetNssai`, **`HandleGetSmData`**, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, and `HandleGetSupi` extract the `supi` from the URL parameters but pass it directly to the `Processor` without any validation.
+
+**Security Impact:**
+In a 5G Core, the SUPI is a sensitive identifier. While the SBI is typically protected by mTLS and OAuth2 (limiting the attacker to a compromised NF), the lack of validation allows for:
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDM implementation suffers from inconsistent input validation of the `supi` identifier. While some handlers validate the SUPI, most others pass it directly to the backend processor, potentially enabling NoSQL injection or unauthorized data access if the backend lacks secondary validation.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 The code review reveals a significant inconsistency in input validation for the `supi` (Subscription Permanent Identifier) parameter across different SBI handlers.
 
@@ -34,6 +42,8 @@ In a 5G Core, the SUPI is a sensitive identifier. While the SBI is typically pro
 
 **Proposed Fix:**
 Implement a consistent validation middleware or ensure every handler calls `validator.IsValidSupi(supi)` before calling the `Processor` methods.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

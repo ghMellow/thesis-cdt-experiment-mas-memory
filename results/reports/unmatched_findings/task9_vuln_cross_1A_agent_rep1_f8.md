@@ -8,15 +8,9 @@
 | score computed (official CVSS 4.0 math) | 5.3 |
 | group (shared with matched table) | — |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdPut` are **bolded** below to help locate the relevant passage._
-
-**Answer:**
-
-Summary of findings: The review identified multiple vulnerabilities including **Broken Access Control** (missing returns in UDR), **Improper Input Validation** (regex bypass and missing SUPI checks), **CORS Misconfiguration** (PCF), and **Logic Errors** (AMF switch cases). Significant cross-file inconsistencies were found regarding UE identifier validation, where UDM correctly validates SUPIs in some handlers but omits it in others, and PCF/UDR omit it entirely.
-
-**Reasoning:**
+_`HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdPut` is not named in the reasoning (e.g. covered by a phrase like "and Get/Put") — full reasoning shown, every finding of the repetition included._
 
 **1. Cross-File Inconsistencies (UE Identifier Validation):**
 There is a critical inconsistency in how SUPI/UE-ID parameters are validated across the SBI.
@@ -41,6 +35,15 @@ There is a critical inconsistency in how SUPI/UE-ID parameters are validated acr
 *   **UDR (`api_datarepository.go`):**
     *   **Broken Access Control (Missing Return):** In `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete` (and Get/Put), the code calls `c.String(http.StatusNotFound, ...)` but does **not** return. The execution continues, calling the Processor with a potentially invalid `subscriptionId`, leading to "double-response" errors and unauthorized processing.
     *   **Ineffective Regex (Bypass):** In `HandleCreateEeSubscriptions`, the regex ends with `。.+)$`. This means any string that doesn't match the specific 3GPP patterns will still match the final `.+` catch-all, rendering the entire validation logic useless.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
+
+**Answer:**
+
+Summary of findings: The review identified multiple vulnerabilities including **Broken Access Control** (missing returns in UDR), **Improper Input Validation** (regex bypass and missing SUPI checks), **CORS Misconfiguration** (PCF), and **Logic Errors** (AMF switch cases). Significant cross-file inconsistencies were found regarding UE identifier validation, where UDM correctly validates SUPIs in some handlers but omits it in others, and PCF/UDR omit it entirely.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

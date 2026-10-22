@@ -71,3 +71,83 @@
 - dyn_1A_sast agent udm_api_subscriberdatamanagement_go: rep 3 differs from rep 2
 - dyn_1A_sast agent udr_api_datarepository_go: rep 2 differs from rep 1
 - dyn_1A_sast agent udr_api_datarepository_go: rep 3 differs from rep 2
+
+- 1A_sast3tool_full agent task6_vuln_udr_full: rep 2 differs from rep 1
+- 1A_sast3tool_full agent task6_vuln_udr_full: rep 3 differs from rep 2
+- 1A_sast3tool_full agent task6_vuln_udr_full: rep 4 differs from rep 3
+- 1A_sast3tool_full agent task6_vuln_udr_full: rep 5 differs from rep 4
+- 1A_sast3tool_full agent task6_vuln_udr_full: rep 6 differs from rep 5
+- 1A_sast3tool_full agent task6_vuln_udr_full: rep 7 differs from rep 6
+- 1A_sast3tool_full agent task6_vuln_udr_full: rep 8 differs from rep 7
+- 1A_sast3tool_full agent task6_vuln_udr_full: rep 9 differs from rep 8
+- 1A_sast3tool_full agent task6_vuln_udr_full: rep 10 differs from rep 9
+
+- 1A_sast3tool_full agent task8_vuln_udm_full: rep 2 differs from rep 1
+- 1A_sast3tool_full agent task8_vuln_udm_full: rep 3 differs from rep 2
+
+- 1A_no_hint_full_rerun2610 agent task6_vuln_udr_full: rep 2 differs from rep 1
+- 1A_no_hint_full_rerun2610 agent task6_vuln_udr_full: rep 3 differs from rep 2
+- 1A_no_hint_full_rerun2610 agent task6_vuln_udr_full: rep 4 differs from rep 3
+- 1A_no_hint_full_rerun2610 agent task6_vuln_udr_full: rep 5 differs from rep 4
+- 1A_no_hint_full_rerun2610 agent task6_vuln_udr_full: rep 6 differs from rep 5
+- 1A_no_hint_full_rerun2610 agent task6_vuln_udr_full: rep 7 differs from rep 6
+- 1A_no_hint_full_rerun2610 agent task6_vuln_udr_full: rep 8 differs from rep 7
+- 1A_no_hint_full_rerun2610 agent task6_vuln_udr_full: rep 9 differs from rep 8
+- 1A_no_hint_full_rerun2610 agent task6_vuln_udr_full: rep 10 differs from rep 9
+
+- 1A_sast_hint_full_rerun2610 agent task6_vuln_udr_full: rep 2 differs from rep 1
+- 1A_sast_hint_full_rerun2610 agent task6_vuln_udr_full: rep 3 differs from rep 2
+- 1A_sast_hint_full_rerun2610 agent task6_vuln_udr_full: rep 4 differs from rep 3
+- 1A_sast_hint_full_rerun2610 agent task6_vuln_udr_full: rep 5 differs from rep 4
+- 1A_sast_hint_full_rerun2610 agent task6_vuln_udr_full: rep 6 differs from rep 5
+- 1A_sast_hint_full_rerun2610 agent task6_vuln_udr_full: rep 7 differs from rep 6
+- 1A_sast_hint_full_rerun2610 agent task6_vuln_udr_full: rep 8 differs from rep 7
+- 1A_sast_hint_full_rerun2610 agent task6_vuln_udr_full: rep 9 differs from rep 8
+- 1A_sast_hint_full_rerun2610 agent task6_vuln_udr_full: rep 10 differs from rep 9
+
+- 1A_no_hint_full_rerun2610 agent task8_vuln_udm_full: rep 2 differs from rep 1
+- 1A_no_hint_full_rerun2610 agent task8_vuln_udm_full: rep 3 differs from rep 2
+
+- 1A_sast_hint_full_rerun2610 agent task8_vuln_udm_full: rep 2 differs from rep 1
+- 1A_sast_hint_full_rerun2610 agent task8_vuln_udm_full: rep 3 differs from rep 2
+
+- 1A_sast3tool_linked_full agent task6_vuln_udr_full: rep 2 differs from rep 1
+- 1A_sast3tool_linked_full agent task6_vuln_udr_full: rep 3 differs from rep 2
+- 1A_sast3tool_linked_full agent task6_vuln_udr_full: rep 4 differs from rep 3
+- 1A_sast3tool_linked_full agent task6_vuln_udr_full: rep 5 differs from rep 4
+- 1A_sast3tool_linked_full agent task6_vuln_udr_full: rep 6 differs from rep 5
+- 1A_sast3tool_linked_full agent task6_vuln_udr_full: rep 7 differs from rep 6
+- 1A_sast3tool_linked_full agent task6_vuln_udr_full: rep 8 differs from rep 7
+- 1A_sast3tool_linked_full agent task6_vuln_udr_full: rep 9 differs from rep 8
+- 1A_sast3tool_linked_full agent task6_vuln_udr_full: rep 10 differs from rep 9
+
+- 1A_sast3tool_linked_full agent task8_vuln_udm_full: rep 2 differs from rep 1
+- 1A_sast3tool_linked_full agent task8_vuln_udm_full: rep 3 differs from rep 2
+
+- 1A_no_hint_full_rerun2610 agent task8_vuln_udm_full: rep 5 differs from rep 4
+- 1A_no_hint_full_rerun2610 agent task8_vuln_udm_full: rep 6 differs from rep 5
+- 1A_no_hint_full_rerun2610 agent task8_vuln_udm_full: rep 7 differs from rep 6
+- 1A_no_hint_full_rerun2610 agent task8_vuln_udm_full: rep 8 differs from rep 7
+- 1A_no_hint_full_rerun2610 agent task8_vuln_udm_full: rep 9 differs from rep 8
+- 1A_no_hint_full_rerun2610 agent task8_vuln_udm_full: rep 10 differs from rep 9
+
+- 1A_sast_hint_full_rerun2610 agent task8_vuln_udm_full: rep 5 differs from rep 4
+- 1A_sast_hint_full_rerun2610 agent task8_vuln_udm_full: rep 6 differs from rep 5
+- 1A_sast_hint_full_rerun2610 agent task8_vuln_udm_full: rep 7 differs from rep 6
+- 1A_sast_hint_full_rerun2610 agent task8_vuln_udm_full: rep 8 differs from rep 7
+- 1A_sast_hint_full_rerun2610 agent task8_vuln_udm_full: rep 9 differs from rep 8
+- 1A_sast_hint_full_rerun2610 agent task8_vuln_udm_full: rep 10 differs from rep 9
+
+- 1A_sast3tool_full agent task8_vuln_udm_full: rep 5 differs from rep 4
+- 1A_sast3tool_full agent task8_vuln_udm_full: rep 6 differs from rep 5
+- 1A_sast3tool_full agent task8_vuln_udm_full: rep 7 differs from rep 6
+- 1A_sast3tool_full agent task8_vuln_udm_full: rep 8 differs from rep 7
+- 1A_sast3tool_full agent task8_vuln_udm_full: rep 9 differs from rep 8
+- 1A_sast3tool_full agent task8_vuln_udm_full: rep 10 differs from rep 9
+
+- 1A_sast3tool_linked_full agent task8_vuln_udm_full: rep 5 differs from rep 4
+- 1A_sast3tool_linked_full agent task8_vuln_udm_full: rep 6 differs from rep 5
+- 1A_sast3tool_linked_full agent task8_vuln_udm_full: rep 7 differs from rep 6
+- 1A_sast3tool_linked_full agent task8_vuln_udm_full: rep 8 differs from rep 7
+- 1A_sast3tool_linked_full agent task8_vuln_udm_full: rep 9 differs from rep 8
+- 1A_sast3tool_linked_full agent task8_vuln_udm_full: rep 10 differs from rep 9

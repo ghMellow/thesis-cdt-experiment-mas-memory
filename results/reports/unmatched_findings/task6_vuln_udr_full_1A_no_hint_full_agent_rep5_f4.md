@@ -8,15 +8,21 @@
 | score computed (official CVSS 4.0 math) | 5.3 |
 | group (shared with matched table) | ≠ |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleQuerySmData` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleQuerySmData` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+4. **Unsafe JSON Unmarshaling (Logic Error)**:
+   - **Location**: `HandlePolicyDataUesUeIdSmDataGet` and **`HandleQuerySmData`**.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDR implementation contains critical logic errors where objects are passed by value to the deserializer, causing data corruption in policy subscriptions. It also suffers from missing return statements after error responses, allowing invalid requests to reach the processor, and a flawed regular expression that bypasses `ueId` validation.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Logic Error: Passing by Value to Deserializer (Data Corruption)**:
    - **Location**: `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`.
@@ -41,6 +47,8 @@ The UDR implementation contains critical logic errors where objects are passed b
    - **Pattern**: `json.Unmarshal([]byte(sNssaiQuery), &sNssai)` is performed on a query parameter. If it fails, the error is only logged as a warning, and the function continues.
    - **Impact**: The `Processor` is called with a zero-valued `sNssai` object. This results in the UDR returning incorrect subscription data or failing to find existing records, impacting the integrity of the session management process.
    - **Fix**: Return a `400 Bad Request` response if `json.Unmarshal` fails.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

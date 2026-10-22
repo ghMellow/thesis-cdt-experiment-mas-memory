@@ -8,21 +8,28 @@
 | score computed (official CVSS 4.0 math) | 7.2 |
 | group (shared with matched table) | ≠ |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleCreateSdmSubscriptions` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleCreateSdmSubscriptions` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+1. **Logic Error (Incorrect Collection Mapping):** In **`HandleCreateSdmSubscriptions`**, the variable `collName` is hardcoded to `"subscriptionData.contextData.amfNon3gppAccess"`. This handler is intended to create SDM subscriptions, but it writes to the AMF Non-3GPP access collection. This results in data corruption, where SDM data is stored in the wrong place and AMF context data is polluted with unrelated subscription records.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDR implementation contains a critical logic error in **`HandleCreateSdmSubscriptions`** that causes data to be stored in the wrong MongoDB collection. It also features ineffective input validation via a "match-all" regex in UE ID validation and unsafe JSON unmarshaling from query parameters in the SM data handler.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Logic Error (Incorrect Collection Mapping):** In **`HandleCreateSdmSubscriptions`**, the variable `collName` is hardcoded to `"subscriptionData.contextData.amfNon3gppAccess"`. This handler is intended to create SDM subscriptions, but it writes to the AMF Non-3GPP access collection. This results in data corruption, where SDM data is stored in the wrong place and AMF context data is polluted with unrelated subscription records.
 2. **Ineffective Input Validation (Regex Bypass):** In `HandleCreateEeSubscriptions` and `HandleQueryeesubscriptions`, the regex `^(imsi-[0-9]{5,15}|nai-.+|msisdn-[0-9]{5,15}|extid-[^@]+@[^@]+|gci-.+|gli-.+|.+)$` ends with `.+`. This "match-all" pattern makes the previous specific 3GPP patterns redundant, as any non-empty string will match. This allows arbitrary, potentially malicious strings to be passed to the database layer.
 3. **NoSQL Filter Manipulation:** In `HandleApplicationDataInfluenceDataGet`, the code constructs a MongoDB filter by splitting query parameters by commas and using the `$in` operator. While not a classic string-injection, the logic allows a caller to specify arbitrary lists of IDs. In a multi-tenant or restricted environment, this could be used to enumerate or retrieve data for other UEs/Groups by guessing or obtaining IDs, bypassing intended access controls.
 4. **Unsafe JSON Unmarshaling from Query Parameters:** In `HandlePolicyDataUesUeIdSmDataGet`, the code retrieves `sNssaiQuery` from the URL and passes it directly to `json.Unmarshal`. This is a dangerous pattern as query parameters are not designed for JSON; it bypasses the `openapi.Deserialize` pipeline and can lead to unexpected behavior or crashes if the input is malformed.
 5. **Improper Error Handling Sequence:** In `HandleCreateEeGroupSubscriptions` and `HandleQueryEeGroupSubscriptions`, the code checks `if !match` before checking `if err != nil` from `regexp.MatchString`. If the regex engine fails, the code returns a "Invalid parameter" response instead of a system error, masking the actual cause of the failure.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

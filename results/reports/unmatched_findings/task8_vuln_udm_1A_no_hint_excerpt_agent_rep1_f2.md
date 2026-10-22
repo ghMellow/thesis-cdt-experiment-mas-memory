@@ -8,15 +8,21 @@
 | score computed (official CVSS 4.0 math) | 5.3 |
 | group (shared with matched table) | a |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleGetSmData` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleGetSmData` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+2. **Affected Handlers:**
+   - **Unvalidated:** `HandleGetSmfSelectData`, `HandleGetNssai`, **`HandleGetSmData`**, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, and `HandleGetSupi`. These handlers extract the `supi` from the URL parameters and pass it directly to the processor without any validation.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDM implementation suffers from inconsistent input validation where the majority of SUPI-based handlers fail to validate the `supi` parameter before passing it to the business logic. This creates a risk of injection attacks or system instability if the backend processor assumes the identifier is well-formed.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 The code review reveals a critical inconsistency in input validation for the `supi` (Subscription Permanent Identifier) parameter across multiple SBI handlers. In a 5G Core, the SUPI is a sensitive identifier used as a primary key to retrieve subscriber data.
 
@@ -29,6 +35,8 @@ The code review reveals a critical inconsistency in input validation for the `su
    - **Unexpected Behavior/DoS:** Passing unexpectedly long strings or special characters could cause crashes or resource exhaustion in the data processing layer.
    - **Data Leakage:** Bypassing format checks might allow an attacker to probe for records using wildcards or unexpected patterns if the backend supports them.
 4. **Proposed Fix:** Implement a consistent validation check using `validator.IsValidSupi(supi)` at the beginning of every handler that accepts a SUPI, returning a `400 Bad Request` (ProblemDetails) if the validation fails, mirroring the logic found in `HandleGetAmData`.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

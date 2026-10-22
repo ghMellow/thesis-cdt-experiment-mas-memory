@@ -8,15 +8,21 @@
 | score computed (official CVSS 4.0 math) | 5.3 |
 | group (shared with matched table) | a |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleGetTraceData` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleGetTraceData` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+2. **Affected Handlers:** 
+   - `HandleGetSmfSelectData`, `HandleGetNssai`, `HandleGetSmData`, **`HandleGetTraceData`**, `HandleGetUeContextInSmfData`, and `HandleGetSupi` **fail** to validate the `supi` parameter before passing it to the processor.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDM implementation suffers from inconsistent input validation where most handlers (`HandleGetSmfSelectData`, `HandleGetNssai`, `HandleGetSmData`, **`HandleGetTraceData`**, `HandleGetUeContextInSmfData`, `HandleGetSupi`) fail to validate the `supi` parameter. This exposes the core network to potential NoSQL injection or DoS attacks if a trusted NF is compromised.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 The code exhibits a critical inconsistency in input validation for the `supi` parameter across multiple SBI handlers. In a 5G Core, the SUPI (Subscription Permanent Identifier) is a sensitive identifier used as a primary key for subscriber data.
 
@@ -29,6 +35,8 @@ The code exhibits a critical inconsistency in input validation for the `supi` pa
    - **Resource Exhaustion/DoS:** Processing unexpectedly long or malformed strings can cause excessive memory allocation or database timeouts.
    - **Logic Errors:** Bypassing expected format checks may lead to unexpected behavior in the data retrieval logic.
 4. **Proposed Fix:** Implement a consistent validation check at the start of every handler that accepts a `supi` or `ueId`. A helper function should be used to ensure that `validator.IsValidSupi(supi)` is called before any business logic is executed.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

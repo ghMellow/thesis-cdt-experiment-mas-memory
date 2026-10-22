@@ -8,15 +8,21 @@
 | score computed (official CVSS 4.0 math) | 8.2 |
 | group (shared with matched table) | ≠ |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleCreateSmfContextNon3gpp` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleCreateSmfContextNon3gpp` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+3. **Logic Error (Failure to Halt on Parsing Error):**
+   - **Location:** **`HandleCreateSmfContextNon3gpp`**.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDR implementation contains critical logic errors where structs are passed by value during deserialization, resulting in the persistence of empty data. It also features a regex validation bypass for `ueId` and fails to halt execution when critical parameters (PDU Session ID, S-NSSAI) fail to parse, risking data corruption and inconsistent state.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Logic Error (Pass-by-Value in Deserialization):**
    - **Location:** `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`.
@@ -41,6 +47,8 @@ The UDR implementation contains critical logic errors where structs are passed b
    - **Pattern:** `json.Unmarshal([]byte(sNssaiQuery), &sNssai)` is called, and errors are only logged as warnings.
    - **Impact:** If the query parameter is malformed, the `sNssai` object remains empty. The `Processor` then queries the database with an empty S-NSSAI, which may return incorrect data or fail silently, leading to inconsistent session management.
    - **Fix:** Return a `http.StatusBadRequest` if `json.Unmarshal` fails.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

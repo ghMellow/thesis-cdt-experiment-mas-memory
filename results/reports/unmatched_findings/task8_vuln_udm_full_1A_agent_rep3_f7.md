@@ -8,21 +8,28 @@
 | score computed (official CVSS 4.0 math) | 5.3 |
 | group (shared with matched table) | d |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleSubscribe` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleSubscribe` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+3. **Information Exposure via Error Messages**: In `HandleSubscribeToSharedData`, **`HandleSubscribe`**, `HandleModify`, and `HandleModifyForSharedData`, the code returns `err.Error()` directly in the `ProblemDetails` response. This leaks internal system details (e.g., deserialization errors, Go package names) to the calling NF.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The code exhibits systemic missing input validation for SUPI and UEID identifiers across multiple handlers, a logic error in `HandleGetTraceData` regarding PLMN-ID parsing, and information leakage via raw error messages in subscription handlers. Additionally, it uses an unsafe pattern of unmarshaling JSON directly from URL query parameters.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Missing Input Validation (SUPI/UEID)**: Several handlers extract `supi` or `ueId` from the path and pass them directly to the processor without validation. Specifically, `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, `HandleGetNssai`, and `HandleGetSmData` do not call `validator.IsValidSupi()`. In a 5G core, while NFs are authenticated via mTLS, a compromised NF could send malformed identifiers to cause unexpected behavior or crashes in the downstream data processing layer.
 2. **Logic Error in PLMN-ID Parsing**: In `HandleGetTraceData`, the code uses `plmnID := c.Query("plmn-id")`. In other handlers (e.g., `HandleGetAmData`), `plmn-id` is expected to be a JSON object parsed via `getPlmnIDStruct` to extract MCC and MNC. By taking the raw query string, the processor receives the raw JSON string (e.g., `{"mcc":"001","mnc":"01"}`) instead of the concatenated identifier, leading to failed lookups.
 3. **Information Exposure via Error Messages**: In `HandleSubscribeToSharedData`, **`HandleSubscribe`**, `HandleModify`, and `HandleModifyForSharedData`, the code returns `err.Error()` directly in the `ProblemDetails` response. This leaks internal system details (e.g., deserialization errors, Go package names) to the calling NF.
 4. **Unsafe JSON Unmarshaling from Query String**: The `getPlmnIDStruct` function performs `json.Unmarshal` on a value directly from a URL query parameter. While the request size is limited, this pattern is fragile and can be abused to trigger resource consumption or panics if the target struct is complex or the input is maliciously crafted.
 5. **Missing Validation for Subscription IDs**: In `HandleUnsubscribeForSharedData`, `HandleUnsubscribe`, and `HandleModify`, the `subscriptionId` is taken from the path and passed to the processor without any validation or sanitization.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

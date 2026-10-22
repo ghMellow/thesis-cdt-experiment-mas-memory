@@ -8,15 +8,21 @@
 | score computed (official CVSS 4.0 math) | 5.3 |
 | group (shared with matched table) | e |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleQueryeesubscriptions` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleQueryeesubscriptions` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+2. **Ineffective Input Validation (Regex Bypass):**
+   - **Location:** `HandleCreateEeSubscriptions` and **`HandleQueryeesubscriptions`**.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The code contains critical control flow errors in the `subs-to-notify` handlers where missing `return` statements allow backend operations to execute despite a 404 response. Additionally, the `ueId` validation regex is bypassed by a catch-all pattern, allowing arbitrary input to reach the database.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Improper Control Flow (Missing Return Statements):**
    - **Location:** `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete`, `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdGet`, and `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdPut`.
@@ -29,6 +35,8 @@ The code contains critical control flow errors in the `subs-to-notify` handlers 
    - **Analysis:** The regex used for `ueId` validation is `^(imsi-[0-9]{5,15}|nai-.+|msisdn-[0-9]{5,15}|extid-[^@]+@[^@]+|gci-.+|gli-.+|.+)$`. The final alternative ` hypertext |.+` is a "catch-all" that matches any string of one or more characters.
    - **Impact:** This renders the entire regex useless. Any string provided as `ueId` will be accepted. While the 5G core typically uses mTLS/OAuth2, this allows a compromised or malicious NF to send arbitrary strings (including potential NoSQL injection payloads or malformed identifiers) directly to the MongoDB persistence layer.
    - **Fix:** Remove the ` hypertext |.+` alternative from the regular expression to enforce the 3GPP specified formats.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

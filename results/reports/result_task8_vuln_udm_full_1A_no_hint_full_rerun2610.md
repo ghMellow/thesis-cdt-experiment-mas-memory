@@ -1,13 +1,18 @@
 # 1A_no_hint_full_rerun2610 — task8_vuln_udm_full
 
-> **Run(s) in this report:**
-> - `agent`: 20261016T123849Z
+> **Run(s) in this report** — a run is one `main.py` launch (`run_id`); each run adds the repetitions still missing towards the target.
+> Expected repetitions per task and role: **10** (`config.REPETITIONS`, fixed for every task so per-task metrics are comparable).
+>
+> - `agent`: 10 repetition(s) from 2 run(s)
+>   - `20261016T123849Z` — reps 1–3 — 2026-10-16
+>   - `20261022T111459Z` — reps 4–10 — 2026-10-22
 
 <a id="toc"></a>
 **Contents**
 
 - [Vector detail (estimated vs. published)](#vector-detail)
 - [Unmatched findings](#unmatched-findings)
+- [Distinct findings](#distinct-findings)
 - [Metrics across repetitions](#metrics-across-reps)
   - [Detection (M1, M2, M3 — final answer vs first attempt)](#detection-metrics)
   - [CVE × repetition](#cve-rep-matrix)
@@ -78,45 +83,239 @@ _`group` letter (when present) = this CVE recurs — same letter on other matche
 | base score — declared / from vector (official math) | 5.3 / **5.3** | 7.7 |
 | [reasoning detail](matched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_CVE-2026-42459.md) | | |
 
+| **CVE-2026-42459** — agent, rep 4 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **L** | **H** |
+| VI — Integrity Impact to the Vulnerable System | **L** | **N** |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.1 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep4_CVE-2026-42459.md) | | |
+
+| **CVE-2026-42459** — agent, rep 5 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **N** | **H** |
+| VI — Integrity Impact to the Vulnerable System | **L** | **N** |
+| VA — Availability Impact to the Vulnerable System | **L** | **N** |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 4.3 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep5_CVE-2026-42459.md) | | |
+
+| **CVE-2026-42459** — agent, rep 6 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **L** | **H** |
+| VI — Integrity Impact to the Vulnerable System | N | N |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.3 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep6_CVE-2026-42459.md) | | |
+
+| **CVE-2026-42459** — agent, rep 7 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **L** | **H** |
+| VI — Integrity Impact to the Vulnerable System | **L** | **N** |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.3 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep7_CVE-2026-42459.md) | | |
+
+| **CVE-2026-42459** — agent, rep 8 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **L** | **H** |
+| VI — Integrity Impact to the Vulnerable System | **L** | **N** |
+| VA — Availability Impact to the Vulnerable System | **L** | **N** |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.1 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep8_CVE-2026-42459.md) | | |
+
+| **CVE-2026-42459** — agent, rep 9 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **L** | **H** |
+| VI — Integrity Impact to the Vulnerable System | **L** | **N** |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.3 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep9_CVE-2026-42459.md) | | |
+
+| **CVE-2026-42459** — agent, rep 10 — group a | estimated | published |
+|---|---|---|
+| AV — Attack Vector | N | N |
+| AC — Attack Complexity | L | L |
+| AT — Attack Requirements | N | N |
+| PR — Privileges Required | **L** | **N** |
+| UI — User Interaction | N | N |
+| VC — Confidentiality Impact to the Vulnerable System | **L** | **H** |
+| VI — Integrity Impact to the Vulnerable System | N | N |
+| VA — Availability Impact to the Vulnerable System | N | N |
+| SC — Confidentiality Impact to the Subsequent System | N | N |
+| SI — Integrity Impact to the Subsequent System | N | N |
+| SA — Availability Impact to the Subsequent System | N | N |
+| base score — declared / from vector (official math) | 5.3 / **5.3** | 7.7 |
+| [reasoning detail](matched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep10_CVE-2026-42459.md) | | |
+
 <a id="unmatched-findings"></a>
 ### Unmatched findings — no GT CVE, ranked by recomputed score (triage order)
 
 | # | group | details | score (from vector) | declared | function | task | role | rep | vector |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f1.md) | 7.1 | 5.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
-| 2 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f1.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 3 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f2.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 4 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f3.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 5 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f4.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 6 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f5.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 7 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f6.md) | 5.3 | 5.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
-| 8 | b | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f7.md) | 5.3 | 5.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 9 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f8.md) | 5.3 | 5.3 | `HandleSubscribeToSharedData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 10 | d | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f9.md) | 5.3 | 5.3 | `HandleSubscribe` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 11 | e | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f10.md) | 5.3 | 5.3 | `HandleModify` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 12 | f | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f11.md) | 5.3 | 5.3 | `HandleModifyForSharedData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 13 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f2.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 14 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f3.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 15 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f4.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 16 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f5.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 17 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f6.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 18 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f7.md) | 5.3 | 5.3 | `HandleSubscribeToSharedData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 19 | d | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f8.md) | 5.3 | 5.3 | `HandleSubscribe` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 20 | e | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f9.md) | 5.3 | 5.3 | `HandleModify` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 21 | f | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f10.md) | 5.3 | 5.3 | `HandleModifyForSharedData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 22 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f11.md) | 5.3 | 5.3 | `OneLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
-| 23 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f1.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 24 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f2.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 25 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f3.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 26 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f4.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 27 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f5.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 28 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f6.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
-| 29 | b | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f7.md) | 5.3 | 5.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 30 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f8.md) | 5.3 | 5.3 | `HandleSubscribeToSharedData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 31 | d | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f9.md) | 5.3 | 5.3 | `HandleSubscribe` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 32 | e | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f10.md) | 5.3 | 5.3 | `HandleModify` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 33 | f | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f11.md) | 5.3 | 5.3 | `HandleModifyForSharedData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
-| 34 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f12.md) | 5.3 | 5.3 | `OneLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 1 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep6_f1.md) | 8.7 | 8.7 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N` |
+| 2 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep6_f2.md) | 8.7 | 8.7 | `ThreeLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N` |
+| 3 | b | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f1.md) | 7.1 | 5.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| 4 | b | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep6_f3.md) | 7.1 | 6.5 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| 5 | b | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep7_f1.md) | 7.1 | 5.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N` |
+| 6 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f1.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 7 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f2.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 8 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f3.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 9 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f4.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 10 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f5.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 11 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f6.md) | 5.3 | 5.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 12 | d | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f7.md) | 5.3 | 5.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 13 | e | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f8.md) | 5.3 | 5.3 | `HandleSubscribeToSharedData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 14 | f | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f9.md) | 5.3 | 5.3 | `HandleSubscribe` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 15 | g | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f10.md) | 5.3 | 5.3 | `HandleModify` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 16 | h | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep1_f11.md) | 5.3 | 5.3 | `HandleModifyForSharedData` | task8_vuln_udm_full | agent | 1 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 17 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f2.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 18 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f3.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 19 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f4.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 20 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f5.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 21 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f6.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 22 | e | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f7.md) | 5.3 | 5.3 | `HandleSubscribeToSharedData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 23 | f | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f8.md) | 5.3 | 5.3 | `HandleSubscribe` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 24 | g | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f9.md) | 5.3 | 5.3 | `HandleModify` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 25 | h | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f10.md) | 5.3 | 5.3 | `HandleModifyForSharedData` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 26 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep2_f11.md) | 5.3 | 5.3 | `OneLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 2 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 27 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f1.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 28 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f2.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 29 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f3.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 30 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f4.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 31 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f5.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 32 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f6.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 33 | d | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f7.md) | 5.3 | 5.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 34 | e | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f8.md) | 5.3 | 5.3 | `HandleSubscribeToSharedData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 35 | f | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f9.md) | 5.3 | 5.3 | `HandleSubscribe` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 36 | g | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f10.md) | 5.3 | 5.3 | `HandleModify` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 37 | h | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f11.md) | 5.3 | 5.3 | `HandleModifyForSharedData` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 38 | i | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep3_f12.md) | 5.3 | 5.3 | `OneLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 3 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 39 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep4_f1.md) | 5.3 | 5.1 | `HandleGetSupi` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 40 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep4_f2.md) | 5.3 | 5.1 | `HandleGetNssai` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 41 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep4_f3.md) | 5.3 | 5.1 | `HandleGetSmData` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 42 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep4_f4.md) | 5.3 | 5.1 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 43 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep4_f5.md) | 5.3 | 5.1 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 44 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep4_f6.md) | 5.3 | 5.1 | `HandleSubscribe` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 45 | e | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep4_f7.md) | 5.3 | 3.1 | `HandleSubscribeToSharedData` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 46 | f | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep4_f8.md) | 5.3 | 3.1 | `HandleSubscribe` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 47 | g | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep4_f9.md) | 5.3 | 3.1 | `HandleModify` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 48 | h | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep4_f10.md) | 5.3 | 3.1 | `HandleModifyForSharedData` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 49 | i | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep4_f11.md) | 5.3 | 6.5 | `OneLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 50 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep4_f12.md) | 5.3 | 6.5 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 51 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep4_f13.md) | 5.3 | 3.1 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 4 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 52 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep5_f1.md) | 5.3 | 4.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 53 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep5_f2.md) | 5.3 | 4.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 54 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep5_f3.md) | 5.3 | 4.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 55 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep5_f4.md) | 5.3 | 4.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 56 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep5_f5.md) | 5.3 | 4.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 57 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep5_f6.md) | 5.3 | 4.3 | `HandleSubscribe` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 58 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep5_f7.md) | 5.3 | 4.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 59 | e | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep5_f8.md) | 5.3 | 4.3 | `HandleSubscribeToSharedData` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 60 | f | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep5_f9.md) | 5.3 | 4.3 | `HandleSubscribe` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 61 | g | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep5_f10.md) | 5.3 | 4.3 | `HandleModify` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 62 | h | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep5_f11.md) | 5.3 | 4.3 | `HandleModifyForSharedData` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 63 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep5_f12.md) | 5.3 | 4.3 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 5 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 64 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep6_f4.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 65 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep6_f5.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 66 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep6_f6.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 67 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep6_f7.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 68 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep6_f8.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 69 | e | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep6_f9.md) | 5.3 | 5.3 | `HandleSubscribeToSharedData` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 70 | f | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep6_f10.md) | 5.3 | 5.3 | `HandleSubscribe` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 71 | g | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep6_f11.md) | 5.3 | 5.3 | `HandleModify` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 72 | h | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep6_f12.md) | 5.3 | 5.3 | `HandleModifyForSharedData` | task8_vuln_udm_full | agent | 6 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 73 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep7_f2.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 74 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep7_f3.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 75 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep7_f4.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 76 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep7_f5.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 77 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep7_f6.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 78 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep7_f7.md) | 5.3 | 5.3 | `HandleModifyForSharedData` | task8_vuln_udm_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 79 | ≠ | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep7_f8.md) | 5.3 | 5.3 | `OneLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 80 | f | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep7_f9.md) | 5.3 | 3.3 | `HandleSubscribe` | task8_vuln_udm_full | agent | 7 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 81 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep8_f1.md) | 5.3 | 5.1 | `HandleGetSupi` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 82 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep8_f2.md) | 5.3 | 5.1 | `HandleGetNssai` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 83 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep8_f3.md) | 5.3 | 5.1 | `HandleGetSmData` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 84 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep8_f4.md) | 5.3 | 5.1 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 85 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep8_f5.md) | 5.3 | 5.1 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 86 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep8_f6.md) | 5.3 | 3.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 87 | d | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep8_f7.md) | 5.3 | 3.1 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 88 | e | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep8_f8.md) | 5.3 | 3.1 | `HandleSubscribeToSharedData` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 89 | f | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep8_f9.md) | 5.3 | 3.1 | `HandleSubscribe` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 90 | g | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep8_f10.md) | 5.3 | 3.1 | `HandleModify` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 91 | h | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep8_f11.md) | 5.3 | 3.1 | `HandleModifyForSharedData` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 92 | j | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep8_f12.md) | 5.3 | 3.3 | `OneLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 93 | k | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep8_f13.md) | 5.3 | 3.3 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 94 | l | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep8_f14.md) | 5.3 | 3.3 | `ThreeLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 8 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 95 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep9_f1.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 9 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 96 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep9_f2.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 9 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 97 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep9_f3.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 9 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 98 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep9_f4.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 9 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 99 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep9_f5.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 9 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N` |
+| 100 | f | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep9_f6.md) | 5.3 | 3.3 | `HandleSubscribe` | task8_vuln_udm_full | agent | 9 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 101 | g | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep9_f7.md) | 5.3 | 3.3 | `HandleModify` | task8_vuln_udm_full | agent | 9 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 102 | i | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep9_f8.md) | 5.3 | 5.3 | `OneLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 9 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N` |
+| 103 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep9_f9.md) | 5.3 | 3.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 9 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 104 | k | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep9_f10.md) | 5.3 | 3.3 | `TwoLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 9 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 105 | l | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep9_f11.md) | 5.3 | 3.3 | `ThreeLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 9 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 106 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep10_f1.md) | 5.3 | 5.3 | `HandleGetSupi` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 107 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep10_f2.md) | 5.3 | 5.3 | `HandleGetTraceData` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 108 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep10_f3.md) | 5.3 | 5.3 | `HandleGetUeContextInSmfData` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 109 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep10_f4.md) | 5.3 | 5.3 | `HandleGetNssai` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 110 | a | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep10_f5.md) | 5.3 | 5.3 | `HandleGetSmData` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 111 | c | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep10_f6.md) | 5.3 | 5.3 | `getPlmnIDStruct` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
+| 112 | e | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep10_f7.md) | 5.3 | 5.3 | `HandleSubscribeToSharedData` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 113 | f | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep10_f8.md) | 5.3 | 5.3 | `HandleSubscribe` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 114 | g | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep10_f9.md) | 5.3 | 5.3 | `HandleModify` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 115 | h | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep10_f10.md) | 5.3 | 5.3 | `HandleModifyForSharedData` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
+| 116 | j | [detail](unmatched_findings/task8_vuln_udm_full_1A_no_hint_full_rerun2610_agent_rep10_f11.md) | 5.3 | 5.3 | `OneLayerPathHandlerFunc` | task8_vuln_udm_full | agent | 10 | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N` |
 
 **Legend**
 
@@ -130,6 +329,49 @@ _`group` letter (when present) = this CVE recurs — same letter on other matche
 - `vector` = the full CVSS 4.0 vector string the agent estimated.
 - `details` = link to a self-contained file with this finding's structured data plus the agent's full narrative for that repetition (function name bolded for quick scanning) — everything needed to review it without opening the raw JSON.
 
+<a id="distinct-findings"></a>
+### Distinct findings (matched per CVE, unmatched per function)
+
+**126 finding rows → 9 distinct findings** (1 matched CVE(s), 8 unmatched). Of the 116 unmatched rows, 53 sit on the handler of an already-matched CVE (probable duplicates of it).
+
+#### Per repetition
+
+| role | rep | run_id | finding rows | distinct | collapsed |
+| --- | --- | --- | --- | --- | --- |
+| agent | 1 | `20261016T123849Z` | 12 | 6 | 6 |
+| agent | 2 | `20261016T123849Z` | 12 | 7 | 5 |
+| agent | 3 | `20261016T123849Z` | 13 | 7 | 6 |
+| agent | 4 | `20261022T111459Z` | 14 | 7 | 7 |
+| agent | 5 | `20261022T111459Z` | 13 | 7 | 6 |
+| agent | 6 | `20261022T111459Z` | 13 | 8 | 5 |
+| agent | 7 | `20261022T111459Z` | 10 | 5 | 5 |
+| agent | 8 | `20261022T111459Z` | 15 | 9 | 6 |
+| agent | 9 | `20261022T111459Z` | 12 | 7 | 5 |
+| agent | 10 | `20261022T111459Z` | 12 | 7 | 5 |
+
+#### Whole report
+
+| # | group | role | CVE | function(s) | reps | rows | max score (from vector) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | a | agent | CVE-2026-42459 | `HandleGetNssai`, `HandleGetSmData`, `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetTraceData`, `HandleGetUeContextInSmfData` | 1–10 | 63 | 5.3 |
+| 2 | k, ≠ | agent | unmatched | `TwoLayerPathHandlerFunc` | 4–6, 8–9 | 5 | 8.7 |
+| 3 | l, ≠ | agent | unmatched | `ThreeLayerPathHandlerFunc` | 6, 8–9 | 3 | 8.7 |
+| 4 | b, c, d | agent | unmatched | `getPlmnIDStruct` | 1–3, 5–10 | 10 | 7.1 |
+| 5 | e | agent | unmatched | `HandleSubscribeToSharedData` | 1–6, 8, 10 | 8 | 5.3 |
+| 6 | f, ≠ | agent | unmatched | `HandleSubscribe` | 1–10 | 12 | 5.3 |
+| 7 | g | agent | unmatched | `HandleModify` | 1–6, 8–10 | 9 | 5.3 |
+| 8 | h, ≠ | agent | unmatched | `HandleModifyForSharedData` | 1–8, 10 | 9 | 5.3 |
+| 9 | i, j, ≠ | agent | unmatched | `OneLayerPathHandlerFunc` | 2–4, 7–10 | 7 | 5.3 |
+
+**Legend**
+
+- A matched CVE is one finding however many repetitions found it, whatever vectors the agent estimated.
+- An unmatched row joins a matched CVE when it carries that CVE's `group` letter, i.e. it sits on one of the CVE's handler functions — a *probable* duplicate (a handler can host two distinct bugs), to confirm in triage.
+- Every other unmatched row collapses by **function** (same task and role, name normalized: case and trailing `(NF)` annotations ignored), whatever the vector: the same location rule used for CVEs, so one bug re-estimated with different vectors across repetitions counts once. `group` lists the letters/markers of the unmatched table that were merged into the row.
+- What this rule cannot see: two different bugs in the same function are counted as one (lower bound), and one bug reported on two different functions (e.g. the same flawed check in two handlers) as two (upper bound). Matched CVEs are exact (one per CVE).
+- Per repetition: `collapsed` = rows of that repetition that repeat a finding already counted in the same repetition.
+- Whole report: `reps` = repetitions where the finding appears; `rows` = how many rows (matched + unmatched) it collapses.
+
 <a id="metrics-across-reps"></a>
 ### Metrics across repetitions
 
@@ -140,8 +382,8 @@ _Every table in this section aggregates over all repetitions of the task (one ro
 
 | role | answer | reps | detection rate | avg coverage | TP | FP | FN | precision | recall | F1 | alerts/TP |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | final answer | 3 | 100.0% | 100.0% | 3 | 34 | 0 | 8.1% | 100.0% | 15.0% | 12.3 |
-| agent | first attempt | 3 | 100.0% | 100.0% | 3 | 29 | 0 | 9.4% | 100.0% | 17.1% | 10.7 |
+| agent | final answer | 10 | 100.0% | 100.0% | 10 | 116 | 0 | 7.9% | 100.0% | 14.7% | 12.6 |
+| agent | first attempt | 10 | 100.0% | 100.0% | 10 | 89 | 0 | 10.1% | 100.0% | 18.3% | 9.9 |
 
 **Legend**
 
@@ -161,7 +403,7 @@ _Every table in this section aggregates over all repetitions of the task (one ro
 
 | role | P@1 | P@3 | P@5 |
 | --- | --- | --- | --- |
-| agent | 66.7% (3/3 reps) | 33.3% (3/3 reps) | 20.0% (3/3 reps) |
+| agent | 70.0% (10/10 reps) | 30.0% (10/10 reps) | 20.0% (10/10 reps) |
 
 **Legend**
 
@@ -175,7 +417,7 @@ _Every table in this section aggregates over all repetitions of the task (one ro
 
 | role | task | n reps | TP mean ± std | FP mean ± std |
 | --- | --- | --- | --- | --- |
-| agent | task8_vuln_udm_full | 3 | 1.00 ± 0.00 (CI95 ±0.00) | 11.33 ± 0.58 (CI95 ±1.43) |
+| agent | task8_vuln_udm_full | 10 | 1.00 ± 0.00 (CI95 ±0.00) | 11.60 ± 1.35 (CI95 ±0.97) |
 
 **Legend**
 
@@ -188,17 +430,17 @@ _Every table in this section aggregates over all repetitions of the task (one ro
 
 _✓ = CVE matched in that repetition, ✗ = missed. `unmatched (FP)` = findings with no GT CVE in that repetition — the per-rep noise. A CVE row that is all ✗ is a systematic miss (never found), one with mixed ✓/✗ is a sampling instability._
 
-| task8_vuln_udm_full — agent | rep 1 | rep 2 | rep 3 | hit rate |
-| --- | --- | --- | --- | --- |
-| CVE-2026-42459 | ✓ | ✓ | ✓ | 3/3 |
-| unmatched (FP) | 11 | 11 | 12 | 34 tot |
+| task8_vuln_udm_full — agent | rep 1 | rep 2 | rep 3 | rep 4 | rep 5 | rep 6 | rep 7 | rep 8 | rep 9 | rep 10 | hit rate |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| CVE-2026-42459 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 10/10 |
+| unmatched (FP) | 11 | 11 | 12 | 13 | 12 | 12 | 9 | 14 | 11 | 11 | 116 tot |
 
 <a id="retry-channel"></a>
 #### Detection delta by retry channel (doc 07, variation 1)
 
 | role | retry cause | transitions | ΔTP | ΔFP |
 | --- | --- | --- | --- | --- |
-| agent | rubric | 3 | +0 | +5 |
+| agent | rubric | 11 | +0 | +27 |
 
 **Legend**
 
@@ -211,7 +453,7 @@ _✓ = CVE matched in that repetition, ✗ = missed. `unmatched (FP)` = findings
 
 | role | SGV status (final answer) | TP | FP | precision |
 | --- | --- | --- | --- | --- |
-| agent | conform | 3 | 34 | 8.1% |
+| agent | conform | 10 | 116 | 7.9% |
 
 **Legend**
 
@@ -224,23 +466,23 @@ _✓ = CVE matched in that repetition, ✗ = missed. `unmatched (FP)` = findings
 
 | role | n (TP) | S1 exact match | S3 baseline exact match |
 | --- | --- | --- | --- |
-| agent | 3 | 0.0% | 100.0% |
+| agent | 10 | 0.0% | 100.0% |
 
 ##### S2 — per-metric accuracy (agent vs. baseline), ordinal distance
 
 | role | metric | n | accuracy | baseline accuracy | avg ordinal distance |
 | --- | --- | --- | --- | --- | --- |
-| agent | AV | 3 | 100.0% | 100.0% | 0.00 |
-| agent | AC | 3 | 100.0% | 100.0% | 0.00 |
-| agent | AT | 3 | 100.0% | 100.0% | 0.00 |
-| agent | PR | 3 | 0.0% | 100.0% | 0.50 |
-| agent | UI | 3 | 100.0% | 100.0% | 0.00 |
-| agent | VC | 3 | 0.0% | 100.0% | 0.50 |
-| agent | VI | 3 | 100.0% | 100.0% | 0.00 |
-| agent | VA | 3 | 100.0% | 100.0% | 0.00 |
-| agent | SC | 3 | 100.0% | 100.0% | 0.00 |
-| agent | SI | 3 | 100.0% | 100.0% | 0.00 |
-| agent | SA | 3 | 100.0% | 100.0% | 0.00 |
+| agent | AV | 10 | 100.0% | 100.0% | 0.00 |
+| agent | AC | 10 | 100.0% | 100.0% | 0.00 |
+| agent | AT | 10 | 100.0% | 100.0% | 0.00 |
+| agent | PR | 10 | 0.0% | 100.0% | 0.50 |
+| agent | UI | 10 | 100.0% | 100.0% | 0.00 |
+| agent | VC | 10 | 0.0% | 100.0% | 0.55 |
+| agent | VI | 10 | 50.0% | 100.0% | 0.25 |
+| agent | VA | 10 | 80.0% | 100.0% | 0.10 |
+| agent | SC | 10 | 100.0% | 100.0% | 0.00 |
+| agent | SI | 10 | 100.0% | 100.0% | 0.00 |
+| agent | SA | 10 | 100.0% | 100.0% | 0.00 |
 
 **Legend**
 
@@ -262,7 +504,7 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 
 | role | estimates | matched | missed CVEs | unmatched findings | avg band vs published (0-3) | avg band vs B (0-3) | avg exploitability (0-5) | avg impact (0-3) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | 3/3 | 3 | 0 | 34 | 1.00 | 0.00 | 4.00 | 2.00 |
+| agent | 10/10 | 10 | 0 | 116 | 0.90 | 0.00 | 4.00 | 1.30 |
 
 **Legend**
 
@@ -278,7 +520,7 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 
 | role | avg coherence Δ (score↔vector) | avg computed Δ vs B | avg band computed vs B (0-3) | avg expl. distance (0-1) | avg impact distance (0-1) | avg subseq. distance (0-1) | avg Hamming (0-8) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| agent | 0.00 | 3.40 | 0.00 | 0.10 | 0.17 | 0.00 | 2.00 |
+| agent | 0.14 | 3.40 | 0.00 | 0.10 | 0.30 | 0.00 | 2.70 |
 
 **Legend**
 
@@ -311,12 +553,12 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 
 | metric | value |
 | --- | --- |
-| total results | 3 |
-| correct | 2 (66.7%) |
+| total results | 10 |
+| correct | 9 (90.0%) |
 | wrong | 1 |
-| retried (attempts > 1) | 2 |
-| truly inconsistent tasks | 1 |
-| surface-only differences (semantically equiv.) | 0 |
+| retried (attempts > 1) | 9 |
+| truly inconsistent tasks | 0 |
+| surface-only differences (semantically equiv.) | 1 |
 
 **Legend**
 
@@ -328,7 +570,7 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 
 | role | accuracy | avg_confidence | brier_score | avg_attempts | avg_textual_norm |
 | --- | --- | --- | --- | --- | --- |
-| agent | 66.7% | 0.900 | 0.2767 | 2.00 | 0.741 |
+| agent | 90.0% | 0.900 | 0.0900 | 2.10 | 0.778 |
 
 **Legend**
 
@@ -346,7 +588,7 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 
 | role | n | avg elapsed (s) | avg agent tokens in | avg agent tokens out | avg judge tokens in | avg judge tokens out |
 | --- | --- | --- | --- | --- | --- | --- |
-| agent | 3 | 18.8 | n/a | n/a | n/a | n/a |
+| agent | 10 | 16.1 | n/a | n/a | n/a | n/a |
 
 **Legend**
 
@@ -371,12 +613,19 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 - `confidence` = agent self-reported confidence on the final answer.
 - `score/delta` = normalized rubric score (textual) or |answer − ground_truth| (math).
 
-#### Retries triggered (2)
+#### Retries triggered (9)
 
 | role | task_id | rep | attempts | final_verdict |
 | --- | --- | --- | --- | --- |
 | agent | task8_vuln_udm_full | 2 | 2 | correct |
 | agent | task8_vuln_udm_full | 3 | 3 | wrong |
+| agent | task8_vuln_udm_full | 4 | 2 | correct |
+| agent | task8_vuln_udm_full | 5 | 2 | correct |
+| agent | task8_vuln_udm_full | 6 | 2 | correct |
+| agent | task8_vuln_udm_full | 7 | 2 | correct |
+| agent | task8_vuln_udm_full | 8 | 3 | correct |
+| agent | task8_vuln_udm_full | 9 | 2 | correct |
+| agent | task8_vuln_udm_full | 10 | 2 | correct |
 
 **Legend**
 
@@ -384,69 +633,4 @@ _Diagnostic roll-up kept for comparability with runs 1–3, useful for a global 
 - `rep` = repetition index (1-based).
 - `attempts` = LLM calls within that repetition (2 means wrong on attempt 1, correct on attempt 2).
 - `final_verdict` = outcome after all attempts.
-
-#### Truly inconsistent reasoning (1)
-
-**agent — task8_vuln_udm_full**
-> The reasonings differ significantly on the fourth vulnerability: the first identifies a parameter mapping issue in 'ThreeLayerPathHandlerFunc', the second identifies a 'strings.Contains' logic error in 'OneLayerPathHandlerFunc', and the third identifies a substring matching error in 'OneLayerPathHandlerFunc' with different impact details.
-
-**rep 1:**
-
-1. **Improper Input Validation (Missing SUPI Validation):**
-   - **Location:** `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`.
-   - **Pattern:** These handlers extract the `supi` parameter using `c.Params.ByName("supi")` but fail to call `validator.IsValidSupi(supi)` before passing it to the processor. In contrast, `HandleGetAmData` correctly performs this check.
-   - **Impact:** While the SBI is protected by mTLS/OAuth2, allowing malformed SUPIs into the internal processor can lead to unexpected behavior, database query errors, or potential injection if the processor does not sanitize inputs.
-   - **Fix:** Add `if !validator.IsValidSupi(supi) { ... return }` blocks to all handlers receiving a SUPI.
-
-2. **Unsafe JSON Unmarshaling (Potential DoS/Resource Exhaustion):**
-   - **Location:** `getPlmnIDStruct`.
-   - **Pattern:** The function takes a string directly from a URL query parameter (`values[0]`) and passes it to `json.Unmarshal([]byte(plmnIDJson), plmnIDStruct)`.
-   - **Impact:** Since the input comes from a query string, an attacker (or a compromised NF) could send an extremely large or deeply nested JSON string. While Gin has some limits, unmarshaling arbitrary user-provided JSON into a struct without size constraints can lead to high CPU/Memory usage (DoS).
-   - **Fix:** Validate the length of `plmnIDJson` before unmarshaling and use a decoder with a limit.
-
-3. **Information Exposure via Error Messages:**
-   - **Location:** `getPlmnIDStruct`, `HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, `HandleModifyForSharedData`.
-   - **Pattern:** The code returns `err.Error()` directly to the client in the `ProblemDetails` response (e.g., `Reason: err.Error()` or `Detail: err.Error()`).
-   - **Impact:** This leaks internal implementation details, such as Go package names, struct fields, or parsing logic, which aids an attacker in fingerprinting the system.
-   - **Fix:** Use generic error messages for the client and log the detailed error internally.
-
-4. **Logic Error / Parameter Mismanagement (Incorrect Param Mapping):**
-   - **Location:** `ThreeLayerPathHandlerFunc`.
-   - **Pattern:** In the `sdm-subscriptions` logic, the code maps `c.Param("supi")` to `ueId` and `c.Param("thirdLayer")` to `subscriptionId`.
-   - **Impact:** This is a fragile routing implementation. If the URL structure changes or if the `supi` parameter contains unexpected characters, the mapping to `ueId` might be incorrect, leading to unauthorized modification or deletion of subscriptions if the processor relies on these specific keys.
-   - **Fix:** Use a structured routing framework or a more robust mapping mechanism that doesn't rely on manual `gin.Params` slice manipulation.
-
-**rep 2:**
-
-1. **Missing Input Validation (SUPI/UE ID)**: 
-   - **Location**: `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, `HandleGetNssai`, `HandleGetSmData`.
-   - **Pattern**: These functions extract `supi := c.Params.ByName("supi")` but fail to call `validator.IsValidSupi(supi)` before passing the value to the `Processor`.
-   - **Impact**: While mTLS/OAuth2 protects the interface, allowing unvalidated identifiers into the core logic can lead to unexpected behavior in the database layer or downstream processors, potentially causing crashes or logic bypasses.
-   - **Fix**: Implement `if !validator.IsValidSupi(supi) { ... return }` at the start of each handler.
-
-2. **Unsafe JSON Unmarshaling of Query Parameters**:
-   - **Location**: `getPlmnIDStruct`.
-   - **Pattern**: The code takes a raw string from the URL query parameter `plmn-id` and passes it directly to `json.Unmarshal([]byte(plmnIDJson), plmnIDStruct)`.
-   - **Impact**: This allows an attacker (via a compromised NF) to send maliciously crafted JSON payloads. Since `json.Unmarshal` can be resource-intensive with deeply nested structures or very large strings, this can lead to CPU/Memory exhaustion (DoS).
-   - **Fix**: Validate the length of the input string before unmarshaling and use a decoder with a limit.
-
-3. **Information Leakage via Error Responses**:
-   - **Location**: `HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, `HandleModifyForSharedData`.
-   - **Pattern**: The code returns `err.Error()` directly to the client in the `ProblemDetails.Detail` field (e.g., `Detail: err.Error()`).
-   - **Impact**: Raw error messages from `c.GetRawData()` or `openapi.Deserialize` can leak internal implementation details, library versions, or system paths, aiding an attacker in further exploitation.
-   - **Fix**: Use generic error messages for the client and log the detailed error internally.
-
-4. **Flawed Route Matching Logic**:
-   - **Location**: `OneLayerPathHandlerFunc`.
-   - **Pattern**: The check `strings.Contains(route.Pattern, supi)` is used to match a route. `route.Pattern` is a template (e.g., `/:supi`), while `supi` is the actual value from the request.
-   - **Impact**: This logic is fundamentally broken. If `supi` is "123", it will not be "contained" in `/:supi`. Conversely, if a user provides a `supi` that matches a keyword in another route's pattern, it could trigger the wrong handler.
-   - **Fix**: Use exact matching or a proper regex-based router instead of `strings.Contains` on the pattern template.
-
-**rep 3:**
-
-1. **Missing Input Validation (SUPI/UE ID):** In a 5G Core, the SUPI is a critical identifier. While `HandleGetAmData` and `HandleUnsubscribe` validate the SUPI/UE ID using `validator.IsValidSupi` or `validator.IsValidGpsi`, several other handlers (`HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, `HandleGetNssai`, `HandleGetSmData`) extract the `supi` parameter and pass it directly to the `Processor` without validation. This allows malformed identifiers to reach the core logic, potentially leading to unexpected behavior or database errors.
-2. **Inconsistent PLMN ID Validation:** The `getPlmnIDStruct` helper ensures the `plmn-id` query parameter is a valid JSON object. However, `HandleGetTraceData` retrieves `plmn-id` using `c.Query("plmn-id")` and passes it as a raw string. This bypasses the structural validation used in other handlers, creating an inconsistency that could lead to processing errors in the `Processor`.
-3. **Information Exposure through Error Messages:** Several handlers (`getPlmnIDStruct`, `HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, `HandleModifyForSharedData`) return `err.Error()` directly in the `ProblemDetails` response. Specifically, `getPlmnIDStruct` returns the raw `json.Unmarshal` error. This leaks internal implementation details (e.g., Go's JSON parser specifics) to the caller.
-4. **Logic Error in Custom Routing (Substring Matching):** In `OneLayerPathHandlerFunc`, the code uses `strings.Contains(route.Pattern, supi)` to determine which handler to call. Since `supi` is a user-controlled path parameter, if a user provides a value that is a substring of a defined route pattern (e.g., providing "shared-data" as the SUPI), the router may dispatch the request to the wrong handler, bypassing the intended API structure.
-
 

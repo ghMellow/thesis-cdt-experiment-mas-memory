@@ -1,13 +1,19 @@
 # 1A — task8_vuln_udm_full
 
-> **Run(s) in this report:**
-> - `agent`: 20260714T152535Z
+> **Run(s) in this report** — a run is one `main.py` launch (`run_id`); each run adds the repetitions still missing towards the target.
+> Expected repetitions per task and role: **10** (`config.REPETITIONS`, fixed for every task so per-task metrics are comparable).
+>
+> - `agent`: 3 repetition(s) from 1 run(s)
+>   - `20260714T152535Z` — reps 1–3 — 2026-07-14
+
+> ⚠️ **Repetition count differs from the expected 10** — metrics here are not directly comparable with reports at 10: `agent`: 3 (reps 1–3).
 
 <a id="toc"></a>
 **Contents**
 
 - [Vector detail (estimated vs. published)](#vector-detail)
 - [Unmatched findings](#unmatched-findings)
+- [Distinct findings](#distinct-findings)
 - [Metrics across repetitions](#metrics-across-reps)
   - [Detection (M1, M2, M3 — final answer vs first attempt)](#detection-metrics)
   - [CVE × repetition](#cve-rep-matrix)
@@ -129,6 +135,43 @@ _`group` letter (when present) = this CVE recurs — same letter on other matche
 - `rep` = repetition index (1-based) — which run of that task/role produced this finding.
 - `vector` = the full CVSS 4.0 vector string the agent estimated.
 - `details` = link to a self-contained file with this finding's structured data plus the agent's full narrative for that repetition (function name bolded for quick scanning) — everything needed to review it without opening the raw JSON.
+
+<a id="distinct-findings"></a>
+### Distinct findings (matched per CVE, unmatched per function)
+
+**37 finding rows → 10 distinct findings** (1 matched CVE(s), 9 unmatched). Of the 34 unmatched rows, 15 sit on the handler of an already-matched CVE (probable duplicates of it).
+
+#### Per repetition
+
+| role | rep | run_id | finding rows | distinct | collapsed |
+| --- | --- | --- | --- | --- | --- |
+| agent | 1 | `20260714T152535Z` | 13 | 8 | 5 |
+| agent | 2 | `20260714T152535Z` | 12 | 6 | 6 |
+| agent | 3 | `20260714T152535Z` | 12 | 7 | 5 |
+
+#### Whole report
+
+| # | group | role | CVE | function(s) | reps | rows | max score (from vector) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | a | agent | CVE-2026-42459 | `HandleGetNssai`, `HandleGetSmData`, `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetTraceData`, `HandleGetUeContextInSmfData` | 1–3 | 18 | 5.3 |
+| 2 | c, ≠ | agent | unmatched | `HandleSubscribeToSharedData` | 1–3 | 3 | 8.3 |
+| 3 | d, ≠ | agent | unmatched | `HandleSubscribe` | 1–3 | 4 | 8.3 |
+| 4 | e, ≠ | agent | unmatched | `HandleModify` | 1–3 | 3 | 8.3 |
+| 5 | b, ≠ | agent | unmatched | `getPlmnIDStruct` | 1–3 | 3 | 5.3 |
+| 6 | f | agent | unmatched | `HandleModifyForSharedData` | 1, 3 | 2 | 5.3 |
+| 7 | — | agent | unmatched | `TwoLayerPathHandlerFunc` | 1 | 1 | 5.3 |
+| 8 | — | agent | unmatched | `ThreeLayerPathHandlerFunc` | 1 | 1 | 5.3 |
+| 9 | — | agent | unmatched | `OneLayerPathHandlerFunc` | 2 | 1 | 5.3 |
+| 10 | — | agent | unmatched | `HandleUnsubscribeForSharedData` | 3 | 1 | 5.3 |
+
+**Legend**
+
+- A matched CVE is one finding however many repetitions found it, whatever vectors the agent estimated.
+- An unmatched row joins a matched CVE when it carries that CVE's `group` letter, i.e. it sits on one of the CVE's handler functions — a *probable* duplicate (a handler can host two distinct bugs), to confirm in triage.
+- Every other unmatched row collapses by **function** (same task and role, name normalized: case and trailing `(NF)` annotations ignored), whatever the vector: the same location rule used for CVEs, so one bug re-estimated with different vectors across repetitions counts once. `group` lists the letters/markers of the unmatched table that were merged into the row.
+- What this rule cannot see: two different bugs in the same function are counted as one (lower bound), and one bug reported on two different functions (e.g. the same flawed check in two handlers) as two (upper bound). Matched CVEs are exact (one per CVE).
+- Per repetition: `collapsed` = rows of that repetition that repeat a finding already counted in the same repetition.
+- Whole report: `reps` = repetitions where the finding appears; `rows` = how many rows (matched + unmatched) it collapses.
 
 <a id="metrics-across-reps"></a>
 ### Metrics across repetitions

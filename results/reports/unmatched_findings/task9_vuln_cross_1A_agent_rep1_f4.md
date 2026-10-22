@@ -8,15 +8,25 @@
 | score computed (official CVSS 4.0 math) | 5.3 |
 | group (shared with matched table) | b |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleGetSmfSelectData` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleGetSmfSelectData` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+**1. Cross-File Inconsistencies (UE Identifier Validation):**
+- **UDM (Inconsistent):** **`HandleGetSmfSelectData`** (and others like `HandleGetNssai`) omit this validation, accepting any string.
+
+**2. Per-File Vulnerabilities:**
+*   **UDM (`api_subscriberdatamanagement.go`):**
+    *   **Missing Input Validation:** Multiple handlers (**`HandleGetSmfSelectData`**, `HandleGetNssai`, etc.) fail to validate the `supi` path parameter.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 Summary of findings: The review identified multiple vulnerabilities including **Broken Access Control** (missing returns in UDR), **Improper Input Validation** (regex bypass and missing SUPI checks), **CORS Misconfiguration** (PCF), and **Logic Errors** (AMF switch cases). Significant cross-file inconsistencies were found regarding UE identifier validation, where UDM correctly validates SUPIs in some handlers but omits it in others, and PCF/UDR omit it entirely.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 **1. Cross-File Inconsistencies (UE Identifier Validation):**
 There is a critical inconsistency in how SUPI/UE-ID parameters are validated across the SBI.
@@ -41,6 +51,8 @@ There is a critical inconsistency in how SUPI/UE-ID parameters are validated acr
 *   **UDR (`api_datarepository.go`):**
     *   **Broken Access Control (Missing Return):** In `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete` (and Get/Put), the code calls `c.String(http.StatusNotFound, ...)` but does **not** return. The execution continues, calling the Processor with a potentially invalid `subscriptionId`, leading to "double-response" errors and unauthorized processing.
     *   **Ineffective Regex (Bypass):** In `HandleCreateEeSubscriptions`, the regex ends with `。.+)$`. This means any string that doesn't match the specific 3GPP patterns will still match the final `.+` catch-all, rendering the entire validation logic useless.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

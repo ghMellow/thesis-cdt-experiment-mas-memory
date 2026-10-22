@@ -8,20 +8,29 @@
 | score computed (official CVSS 4.0 math) | 5.3 |
 | group (shared with matched table) | c |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HTTPCreateUEContext` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HTTPCreateUEContext` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+1. **Information Exposure via Error Messages**: In several handlers (**`HTTPCreateUEContext`**, `HTTPEBIAssignment`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`), the code uses a variable `reqbody` (which is undefined in the provided snippet but implies the raw request body) concatenated with `err.Error()` to populate the `Detail` field of the `ProblemDetails` response. Returning raw error strings and potentially the request body back to the caller can leak internal system paths, library versions, or logic details.
+
+2. **Improper Input Validation (Content-Type Handling)**: In **`HTTPCreateUEContext`** and `HTTPUEContextTransfer`, the `switch str[0]` block has a `default` case that does nothing. If a request is sent with an unsupported `Content-Type`, `err` remains `nil` (or its previous value), and the code proceeds to call the `Processor` with an empty or uninitialized request object. This leads to undefined behavior or Nil Pointer Dereferences in the processor layer.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The AMF communication handler contains critical logic errors where unsupported Content-Types are ignored, leading to the processing of empty requests. Additionally, it exhibits information exposure by returning raw error details to the caller and suffers from inconsistent context state management across different handlers.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Information Exposure via Error Messages**: In several handlers (**`HTTPCreateUEContext`**, `HTTPEBIAssignment`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`), the code uses a variable `reqbody` (which is undefined in the provided snippet but implies the raw request body) concatenated with `err.Error()` to populate the `Detail` field of the `ProblemDetails` response. Returning raw error strings and potentially the request body back to the caller can leak internal system paths, library versions, or logic details.
 2. **Improper Input Validation (Content-Type Handling)**: In **`HTTPCreateUEContext`** and `HTTPUEContextTransfer`, the `switch str[0]` block has a `default` case that does nothing. If a request is sent with an unsupported `Content-Type`, `err` remains `nil` (or its previous value), and the code proceeds to call the `Processor` with an empty or uninitialized request object. This leads to undefined behavior or Nil Pointer Dereferences in the processor layer.
 3. **Inconsistent Error Handling/State Management**: In `HTTPAMFStatusChangeSubscribeModify`, the code sets `c.Set(sbi.IN_PB_DETAILS_CTX_STR, problemDetail.Cause)`, whereas other handlers set the whole `problemDetail` object or a status text. This inconsistency can crash downstream middleware or metrics collectors expecting a specific type (struct vs string) in the Gin context.
 4. **Logic Error (Hardcoded Error)**: In `HTTPN1N2MessageTransfer`, the `applicationjson` case explicitly returns an error: `err = fmt.Errorf("N1 and N2 datas are both Empty in N1N2MessgeTransfer")`. This effectively disables JSON support for this endpoint, forcing `multipart/related`, which may not be the intended architectural design for all SBI interactions.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

@@ -8,15 +8,21 @@
 | score computed (official CVSS 4.0 math) | 7.1 |
 | group (shared with matched table) | b |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HTTPOAMGetAmPolicy` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HTTPOAMGetAmPolicy` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+3. **Broken Access Control (Missing Authorization):**
+   - **Location:** **`HTTPOAMGetAmPolicy`** function.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The code contains a critical CORS misconfiguration allowing all origins with credentials, a memory leak/DoS vulnerability due to middleware being registered inside a request handler, and a lack of authorization checks for sensitive subscriber data (SUPI) access.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **CORS Misconfiguration (Permissive Policy):** 
    - **Location:** `setCorsHeader` function.
@@ -35,6 +41,8 @@ The code contains a critical CORS misconfiguration allowing all origins with cre
    - **Analysis:** The handler retrieves a `supi` (Subscription Permanent Identifier) directly from the URL path and passes it to the processor without any authorization check to verify if the requester is permitted to access the policy of that specific SUPI.
    - **5G Context Impact:** If the OAM interface is exposed (even internally), any entity with network access can enumerate SUPIs to extract sensitive Access and Mobility (AM) policies of subscribers, violating subscriber privacy and confidentiality.
    - **Fix:** Implement an authorization check (e.g., verifying a JWT or checking the requester's role) before calling `HandleOAMGetAmPolicyRequest`.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

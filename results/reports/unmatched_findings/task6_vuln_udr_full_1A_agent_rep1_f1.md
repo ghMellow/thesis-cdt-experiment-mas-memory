@@ -8,15 +8,20 @@
 | score computed (official CVSS 4.0 math) | 7.1 |
 | group (shared with matched table) | ≠ |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleCreateSdmSubscriptions` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleCreateSdmSubscriptions` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+1. **Data Corruption/Logic Error (Wrong Collection):** In **`HandleCreateSdmSubscriptions`**, the `collName` is hardcoded to `"subscriptionData.contextData.amfNon3gppAccess"`. This is a severe logic error because SDM (Subscription Data Management) subscriptions are being stored in the AMF Non-3GPP access context collection. This leads to data corruption, as SDM data will overwrite or mix with AMF context data, and subsequent queries for AMF context may return corrupted/incorrect SDM data.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDR implementation contains a critical logic error in **`HandleCreateSdmSubscriptions`** that causes SDM data to be written to the AMF context collection, leading to data corruption. Additionally, several handlers exhibit improper pointer usage during deserialization, ineffective regex validation that allows any input, and unsafe JSON unmarshaling of raw URL query parameters.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Data Corruption/Logic Error (Wrong Collection):** In **`HandleCreateSdmSubscriptions`**, the `collName` is hardcoded to `"subscriptionData.contextData.amfNon3gppAccess"`. This is a severe logic error because SDM (Subscription Data Management) subscriptions are being stored in the AMF Non-3GPP access context collection. This leads to data corruption, as SDM data will overwrite or mix with AMF context data, and subsequent queries for AMF context may return corrupted/incorrect SDM data.
 
@@ -27,6 +32,8 @@ The UDR implementation contains a critical logic error in **`HandleCreateSdmSubs
 4. **Unsafe Unmarshaling of Query Parameters:** In `HandlePolicyDataUesUeIdSmDataGet` and `HandleQuerySmData`, the code takes a raw string from the URL query (`snssai` or `single-nssai`) and passes it directly to `json.Unmarshal`. This is a dangerous pattern as it assumes the query parameter is valid JSON. While the impact is limited by the SBI's internal nature, it can lead to application instability or unexpected behavior when processing malformed input.
 
 5. **Potential NoSQL Injection/Filter Manipulation:** In `HandleApplicationDataInfluenceDataGet`, user-provided query parameters are split by commas and placed directly into `bson.M` filters using the `$in` operator. While `$in` mitigates simple string injection, the lack of validation on the resulting slices allows an authorized but compromised NF to potentially probe the database for existing IDs or manipulate the query logic to retrieve more data than intended.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

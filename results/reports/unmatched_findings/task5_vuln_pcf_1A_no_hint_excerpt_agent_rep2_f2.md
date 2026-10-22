@@ -8,15 +8,24 @@
 | score computed (official CVSS 4.0 math) | 7.1 |
 | group (shared with matched table) | b |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HTTPOAMGetAmPolicy` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HTTPOAMGetAmPolicy` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+2. **Middleware Misuse (Performance/Logic Bug):**
+   - **Analysis:** The function calls `s.router.Use(cors.New(...))` inside a request handler. In Gin, `.Use()` adds middleware to the router's global chain. Calling this inside a handler means every single request to **`HTTPOAMGetAmPolicy`** adds a *new* instance of the CORS middleware to the router.
+
+3. **Broken Access Control / IDOR:**
+   - **Location:** **`HTTPOAMGetAmPolicy`** function.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The code contains a critical CORS misconfiguration allowing all origins with credentials, a severe memory leak/DoS vulnerability due to adding middleware inside a request handler, and a lack of authorization checks for sensitive SUPI-based lookups.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **CORS Misconfiguration (Permissive Policy):** 
    - **Location:** `setCorsHeader` function.
@@ -35,6 +44,8 @@ The code contains a critical CORS misconfiguration allowing all origins with cre
    - **Analysis:** The handler takes a `supi` (Subscription Permanent Identifier) directly from the URL path and passes it to the processor without any validation of the requester's authorization to access that specific SUPI.
    - **5G Context:** SUPI is highly sensitive PII. If the OAM interface is exposed, an attacker can enumerate SUPIs to leak policy information of any subscriber.
    - **Fix:** Implement an authorization check to ensure the requester has the rights to access the specific SUPI.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

@@ -1,12 +1,18 @@
 # 1A — task9_vuln_cross
 
-> **Run(s) in this report:**
-> - `agent`: 20260714T152535Z
+> **Run(s) in this report** — a run is one `main.py` launch (`run_id`); each run adds the repetitions still missing towards the target.
+> Expected repetitions per task and role: **10** (`config.REPETITIONS`, fixed for every task so per-task metrics are comparable).
+>
+> - `agent`: 3 repetition(s) from 1 run(s)
+>   - `20260714T152535Z` — reps 1–3 — 2026-07-14
+
+> ⚠️ **Repetition count differs from the expected 10** — metrics here are not directly comparable with reports at 10: `agent`: 3 (reps 1–3).
 
 <a id="toc"></a>
 **Contents**
 
 - [Unmatched findings](#unmatched-findings)
+- [Distinct findings](#distinct-findings)
 - [Metrics across repetitions](#metrics-across-reps)
   - [Detection (M1, M2, M3 — final answer vs first attempt)](#detection-metrics)
   - [CVE × repetition](#cve-rep-matrix)
@@ -59,6 +65,42 @@
 - `rep` = repetition index (1-based) — which run of that task/role produced this finding.
 - `vector` = the full CVSS 4.0 vector string the agent estimated.
 - `details` = link to a self-contained file with this finding's structured data plus the agent's full narrative for that repetition (function name bolded for quick scanning) — everything needed to review it without opening the raw JSON.
+
+<a id="distinct-findings"></a>
+### Distinct findings (matched per CVE, unmatched per function)
+
+**21 finding rows → 9 distinct findings** (0 matched CVE(s), 9 unmatched). Of the 21 unmatched rows, 0 sit on the handler of an already-matched CVE (probable duplicates of it).
+
+#### Per repetition
+
+| role | rep | run_id | finding rows | distinct | collapsed |
+| --- | --- | --- | --- | --- | --- |
+| agent | 1 | `20260714T152535Z` | 9 | 9 | 0 |
+| agent | 2 | `20260714T152535Z` | 6 | 6 | 0 |
+| agent | 3 | `20260714T152535Z` | 6 | 6 | 0 |
+
+#### Whole report
+
+| # | group | role | CVE | function(s) | reps | rows | max score (from vector) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | ≠ | agent | unmatched | `HandleQueryAmfContext3gpp` | 1–3 | 3 | 8.3 |
+| 2 | ≠ | agent | unmatched | `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdDelete` | 1–3 | 3 | 8.3 |
+| 3 | ≠ | agent | unmatched | `HTTPUEContextTransfer` | 1–3 | 3 | 7.1 |
+| 4 | a, ≠ | agent | unmatched | `setCorsHeader` | 1–3 | 3 | 6.9 |
+| 5 | — | agent | unmatched | `HTTPCreateUEContext` | 1 | 1 | 5.3 |
+| 6 | b, ≠ | agent | unmatched | `HandleGetSmfSelectData` | 1–3 | 3 | 5.3 |
+| 7 | — | agent | unmatched | `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdGet` | 1 | 1 | 5.3 |
+| 8 | — | agent | unmatched | `HandleApplicationDataInfluenceDataSubsToNotifySubscriptionIdPut` | 1 | 1 | 5.3 |
+| 9 | ≠ | agent | unmatched | `HandleCreateEeSubscriptions` | 1–3 | 3 | 5.3 |
+
+**Legend**
+
+- A matched CVE is one finding however many repetitions found it, whatever vectors the agent estimated.
+- An unmatched row joins a matched CVE when it carries that CVE's `group` letter, i.e. it sits on one of the CVE's handler functions — a *probable* duplicate (a handler can host two distinct bugs), to confirm in triage.
+- Every other unmatched row collapses by **function** (same task and role, name normalized: case and trailing `(NF)` annotations ignored), whatever the vector: the same location rule used for CVEs, so one bug re-estimated with different vectors across repetitions counts once. `group` lists the letters/markers of the unmatched table that were merged into the row.
+- What this rule cannot see: two different bugs in the same function are counted as one (lower bound), and one bug reported on two different functions (e.g. the same flawed check in two handlers) as two (upper bound). Matched CVEs are exact (one per CVE).
+- Per repetition: `collapsed` = rows of that repetition that repeat a finding already counted in the same repetition.
+- Whole report: `reps` = repetitions where the finding appears; `rows` = how many rows (matched + unmatched) it collapses.
 
 <a id="metrics-across-reps"></a>
 ### Metrics across repetitions

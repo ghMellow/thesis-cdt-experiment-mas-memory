@@ -8,15 +8,20 @@
 | score computed (official CVSS 4.0 math) | 5.1 |
 | group (shared with matched table) | n |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleQueryeesubscriptions` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleQueryeesubscriptions` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+2. **Ineffective Input Validation (Regex Bypass):** In `HandleCreateEeSubscriptions` and **`HandleQueryeesubscriptions`**, the `ueId` is validated using the regex `^(imsi-[0-9]{5,15}|nai-.+|msisdn-[0-9]{5,15}|extid-[^@]+@[^@]+|gci-.+|gli-.+|.+)$`. The final alternative `.+` matches any string of length 1 or more, effectively rendering all previous 3GPP-specific constraints useless. This allows any arbitrary string to be used as a `ueId`, bypassing intended format restrictions.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDR implementation contains critical logic errors where data is passed by value instead of pointer during deserialization, resulting in the storage of empty records. It also features a "catch-all" regex that bypasses UE identifier validation and lacks bounds checking on query parameter arrays, exposing the system to potential resource exhaustion (DoS) and data integrity issues.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Logic Error (Pass-by-Value in Deserialization):** In `HandlePolicyDataSubsToNotifyPost` and `HandlePolicyDataSubsToNotifySubsIdPut`, the variable `policyDataSubscription` is passed to `openapi.Deserialize` by value rather than by reference. In Go, this means the function modifies a copy of the struct, and the original variable remains empty. Consequently, the UDR will persist empty/zero-valued subscription data to the database, leading to a complete failure of the policy notification functionality and data integrity loss.
 
@@ -25,6 +30,8 @@ The UDR implementation contains critical logic errors where data is passed by va
 3. **Potential Resource Exhaustion (DoS via MongoDB `$in`):** In `HandleApplicationDataInfluenceDataGet`, the handler processes several query parameters (`influence-Ids`, `dnns`, `internal-Group-Id`, `supis`) by splitting them by commas and passing the resulting slices directly into MongoDB `$in` filters. There is no limit on the number of elements an attacker can provide in these comma-separated strings. A very large list of IDs can lead to excessive memory consumption and CPU load on the MongoDB instance, causing a Denial of Service.
 
 4. **Unsafe JSON Unmarshaling of Query Parameters:** In `HandlePolicyDataUesUeIdSmDataGet` and `HandleQuerySmData`, the code attempts to `json.Unmarshal` a raw query parameter string (e.g., `single-nssai`) into a struct. If the unmarshaling fails, the error is logged, but the function continues execution with a zero-valued struct. This "fail-open" behavior can lead to incorrect query results or logic errors in the processor because the system cannot distinguish between a missing parameter and a malformed one.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

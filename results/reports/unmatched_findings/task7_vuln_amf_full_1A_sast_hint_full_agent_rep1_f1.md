@@ -8,15 +8,24 @@
 | score computed (official CVSS 4.0 math) | 8.3 |
 | group (shared with matched table) | ≠ |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HTTPAMFStatusChangeSubscribeModify` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HTTPAMFStatusChangeSubscribeModify` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+1. **Denial of Service (Unbounded Memory Allocation)**:
+   - **Location**: **`HTTPAMFStatusChangeSubscribeModify`**, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`.
+
+2. **Information Exposure (Verbose Error Messages)**:
+   - **Location**: **`HTTPAMFStatusChangeSubscribeModify`**, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The AMF implementation is vulnerable to Denial of Service via unbounded memory allocation using `GetRawData()` across multiple handlers. It also contains a critical logic flaw in `HTTPUEContextTransfer` where missing `Content-Type` validation allows uninitialized data to reach the processor, potentially causing a panic. Additionally, verbose error responses leak internal system details.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Denial of Service (Unbounded Memory Allocation)**:
    - **Location**: **`HTTPAMFStatusChangeSubscribeModify`**, `HTTPCreateUEContext`, `HTTPEBIAssignment`, `HTTPRegistrationStatusUpdate`, `HTTPReleaseUEContext`, `HTTPUEContextTransfer`, `HTTPN1N2MessageTransfer`, `HTTPN1N2MessageSubscribe`, `HTTPAMFStatusChangeSubscribe`.
@@ -41,6 +50,8 @@ The AMF implementation is vulnerable to Denial of Service via unbounded memory a
    - **Pattern**: `str := strings.Split(contentType, ";")` followed by `str[0]`.
    - **Impact**: If the `Content-Type` header is missing, `c.GetHeader("Content-Type")` returns an empty string. `strings.Split("", ";")` returns a slice of length 1 containing an empty string. While this specific case doesn't panic, the lack of validation on the header's existence and format before processing is an unsafe coding pattern that leads to the logic errors described in finding #3.
    - **Fix**: Validate that the `Content-Type` header is present and non-empty before splitting.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

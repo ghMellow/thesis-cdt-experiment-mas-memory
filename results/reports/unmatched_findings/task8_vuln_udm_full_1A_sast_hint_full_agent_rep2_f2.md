@@ -8,15 +8,20 @@
 | score computed (official CVSS 4.0 math) | 5.3 |
 | group (shared with matched table) | a |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleGetNssai` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleGetNssai` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+1. **Missing Input Validation (SUPI/UEID):** Several handlers extract the `supi` or `ueId` from the URL path but fail to validate them using `validator.IsValidSupi()` or `validator.IsValidGpsi()`. Specifically, `HandleGetSmfSelectData`, `HandleGetSupi`, **`HandleGetNssai`**, `HandleGetSmData`, `HandleGetTraceData`, and `HandleGetUeContextInSmfData` lack these checks. While the SBI is protected by mTLS/OAuth2, an authenticated but compromised NF could send malformed SUPIs to trigger unexpected behavior or injection in the UDM's backend database.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDM implementation suffers from inconsistent SUPI/UEID validation across multiple endpoints, unsafe JSON unmarshalling of URL query parameters, and internal information leakage through raw error responses. Additionally, manual manipulation of the Gin context parameters in the routing logic introduces significant risks of parameter pollution and logic errors.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Missing Input Validation (SUPI/UEID):** Several handlers extract the `supi` or `ueId` from the URL path but fail to validate them using `validator.IsValidSupi()` or `validator.IsValidGpsi()`. Specifically, `HandleGetSmfSelectData`, `HandleGetSupi`, **`HandleGetNssai`**, `HandleGetSmData`, `HandleGetTraceData`, and `HandleGetUeContextInSmfData` lack these checks. While the SBI is protected by mTLS/OAuth2, an authenticated but compromised NF could send malformed SUPIs to trigger unexpected behavior or injection in the UDM's backend database.
 
@@ -25,6 +30,8 @@ The UDM implementation suffers from inconsistent SUPI/UEID validation across mul
 3. **Information Leakage via Error Responses:** In `HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, and `HandleModifyForSharedData`, the code returns raw error messages from `c.GetRawData()` and `openapi.Deserialize()` (e.g., `Detail: err.Error()`) to the client. This leaks internal system details and library errors, aiding an attacker in reconnaissance.
 
 4. **Unsafe Context Parameter Manipulation:** In `TwoLayerPathHandlerFunc` and `ThreeLayerPathHandlerFunc`, the code manually modifies `c.Params` (e.g., `c.Params = append(c.Params, ...)` or `c.Params = tmpParams`). This is a dangerous pattern in Gin that can lead to parameter pollution or logic errors where the wrong identifier is passed to the `Processor` functions, potentially causing data to be modified or retrieved for the wrong subscriber.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>

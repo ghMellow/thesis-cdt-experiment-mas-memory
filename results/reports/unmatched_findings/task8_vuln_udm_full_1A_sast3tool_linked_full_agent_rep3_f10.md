@@ -6,15 +6,42 @@
 | vector (estimated) | `CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N` |
 | score declared | 2.3 |
 | score computed (official CVSS 4.0 math) | 5.3 |
-| group (shared with matched table) | — |
+| group (shared with matched table) | e |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `HandleModifyForSharedData` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `HandleModifyForSharedData` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+3. **Information Exposure via Error Messages:**
+   In `HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, and **`HandleModifyForSharedData`**, the code returns raw error strings from `c.GetRawData()` and `openapi.Deserialize` directly to the client (e.g., `Detail: err.Error()`). This can leak internal system details, library versions, or memory-related error strings to a potentially compromised NF.
+   *Fix:* Use generic error messages for the client and log the detailed error internally.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDM implementation contains systemic missing input validation for SUPI/UEID across multiple data retrieval handlers, log injection vulnerabilities in the routing logic, and information exposure through raw error messages in subscription handlers.
+
+**Reasoning (prompt-elicited):**
+
+1. **Missing Input Validation (SUPI/UEID):**
+   Several handlers retrieve sensitive subscriber data using a `supi` parameter from the URL path but fail to validate it using `validator.IsValidSupi()`. Specifically, `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, `HandleGetNssai`, and `HandleGetSmData` omit this check. In a 5G Core, while mTLS/OAuth2 provides authentication, the UDM must ensure that identifiers passed to the UDR (Unified Data Repository) are well-formed to prevent downstream injection attacks or unexpected behavior in the database layer.
+   *Fix:* Call `validator.IsValidSupi(supi)` at the start of these handlers and return a `400 Bad Request` if invalid.
+
+2. **Log Injection (CWE-117):**
+   In `TwoLayerPathHandlerFunc`, the code logs user-controlled path parameters `supi` and `op` directly: `logger.ConsumerLog.Infoln("TwoLayerPathHandlerFunc, ", supi, op)`. Since these are derived from the URL, an attacker can inject carriage return/line feed (CRLF) characters to forge log entries or corrupt log files, which is critical for auditing in telco environments.
+   *Fix:* Sanitize input by removing CRLF characters or use a structured logging format that handles escaping.
+
+3. **Information Exposure via Error Messages:**
+   In `HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, and **`HandleModifyForSharedData`**, the code returns raw error strings from `c.GetRawData()` and `openapi.Deserialize` directly to the client (e.g., `Detail: err.Error()`). This can leak internal system details, library versions, or memory-related error strings to a potentially compromised NF.
+   *Fix:* Use generic error messages for the client and log the detailed error internally.
+
+4. **Inconsistent UE ID Validation:**
+   `HandleUnsubscribe`, `HandleModify`, and `HandleGetIdTranslationResult` validate that `ueId` is either a GPSI or a SUPI. However, `HandleSubscribe` only takes a `supi` from the path and does not validate it at all. This inconsistency creates a fragmented security posture where some endpoints are strict and others are permissive.
+   *Fix:* Apply consistent `IsValidGpsi || IsValidSupi` validation across all endpoints accepting a UE identifier.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>
@@ -1019,24 +1046,6 @@ Please reason again from scratch and follow the response format in the task.
 ````
 
 </details>
-
-**Reasoning (prompt-elicited):**
-
-1. **Missing Input Validation (SUPI/UEID):**
-   Several handlers retrieve sensitive subscriber data using a `supi` parameter from the URL path but fail to validate it using `validator.IsValidSupi()`. Specifically, `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, `HandleGetNssai`, and `HandleGetSmData` omit this check. In a 5G Core, while mTLS/OAuth2 provides authentication, the UDM must ensure that identifiers passed to the UDR (Unified Data Repository) are well-formed to prevent downstream injection attacks or unexpected behavior in the database layer.
-   *Fix:* Call `validator.IsValidSupi(supi)` at the start of these handlers and return a `400 Bad Request` if invalid.
-
-2. **Log Injection (CWE-117):**
-   In `TwoLayerPathHandlerFunc`, the code logs user-controlled path parameters `supi` and `op` directly: `logger.ConsumerLog.Infoln("TwoLayerPathHandlerFunc, ", supi, op)`. Since these are derived from the URL, an attacker can inject carriage return/line feed (CRLF) characters to forge log entries or corrupt log files, which is critical for auditing in telco environments.
-   *Fix:* Sanitize input by removing CRLF characters or use a structured logging format that handles escaping.
-
-3. **Information Exposure via Error Messages:**
-   In `HandleSubscribeToSharedData`, `HandleSubscribe`, `HandleModify`, and **`HandleModifyForSharedData`**, the code returns raw error strings from `c.GetRawData()` and `openapi.Deserialize` directly to the client (e.g., `Detail: err.Error()`). This can leak internal system details, library versions, or memory-related error strings to a potentially compromised NF.
-   *Fix:* Use generic error messages for the client and log the detailed error internally.
-
-4. **Inconsistent UE ID Validation:**
-   `HandleUnsubscribe`, `HandleModify`, and `HandleGetIdTranslationResult` validate that `ueId` is either a GPSI or a SUPI. However, `HandleSubscribe` only takes a `supi` from the path and does not validate it at all. This inconsistency creates a fragmented security posture where some endpoints are strict and others are permissive.
-   *Fix:* Apply consistent `IsValidGpsi || IsValidSupi` validation across all endpoints accepting a UE identifier.
 
 ---
 _Source: `results/task8_vuln_udm_full/1A_sast3tool_linked_full/agent/*.json`, run_id `20261016T130426Z`, repetition 3._

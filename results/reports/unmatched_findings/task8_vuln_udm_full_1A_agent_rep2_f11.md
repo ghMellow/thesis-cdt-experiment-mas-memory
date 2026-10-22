@@ -8,15 +8,20 @@
 | score computed (official CVSS 4.0 math) | 5.3 |
 | group (shared with matched table) | — |
 
-## Agent narrative for this repetition
+## Reasoning for this finding
 
-_Shared across every finding reported in the same repetition — occurrences of `OneLayerPathHandlerFunc` are **bolded** below to help locate the relevant passage._
+_Passage of the agent's reasoning that names `OneLayerPathHandlerFunc` — the agent writes one reasoning per repetition covering every finding; the full output is collapsed below._
+
+4. **Logic Error in Path Routing (**OneLayerPathHandlerFunc**)**: The **`OneLayerPathHandlerFunc`** uses `strings.Contains(route.Pattern, supi)` to match routes. Since `supi` is a user-controlled path parameter, if a user provides a `supi` that is a substring of another route's pattern (e.g., "shared-data"), it may trigger the wrong handler or lead to unpredictable routing behavior, potentially bypassing intended logic.
+
+<details>
+<summary>Full agent output for this repetition (all findings)</summary>
 
 **Answer:**
 
 The UDM implementation contains critical vulnerabilities including unbounded memory allocation via `GetRawData()` leading to DoS, systemic missing SUPI/UEID validation in multiple handlers, unsafe JSON parsing of URL query parameters, and a flawed routing logic in **`OneLayerPathHandlerFunc`**. These issues could allow a compromised NF to crash the UDM or trigger unexpected behavior in the core network.
 
-**Reasoning:**
+**Reasoning (prompt-elicited):**
 
 1. **Missing Input Validation (SUPI/UEID)**: The UDM is responsible for managing subscriber data. Several handlers extract the `supi` or `ueId` from the URL path but fail to validate them using `validator.IsValidSupi()` or `validator.IsValidGpsi()`. While `HandleGetAmData` and `HandleUnsubscribe` perform these checks, handlers such as `HandleGetSmfSelectData`, `HandleGetSupi`, `HandleGetNssai`, `HandleGetSmData`, `HandleGetTraceData`, `HandleGetUeContextInSmfData`, and `HandleSubscribe` do not. In a 5G core, although SBI is protected by mTLS, a compromised NF could send malformed identifiers to trigger backend crashes, database errors, or unexpected behavior in the `Processor` layer.
 
@@ -25,6 +30,8 @@ The UDM implementation contains critical vulnerabilities including unbounded mem
 3. **Unsafe JSON Unmarshaling from Query Parameters**: The `getPlmnIDStruct` function attempts to `json.Unmarshal` a string directly from a URL query parameter (`plmn-id`). This is a highly unusual pattern for SBI (which typically uses standard query parameters or JSON bodies). This allows an attacker to pass complex JSON structures within a URL, potentially leading to resource exhaustion or unexpected parsing behavior.
 
 4. **Logic Error in Path Routing (**OneLayerPathHandlerFunc**)**: The **`OneLayerPathHandlerFunc`** uses `strings.Contains(route.Pattern, supi)` to match routes. Since `supi` is a user-controlled path parameter, if a user provides a `supi` that is a substring of another route's pattern (e.g., "shared-data"), it may trigger the wrong handler or lead to unpredictable routing behavior, potentially bypassing intended logic.
+
+</details>
 
 <details>
 <summary>Prompt sent to the model (system + user)</summary>
