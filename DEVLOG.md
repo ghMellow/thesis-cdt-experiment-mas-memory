@@ -2,6 +2,107 @@
 
 ---
 
+## 2026-10-22 — Repetition UDM, serie di luglio, deduplica e mega confronto  [sessione: 74810fbc-7fbe-445d-9bef-258557bddc81]
+
+**Intent:** «1. si 2. a 3. se pensi che a basti altrimenti anche il modello / fai tutto e rendi tutto poi in un mega confronto così prendiamo quello che vogliamo».
+**Decisioni:**
+- Lanciare le 28 repetition UDM della serie del 16/10, in sequenza (P1 di B2).
+- La serie di luglio su UDM resta a 3 repetition, dichiarate (opzione a); niente serie ibrida.
+- Deduplica degli unmatched: prima per sola funzione, in modo deterministico; il check LLM solo se questo non basta (libertà lasciata all'AI).
+- Alla fine un confronto unico di tutte le varianti, da cui scegliere.
+- Richiesta durante il lavoro: «lancia un agente in parallelo che usi la skill per creare la documentazione [...] fatto come html». L'AI la interpreta come la documentazione dell'intero sistema (architettura, pipeline, SAST, valutazione), salvata in `docs/documentazione_sistema.html`.
+**Esito/Problemi:**
+- Corse UDM lanciate in background.
+- Subagent `dedup-rule`, `mega-confronto` e `doc-html` in parallelo.
+- Corse UDM finite: tutti e 4 gli experiment-id della serie del 16/10 sono a 10 repetition (rep 4-10 con run_id `20261022T1114..–1118..Z`), in ~5 min, senza 429 né errori (log in `results/logs/d1_*udm.log`). La serie di luglio è segnata a 3 ripetizioni nel report.
+- **dedup-rule** (subagent): vista dei distinti con gli unmatched per funzione normalizzata, ignorando il vettore. Su 4 report gli unmatched sono 65 con la regola vecchia, 28 con questa, 18 nel riferimento fatto a mano. Lo scarto resta perché lo stesso bug compare su più handler. (b) non è stato implementato: agirebbe solo sui 4 casi in difetto, il passo estratto a volte è quello sbagliato, e servirebbero 128 chiamate nuove. Per i casi in eccesso servirebbe (c), che è da decidere.
+- **mega-confronto** (subagent): `utils/generate_mega_comparison.py` produce `.notes/report/2026-10-22-mega-confronto.md`. `generate_detection_table.py --paper-icai` rifà TP e FN della Tab. III in 8 righe su 8; le tabelle dei doc 13 e 14 escono identiche. Risultato principale: nella serie di ottobre SonarQube non batte il no hint su UDR (2/6 contro 3/6 CVE), mentre 3 SAST + linked arriva a 9/10 rep e P 0.36. Divergenze: la serie UDM di ottobre mette insieme le rep 1-3 del 16/10 e le 4-10 del 22/10; Tab. V e Candidates non ci sono.
+- **Orchestratore:**
+  - `python -m utils.evaluation_utils` senza filtro rigenerava solo gli id `1A`/`1B`, al contrario di quanto dice il commento. Corretto: rigenera tutti gli id salvati tranne i `dyn_*`. 25 report, 0 chiamate LLM, `semantic_cache.json` identico per md5. Compaiono report nuovi per gli experiment-id `*_excerpt`, `1A_sast_hint` e `*_rerun2610`.
+  - Aggiunto ⚠️ sul retry per SGV in `architecture.md`; corretta la riga sui distinti in `status.md`.
+- **doc-html** (subagent): `docs/documentazione_sistema.html` con `/crea-documentazione`; 5 diagrammi mermaid verificati con Chrome headless, tema chiaro e scuro, larghezza 390px non verificata; riga in `docs/README.md`. Nuove incoerenze trovate:
+  - G4 non valida SC/SI/SA;
+  - «DR» del paper (Cand/(TP+FP)) non è la «detection rate» dei report;
+  - CVE-2026-47780 non è mai candidata (handler null), quindi un finding sulla regex conta FP;
+  - nella modalità generica gosec/Semgrep ricevono la nota SonarQube (`utils/dynamic_task.py:240`);
+  - `comparison.md` non si rigenera con experiment-id personalizzati.
+  Tutte non corrette.
+- Orchestratore: in `docs/pipeline_esecuzione.md` corretti i riferimenti a `config.py`, che erano spostati di +1 (`REPETITIONS` = 10), e il calcolo del verdetto, che usa il `total_score` del judge.
+
+---
+
+## 2026-10-22 — Decisioni D1/D2 e avvio degli agenti  [sessione: 74810fbc-7fbe-445d-9bef-258557bddc81]
+
+**Intent:** «D1 10 / D2 non lo so preventivamente prendile tutte e due / le altre ok / io ti direi di fare da orchestratore lancia gli agenti assegnandoli il lavoro in parallelo».
+**Decisioni:**
+- D1: 10 repetition fisse per tutti i task (non le 5 proposte in call).
+- D2: la tabella dell'articolo si fa su tutte e due le serie, luglio e `rerun2610`; la scelta si fa dopo, sui numeri.
+- Il resto del piano è accettato così com'è.
+**Divergenze:**
+- A4, B1 e B3 vanno a un solo agente, perché toccano lo stesso file (`utils/evaluation_utils.py`).
+- B2 si ferma all'inventario e alla stima del costo: le corse mancanti (rep 4-10) si lanciano solo dopo l'ok, perché consumano credito Ollama.
+- C1 resta in coda finché non si chiudono A2, A5 e B2.
+**Esito A3** (subagent `A3-modello-tempi`): misurato che le corse di ottobre sono 7-10 volte più veloci su UDR (latenza del primo tentativo da 65 a 8 s), a parità di prompt, lunghezza dell'output e client. Che il modello sia cambiato non si può dimostrare: abbiamo solo il tag, senza digest. Già dentro luglio la velocità varia di circa 6 volte. Nota: `.notes/analisi/2026-10-22-modello-ollama-tempi.md`.
+- Divergenze dell'agente: usa i caratteri al secondo perché i `tokens` sono `null` in tutti i JSON (probabile lettura di `prompt_eval_count` su una risposta `ChatOpenAI`, `agents/agent_runner.py:51-52`, non verificato); come riferimento UDM senza hint di luglio usa `1A` del 14/07; propone, senza implementarle, la lettura corretta dei token e un'impronta del modello in ogni JSON.
+**Esito A5** (subagent `A5-legenda`), in `.notes/report/2026-10-22-legenda-tabella-multitool.md`:
+- TP = match per nome di funzione con `handler_functions` della GT (`utils/cvss_eval.py:156-176`), non passa dal judge.
+- «10» = repetition con almeno una CVE; per linked UDR sul dataset corretto vale 9/10, non 10/10.
+- «56» non è nella tabella 3tool: si chiede a Lorenzo.
+- Difetto principale: i report per corsa contano ancora i match spuri 40249/40343, la tabella del doc 14 no, quindi i numeri divergono. Il punto è riportato in C1.
+**Esito A1** (subagent `A1-doc-pipeline`): `docs/pipeline_esecuzione.md` (+ riga in `docs/README.md`) e il testo per Overleaf `.notes/report/2026-10-22-execution-pipeline-overleaf.tex` (compila con IEEEtran).
+- Incoerenze fra il paper IEEE e il codice:
+  - retry al massimo 2, non 3 (`MAX_RETRIES` conta gli attempt);
+  - quando gli attempt finiscono si salva e si valuta comunque l'ultimo report (10 repetition su 96 con l'SGV ancora fallito);
+  - il judge vede il sorgente;
+  - sui task statici la rubrica è quella del `_sol.md` e nomina la debolezza;
+  - il prompt di retry non contiene il feedback del judge;
+  - G2 controlla solo il campo `function`.
+- Divergenze dell'agente: non corregge `architecture.md`/`codemap/` (manca `check_sgv`, righe vecchie) e lo segnala soltanto; nel `.tex` descrive il comportamento del codice e lascia commenti `% NOTE`; l'esempio della pagina è costruito, non preso da una corsa vera; il rendering dei diagrammi mermaid non è verificato.
+**Esito B2** (subagent `B2-inventario`): `utils/repetition_inventory.py` e `.notes/analisi/2026-10-22-inventario-repetition-d1.md`. Niente lanciato.
+- UDR è già a 10 in tutte e due le serie.
+- Alla serie del 16/10 mancano 28 rep su UDM (~6 min).
+- La serie di luglio su UDM non si può completare nelle condizioni di luglio: il servizio è cambiato; il prompt di `1A` del 14/07 è cambiato per il commit `0fb13b5`; per PCF è cambiata una nota nel task.
+- Divergenze dell'agente: token stimati come caratteri/4; i comandi P2/P3 sono lasciati commentati; consiglia di lanciare in sequenza.
+**Esito A2** (subagent `A2-provenienza`): `.notes/report/2026-10-22-provenienza-numeri-paper-icai.md`. TP e FN della Tab. III tornano in 8 celle su 8, con una combinazione di corse non dichiarata da nessuna parte:
+- il no hint viene dal tag `results-2026-07-14`, run `20260713T174027Z`, quindi senza SGV;
+- UDR SAST usa 10 repetition, contro le 3 del no hint;
+- in tutti e due i bracci c'è la correzione 40249/40343.
+Scarti segnalati: FP deduplicati a mano (2 celle su 8 si ricostruiscono); Cand. UDR 5 contro 4 dello script; Tab. V no-hint 62% non si riproduce (54.2%); colonna CWE della Tab. II; CVSS di 47780 6.9 contro 4.9/7.1 nella GT.
+- Divergenze dell'agente: script di ricalcolo nello scratchpad, non versionati; non aggiorna il doc 13 né lo script.
+**Esito A4+B1+B3** (subagent `report-code`), in `utils/evaluation_utils.py`, test `tests/test_report_findings.py` (11/11, ricontrollati dall'orchestratore):
+- A4: il dettaglio di un finding mostra solo il passo del reasoning che nomina la funzione; il resto sta in `<details>`. Test rosso prima (5 su 5), verde dopo.
+- B1: l'intestazione dà gli intervalli di repetition per ogni run e un avviso ⚠️ se le repetition non sono 10.
+- B3: vista «Distinct findings» costruita riusando `group` e il collegamento unmatched→CVE; per gli unmatched il conteggio è solo un limite superiore.
+- Rigenerati i report UDR e UDM `1A_sast_hint_full`, usando solo la cache (md5 di `semantic_cache.json` invariato).
+- Divergenze dell'agente: `config.REPETITIONS` passa da 3 a 10 e diventa la costante unica, anche come default di `main.py`; crea `tests/`, che prima non esisteva; aggiorna `architecture.md`, `status.md` e `codemap/05`; non tocca il manifest del codemap.
+
+---
+
+## 2026-10-22 — Call ITASEC: trascrizione divisa e piano d'azione  [sessione: 74810fbc-7fbe-445d-9bef-258557bddc81]
+
+**Intent:** «la seguente trascrizione è divisa in due parti, separale [...] e poi la seconda parte che è di questo progetto crea un file con le cose discusse-da fare migliorie e formalizzare spiegare le cose [...] ma per ora delinea solo il piano d'azione e dividendolo in ciò che si può fare in parallelo e prevedendo un campo per poi farsi segnare quale agente si è incaricato di farlo».
+**Divergenze:**
+- La divisione è a «E qui adesso io poi tra cinque minuti vi lascio…»: prima c'è il sommario e il titolo della tesi CDT, dopo ITASEC. Tutte e due le parti stanno in `docs/supporto/calls/transcripts/`, anche la parte 1, che è di un altro progetto.
+- Il piano (`.notes/piani/2026-10-22-piano-call-itasec.md`) aggiunge due decisioni da prendere prima di agire, non chieste: D1 = numero fisso di repetition, con tre opzioni; D2 = quali corse vanno nella tabella dell'articolo.
+**Esito/Problemi:**
+- Prima della call è stato chiarito nel codice: run = un lancio di `main.py` (`run_id`); `--repetitions N` = totale da raggiungere per ogni task ed experiment-id, e le repetition già salvate si saltano. Per questo UDR `1A_sast_hint_full` ha 3 run e 10 repetition.
+- Il piano non è ancora eseguito.
+
+---
+
+## 2026-10-22 — Verifica push e corsa SonarQube del 16/10  [sessione: bb9f90ac-ea8d-4f3f-9f7e-30a529a4bdf7]
+
+**Intent:** «ci sono cose da pushare?», poi «ma questi file servono per chi deve fare i confronti leggere i report?».
+**Divergenze:** l'AI propone di pubblicare la corsa `1A_sast_hint_full_rerun2610` (SonarQube, 16/10) aggiungendola al doc 14, senza aver riletto la decisione del 16/10 che la tiene locale finché il team non decide. L'utente risponde «ok procedi».
+**Esito/Problemi:**
+- `dev` = `origin/dev`, nessun commit in sospeso; `main` indietro di 10+ commit rispetto a `dev`.
+- Modifiche a doc 14, `status.md` e `generate_multitool_table.py` fatte, poi annullate prima del commit dopo aver riletto il DEVLOG; salvate come patch nello scratchpad della sessione. Righe esistenti delle tabelle invariate dopo la rigenerazione.
+- Dato emerso (non pubblicato): con lo stesso prompt di luglio (`prompt_user` identico byte per byte), su UDR n=10 SonarQube oggi ha TP 4, prec. 0.065, 4/10 ripetizioni con almeno una CVE (senza SAST: 7, 0.101, 3/10). È l'unica corsa che trova la 40245 (2/10).
+- `consistency.md` e `semantic_cache.json` contengono anche la corsa SonarQube: non committati.
+- `poetry install --no-root` per sincronizzare il `.venv` (mancava `cvss`).
+
+---
+
 ## 2026-10-16 — ITASEC 2027: braccio SAST a 3 tool, convertitore e corse  [sessione: a08af94f-f3ef-4807-becf-b09009bbcaf0]
 
 **Intent:** l'utente passa il paper inviato (`IEEE_ICAI_TEMS_2026_...pdf`, radice del repo) e dice: «per le altre cose non mi hanno risposto quindi direi che possiamo partire».
