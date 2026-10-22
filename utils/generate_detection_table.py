@@ -39,15 +39,17 @@ table this script prints is the one to hand to the relatore, with a clear
 answer to "how did you make this".
 
 Usage:
-    PYTHONPATH=. python utils/generate_detection_table.py
+    PYTHONPATH=. python utils/generate_detection_table.py [--paper-icai]
 Output:
     Markdown + LaTeX table printed to stdout (not written to results/reports/
     — this is paper material, not a run report; copy it into
     docs/sgv_protocol/ by hand once reviewed).
 """
 
+import argparse
 import copy
 import json
+import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -79,6 +81,22 @@ CANDIDATES = {
 }
 
 
+# Run combination that reproduces Tab. III of the ICAI-TEMS 2026 paper (TP/FN on
+# all 8 rows). The no-hint arm is the pre-SGV `1A` run, overwritten on disk after
+# that tag, so it can only be read back from git; UDR SAST-hint uses all 10 reps,
+# unlike the canonical table above.
+PAPER_ICAI_TAG = "results-2026-07-14"
+PAPER_ICAI_NF_CONFIG: Dict[str, Dict[str, Any]] = {
+    nf: {**cfg, "no_hint_ref": PAPER_ICAI_TAG, "sast_hint_max_reps": None} for nf, cfg in NF_CONFIG.items()
+}
+# The paper's Cand. column follows the class x NF matrix of doc 03, which counts
+# CVE-2026-47780 as a UDR candidate (UDR 5), not the "10 / 10+2" totals above.
+PAPER_ICAI_CANDIDATES = {
+    "no_hint": {"PCF": 0, "UDR": 5, "AMF": 2, "UDM": 4},
+    "sast_hint": {"PCF": 0, "UDR": 5, "AMF": 2, "UDM": 6},
+}
+
+
 def _corrected_dataset() -> Dict[str, Any]:
     """Production dataset with the two spurious UDR CVEs made unmatchable."""
     dataset = copy.deepcopy(cvss_eval.load_cvss_dataset())
@@ -96,6 +114,29 @@ def _load_repetitions(task_id: str, experiment_id: str, max_reps: Optional[int])
     data = json.loads(files[0].read_text(encoding="utf-8"))
     reps = data.get("repetitions", [])
     return reps[:max_reps] if max_reps else reps
+
+
+def load_repetitions_from_git(ref: str, task_id: str, experiment_id: str, max_reps: Optional[int]) -> List[Dict[str, Any]]:
+    """Repetitions of a run as frozen in a results-* tag (layout before rawJson/)."""
+    path = f"results/{task_id}/{experiment_id}/agent/hosted_gemma4_31b_cloud.json"
+    blob = subprocess.run(
+        ["git", "show", f"{ref}:{path}"], capture_output=True, text=True, check=True,
+        cwd=Path(__file__).resolve().parent.parent,
+    ).stdout
+    reps = json.loads(blob).get("repetitions", [])
+    return reps[:max_reps] if max_reps else reps
+
+
+def hit_counts(evals: List[Dict[str, Any]]) -> Dict[str, int]:
+    """CVE id -> number of repetitions in which it is matched (0 included for
+    every target CVE, so a never-found CVE still shows up)."""
+    counts: Dict[str, int] = {}
+    for e in evals:
+        for m in e.get("matched", []):
+            counts[m["cve_id"]] = counts.get(m["cve_id"], 0) + 1
+        for c in e.get("missed_cves", []):
+            counts.setdefault(c, 0)
+    return dict(sorted(counts.items()))
 
 
 def _evals(task_id: str, reps: List[Dict[str, Any]], dataset: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -145,11 +186,14 @@ def _aggregate_distinct(evals: List[Dict[str, Any]]) -> Dict[str, Any]:
     return {"tp": tp, "fp": fp, "fn": fn, "precision": precision}
 
 
-def build_table() -> Dict[str, Dict[str, Dict[str, Dict[str, Any]]]]:
+def build_table(nf_config: Optional[Dict[str, Dict[str, Any]]] = None) -> Dict[str, Dict[str, Dict[str, Dict[str, Any]]]]:
     corrected = _corrected_dataset()
     rows: Dict[str, Dict[str, Dict[str, Dict[str, Any]]]] = {}
-    for nf, cfg in NF_CONFIG.items():
-        no_hint_reps = _load_repetitions(cfg["task_id"], cfg["no_hint"], None)
+    for nf, cfg in (nf_config or NF_CONFIG).items():
+        if cfg.get("no_hint_ref"):
+            no_hint_reps = load_repetitions_from_git(cfg["no_hint_ref"], cfg["task_id"], cfg["no_hint"], None)
+        else:
+            no_hint_reps = _load_repetitions(cfg["task_id"], cfg["no_hint"], None)
         sast_hint_reps = _load_repetitions(cfg["task_id"], cfg["sast_hint"], cfg["sast_hint_max_reps"])
         rows[nf] = {}
         for cond_key, reps in (("no_hint", no_hint_reps), ("sast_hint", sast_hint_reps)):
@@ -164,13 +208,14 @@ def build_table() -> Dict[str, Dict[str, Dict[str, Dict[str, Any]]]]:
     return rows
 
 
-def _fmt_variant(rows: Dict[str, Dict[str, Dict[str, Dict[str, Any]]]], variant: str) -> str:
+def _fmt_variant(rows: Dict[str, Dict[str, Dict[str, Dict[str, Any]]]], variant: str, candidates=None) -> str:
+    candidates = candidates or CANDIDATES
     lines = ["NF | Config | TP | FP | Cand. | FN | Prec. | DR", "---|---|---|---|---|---|---|---"]
     totals = {"no_hint": {"tp": 0, "fp": 0, "fn": 0, "cand": 0}, "sast_hint": {"tp": 0, "fp": 0, "fn": 0, "cand": 0}}
     for nf, by_cond in rows.items():
         for cond_key, cond_label in (("no_hint", "No-hint"), ("sast_hint", "SAST-hint")):
             m = by_cond[cond_key][variant]
-            cand = CANDIDATES[cond_key][nf]
+            cand = candidates[cond_key][nf]
             tp, fp, fn = m["tp"], m["fp"], m["fn"]
             prec = m["precision"] or 0.0
             dr = cand / (tp + fp) if (tp + fp) else 0.0
@@ -217,17 +262,25 @@ def _fmt_precision_at_k(rows: Dict[str, Dict[str, Dict[str, Dict[str, Any]]]]) -
     return "\n".join(lines)
 
 
-def _fmt(rows: Dict[str, Dict[str, Dict[str, Dict[str, Any]]]]) -> str:
+def _fmt(rows: Dict[str, Dict[str, Dict[str, Dict[str, Any]]]], candidates=None) -> str:
     return (
         "## Pooled (unit = CVE x repetition, TP/FP/FN summed across reps)\n\n"
-        + _fmt_variant(rows, "pooled")
+        + _fmt_variant(rows, "pooled", candidates)
         + "\n\n## Distinct (unit = distinct CVE recovered at least once; FP = distinct unmatched function names)\n\n"
-        + _fmt_variant(rows, "distinct")
+        + _fmt_variant(rows, "distinct", candidates)
         + "\n\n## Precision@K (final answer, ranked by the agent's own CVSS estimate)\n\n"
         + _fmt_precision_at_k(rows)
     )
 
 
 if __name__ == "__main__":
-    result = build_table()
-    print(_fmt(result))
+    ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "--paper-icai", action="store_true",
+        help=f"run combination of the ICAI-TEMS 2026 paper: no-hint from tag {PAPER_ICAI_TAG}, UDR SAST-hint 10 reps",
+    )
+    args = ap.parse_args()
+    if args.paper_icai:
+        print(_fmt(build_table(PAPER_ICAI_NF_CONFIG), PAPER_ICAI_CANDIDATES))
+    else:
+        print(_fmt(build_table()))
