@@ -127,7 +127,7 @@ figure { margin: 1.4em 0 1.8em; }
   background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
   padding: 14px; overflow-x: auto; text-align: center;
 }
-.diagram pre.mermaid { margin: 0; background: none; font-size: 13px; }
+.diagram pre.mmd { margin: 0; background: none; font-size: 13px; }
 .diagram svg { max-width: 100%; height: auto; }
 figcaption { color: var(--muted); font-size: .9rem; margin-top: 8px; font-style: italic; }
 @media (min-width: 1100px) {
@@ -282,7 +282,7 @@ python main.py --experiment 1A --task task6_vuln_udr_full --repetitions 10 \
 </tbody></table></div>
 
 <figure class="wide">
-<div class="diagram"><pre class="mermaid">
+<div class="diagram"><pre class="mmd">
 flowchart LR
   ar_CLI["main.py&lt;br/&gt;CLI, task, repetition"] --> ar_G
   subgraph ar_G["grafo LangGraph (experiment_utils)"]
@@ -320,7 +320,7 @@ flowchart LR
 <p>Siccome i pezzi 2–4 vengono accodati in fondo, stanno <em>dopo</em> la sezione <code>## Agent Instructions</code> del task. Questo conta per il judge, che riceve il testo del task troncato proprio a quella sezione (<code>agents/judge_agent.py:26-30</code>): il judge vede scenario, codice e domanda, ma non vede né gli alert SAST né il contesto di sistema né le istruzioni CVSS.</p>
 
 <figure>
-<div class="diagram"><pre class="mermaid">
+<div class="diagram"><pre class="mmd">
 flowchart LR
   pr_T["1 testo del task&lt;br/&gt;scenario, codice,&lt;br/&gt;Agent Instructions"] --> pr_S["2 blocco SAST&lt;br/&gt;(se attivo)"] --> pr_N["3 contesto di sistema&lt;br/&gt;(security review)"] --> pr_C["4 blocco CVSS&lt;br/&gt;(security review)"] --> pr_R["5 addendum di retry&lt;br/&gt;(attempt ≥ 2)"]
   pr_T -. "troncato a&lt;br/&gt;## Agent Instructions" .-> pr_J["payload del judge"]
@@ -340,7 +340,7 @@ flowchart LR
 <p>Ogni repetition parte da uno stato nuovo, con <code>attempts = 0</code> e <code>history</code> vuota (<code>main.py:470-483</code>). Non c'è memoria fra repetition: l'agente non vede le risposte delle repetition precedenti. <code>main.py</code> tiene la risposta precedente solo per segnalare, a fine run, quali repetition consecutive hanno dato una risposta diversa (<code>main.py:537-542</code>).</p>
 
 <figure class="wide">
-<div class="diagram"><pre class="mermaid">
+<div class="diagram"><pre class="mmd">
 flowchart LR
   rr_R["run&lt;br/&gt;python main.py&lt;br/&gt;run_id"] --> rr_T["prossimo task"]
   rr_T --> rr_P{{"main&lt;br/&gt;repetition k&lt;br/&gt;già salvata?"}}
@@ -362,7 +362,7 @@ flowchart LR
 <p>La prima risposta dell'agente può essere inutilizzabile per ragioni di natura diversa: un formato che non si legge, una funzione citata che nel codice non c'è, un contenuto che il judge ritiene insufficiente. Il grafo separa due tipi di controllo. L'SGV è deterministico e guarda solo la forma del report; <code>check_answer</code> giudica il contenuto. Tutti e due possono rimandare all'agente e consumano lo stesso contatore.</p>
 
 <figure class="wide">
-<div class="diagram"><pre class="mermaid">
+<div class="diagram"><pre class="mmd">
 flowchart LR
   gr_L["load_task"] --> gr_A["run_agent&lt;br/&gt;attempts += 1"]
   gr_A --> gr_S{{"check_sgv&lt;br/&gt;report formalmente&lt;br/&gt;valido?"}}
@@ -446,7 +446,7 @@ flowchart LR
 </tbody></table></div>
 
 <figure class="wide">
-<div class="diagram"><pre class="mermaid">
+<div class="diagram"><pre class="mmd">
 flowchart LR
   sa_SQ[("ground_truth_vuln_files.json&lt;br/&gt;SonarQube, 54 alert")] --> sa_P
   sa_U[("output-unificato-v4.2.1.json&lt;br/&gt;gosec + Semgrep + CodeQL")] --> sa_CV["sast_unified_to_hint&lt;br/&gt;filtro sul file GT"]
@@ -624,13 +624,13 @@ flowchart LR
     return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
   }
   var sources = [];
-  document.querySelectorAll("pre.mermaid").forEach(function (el) { sources.push(el.textContent); });
+  document.querySelectorAll("pre.mmd").forEach(function (el) { sources.push(el.textContent); });
   var pass = 0;
   function render() {
     if (!window.mermaid) return;
     pass += 1;
     mermaid.initialize({ startOnLoad: false, theme: isDark() ? "dark" : "default", flowchart: { htmlLabels: true, curve: "basis" }, securityLevel: "strict" });
-    var els = document.querySelectorAll("pre.mermaid");
+    var els = document.querySelectorAll("pre.mmd");
     // Sequential render with explicit ids: parallel runs can collide on generated ids
     // and draw every diagram into the first SVG.
     var chain = Promise.resolve();

@@ -2,6 +2,20 @@
 
 ---
 
+## 2026-10-22 — Pubblicazione delle pagine come artifact  [sessione: 74810fbc-7fbe-445d-9bef-258557bddc81]
+
+**Intent:** «pubblica gli artefatti così sono visionabili» (prima: «no sempre nella repo», detto della pagina HTML).
+**Divergenze:**
+- L'AI ha scelto di pubblicare due pagine: la documentazione del sistema e il mega confronto. Le altre note (provenienza, legenda, tempi) non sono pubblicate.
+- Nel mega confronto ha aggiunto un riquadro «In breve» con le conclusioni dell'agente `mega-confronto`.
+- In `docs/documentazione_sistema.html` la classe `mermaid` diventa `mmd`, perché il visualizzatore degli artifact disegna da solo i blocchi `mermaid` e la pagina li ridisegnerebbe.
+**Esito/Problemi:**
+- Documentazione del sistema: https://claude.ai/artifact/LwVCJiX7aphULHm2gfa4om
+- Confronto detection: https://claude.ai/artifact/549xEnLnGqdfcFPQRi46KM. È generato dal markdown con uno script usa e getta nello scratchpad (`md2page.py`): se il confronto si rigenera, la pagina va ripubblicata.
+- Tutte e due sono private: vanno condivise dal menu Share. Il rendering dei diagrammi sul visualizzatore non è stato verificato.
+
+---
+
 ## 2026-10-22 — Repetition UDM, serie di luglio, deduplica e mega confronto  [sessione: 74810fbc-7fbe-445d-9bef-258557bddc81]
 
 **Intent:** «1. si 2. a 3. se pensi che a basti altrimenti anche il modello / fai tutto e rendi tutto poi in un mega confronto così prendiamo quello che vogliamo».
