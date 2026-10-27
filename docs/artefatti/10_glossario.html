@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Glossario</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="stile.css">
+<link rel="stylesheet" href="nav.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="eyebrow">Documentazione del sistema · Riferimento</div>
+<h1>Glossario</h1>
+</header>
+
+<div class="tab"><table>
+<thead><tr><th>Termine</th><th>Significato</th></tr></thead>
+<tbody>
+<tr><td>agente</td><td>la chiamata al modello <code>MODELS["agent_1A"]</code> che legge il task e scrive il report</td></tr>
+<tr><td>attempt</td><td>una chiamata all'agente dentro una repetition; al più <code>MAX_RETRIES</code> = 3</td></tr>
+<tr><td>alert indiretto</td><td>alert segnalato in un file che l'agente non vede, agganciato alla riga del file in revisione da cui parte il dato</td></tr>
+<tr><td>CVE candidata</td><td>CVE del dataset che appartiene al task (prefisso del <code>task_id</code>; nelle varianti <code>_full</code> anche quelle fuori estratto)</td></tr>
+<tr><td>distinti (finding, conteggi)</td><td>finding contati una volta per CVE o per gruppo, non una volta per repetition</td></tr>
+<tr><td>finding</td><td>un elemento del blocco CVSS: <code>function</code>, <code>vector</code>, <code>score</code>, <code>snippet</code></td></tr>
+<tr><td>gruppo</td><td>lettera che nei report lega le righe dello stesso finding fra repetition e tabelle</td></tr>
+<tr><td>judge</td><td>il modello <code>MODELS["judge"]</code> che dà un punteggio alla risposta secondo la rubrica</td></tr>
+<tr><td>modalità generica / statica</td><td>task costruiti da una cartella di sorgenti (<code>--source-dir</code>) / task di <code>docs/tasks/</code></td></tr>
+<tr><td>repetition</td><td>un'esecuzione indipendente del grafo su un task</td></tr>
+<tr><td>retry</td><td>un attempt successivo al primo</td></tr>
+<tr><td>run</td><td>un lancio di <code>main.py</code>, identificato da <code>run_id</code></td></tr>
+<tr><td>SAST hint</td><td>blocco di alert di analisi statica accodato al prompt</td></tr>
+<tr><td>security review</td><td>task testuale con <code>vuln</code> nell'id: blocco CVSS, SGV e valutazione contro le CVE</td></tr>
+<tr><td>SGV</td><td>Syntactic Grounding Verifier, controlli formali G1–G4 sul blocco CVSS</td></tr>
+</tbody></table></div>
+</div>
+<script src="nav.js"></script>
+</body>
+</html>

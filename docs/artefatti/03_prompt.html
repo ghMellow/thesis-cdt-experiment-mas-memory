@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Come si costruisce il prompt</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="stile.css">
+<link rel="stylesheet" href="nav.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="eyebrow">Documentazione del sistema · Come gira</div>
+<h1>Come si costruisce il prompt</h1>
+</header>
+
+<p>Il prompt dell'agente è fatto di pezzi indipendenti, ciascuno acceso da una condizione, così che un esperimento cambi un pezzo alla volta e il resto resti identico byte per byte. Il messaggio di sistema è sempre lo stesso (<code>SYSTEM_PROMPTS["agent"]</code>, <code>agents/prompts.py:38-45</code>): un ingegnere di rete 5G che risponde solo in Markdown nel formato del task. Il messaggio utente si compone in quest'ordine.</p>
+
+<div class="tab"><table>
+<thead><tr><th>#</th><th>Pezzo</th><th>Quando c'è</th><th>Dove</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>testo del task, letto così com'è: scenario, codice in blocchi <code>```go</code>, domanda, sezione <code>## Agent Instructions</code> con il formato di risposta</td><td>sempre</td><td><code>utils/task_utils.py:70</code></td></tr>
+<tr><td>2</td><td>blocco SAST «Static analysis findings»</td><td><code>SAST_HINT_ENABLED</code> vero e il task è di un NF con alert nel dataset</td><td><code>utils/task_utils.py:78-79</code></td></tr>
+<tr><td>3</td><td>contesto di sistema (<code>NF_CONTEXT_HINT</code>: NF di un core 5G free5GC, SBI dietro mTLS e OAuth2)</td><td>task di security review e <code>CVSS_CONTEXT_HINT_ENABLED</code> (<code>config.py:92</code>)</td><td><code>utils/cvss_utils.py:46-48</code>, testo <code>agents/prompts.py:53-62</code></td></tr>
+<tr><td>4</td><td>blocco «CVSS Estimate (required)»: per ogni finding le righe <code>function</code>, <code>vector</code> (11 metriche CVSS 4.0), <code>score</code> e, con <code>SGV_SNIPPET_ENABLED</code>, <code>snippet</code></td><td>task di security review e <code>CVSS_ESTIMATE_ENABLED</code> (<code>config.py:83</code>)</td><td><code>utils/cvss_utils.py:34-48</code>, testo <code>agents/prompts.py:128-168</code></td></tr>
+<tr><td>5</td><td>addendum di retry</td><td>dal secondo attempt</td><td><code>utils/experiment_utils.py:202-230</code></td></tr>
+</tbody></table></div>
+
+<p>Siccome i pezzi 2–4 vengono accodati in fondo, stanno <em>dopo</em> la sezione <code>## Agent Instructions</code> del task. Questo conta per il judge, che riceve il testo del task troncato proprio a quella sezione (<code>agents/judge_agent.py:26-30</code>): il judge vede scenario, codice e domanda, ma non vede né gli alert SAST né il contesto di sistema né le istruzioni CVSS.</p>
+
+<figure>
+<pre class="mermaid">
+flowchart LR
+  pr_T["1 testo del task&lt;br/&gt;scenario, codice,&lt;br/&gt;Agent Instructions"] --> pr_S["2 blocco SAST&lt;br/&gt;(se attivo)"] --> pr_N["3 contesto di sistema&lt;br/&gt;(security review)"] --> pr_C["4 blocco CVSS&lt;br/&gt;(security review)"] --> pr_R["5 addendum di retry&lt;br/&gt;(attempt ≥ 2)"]
+  pr_T -. "troncato a&lt;br/&gt;## Agent Instructions" .-> pr_J["payload del judge"]
+</pre>
+<figcaption>Il judge riceve solo la parte prima di <code>## Agent Instructions</code>; tutto ciò che il sistema accoda resta fuori dal suo payload.</figcaption>
+</figure>
+
+<p class="esempio">Nella repetition 4 il messaggio utente del primo attempt è il file <code>task6_vuln_udr_full.md</code>, seguito dai 12 alert UDR del dataset a 3 tool, dal contesto di sistema e dal blocco CVSS con quattro righe per finding (snippet compreso). Il judge, a ogni suo turno, vede il codice di <code>api_datarepository.go</code> e la domanda, ma non i 12 alert.</p>
+</div>
+<script src="vendor/mermaid.min.js"></script>
+<script src="diagrammi.js"></script>
+<script src="nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>L'ingresso del SAST hint</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="stile.css">
+<link rel="stylesheet" href="nav.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="eyebrow">Documentazione del sistema · Come gira</div>
+<h1>L'ingresso del SAST hint</h1>
+</header>
+
+<p>Il SAST hint serve a misurare se gli alert di uno strumento di analisi statica, dati all'agente così come sono, migliorano la detection o la peggiorano rispetto alla corsa senza. Lo strumento non viene eseguito dal sistema: il dataset di alert è un file congelato, perché versione e regole dello strumento fanno parte della condizione sperimentale (<code>utils/sast_ingest.py:3-9</code>).</p>
+
+<p>Nella modalità statica il blocco si accende con la variabile d'ambiente <code>SAST_HINT_ENABLED=true</code> (<code>config.py:99</code>) e legge il dataset di <code>SAST_HINT_DATASET_PATH</code>, anch'esso sovrascrivibile da ambiente (<code>config.py:102</code>). Il task si lega a un NF dal prefisso dell'id (<code>_TASK_NF_MAP</code>, <code>utils/sast_hint.py:25-30</code>: <code>task5_vuln_pcf</code>→PCF, <code>task6_vuln_udr</code>→UDR, <code>task7_vuln_amf</code>→AMF, <code>task8_vuln_udm</code>→UDM) e del dataset si prendono solo gli alert con quel <code>nf_abbr</code> (<code>utils/sast_hint.py:52-76</code>). Il blocco ha un'intestazione che nomina lo strumento e dice di usare gli alert solo dove sono pertinenti, una riga per alert nella forma <code>- L&lt;riga&gt; [&lt;gravità&gt;] &lt;regola&gt;: &lt;messaggio&gt;</code> ordinata per riga, e, se il dataset lo prevede, il codice collegato (<code>agents/prompts.py:75-120</code>, <code>utils/sast_hint.py:79-101</code>). Se il NF non ha alert il blocco è vuoto e il prompt coincide con quello senza SAST. Le tre configurazioni differiscono solo per il dataset.</p>
+
+<div class="tab"><table>
+<thead><tr><th>Configurazione</th><th>Dataset (<code>SAST_HINT_DATASET_PATH</code>)</th><th>Alert per NF</th><th>Nota nell'intestazione</th><th>Codice collegato</th></tr></thead>
+<tbody>
+<tr><td>SonarQube</td><td><code>docs/sast_tools/ground_truth_vuln_files.json</code> (default)</td><td>54: UDR 35, UDM 13, AMF 4, PCF 2</td><td>«la maggior parte sono problemi di stile, non vulnerabilità» (<code>SAST_HINT_SONARQUBE_NOTE</code>, <code>agents/prompts.py:90-93</code>)</td><td>no</td></tr>
+<tr><td>3 tool (gosec, Semgrep, CodeQL)</td><td><code>docs/sast_tools/analisi_statica_v4.2.1/hint_alerts_3tool.json</code></td><td>16: UDR 12, UDM 4, AMF 0, PCF 0</td><td>vuota (<code>prompt_note: ""</code>, <code>utils/sast_unified_to_hint.py:37</code>)</td><td>no</td></tr>
+<tr><td>3 tool + codice collegato</td><td><code>docs/sast_tools/analisi_statica_v4.2.1/hint_alerts_3tool_linked.json</code></td><td>gli stessi 16</td><td>vuota</td><td>6 estratti</td></tr>
+</tbody></table></div>
+
+<figure>
+<pre class="mermaid">
+flowchart LR
+  sa_SQ[("ground_truth_vuln_files.json&lt;br/&gt;SonarQube, 54 alert")] --> sa_P
+  sa_U[("output-unificato-v4.2.1.json&lt;br/&gt;gosec + Semgrep + CodeQL")] --> sa_CV["sast_unified_to_hint&lt;br/&gt;filtro sul file GT"]
+  sa_CV --> sa_H3[("hint_alerts_3tool.json&lt;br/&gt;16 alert")]
+  sa_CV -- "--with-linked-code" --> sa_HL[("hint_alerts_3tool_linked.json&lt;br/&gt;16 alert + 6 estratti")]
+  sa_H3 --> sa_P
+  sa_HL --> sa_P
+  sa_P{{"load_task&lt;br/&gt;SAST_HINT_ENABLED&lt;br/&gt;e NF del task"}} -- "alert del NF" --> sa_B["build_sast_hint_block&lt;br/&gt;blocco nel prompt"]
+  sa_P -- "spento o NF senza alert" --> sa_Z["prompt senza SAST"]
+</pre>
+<figcaption>Un solo dataset alla volta, scelto dalla variabile d'ambiente; la conversione del report multi-tool è un passo a parte, fatto una volta, non parte della corsa.</figcaption>
+</figure>
+
+<section id="sast-sonar">
+<h2>SonarQube</h2>
+<p>È il dataset di default e quello della corsa SAST dell'articolo ICAI-TEMS: 54 alert SonarQube sui quattro file NF, annotati a mano dal team (<code>docs/sast_tools/ground_truth_vuln_files.json</code>). Il dataset non dichiara né <code>tool</code> né <code>prompt_note</code>, quindi valgono i default «SonarQube» e la nota sugli alert di stile (<code>utils/sast_hint.py:61-67</code>): il prompt resta identico a quello delle corse già pubblicate.</p>
+</section>
+
+<section id="sast-3tool">
+<h2>3 tool</h2>
+<p>Il report unificato del team (<code>docs/sast_tools/analisi_statica_v4.2.1/output-unificato-v4.2.1.json</code>) contiene gli alert di gosec, Semgrep e CodeQL sui moduli dei quattro NF. Lo converte <code>utils/sast_unified_to_hint.py</code>, che tiene solo gli alert che l'agente può collocare nel proprio file: un alert la cui riga sta nel file GT del NF, oppure un alert CodeQL la cui sorgente del dato (<code>origine_dato</code>) sta nel file GT (<code>select_gt_alerts</code>, <code>:47-64</code>; file GT in <code>GT_FILES</code>, <code>:23-28</code>). Il secondo tipo, l'<strong>alert indiretto</strong>, è segnalato in un file che l'agente non vede: viene agganciato alla riga del file GT da cui parte il dato, e il punto d'arrivo (file, riga, funzione) è scritto nel messaggio (<code>to_hint_alert</code>, <code>:67-101</code>). Un alert gosec sulle stesse righe di un alert CodeQL indiretto, senza sorgente propria, eredita l'aggancio del gemello (<code>:53-63</code>). L'intestazione nomina «CodeQL, Semgrep, gosec» e non porta la nota sugli alert di stile, che per regole di sicurezza sarebbe falsa (<code>:35-37</code>, <code>:137-138</code>). Il convertitore può confrontare la propria selezione con il file ridotto del team e fallire se differisce (<code>--check-reduced</code>, <code>:156-163</code>).</p>
+
+<p class="esempio">Il prompt di UDR riceve 12 righe di alert. Un alert CodeQL segnalato in <code>internal/sbi/processor/…</code> compare come riga di <code>api_datarepository.go</code>, quella da cui il dato entra, con il messaggio che termina «Reported in another file of this NF, &lt;file&gt;:&lt;riga&gt; (&lt;funzione&gt;), reached by data flowing from this line».</p>
+</section>
+
+<section id="sast-linked">
+<h2>3 tool + codice collegato</h2>
+<p>Un alert indiretto dice dove arriva il dato ma non mostra quel codice. La variante con codice collegato, generata con <code>--with-linked-code</code>, aggiunge al dataset le righe di contesto attorno a ogni punto d'arrivo, già presenti nel report del team, un estratto per destinazione senza duplicati (<code>linked_code</code>, <code>utils/sast_unified_to_hint.py:104-120</code>). Nel prompt questi estratti seguono gli alert, sotto l'intestazione «Linked code from other files of this NF», che li dichiara solo contesto e chiede di riportare i finding sul file in revisione (<code>agents/prompts.py:102-117</code>, <code>utils/sast_hint.py:68-75</code>).</p>
+
+<p>Gli estratti sono blocchi <code>```go</code>, quindi per l'SGV fanno parte del codice mostrato all'agente: una funzione definita in un estratto supera G2 e uno snippet copiato da lì supera G3. L'abbinamento con le CVE, invece, conosce solo i gestori del file GT: un finding su una funzione dell'estratto passa l'SGV e conta come FP.</p>
+</section>
+
+<section id="sast-generic">
+<h2>Modalità generica</h2>
+<p>Nella modalità generica <code>SAST_HINT_ENABLED</code> da solo non fa nulla, perché il blocco statico è legato agli id dei quattro task; <code>main.py</code> rifiuta di partire in quella combinazione (<code>main.py:320-331</code>). Il braccio SAST si attiva con <code>--sast-report &lt;file&gt;</code>: un report gosec, Semgrep o nel formato del progetto, i cui alert si abbinano ai file per suffisso di percorso più lungo, chiedendo all'utente nei casi ambigui (<code>main.py:63-130</code>, <code>utils/sast_ingest.py</code>). Il blocco si costruisce con la stessa funzione di rendering della modalità statica (<code>utils/dynamic_task.py:236-240</code>), con il nome dello strumento preso dal formato (<code>TOOL_LABEL</code>, <code>utils/sast_ingest.py:39-43</code>); la nota dell'intestazione resta quella di default di SonarQube anche per gosec e Semgrep.</p>
+
+</section>
+</div>
+<script src="vendor/mermaid.min.js"></script>
+<script src="diagrammi.js"></script>
+<script src="nav.js"></script>
+</body>
+</html>

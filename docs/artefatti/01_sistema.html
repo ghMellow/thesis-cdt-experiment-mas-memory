@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Il sistema e l'esempio</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="stile.css">
+<link rel="stylesheet" href="nav.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="eyebrow">Documentazione del sistema · Panoramica</div>
+<h1>Il sistema e l'esempio</h1>
+<p class="lead">Sistema multi-agente LLM per la vulnerability discovery su free5GC: agente, verificatore deterministico (SGV), giudice con rubrica, ciclo dei retry, valutazione CVSS contro le CVE note, report.</p>
+<dl class="breve">
+<dt>Per chi è</dt><dd>chi deve descrivere o usare il sistema senza averlo mai fatto girare: co-autori degli articoli, chi scrive o legge la tesi (in particolare il capitolo «System Architecture»).</dd>
+<dt>A cosa serve</dt><dd>sapere che cosa succede da quando si lancia <code>main.py</code> a quando un risultato è salvato, valutato e riportato, e perché il sistema è fatto così.</dd>
+<dt>Fonte</dt><dd>solo il codice del repository: ogni affermazione porta il suo <code>file:riga</code>. Dove l'articolo IEEE ICAI-TEMS 2026 descrive il sistema in modo diverso, la differenza è in <a href="09_divergenze.html">Divergenze dal paper</a>, non nel testo.</dd>
+</dl>
+</header>
+
+<section id="panoramica">
+<h2>Il problema</h2>
+
+<p>Il problema da cui parte il sistema è misurare quanto un modello linguistico, messo davanti al codice Go di una Network Function di free5GC, trovi vulnerabilità vere, e con quale stima di gravità. Per misurarlo servono tre cose che il sistema tiene separate. Serve un <strong>agente</strong>, cioè la chiamata al modello che legge il codice e scrive un report. Serve un controllo dentro l'esecuzione che rimandi all'agente un report inutilizzabile, senza però dirgli la soluzione: questo è il ciclo dei retry, governato da un verificatore deterministico (<strong>SGV</strong>) e da un giudice LLM con rubrica (il <strong>judge</strong>). E serve una valutazione contro le vulnerabilità note (le CVE del dataset), che avviene solo dopo che il ciclo è finito e che non torna mai all'agente.</p>
+
+<p>Accanto al codice, l'agente può ricevere gli alert di uno strumento di analisi statica (il <strong>SAST hint</strong>): lo scopo è misurare se quegli alert aiutano o disturbano l'agente rispetto alla corsa senza. Il sistema non esegue lo strumento: legge un dataset di alert già prodotto e lo accoda al prompt.</p>
+
+<p>Tutta la documentazione segue un solo caso, che chiameremo <em>l'esempio</em>. I numeri degli eventi dell'esempio (quale attempt fallisce, quale punteggio dà il giudice) sono illustrativi, scelti per mostrare ogni ramo; i valori di configurazione e i dati (CVE, alert, funzioni) sono quelli veri del repository.</p>
+
+<div class="esempio">
+<p>Si analizza il file completo <code>api_datarepository.go</code> della Network Function UDR, cioè il task <code>task6_vuln_udr_full</code> (<code>docs/tasks/task6_vuln_udr_full.md</code>), con il braccio SAST a 3 tool e dieci repetition:</p>
+<pre class="cmd"><code>SAST_HINT_ENABLED=true \
+SAST_HINT_DATASET_PATH=docs/sast_tools/analisi_statica_v4.2.1/hint_alerts_3tool.json \
+python main.py --experiment 1A --task task6_vuln_udr_full --repetitions 10 \
+  --experiment-id 1A_sast3tool_full</code></pre>
+<p>Il file dei risultati contiene già le repetition 1–3 di un lancio precedente, quindi questo lancio esegue le repetition 4–10. Nella repetition 4 l'agente riceve il codice, i 12 alert del dataset a 3 tool che riguardano UDR, il contesto di sistema e le istruzioni per il blocco CVSS. Al primo attempt cita una funzione che nel file non esiste: l'SGV lo boccia e l'agente riprova. Al secondo attempt il report è formalmente valido, ma il giudice gli dà 5 punti su 9, sotto soglia: l'agente riprova ancora. Al terzo attempt il giudice dà 7 su 9 e la repetition si salva. Il report salvato ha quattro finding: due sui gestori <code>HandleApplicationDataInfluenceDataSubsToNotifySubscriptionId{Delete,Get}</code>, uno sulla regex di <code>HandleCreateEeSubscriptions</code> e uno su <code>HandlePolicyDataSubsToNotifySubsIdDelete</code>. Contro le 6 CVE candidate di UDR la valutazione conta 2 TP, 2 FP e 4 FN; a fine lancio il report <code>result_task6_vuln_udr_full_1A_sast3tool_full.md</code> viene rigenerato su tutte e dieci le repetition.</p>
+</div>
+
+</section>
+
+<section id="livelli">
+<h2>Run, repetition, attempt</h2>
+<p>Un modello con temperatura maggiore di zero non dà due volte la stessa risposta (<code>TEMPERATURE = 0.3</code>, <code>config.py:42</code>). Il sistema deve quindi fare due cose diverse, che si confondono facilmente: <em>correggere</em> una risposta inutilizzabile dentro la stessa esecuzione, e <em>ripetere</em> l'esecuzione da zero per misurare quanto il risultato cambia da una volta all'altra. Si aggiunge un'esigenza pratica: una sessione può interrompersi e deve riprendere senza rifare ciò che è salvato. Ne vengono tre livelli annidati, con nomi fissi nel codice.</p>
+
+<div class="tab"><table>
+<thead><tr><th>Termine</th><th>Che cos'è</th><th>Dove nasce nel codice</th><th>Come si riconosce nei dati</th></tr></thead>
+<tbody>
+<tr><td><strong>run</strong></td><td>un lancio di <code>python main.py</code></td><td><code>run_id</code>, timestamp UTC se non passato con <code>--run-id</code> (<code>main.py:272-282</code>)</td><td>campo <code>run_id</code> di ogni repetition (<code>utils/experiment_utils.py:406</code>)</td></tr>
+<tr><td><strong>repetition</strong></td><td>un'esecuzione completa e indipendente del grafo su un task, dal caricamento del task al salvataggio</td><td>ciclo <code>for repetition in range(1, args.repetitions + 1)</code> (<code>main.py:455</code>); default <code>REPETITIONS = 10</code> (<code>config.py:47</code>), sovrascrivibile con <code>--repetitions</code> (<code>main.py:243-248</code>)</td><td>campo <code>repetition</code> (<code>utils/experiment_utils.py:402</code>)</td></tr>
+<tr><td><strong>attempt</strong></td><td>una chiamata all'agente dentro una repetition</td><td>contatore <code>attempts</code>, incrementato a ogni passaggio nel nodo <code>run_agent</code> (<code>utils/experiment_utils.py:257</code>)</td><td>campo <code>attempts</code> e lista <code>history</code>, un elemento per attempt (<code>utils/experiment_utils.py:412-413</code>)</td></tr>
+</tbody></table></div>
+
+<p>Un <strong>retry</strong> è un attempt successivo al primo nella stessa repetition. Il massimo di attempt per repetition è <code>MAX_RETRIES = 3</code> (<code>config.py:44</code>, commento «Max attempts per task before stopping»): nonostante il nome, la costante conta gli attempt, primo compreso. Le due condizioni di retry confrontano <code>attempts &lt; MAX_RETRIES</code> dopo che <code>run_agent</code> ha già incrementato il contatore (<code>utils/experiment_utils.py:294</code> e <code>:476</code>), quindi una repetition fa al più un attempt iniziale e due retry.</p>
+
+<p>Il numero di repetition non appartiene alla run ma al file dei risultati: <code>main.py</code> salta i numeri già presenti nel file, quindi un file può contenere repetition prodotte da run diverse, ciascuna marcata con il proprio <code>run_id</code>.</p>
+
+<p class="esempio">Con il lancio dell'esempio, le repetition 1–3 portano il <code>run_id</code> del lancio precedente e le 4–10 quello nuovo; nel file sono un'unica lista di dieci elementi. Ciascuna delle sette repetition nuove fa da uno a tre attempt; la repetition 4 ne fa tre.</p>
+</section>
+
+<section id="modalita">
+<h2>Modalità statica e modalità generica</h2>
+<p>Il sistema ha due modi di procurarsi i task. Nella <strong>modalità statica</strong>, quella usata per le tabelle dell'articolo, i task sono i file Markdown di <code>docs/tasks/</code>: ognuno contiene scenario, codice Go e istruzioni di risposta, e ha accanto un file <code>&lt;task&gt;_sol.md</code> con la soluzione e la rubrica del judge (<code>main.py:367-376</code>, <code>utils/task_utils.py:63-76</code>). Nella <strong>modalità generica</strong> (<code>--source-dir</code>) ogni file sorgente di una cartella diventa un task costruito in memoria, senza soluzione e senza CVE note (<code>main.py:310</code>, <code>:333-366</code>; <code>utils/dynamic_task.py</code>). Il resto di questa pagina descrive la modalità statica; le differenze della generica sono dette dove contano.</p>
+
+<p>Fra i task statici, quelli di <strong>security review</strong> sono i task testuali il cui id contiene <code>vuln</code> (<code>is_cvss_task</code>, <code>utils/cvss_utils.py:29-31</code>): sono gli unici a cui si chiede il blocco CVSS, su cui gira l'SGV e che si valutano contro le CVE. Nella modalità generica ogni task è di security review (<code>utils/task_utils.py:52-61</code>).</p>
+
+</section>
+</div>
+<script src="nav.js"></script>
+</body>
+</html>

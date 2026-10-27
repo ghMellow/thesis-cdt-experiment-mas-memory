@@ -1,0 +1,80 @@
+/* Tokens and page styles shared by every page of docs/artefatti/.
+   Components use only the tokens: a theme is a token block, never a literal inside a component. */
+:root{
+  --bg:#f4f6f9; --surface:#ffffff; --border:#d5dae3;
+  --text:#121721; --text-dim:#4d5767;
+  --accent:#2456a6; --accent-soft:#e2e9f6; --accent-text:#1a3f7d;
+  --warn:#b4442c; --warn-soft:#fbede9;
+  --code-bg:#eceff4;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c1016; --surface:#131922; --border:#263141;
+    --text:#e5e9f0; --text-dim:#97a2b3;
+    --accent:#7ea6ee; --accent-soft:#18243a; --accent-text:#a9c3f6;
+    --warn:#e8806a; --warn-soft:#2a1a17;
+    --code-bg:#1a212c;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c1016; --surface:#131922; --border:#263141;
+  --text:#e5e9f0; --text-dim:#97a2b3;
+  --accent:#7ea6ee; --accent-soft:#18243a; --accent-text:#a9c3f6;
+  --warn:#e8806a; --warn-soft:#2a1a17;
+  --code-bg:#1a212c;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--text); font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif; font-size:17px; line-height:1.6; -webkit-text-size-adjust:100%;}
+::selection{background:var(--accent-soft); color:var(--accent-text);}
+.wrap{max-width:732px; margin:0 auto; padding:2.5rem 16px 5rem;}
+.wrap.largo{max-width:1180px;}
+
+header.top{padding-bottom:1.6rem; margin-bottom:2.2rem; border-bottom:1px solid var(--border);}
+.eyebrow{font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.8rem; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-text);}
+h1,h2,h3{text-wrap:balance;}
+h1{font-size:clamp(1.9rem,4.6vw,2.6rem); font-weight:600; line-height:1.15; margin:.4rem 0 0; letter-spacing:-.01em;}
+.lead{color:var(--text-dim); font-size:1.05rem; margin:.8rem 0 0;}
+section{margin-bottom:2.6rem; scroll-margin-top:4.5rem;}
+h2{font-size:1.4rem; font-weight:600; line-height:1.25; margin:0 0 .8rem;}
+h3{font-size:1.05rem; font-weight:600; margin:1.6rem 0 .5rem;}
+p{margin:0 0 1rem; text-wrap:pretty; overflow-wrap:anywhere;}
+li{overflow-wrap:anywhere;}
+ol,ul{margin:0 0 1rem; padding-left:1.4rem;}
+b,strong{font-weight:600;}
+a{color:var(--accent-text); text-underline-offset:2px;}
+code{font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.84em; background:var(--code-bg); padding:.06em .32em; border-radius:4px; overflow-wrap:anywhere;}
+pre.cmd{background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:.8rem 1rem; overflow-x:auto; font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.8rem; line-height:1.5; margin:0 0 1rem;}
+pre.cmd code{background:none; padding:0; font-size:inherit; overflow-wrap:normal;}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+/* Who the page is for, what it is for, where it comes from: the only box of the overview. */
+dl.breve{display:grid; grid-template-columns:max-content 1fr; gap:.5rem 1.2rem; margin:1.4rem 0 0; padding:1rem 1.2rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; font-size:.93rem; line-height:1.55;}
+dl.breve dt{font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); padding-top:.2rem;}
+dl.breve dd{margin:0;}
+@media (max-width:560px){ dl.breve{grid-template-columns:1fr; gap:.15rem;} dl.breve dd{margin-bottom:.5rem;} }
+
+/* The running example, set apart from the general text. */
+.esempio{border-left:3px solid var(--accent); padding:.1rem 0 .1rem .9rem; margin:0 0 1rem;}
+.esempio::before{content:"Nell'esempio"; display:block; font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-text); margin-bottom:.15rem;}
+div.esempio p:last-child, div.esempio pre:last-child{margin-bottom:0;}
+
+/* Where the paper says something else than the code. */
+.avviso{border-left:3px solid var(--warn); background:var(--warn-soft); padding:.9rem 1.1rem; border-radius:0 8px 8px 0; margin:0 0 1.4rem;}
+.avviso p:last-child{margin-bottom:0;}
+
+.tab{overflow-x:auto; margin:1.2rem 0 1.6rem; border:1px solid var(--border); border-radius:8px; background:var(--surface);}
+table{width:100%; border-collapse:collapse; font-size:.88rem; font-variant-numeric:tabular-nums;}
+th,td{text-align:left; vertical-align:top; padding:.5rem .65rem; border-bottom:1px solid var(--border);}
+tr:last-child td{border-bottom:0;}
+th{font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.74rem; letter-spacing:.05em; text-transform:uppercase; color:var(--text-dim); font-weight:500; background:var(--accent-soft);}
+td code{white-space:nowrap;}
+.tab.dati td{white-space:nowrap;}
+
+figure{margin:1.4rem 0 1.8rem; padding:1.2rem; background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow-x:auto;}
+.mermaid-diagram svg{display:block; margin:0 auto; max-width:100%; height:auto;}
+figure pre.mermaid{margin:0; font-size:13px; white-space:pre;}
+figcaption{font-size:.84rem; color:var(--text-dim); margin-top:.8rem;}

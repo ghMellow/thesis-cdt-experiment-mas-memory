@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Parametri</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="stile.css">
+<link rel="stylesheet" href="nav.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="eyebrow">Documentazione del sistema · Riferimento</div>
+<h1>Parametri</h1>
+</header>
+
+<div class="tab"><table>
+<thead><tr><th>Parametro</th><th>Valore</th><th>Dove</th><th>Effetto</th></tr></thead>
+<tbody>
+<tr><td><code>MAX_RETRIES</code></td><td>3</td><td><code>config.py:44</code></td><td>attempt massimi per repetition, primo compreso: al più 2 retry</td></tr>
+<tr><td><code>REPETITIONS</code></td><td>10</td><td><code>config.py:47</code></td><td>default di <code>--repetitions</code> e numero atteso dai report</td></tr>
+<tr><td><code>TEMPERATURE</code></td><td>0.3</td><td><code>config.py:42</code></td><td>agente e judge (<code>utils/experiment_utils.py:247</code>, <code>:326</code>); <code>--temperature</code> lo sostituisce</td></tr>
+<tr><td><code>TEXTUAL_PASS_RATIO</code></td><td>0.7</td><td><code>config.py:51</code></td><td>soglia del rapporto punteggio/massimo per <code>correct</code></td></tr>
+<tr><td><code>TASK_TIMEOUT_SECONDS</code></td><td>600</td><td><code>config.py:49</code></td><td>tempo massimo di una repetition; <code>--task-timeout</code> lo sostituisce, 0 lo toglie</td></tr>
+<tr><td><code>FULL_TASK_TIMEOUT_MULTIPLIER</code></td><td>2.0</td><td><code>config.py:55</code></td><td>moltiplica il timeout per i task con <code>full</code> nell'id</td></tr>
+<tr><td><code>SGV_ENABLED</code></td><td>True</td><td><code>config.py:109</code></td><td>attiva <code>check_sgv</code> sui task di security review</td></tr>
+<tr><td><code>SGV_SNIPPET_ENABLED</code></td><td>True</td><td><code>config.py:113</code></td><td>chiede lo <code>snippet</code> per finding e attiva G3</td></tr>
+<tr><td><code>SGV_SNIPPET_JACCARD_THRESHOLD</code></td><td>0.8</td><td><code>config.py:116</code></td><td>soglia del confronto di riserva di G3</td></tr>
+<tr><td><code>CVSS_ESTIMATE_ENABLED</code></td><td>True</td><td><code>config.py:83</code></td><td>blocco CVSS nel prompt e valutazione contro le CVE</td></tr>
+<tr><td><code>CVSS_CONTEXT_HINT_ENABLED</code></td><td>True</td><td><code>config.py:92</code></td><td>contesto di sistema nel prompt</td></tr>
+<tr><td><code>SAST_HINT_ENABLED</code></td><td>da ambiente, default falso</td><td><code>config.py:99</code></td><td>blocco SAST nella modalità statica</td></tr>
+<tr><td><code>SAST_HINT_DATASET_PATH</code></td><td>da ambiente, default <code>docs/sast_tools/ground_truth_vuln_files.json</code></td><td><code>config.py:102</code></td><td>quale dataset di alert</td></tr>
+</tbody></table></div>
+</div>
+<script src="nav.js"></script>
+</body>
+</html>

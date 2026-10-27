@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Architettura e componenti</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="stile.css">
+<link rel="stylesheet" href="nav.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="eyebrow">Documentazione del sistema · Come gira</div>
+<h1>Architettura e componenti</h1>
+</header>
+
+<p>L'orchestrazione sta in <code>main.py</code>, che per ogni task e repetition invoca un grafo LangGraph; il grafo è costruito in <code>utils/experiment_utils.py</code> e i suoi nodi chiamano i moduli che parlano con i modelli (<code>agents/</code>) e quelli deterministici (<code>utils/</code>). Tutti i testi dei prompt sono in un unico file, <code>agents/prompts.py</code>. La valutazione contro le CVE è un modulo a sé, <code>utils/cvss_eval.py</code>, chiamato dall'ultimo nodo del grafo; i report sono scritti da <code>utils/evaluation_utils.py</code> a fine run. I modelli sono risolti da <code>config.MODELS</code> (<code>config.py:14-35</code>): ruolo <code>agent_1A</code> per l'agente, <code>judge</code> per il giudice, <code>semantic_check</code> per un controllo di equivalenza usato solo nei report.</p>
+
+<div class="tab"><table>
+<thead><tr><th>Componente</th><th>File</th><th>Ruolo</th></tr></thead>
+<tbody>
+<tr><td><code>main</code></td><td><code>main.py:184-570</code></td><td>legge la CLI, costruisce la lista dei task, salta le repetition già salvate, invoca il grafo sotto timeout, rigenera i report</td></tr>
+<tr><td>grafo (<code>_build_graph</code>)</td><td><code>utils/experiment_utils.py:486-505</code></td><td>cinque nodi: <code>load_task</code>, <code>run_agent</code>, <code>check_sgv</code>, <code>check_answer</code>, <code>save_result</code>; due archi condizionali di retry</td></tr>
+<tr><td><code>load_task</code> (<code>_load_task</code>)</td><td><code>utils/task_utils.py:40-95</code></td><td>legge task e <code>_sol.md</code>, accoda SAST hint e istruzioni CVSS</td></tr>
+<tr><td><code>run_agent</code></td><td><code>utils/experiment_utils.py:233-270</code>, <code>agents/agent_runner.py:23-75</code></td><td>chiama l'agente; dal secondo attempt usa il prompt di retry</td></tr>
+<tr><td><code>check_sgv</code> → SGV</td><td><code>utils/experiment_utils.py:273-290</code>, <code>utils/sgv.py:176-231</code></td><td>controlli formali G1–G4 sul blocco CVSS, senza ground truth</td></tr>
+<tr><td><code>check_answer</code> → judge</td><td><code>utils/experiment_utils.py:304-367</code>, <code>agents/judge_agent.py:92-141</code></td><td>verdetto <code>correct</code>/<code>wrong</code>: confronto numerico sui task math, judge LLM con rubrica sui testuali</td></tr>
+<tr><td><code>save_result</code></td><td><code>utils/experiment_utils.py:370-472</code></td><td>valuta il blocco CVSS contro le CVE (<code>utils/cvss_eval.py</code>) e aggiunge la repetition al file JSON</td></tr>
+<tr><td>testi dei prompt</td><td><code>agents/prompts.py</code></td><td>system prompt, contesto di sistema, blocco SAST, blocco CVSS, prompt del controllo semantico</td></tr>
+<tr><td>SAST hint</td><td><code>utils/sast_hint.py</code>, <code>utils/sast_unified_to_hint.py</code>, <code>utils/sast_ingest.py</code></td><td>rende gli alert come blocco di prompt; converte il report multi-tool del team; ingerisce un report per la modalità generica</td></tr>
+<tr><td>valutazione</td><td><code>utils/cvss_eval.py</code></td><td>abbinamento finding–CVE per nome di funzione, metriche di gravità, aggregati TP/FP/FN</td></tr>
+<tr><td>report</td><td><code>utils/evaluation_utils.py</code></td><td><code>results/reports/result_&lt;task&gt;_&lt;experiment&gt;.md</code> e file di dettaglio per finding</td></tr>
+<tr><td>tabelle per il paper</td><td><code>utils/generate_detection_table.py</code>, <code>utils/generate_multitool_table.py</code></td><td>tabelle TP/FP/FN stampate a terminale, con la correzione dei match spuri su UDR</td></tr>
+</tbody></table></div>
+
+<figure>
+<pre class="mermaid">
+flowchart LR
+  ar_CLI["main.py&lt;br/&gt;CLI, task, repetition"] --> ar_G
+  subgraph ar_G["grafo LangGraph (experiment_utils)"]
+    direction LR
+    ar_LT["load_task"] --> ar_RA["run_agent"] --> ar_CS{{"check_sgv"}} --> ar_CA{{"check_answer"}} --> ar_SR["save_result"]
+  end
+  ar_DT[("docs/tasks/#lt;task#gt;.md&lt;br/&gt;+ _sol.md")] --> ar_LT
+  ar_SD[("dataset alert SAST")] --> ar_LT
+  ar_RA <--> ar_AG["agente LLM&lt;br/&gt;MODELS agent_1A"]
+  ar_CS --- ar_SGV["utils/sgv.py&lt;br/&gt;G1–G4"]
+  ar_CA <--> ar_JU["judge LLM&lt;br/&gt;MODELS judge"]
+  ar_SR --> ar_EV["utils/cvss_eval.py"]
+  ar_CVE[("cve_metrics_normalized.json")] --> ar_EV
+  ar_SR --> ar_RJ[("results/rawJson/…json")]
+  ar_RJ --> ar_REP["evaluation_utils&lt;br/&gt;report .md"]
+</pre>
+<figcaption>Solo <code>save_result</code> legge il dataset delle CVE; i nodi del ciclo (<code>run_agent</code>, <code>check_sgv</code>, <code>check_answer</code>) non vi hanno accesso. I report si scrivono a fine run, leggendo i JSON salvati, non lo stato del grafo.</figcaption>
+</figure>
+</div>
+<script src="vendor/mermaid.min.js"></script>
+<script src="diagrammi.js"></script>
+<script src="nav.js"></script>
+</body>
+</html>

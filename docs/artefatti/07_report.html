@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>I report</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="stile.css">
+<link rel="stylesheet" href="nav.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="eyebrow">Documentazione del sistema · Come si misura</div>
+<h1>I report</h1>
+</header>
+
+<p>A fine run, per ogni experiment-id eseguito e ogni task, si scrive <code>results/reports/result_&lt;task&gt;_&lt;experiment&gt;.md</code> (<code>_write_evaluation_reports</code>, <code>utils/evaluation_utils.py:2329-2366</code>), costruito da <code>_build_experiment_report</code> (<code>:2113-2326</code>). L'ordine del report mette prima i dati deterministici e poi quelli del judge: intestazione delle run, indice, blocco CVSS (dettaglio dei finding abbinati con il loro vettore, finding non abbinati, finding distinti, poi le tabelle aggregate: detection, Precision@K, variabilità, matrice CVE × repetition, delta per canale di retry, incrocio detection × SGV, gravità), sezione SGV, valutazione con rubrica (<code>:2315-2326</code>, <code>:462-522</code>). Per ogni finding abbinato e non abbinato si scrive anche un file di dettaglio in <code>results/reports/matched_findings/</code> e <code>unmatched_findings/</code>. Il confronto <code>comparison.md</code> si rigenera solo quando sono in gioco entrambi gli experiment-id <code>1A</code> e <code>1B</code> (<code>:2368-2369</code>).</p>
+
+<p>Il <strong>canale di retry</strong> di un attempt, usato nella tabella del delta per canale, è «SGV» se l'SGV lo ha bocciato, altrimenti «rubric» se c'è un verdetto (<code>_retry_cause</code>, <code>:935-945</code>): l'SGV viene prima, quindi è la causa anche quando anche il judge avrebbe bocciato.</p>
+
+<section id="report-intestazione">
+<h2>Intestazione run/repetition</h2>
+<p>Siccome le repetition di un file possono venire da run diverse, giorni diversi, ogni report si apre dicendo quali run aggrega (<code>_build_run_id_note</code>, <code>utils/evaluation_utils.py:2032-2110</code>). Per ruolo dà il numero di repetition e di run; per ogni run il <code>run_id</code>, le repetition che ha prodotto (in intervalli compressi, <code>1–3, 5</code>) e la data, presa da <code>started_at</code> o, per i risultati vecchi, dal <code>run_id</code> (<code>_run_date</code>, <code>:2022-2029</code>). Dichiara poi le repetition attese per task e ruolo, <code>config.REPETITIONS</code>, e avvisa per ogni task e ruolo il cui numero di repetition distinte è diverso, o che ha numeri ripetuti: un report con meno repetition degli altri non è confrontabile con loro (<code>:2091-2108</code>; chiamata in <code>:2160-2164</code>).</p>
+
+<p class="esempio">L'intestazione del report UDR dice <code>agent</code>: 10 repetition da 2 run, con il <code>run_id</code> del primo lancio per le repetition 1–3 e quello del lancio dell'esempio per le 4–10, ciascuno con la sua data. Le repetition sono 10 come <code>REPETITIONS</code>, quindi non compare l'avviso.</p>
+</section>
+
+<section id="report-gruppi">
+<h2>Gruppi e finding distinti</h2>
+<p>Lo stesso difetto ricompare in più repetition, e a volte due volte nella stessa. Per riconoscerlo a colpo d'occhio, il report assegna una lettera di <strong>gruppo</strong> condivisa fra la tabella dei finding abbinati e quella dei non abbinati (<code>_compute_finding_groups</code>, <code>:1437-1550</code>). I finding abbinati alla stessa CVE (stesso task e ruolo) sono un gruppo per definizione. Un finding non abbinato entra nel gruppo di una CVE se la sua funzione contiene un gestore di quella CVE, o vi è contenuta, e la CVE è stata abbinata almeno una volta: è il caso del duplicato nella stessa repetition, quando la CVE era già stata consumata da un finding precedente. I non abbinati rimasti si raggruppano fra loro (<code>_cluster_unmatched_findings</code>, <code>:1337-1434</code>): stessa funzione e vettore identico danno lo stesso gruppo senza chiamare modelli; stessa funzione con vettori diversi è un caso ambiguo, che un LLM (<code>MODELS["semantic_check"]</code>) decide guardando solo funzione e vettore, con risposta in cache. Una lettera si assegna solo a gruppi di più di un elemento; un non abbinato senza gruppo è <code>≠</code> se l'LLM lo ha giudicato diverso, <code>—</code> se non è mai stato confrontato.</p>
+
+<p>La sezione <strong>Distinct findings</strong> conta i finding distinti usando questi gruppi (<code>_build_distinct_findings_section</code>, <code>:1788-1915</code>). Le righe abbinate collassano per CVE; una riga non abbinata che porta la lettera di una CVE si unisce a quella CVE; le altre righe non abbinate collassano per (task, ruolo, nome di funzione normalizzato), ignorando il vettore; una riga senza nome di funzione resta da sola. La sezione dà due tabelle: per repetition (righe, distinti, collassati) e per l'intero report (gruppo, CVE, funzioni, repetition in cui compare, righe collassate, score massimo dal vettore). È solo una vista: TP, FP, FN e le tabelle aggregate non cambiano. Per i non abbinati il numero di distinti è un limite superiore, perché lo stesso difetto riportato su funzioni diverse resta due finding.</p>
+</section>
+
+<section id="report-vista">
+<h2>Vista sulle prime N repetition</h2>
+<p>I conteggi del report si sommano sulle repetition, quindi due report con un numero diverso di repetition non si confrontano: dieci repetition danno più TP e più FP di tre anche con lo stesso comportamento dell'agente. Quando un report va messo accanto a uno che ne ha meno, si genera una <strong>vista</strong> sulle prime N:</p>
+<pre class="cmd"><code>python -m utils.evaluation_utils --experiment-id &lt;id&gt; --max-repetitions 3</code></pre>
+<p>La vista prende, per ogni task e ruolo, le repetition con i numeri da 1 a N, in ordine e non a campione (<code>_first_repetitions</code>, <code>utils/evaluation_utils.py:69-84</code>), e scrive <code>result_&lt;task&gt;_&lt;experiment&gt;_n&lt;N&gt;.md</code> accanto al report completo, che resta com'è (<code>:2329-2366</code>). Senza <code>--experiment-id</code> la vista si fa su tutti gli experiment-id salvati tranne i <code>dyn_*</code> della modalità generica (blocco <code>__main__</code>, <code>:2475-2478</code>). Le lettere di gruppo si ricalcolano sulle sole N repetition, quindi possono differire da quelle del report completo: per questo i file di dettaglio della vista hanno nome proprio, con <code>&lt;experiment&gt;_n&lt;N&gt;</code> al posto dell'experiment-id, e non sovrascrivono quelli del report completo (<code>file_id</code>, <code>:2129-2142</code>). L'intestazione dichiara la vista e quante repetition ci sono su disco (<code>:2062-2067</code>), e l'avviso sul numero di repetition confronta con N invece che con <code>REPETITIONS</code> (<code>:2160-2164</code>). <code>comparison.md</code> non si scrive per una vista (<code>:2369</code>).</p>
+<p class="esempio">Il file di UDR ha dieci repetition; per metterlo accanto a un report di tre si lancia la vista con <code>--max-repetitions 3</code>. Esce <code>result_task6_vuln_udr_full_1A_sast3tool_full_n3.md</code>, che conta TP, FP e FN sulle repetition 1–3 e nell'intestazione dice «first 3 repetitions … (10 on disk)»; il report sulle dieci repetition non cambia.</p>
+</section>
+</div>
+<script src="nav.js"></script>
+</body>
+</html>

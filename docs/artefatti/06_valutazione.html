@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Valutazione contro le CVE</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="stile.css">
+<link rel="stylesheet" href="nav.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="eyebrow">Documentazione del sistema · Come si misura</div>
+<h1>Valutazione contro le CVE</h1>
+</header>
+
+<p>La valutazione con la ground truth avviene fuori dal ciclo, nel nodo <code>save_result</code>, quando la repetition è conclusa: nulla di ciò che si calcola qui torna all'agente, e il codice dichiara che non influisce sul verdetto (<code>utils/experiment_utils.py:375</code>). Sui task di security review della modalità statica, <code>evaluate_cvss_estimate</code> confronta i finding del blocco CVSS con le CVE del dataset <code>File_Free5gc_Vulnerabili/cve_metrics_normalized.json</code> (<code>config.py:84</code>; chiamata in <code>utils/experiment_utils.py:382-398</code>; funzione in <code>utils/cvss_eval.py:274</code>). Il risultato sull'ultimo attempt va in <code>cvss_eval</code>; lo stesso calcolo sul primo attempt va in <code>cvss_eval_pass1</code>, per confrontare la detection prima e dopo i retry (<code>:391-396</code>). Nella modalità generica la valutazione non si fa (<code>:382-386</code>) e a fine run si scrive il report senza ground truth (<code>main.py:547-564</code>).</p>
+
+<section id="matching">
+<h2>Abbinamento finding–CVE</h2>
+<p>Le <strong>CVE candidate</strong> di un task sono quelle del dataset il cui <code>task_id</code> è un prefisso dell'id del task; nelle varianti <code>_full</code>, che contengono il file intero, si includono anche le CVE fuori dall'estratto (<code>in_task_excerpt: false</code>) (<code>_candidate_cves</code>, <code>utils/cvss_eval.py:140-153</code>). Una CVE senza <code>task_id</code> nel dataset non è candidata di nessun task.</p>
+
+<p>L'abbinamento è deterministico e avviene per nome di funzione, perché è l'unica identità che il report e il dataset hanno in comune. Un finding corrisponde a una CVE se il suo campo <code>function</code> contiene uno dei gestori della CVE (<code>handler_functions</code>) o vi è contenuto, senza maiuscole (<code>_match_finding</code>, <code>utils/cvss_eval.py:156-175</code>). I finding si scorrono nell'ordine in cui l'agente li ha scritti e ogni CVE si consuma al primo finding che la abbina; un secondo finding sullo stesso gestore resta non abbinato (<code>:303-309</code>). Fa eccezione il caso di un solo finding su un task con una sola CVE candidata: si abbinano senza confrontare i nomi (<code>:298-301</code>).</p>
+
+<p>Per ogni coppia abbinata si calcolano le metriche di gravità (distanza fra vettore stimato e vettore pubblicato, score ricalcolato con la matematica ufficiale CVSS 4.0, coerenza fra score dichiarato e ricalcolato; <code>_evaluate_matched_pair</code>, <code>:178-252</code>). Ogni finding non abbinato è descritto a parte, con lo score ricalcolato dal suo vettore, e la lista è ordinata dal più grave (<code>_describe_unmatched</code>, <code>:255-271</code>; <code>:313-316</code>).</p>
+
+<p class="esempio">Il task <code>task6_vuln_udr_full</code> ha 6 CVE candidate, ciascuna con un gestore: CVE-2026-40245 (<code>HandleApplicationDataInfluenceDataSubsToNotifyGet</code>), 40246, 40247, 40248 (<code>…SubsToNotifySubscriptionId{Delete,Get,Put}</code>), 40249 (<code>HandlePolicyDataSubsToNotifySubsIdPut</code>), 40343 (<code>HandlePolicyDataSubsToNotifyPost</code>). Nella repetition 4 i due finding su <code>…SubscriptionIdDelete</code> e <code>…SubscriptionIdGet</code> si abbinano a 40246 e 40247. Il finding sulla regex di <code>HandleCreateEeSubscriptions</code> non si abbina: la CVE della regex (CVE-2026-47780) è nel dataset senza <code>task_id</code> né gestori, quindi non è candidata. Nemmeno quello su <code>HandlePolicyDataSubsToNotifySubsIdDelete</code> si abbina, perché nessuna CVE ha quel gestore.</p>
+</section>
+
+<section id="metriche">
+<h2>TP, FP, FN e metriche</h2>
+<p>L'unità di analisi è la CVE (<code>aggregate_detection_metrics</code>, <code>utils/cvss_eval.py:350-405</code>). Le definizioni:</p>
+
+<div class="tab"><table>
+<thead><tr><th>Grandezza</th><th>Definizione nel codice</th></tr></thead>
+<tbody>
+<tr><td><strong>TP</strong></td><td>CVE candidate abbinate a un finding (<code>len(matched)</code>)</td></tr>
+<tr><td><strong>FN</strong></td><td>CVE candidate non abbinate (<code>missed_cves</code>)</td></tr>
+<tr><td><strong>FP</strong></td><td>finding non abbinati a nessuna CVE candidata (<code>unmatched_findings</code>): comprende vulnerabilità vere non catalogate, non solo falsi positivi</td></tr>
+<tr><td>precision, recall, F1</td><td>TP/(TP+FP), TP/(TP+FN), media armonica</td></tr>
+<tr><td><strong>detection rate</strong></td><td>quota di repetition (con almeno una CVE candidata) in cui almeno una CVE è abbinata</td></tr>
+<tr><td>avg coverage</td><td>media, sulle repetition, di CVE abbinate / CVE candidate</td></tr>
+<tr><td>alerts/TP</td><td>(TP+FP)/TP: quanti finding legge un revisore per ogni vero positivo; non definito con TP = 0</td></tr>
+<tr><td>controllo di coerenza</td><td>TP+FN deve uguagliare la somma delle CVE candidate delle repetition aggregate; se no, il report lo segnala</td></tr>
+</tbody></table></div>
+
+<p>Nei report i conteggi si sommano su tutte le repetition aggregate: l'unità è CVE × repetition, e una CVE trovata in ogni repetition conta un TP per repetition (<code>utils/evaluation_utils.py</code>, <code>_build_detection_metrics_section</code>, <code>:615-766</code>). La riga principale è una micro-media (precision, recall e F1 calcolate sui totali); quando si aggregano almeno due task con CVE compare anche la macro-media, media semplice dei valori per task (<code>_macro_average</code>, <code>:649</code>, <code>:705-710</code>). Ogni metrica si dà due volte: sulla risposta finale (<code>final answer</code>, da <code>cvss_eval</code>) e sul primo attempt (<code>first attempt</code>, da <code>cvss_eval_pass1</code>), così la differenza misura l'effetto del ciclo dei retry sulla detection.</p>
+
+<p class="esempio">La repetition 4 dà TP = 2, FN = 4, FP = 2: precision 0,5, recall 0,33, e conta come «rilevata» nel detection rate. Sulle dieci repetition del file, TP + FN deve fare 6 × 10 = 60.</p>
+</section>
+
+<section id="tabelle-paper">
+<h2>Le tabelle del paper</h2>
+<p>Le tabelle per l'articolo non escono dai report di run ma da due script che stampano a terminale: <code>utils/generate_detection_table.py</code> (configurazioni no-hint / SonarQube) e <code>utils/generate_multitool_table.py</code> (no-hint / 3 tool / 3 tool + codice collegato, su UDR e UDM; bracci in <code>:24-28</code>). Riusano le funzioni di abbinamento e aggregazione di <code>utils/cvss_eval.py</code>, con due differenze rispetto ai report. Applicano una correzione: su UDR i gestori di CVE-2026-40249 e CVE-2026-40343 producono abbinamenti spuri (il finding descrive un altro difetto), e gli script svuotano i loro <code>handler_functions</code> prima di valutare (<code>UDR_SPURIOUS_CVES</code>, <code>utils/generate_detection_table.py:62</code>; <code>_corrected_dataset</code>, <code>:100-106</code>). I report di run usano il dataset senza correzione, quindi su UDR i loro TP possono essere più alti di quelli delle tabelle. E accanto ai conteggi CVE × repetition danno quelli <strong>distinti</strong>: CVE trovate almeno una volta, FN = candidate meno distinte trovate, FP = nomi di funzione distinti fra i finding non abbinati (<code>_aggregate_distinct</code>, <code>:160-186</code>).</p>
+
+</section>
+</div>
+<script src="nav.js"></script>
+</body>
+</html>

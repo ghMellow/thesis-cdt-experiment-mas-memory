@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Divergenze dal paper</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="stile.css">
+<link rel="stylesheet" href="nav.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="eyebrow">Documentazione del sistema · Riferimento</div>
+<h1>Divergenze dal paper</h1>
+</header>
+
+<p>Le altre pagine descrivono il codice. Questa elenca i punti in cui la Sezione IV («System Architecture») e la Sezione VI dell'articolo IEEE ICAI-TEMS 2026 dicono altro, perché chi scrive un nuovo articolo o il capitolo della tesi decida quale versione descrivere. Ogni riga dà la frase dell'articolo e il comportamento del codice con il suo <code>file:riga</code>.</p>
+<div class="tab"><table>
+<thead><tr><th>Punto</th><th>Il paper</th><th>Il codice</th></tr></thead>
+<tbody>
+<tr><td>Nome del verificatore</td><td>Syntactic Structure Verifier (SSV)</td><td>Syntactic Grounding Verifier, SGV (<code>utils/sgv.py:1</code>)</td></tr>
+<tr><td>Numero di retry</td><td>«up to k=3 retries in total»</td><td>3 attempt in tutto, primo compreso: al più 2 retry (<code>config.py:44</code>, <code>utils/experiment_utils.py:294</code>)</td></tr>
+<tr><td>Rubrica del judge</td><td>rubrica da 10 punti: evidence presence, absence grounding, granularity, classification, severity consistency</td><td>sui quattro task NF la rubrica è quella del task, massimo 9, con criteri che nominano la debolezza attesa; la rubrica da 10 si usa solo in modalità generica (<a href="04_pipeline.html#judge">Judge e verdetto</a>)</td></tr>
+<tr><td>Ingresso del judge</td><td>valuta solo il report, «never the raw source file»</td><td>riceve scenario e codice sorgente (tutto prima di <code>## Agent Instructions</code>), rubrica, Answer/Reasoning/Confidence; non il blocco CVSS (<code>agents/judge_agent.py:26-30</code>, <code>:74-89</code>)</td></tr>
+<tr><td>Feedback dopo un punteggio sotto soglia</td><td>«semantic feedback»</td><td>nessun feedback del judge nel prompt di retry; l'addendum è neutro (<code>utils/experiment_utils.py:202-230</code>)</td></tr>
+<tr><td>Ammissione</td><td>«A report is admitted only if it clears both checks»</td><td>i controlli decidono il retry, non il salvataggio: si valuta l'ultimo report qualunque sia l'esito (<a href="04_pipeline.html#esaurimento">Quando gli attempt finiscono</a>)</td></tr>
+<tr><td>Simboli controllati</td><td>«every referenced symbol»</td><td>solo il campo <code>function</code> di ogni finding (<code>utils/sgv.py:203</code>)</td></tr>
+<tr><td>Metriche del vettore</td><td>il blocco CVSS chiede tutte le 11 metriche; «vector well-formedness»</td><td>il prompt chiede 11 metriche, ma G4 controlla solo le 8 AV…VA; SC/SI/SA non sono validate (<code>utils/cvss_eval.py:52</code>, <code>utils/sgv.py:167</code>)</td></tr>
+<tr><td>Campo di grounding</td><td>«an added line parameter»</td><td>il campo si chiama <code>snippet</code> e contiene una riga di codice copiata (<code>agents/prompts.py:149-152</code>)</td></tr>
+<tr><td>DR nella tabella III</td><td>Discovery Rate = Candidates / (TP + FP)</td><td>nei report «detection rate» è un'altra cosa: quota di repetition con almeno una CVE abbinata (<code>utils/cvss_eval.py:374</code>, <code>:394</code>); la Discovery Rate è solo negli script delle tabelle (<code>utils/generate_detection_table.py:221</code>)</td></tr>
+<tr><td>Repetition nella tabella III</td><td>R non dichiarato</td><td>la combinazione che riproduce la tabella III prende UDR SAST-hint su tutte le repetition su disco (10), mentre la tabella canonica dello stesso script lo limita a 3 come gli altri NF (<code>utils/generate_detection_table.py:64-69</code>, <code>:88-91</code>)</td></tr>
+<tr><td>Abbinamenti su UDR</td><td>TP da matching deterministico</td><td>le tabelle applicano la correzione dei match spuri su CVE-2026-40249/40343; i report di run no (<a href="06_valutazione.html#tabelle-paper">Le tabelle del paper</a>)</td></tr>
+</tbody></table></div>
+</div>
+<script src="nav.js"></script>
+</body>
+</html>

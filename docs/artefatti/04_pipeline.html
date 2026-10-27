@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Execution pipeline</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="stile.css">
+<link rel="stylesheet" href="nav.css">
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div class="eyebrow">Documentazione del sistema · Come gira</div>
+<h1>Execution pipeline</h1>
+</header>
+
+<section id="run-rep">
+<h2>Dalla run alla repetition</h2>
+<p>Prima di eseguire qualcosa, <code>main.py</code> conta le repetition mancanti e stima il tempo massimo (<code>main.py:389-424</code>). Poi, per ogni task e per ogni numero da 1 a <code>--repetitions</code>, controlla con <code>_result_exists</code> se nel file dei risultati c'è già una repetition con quel numero (<code>main.py:455-466</code>; funzione in <code>utils/task_utils.py:103-117</code>). Il file è uno solo per combinazione di task, experiment-id, ruolo e modello: <code>results/rawJson/&lt;task&gt;/&lt;experiment_id&gt;/&lt;ruolo&gt;/&lt;modello&gt;.json</code> (<code>utils/experiment_utils.py:431-439</code>). Se la repetition c'è la salta, altrimenti la esegue: per questo rilanciare lo stesso comando riprende una run interrotta.</p>
+
+<p>Ogni repetition parte da uno stato nuovo, con <code>attempts = 0</code> e <code>history</code> vuota (<code>main.py:470-483</code>). Non c'è memoria fra repetition: l'agente non vede le risposte delle repetition precedenti. <code>main.py</code> tiene la risposta precedente solo per segnalare, a fine run, quali repetition consecutive hanno dato una risposta diversa (<code>main.py:537-542</code>).</p>
+
+<figure>
+<pre class="mermaid">
+flowchart LR
+  rr_R["run&lt;br/&gt;python main.py&lt;br/&gt;run_id"] --> rr_T["prossimo task"]
+  rr_T --> rr_P{{"main&lt;br/&gt;repetition k&lt;br/&gt;già salvata?"}}
+  rr_P -- "sì: salta" --> rr_N["k + 1"]
+  rr_P -- "no" --> rr_G["graph.invoke&lt;br/&gt;stato nuovo,&lt;br/&gt;attempts = 0"]
+  rr_G --> rr_S["repetition aggiunta&lt;br/&gt;al file JSON"]
+  rr_S --> rr_N
+  rr_N -- "k ≤ --repetitions" --> rr_P
+  rr_N -- "k > --repetitions" --> rr_T
+  rr_T -- "task finiti" --> rr_E["report di valutazione&lt;br/&gt;su tutto il file"]
+</pre>
+<figcaption>Il contatore k riparte da 1 per ogni task; una repetition già nel file non viene rieseguita né sovrascritta. Il ciclo degli attempt sta tutto dentro <code>graph.invoke</code> (<a href="#grafo">Il grafo e il ciclo degli attempt</a>).</figcaption>
+</figure>
+
+<p>A fine run <code>main.py</code> rigenera i report (<code>main.py:565-569</code>) su <em>tutte</em> le repetition presenti nei file dei task eseguiti, non solo su quelle della run appena finita: la chiamata non passa il <code>run_id</code>. Per un report limitato a una run esiste <code>python -m utils.evaluation_utils --run-id &lt;id&gt;</code>; <code>--list-runs</code> elenca i gruppi (task, experiment, ruolo, <code>run_id</code>) con il numero di repetition (blocco <code>__main__</code> di <code>utils/evaluation_utils.py</code>; filtro in <code>_collect_results</code>, <code>:26-66</code>).</p>
+</section>
+
+<section id="grafo">
+<h2>Il grafo e il ciclo degli attempt</h2>
+<p>La prima risposta dell'agente può essere inutilizzabile per ragioni di natura diversa: un formato che non si legge, una funzione citata che nel codice non c'è, un contenuto che il judge ritiene insufficiente. Il grafo separa due tipi di controllo. L'SGV è deterministico e guarda solo la forma del report; <code>check_answer</code> giudica il contenuto. Tutti e due possono rimandare all'agente e consumano lo stesso contatore.</p>
+
+<figure>
+<pre class="mermaid">
+flowchart LR
+  gr_L["load_task"] --> gr_A["run_agent&lt;br/&gt;attempts += 1"]
+  gr_A --> gr_S{{"check_sgv&lt;br/&gt;report formalmente&lt;br/&gt;valido?"}}
+  gr_S -- "no, attempts &lt; 3&lt;br/&gt;retry con feedback SGV" --> gr_A
+  gr_S -- "sì, oppure&lt;br/&gt;no con attempts = 3" --> gr_C{{"check_answer&lt;br/&gt;verdetto&lt;br/&gt;correct?"}}
+  gr_C -- "no, attempts &lt; 3&lt;br/&gt;retry senza feedback" --> gr_A
+  gr_C -- "sì, oppure&lt;br/&gt;no con attempts = 3" --> gr_V["save_result&lt;br/&gt;valutazione CVE&lt;br/&gt;+ salvataggio"]
+</pre>
+<figcaption>Un solo contatore (<code>attempts</code>) per i due archi di ritorno; il 3 è <code>MAX_RETRIES</code> (<code>config.py:44</code>). Quando l'SGV fallisce e restano attempt, il judge non viene chiamato. Archi in <code>utils/experiment_utils.py:494-503</code>, condizioni in <code>:293-301</code> e <code>:475-483</code>.</figcaption>
+</figure>
+
+<p>Un retry scatta in due casi, e solo in questi:</p>
+<ol>
+<li><strong>l'SGV boccia il report e restano attempt</strong>: <code>sgv_passed</code> falso e <code>attempts &lt; MAX_RETRIES</code> (<code>_route_after_sgv</code>, <code>utils/experiment_utils.py:293-301</code>);</li>
+<li><strong>il verdetto non è <code>correct</code> e restano attempt</strong>: <code>verdict != "correct"</code> e <code>attempts &lt; MAX_RETRIES</code> (<code>_route_after_check</code>, <code>utils/experiment_utils.py:475-483</code>).</li>
+</ol>
+<p>Una risposta che non si riesce a leggere finisce nel primo caso: se l'output dell'agente non è né il Markdown atteso né JSON, viene sostituito da una risposta vuota (<code>agents/agent_runner.py:57-71</code>), che non ha sezione CVSS e quindi fallisce G1. Sui task che non sono di security review, o con <code>SGV_ENABLED</code> falso, <code>check_sgv</code> passa sempre (<code>utils/experiment_utils.py:277-279</code>) e resta solo il secondo caso.</p>
+</section>
+
+<section id="sgv">
+<h2>SGV (Syntactic Grounding Verifier)</h2>
+<p>L'SGV esiste per poter rimandare all'agente un report sbagliato nella forma senza usare la ground truth, così che nessuna informazione sulla soluzione torni nella generazione e la decisione sia riproducibile. Lavora sul blocco CVSS della risposta, già letto dal parser in una lista di finding (<code>utils/cvss_utils.py:54-109</code>), e applica quattro controlli (<code>run_sgv</code>, <code>utils/sgv.py:176-231</code>).</p>
+
+<div class="tab"><table>
+<thead><tr><th>Controllo</th><th>Che cosa verifica</th><th>Dove</th></tr></thead>
+<tbody>
+<tr><td><strong>G1</strong> forma</td><td>la sezione <code>### CVSS Estimate</code> esiste, si legge, ha almeno un finding, e ogni finding ha <code>function</code>, <code>vector</code>, <code>score</code> e, con <code>SGV_SNIPPET_ENABLED</code>, <code>snippet</code>. Se G1 fallisce gli altri controlli non si eseguono</td><td><code>utils/sgv.py:103-123</code>, <code>:185-191</code></td></tr>
+<tr><td><strong>G2</strong> esistenza</td><td>il valore del campo <code>function</code> compare fra le funzioni Go definite nei blocchi <code>```go</code> del prompt, confronto esatto senza maiuscole, con o senza ricevitore (<code>handlex</code> o <code>server.handlex</code>). Si controlla solo il campo <code>function</code>, non altri simboli citati nel testo</td><td><code>utils/sgv.py:45-62</code>, <code>:126-133</code></td></tr>
+<tr><td><strong>G3</strong> aderenza dello snippet</td><td>la riga citata è una sottostringa del codice, normalizzando spazi e spazi attorno alla punteggiatura; altrimenti si accetta se la somiglianza Jaccard sui token con una finestra di 1, 2 o 3 righe consecutive è almeno <code>SGV_SNIPPET_JACCARD_THRESHOLD = 0.8</code></td><td><code>utils/sgv.py:65-100</code>, <code>:136-158</code>; soglia <code>config.py:116</code></td></tr>
+<tr><td><strong>G4</strong> vettore</td><td>il vettore ha un valore ammesso per ciascuna delle 8 metriche AV, AC, AT, PR, UI, VC, VI, VA, e lo score è numerico. SC, SI, SA, che il prompt chiede, non sono controllate</td><td><code>utils/sgv.py:161-173</code>; metriche <code>utils/cvss_eval.py:46-52</code></td></tr>
+</tbody></table></div>
+
+<p>Il report passa solo se <em>tutti</em> i finding passano G2, G3 e G4 (<code>utils/sgv.py:223</code>): un solo finding mal formato fa ripartire l'intero report. Il feedback è un elenco di errori per finding, nella forma <code>[funzione] G2: …</code>, introdotto da una frase che dice che non si sta giudicando se il codice è vulnerabile (<code>utils/sgv.py:224-230</code>); non dice mai quale funzione è vulnerabile. Il testo degli errori è in italiano, il resto del prompt in inglese. L'esito completo di ogni attempt resta in <code>history[i].sgv_eval</code> (<code>utils/experiment_utils.py:285-286</code>).</p>
+
+<p>Il «codice mostrato all'agente» per G2 e G3 è ogni blocco <code>```go</code> del prompt (<code>extract_source_blocks</code>, <code>utils/sgv.py:45-48</code>), quindi anche i blocchi di codice collegato che il SAST hint può aggiungere al prompt.</p>
+
+<p class="esempio">Al primo attempt della repetition 4 l'agente scrive <code>function: HandleEeSubscriptionCreate</code>, un nome che nel file non esiste (il gestore vero è <code>HandleCreateEeSubscriptions</code>). G2 fallisce su quel finding, <code>attempts</code> è 1, quindi l'arco di ritorno dell'SGV riporta a <code>run_agent</code> e il judge non viene chiamato.</p>
+</section>
+
+<section id="judge">
+<h2>Judge e verdetto</h2>
+<p>Sui task testuali, compresi quelli di security review, il verdetto lo dà un giudice LLM con una rubrica (<code>utils/experiment_utils.py:317-367</code>). Il judge esiste come secondo canale di retry: l'SGV non sa dire se il contenuto del report è adeguato, solo se è ben formato. Sui task math il verdetto è invece un confronto con la soluzione, esatto per gli interi e con tolleranza per i reali (<code>utils/experiment_utils.py:92-122</code>, <code>:305-315</code>).</p>
+
+<p>La rubrica di un task statico è il secondo blocco JSON del suo <code>_sol.md</code> (<code>utils/task_utils.py:73-76</code>): è scritta per quel task e i suoi criteri nominano la debolezza attesa. Per i quattro task NF usati nelle tabelle il massimo è 9. Solo nella modalità generica si usa la rubrica senza ground truth di <code>DYNAMIC_RUBRIC_PATH</code> (<code>config.py:124</code>, <code>main.py:172</code>), con cinque criteri (<code>presence_evidence_score</code>, <code>absence_claims_score</code>, <code>finding_granularity_score</code>, <code>weakness_classification_score</code>, <code>severity_consistency_score</code>) e massimo 10.</p>
+
+<p>Il judge riceve come messaggio di sistema un prompt generato dalla rubrica, con un modello di risposta che ha una riga per criterio più <code>total_score</code> (<code>build_judge_prompt</code>, <code>utils/experiment_utils.py:52-81</code>). Come messaggio utente riceve il testo del task fino a <code>## Agent Instructions</code> esclusa (scenario, codice, domanda), la rubrica, e le sezioni Answer, Reasoning e Confidence della risposta (<code>agents/judge_agent.py:63-89</code>). Non riceve il blocco CVSS dell'agente, né la soluzione testuale del <code>_sol.md</code>, né il blocco SAST.</p>
+
+<p>Il verdetto si calcola così. Se il judge scrive la riga <code>total_score</code>, si usa quel valore; solo se manca si sommano i punteggi dei criteri (<code>utils/experiment_utils.py:338-344</code>). Il totale si limita fra 0 e il massimo della rubrica, si divide per il massimo, e il verdetto è <code>correct</code> se il rapporto è almeno <code>TEXTUAL_PASS_RATIO = 0.7</code> (<code>config.py:51</code>, <code>utils/experiment_utils.py:346-352</code>). Punteggio e verdetto si scrivono anche nell'attempt corrente di <code>history</code> (<code>:362-364</code>).</p>
+
+<p class="esempio">La rubrica di <code>task6_vuln_udr_full</code> ha tre criteri: <code>missing_return_score</code> (max 4), <code>regex_validation_score</code> (max 3), <code>impact_assessment_score</code> (max 2), totale 9. Al secondo attempt il judge scrive <code>total_score: 5</code>: 5/9 = 0,56, sotto 0,7, verdetto <code>wrong</code>; <code>attempts</code> è 2, quindi retry. Al terzo attempt scrive 7: 7/9 = 0,78, verdetto <code>correct</code>, e la repetition va al salvataggio.</p>
+</section>
+
+<section id="retry-prompt">
+<h2>Il prompt di retry</h2>
+<p>Dal secondo attempt il messaggio all'agente è il testo del task (già con SAST, contesto e blocco CVSS) seguito da un addendum (<code>build_retry_task_content</code>, <code>utils/experiment_utils.py:202-230</code>): l'avviso che il task è già stato tentato, la risposta, il ragionamento e la confidenza dell'<em>ultimo</em> attempt, e l'invito a ragionare di nuovo da capo. Il messaggio di sistema non cambia.</p>
+
+<p>Il contenuto dell'addendum dipende da chi ha chiesto il retry. Dopo un rifiuto dell'SGV contiene anche il feedback formale, sotto l'intestazione «Formal Issues Found In Your CVSS Estimate» (<code>:221-228</code>). Dopo un verdetto <code>wrong</code> non contiene né il punteggio né il commento del judge né la ground truth: quando l'SGV è passato <code>sgv_feedback</code> è vuoto (<code>:278</code>, <code>:283</code>) e il blocco formale non c'è. La «risposta precedente» è il campo <code>answer</code>; il blocco CVSS dell'attempt precedente non è ripetuto, perché il parser lo tiene nel campo separato <code>cvss_estimate</code> (<code>agents/_llm_utils.py:177-226</code>).</p>
+</section>
+
+<section id="esaurimento">
+<h2>Quando gli attempt finiscono</h2>
+<p>Quando <code>attempts</code> arriva a <code>MAX_RETRIES</code> nessuno dei due archi di ritorno è più percorribile. Se è l'SGV a fallire all'ultimo attempt, il report va comunque al judge (<code>utils/experiment_utils.py:301</code>); se il verdetto dell'ultimo attempt è <code>wrong</code>, la repetition si salva con <code>verdict = "wrong"</code> (<code>:483</code>).</p>
+
+<p>In tutti i casi si salva e si valuta la risposta dell'ultimo attempt, non la migliore fra quelle prodotte: <code>final_answer</code> è sempre l'ultima risposta (<code>utils/experiment_utils.py:265</code>). Aver superato l'SGV o il judge non è una condizione per salvare o valutare il report; l'esito dei controlli resta registrato nell'attempt.</p>
+
+<p>Quante chiamate LLM costa una repetition, al massimo: tre all'agente, più una al judge per ogni attempt che supera l'SGV o che arriva all'ultimo attempt, quindi al più tre al judge.</p>
+</section>
+
+<section id="timeout">
+<h2>Timeout e ripresa</h2>
+<p>L'intera repetition, con tutti i suoi attempt, è sotto un unico limite di tempo: <code>TASK_TIMEOUT_SECONDS = 600</code> (<code>config.py:49</code>), moltiplicato per <code>FULL_TASK_TIMEOUT_MULTIPLIER = 2.0</code> per i task il cui id contiene <code>full</code> (<code>config.py:53-55</code>, applicato in <code>main.py:501-507</code>). Il limite avvolge <code>graph.invoke</code> (<code>main.py:508-510</code>). Se scade nella modalità statica il programma termina (<code>main.py:526-527</code>); nella modalità generica la repetition è registrata come non analizzata e si passa alla successiva (<code>main.py:520-525</code>). In entrambi i casi una repetition interrotta non lascia nulla su disco, perché il salvataggio è l'ultimo nodo: alla ripresa si riesegue da capo.</p>
+
+</section>
+</div>
+<script src="vendor/mermaid.min.js"></script>
+<script src="diagrammi.js"></script>
+<script src="nav.js"></script>
+</body>
+</html>
