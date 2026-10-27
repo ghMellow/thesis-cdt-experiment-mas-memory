@@ -24,7 +24,7 @@ Ogni pagina carica nell'`<head>` `theme.js`, `stile.css` e `nav.css`, e in fondo
 `CAPITOLI` dentro `nav.js`: numero del file e posizione nell'elenco devono coincidere. Il
 menu mostra sotto la pagina aperta le sue `section[id]` con un `h2`.
 
-`11_confronto.html` è **generata** e resta fuori da git (`.gitignore`), perché contiene corse non destinate al repo pubblico. Non si modifica a mano: si rigenera con
+`11_confronto.html` è **generata**: non si modifica a mano, si rigenera con
 `poetry run python -m utils.generate_mega_comparison --html docs/artefatti/11_confronto.html`
 (il markdown passa da `utils/md_to_artefatto.py`, che usa lo stesso scheletro).
 

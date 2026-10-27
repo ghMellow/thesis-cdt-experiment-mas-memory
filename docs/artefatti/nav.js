@@ -22,6 +22,9 @@
       { file: "08_parametri.html", titolo: "Parametri" },
       { file: "09_divergenze.html", titolo: "Divergenze dal paper" },
       { file: "10_glossario.html", titolo: "Glossario" }
+    ]},
+    { gruppo: "Risultati", voci: [
+      { file: "11_confronto.html", titolo: "Confronto delle corse" }
     ]}
   ];
 

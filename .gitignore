@@ -16,6 +16,3 @@ __pycache__/
 
 # Note di lavoro locali
 .notes/
-
-# Generated comparison page: includes runs not cleared for the public repo
-docs/artefatti/11_confronto.html
