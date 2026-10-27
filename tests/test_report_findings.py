@@ -124,6 +124,27 @@ class RunRepetitionHeaderTest(unittest.TestCase):
         self.assertEqual(ev._compress_reps([1, 2, 3, 5, 7, 8]), "1–3, 5, 7–8")
 
 
+class FirstRepetitionsViewTest(unittest.TestCase):
+    """A view on the first N repetitions keeps repetitions 1..N of every
+    (task, role), whatever order they are stored in."""
+
+    def test_keeps_first_three_per_task_and_role(self):
+        roles = {
+            "agent": [dict(_payload(r, "R", None), task_id=t) for t in ("udr", "udm") for r in (10, 2, 4, 1, 3)],
+            "judge": [_payload(r, "R", None) for r in (5, 1)],
+        }
+        view = ev._first_repetitions(roles, 3)
+        got = {(p["task_id"], p["repetition"]) for p in view["agent"]}
+        self.assertEqual(got, {(t, r) for t in ("udr", "udm") for r in (1, 2, 3)})
+        self.assertEqual([p["repetition"] for p in view["judge"]], [1, 5])
+
+    def test_view_header_declares_first_n_of_disk(self):
+        payloads = [_payload(r, "20261016T100000Z", "2026-10-16T10:00:00+00:00") for r in (1, 2, 3)]
+        text = "\n".join(ev._build_run_id_note(payloads, expected_repetitions=3, view_of=10))
+        self.assertIn("first **3** repetitions", text)
+        self.assertNotIn("⚠️", text)
+
+
 class DistinctFindingsTest(unittest.TestCase):
     """Distinct findings must follow the existing `group` letters."""
 

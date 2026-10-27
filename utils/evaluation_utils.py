@@ -66,6 +66,24 @@ def _collect_results(
     return data
 
 
+def _first_repetitions(
+    roles: Dict[str, List[Dict[str, Any]]], n: int
+) -> Dict[str, List[Dict[str, Any]]]:
+    """Repetitions 1..n of every (task, role), by repetition number: the view
+    that makes a report comparable with one that has only n repetitions."""
+    out: Dict[str, List[Dict[str, Any]]] = {}
+    for role, payloads in roles.items():
+        by_task: Dict[Any, List[Dict[str, Any]]] = {}
+        for p in payloads:
+            by_task.setdefault(p.get("task_id"), []).append(p)
+        out[role] = [
+            p
+            for ps in by_task.values()
+            for p in sorted(ps, key=lambda p: p.get("repetition") if isinstance(p.get("repetition"), int) else 0)[:n]
+        ]
+    return out
+
+
 def list_runs(results_path: str) -> List[Tuple[str, str, str, str, int, str]]:
     """List distinct (task_id, experiment_id, role, run_id) groups found under
     results_path, with repetition count and the earliest started_at — the
@@ -442,10 +460,14 @@ def _build_sgv_section(all_payloads: List[Dict[str, Any]]) -> List[str]:
 
 
 def _build_cvss_section(
-    roles: Dict[str, List[Dict[str, Any]]], experiment_id: str
+    roles: Dict[str, List[Dict[str, Any]]], experiment_id: str, file_id: Optional[str] = None
 ) -> List[str]:
     """CVSS sub-scores (Blocco B, deterministic) — reported separately from the
-    rubric judge scores, never merged into accuracy."""
+    rubric judge scores, never merged into accuracy.
+
+    file_id names the per-finding detail files (default experiment_id): a view
+    on fewer repetitions has its own group letters, so it must not overwrite
+    the full report's files."""
     has_cvss = any(
         isinstance(p.get("cvss_eval"), dict) for payloads in roles.values() for p in payloads
     )
@@ -470,8 +492,8 @@ def _build_cvss_section(
     # Recurrence labels computed once so the letters are consistent between the
     # matched (vector detail) and unmatched tables (call 13 follow-up).
     matched_labels, unmatched_markers = _compute_finding_groups(roles)
-    lines += _build_cvss_vector_detail(roles, experiment_id, matched_labels=matched_labels)
-    lines += _build_cvss_unmatched(roles, experiment_id, unmatched_markers=unmatched_markers)
+    lines += _build_cvss_vector_detail(roles, experiment_id, matched_labels=matched_labels, file_id=file_id)
+    lines += _build_cvss_unmatched(roles, experiment_id, unmatched_markers=unmatched_markers, file_id=file_id)
     lines += _build_distinct_findings_section(roles, matched_labels, unmatched_markers)
 
     # All the tables below are roll-ups over every repetition of the task —
@@ -1662,6 +1684,7 @@ def _build_cvss_unmatched(
     roles: Dict[str, List[Dict[str, Any]]],
     experiment_id: str,
     unmatched_markers: Optional[Dict[Tuple[str, str, Any, int], str]] = None,
+    file_id: Optional[str] = None,
 ) -> List[str]:
     """Findings with no ground-truth CVE, ranked most-severe-first by the
     officially recomputed score — the experts' use case: potential
@@ -1710,7 +1733,7 @@ def _build_cvss_unmatched(
     for i, (role, task_id, rep, run_id, final_answer, u, idx) in enumerate(entries, 1):
         key = (task_id, role, rep)
         seen[key] = seen.get(key, 0) + 1
-        filename = f"{task_id}_{experiment_id}_{role}_rep{rep}_f{seen[key]}.md"
+        filename = f"{task_id}_{file_id or experiment_id}_{role}_rep{rep}_f{seen[key]}.md"
         marker = unmatched_markers.get((task_id, role, rep, idx), "—")
         _write_unmatched_finding_file(
             out_dir / filename, task_id, experiment_id, role, rep, run_id, u, final_answer,
@@ -1896,6 +1919,7 @@ def _build_cvss_vector_detail(
     roles: Dict[str, List[Dict[str, Any]]],
     experiment_id: str,
     matched_labels: Optional[Dict[Tuple[str, str, Any, str], str]] = None,
+    file_id: Optional[str] = None,
 ) -> List[str]:
     """Per-finding estimated vs. published CVSS vector, one compact table per
     CVE: rows are the compared metrics (labelled with the full name from the
@@ -1970,7 +1994,7 @@ def _build_cvss_vector_detail(
                 f"| base score — declared / from vector (official math) | "
                 f"{declared} / **{m['computed_score_B']}** | {m.get('published_score', '-')} |"
             )
-        filename = f"{task_id}_{experiment_id}_{role}_rep{rep}_{m['cve_id']}.md"
+        filename = f"{task_id}_{file_id or experiment_id}_{role}_rep{rep}_{m['cve_id']}.md"
         _write_matched_finding_file(
             out_dir / filename, task_id, experiment_id, role, rep, run_id, m, final_answer,
             group_label=group_label,
@@ -2006,7 +2030,9 @@ def _run_date(payloads: List[Dict[str, Any]], run_id: str) -> str:
 
 
 def _build_run_id_note(
-    all_payloads: List[Dict[str, Any]], expected_repetitions: Optional[int] = None
+    all_payloads: List[Dict[str, Any]],
+    expected_repetitions: Optional[int] = None,
+    view_of: Optional[int] = None,
 ) -> List[str]:
     """Which run(s) this report aggregates and which repetitions each one
     contributed. A run is one main.py invocation (run_id); --repetitions is a
@@ -2015,7 +2041,10 @@ def _build_run_id_note(
 
     expected_repetitions: when set, declare it and warn for every (task, role)
     whose distinct repetition count differs — a report with fewer repetitions
-    than the others is not comparable with them."""
+    than the others is not comparable with them.
+
+    view_of: repetitions on disk when this report is a view on the first
+    expected_repetitions of them (see _first_repetitions)."""
     legacy = "legacy (no run_id)"
     multi_exp = len({p.get("experiment_id") for p in all_payloads}) > 1
 
@@ -2030,7 +2059,13 @@ def _build_run_id_note(
 
     lines = ["> **Run(s) in this report** — a run is one `main.py` launch (`run_id`); "
              "each run adds the repetitions still missing towards the target."]
-    if expected_repetitions is not None:
+    if view_of is not None:
+        lines.append(
+            f"> **View:** first **{expected_repetitions}** repetitions of each task and role "
+            f"({view_of} on disk), to compare with reports that have {expected_repetitions}: "
+            "repetitions 1–N in order, not a sample. Group letters and detail files are this view's own."
+        )
+    elif expected_repetitions is not None:
         lines.append(
             f"> Expected repetitions per task and role: **{expected_repetitions}** "
             "(`config.REPETITIONS`, fixed for every task so per-task metrics are comparable)."
@@ -2080,6 +2115,7 @@ def _build_experiment_report(
     roles: Dict[str, List[Dict[str, Any]]],
     task_filter: Optional[List[str]] = None,
     per_task_id: Optional[str] = None,
+    max_repetitions: Optional[int] = None,
 ) -> str:
     """Generate evaluation report.
 
@@ -2088,7 +2124,22 @@ def _build_experiment_report(
         roles: dict of {role: [payloads]}
         task_filter: optional list of task_ids to include (None = all)
         per_task_id: if set, generate report for only this task_id; else aggregate
+        max_repetitions: if set, report only repetitions 1..N of each task and role
     """
+    file_id = experiment_id
+    view_of = None
+    if max_repetitions is not None:
+        on_disk = {
+            (role, p.get("task_id"), p.get("repetition"))
+            for role, ps in roles.items() for p in ps
+            if per_task_id is None or p.get("task_id") == per_task_id
+        }
+        per_scope: Dict[Tuple[str, Any], int] = {}
+        for role, task, _ in on_disk:
+            per_scope[(role, task)] = per_scope.get((role, task), 0) + 1
+        view_of = max(per_scope.values(), default=0)
+        roles = _first_repetitions(roles, max_repetitions)
+        file_id = f"{experiment_id}_n{max_repetitions}"
     lines = [f"# Evaluation Report: {experiment_id}", ""]
 
     all_payloads = [{"_role": role, **p} for role, payloads in roles.items() for p in payloads]
@@ -2099,12 +2150,18 @@ def _build_experiment_report(
     if per_task_id is not None:
         all_payloads = [p for p in all_payloads if p.get("task_id") == per_task_id]
         lines[0] = f"# {experiment_id} — {per_task_id}"
+    if max_repetitions is not None:
+        lines[0] += f" (first {max_repetitions} repetitions)"
 
     if not all_payloads:
         lines.append("No results found.")
         return "\n".join(lines) + "\n"
 
-    lines += _build_run_id_note(all_payloads, expected_repetitions=config.REPETITIONS)
+    lines += _build_run_id_note(
+        all_payloads,
+        expected_repetitions=max_repetitions if max_repetitions is not None else config.REPETITIONS,
+        view_of=view_of,
+    )
 
     total = len(all_payloads)
     correct = sum(1 for p in all_payloads if p.get("verdict") == "correct")
@@ -2219,7 +2276,7 @@ def _build_experiment_report(
     # first, then uses the aggregates for a global summary — not the other
     # way around (2026-07-13 feedback).
     sgv_lines = _build_sgv_section(all_payloads)
-    cvss_lines = _build_cvss_section(filtered_roles, experiment_id)
+    cvss_lines = _build_cvss_section(filtered_roles, experiment_id, file_id=file_id)
 
     toc = ['<a id="toc"></a>', "**Contents**", ""]
     if '<a id="vector-detail"></a>' in cvss_lines:
@@ -2274,7 +2331,10 @@ def _write_evaluation_reports(
     task_filter: Optional[List[str]] = None,
     experiment_ids: Optional[List[str]] = None,
     run_id: Optional[str] = None,
+    max_repetitions: Optional[int] = None,
 ) -> None:
+    """max_repetitions writes result_<task>_<id>_n<N>.md views on the first N
+    repetitions next to the full reports, which are left untouched."""
     data = _collect_results(results_path, run_id=run_id)
     eval_dir = Path(REPORTS_PATH)
     eval_dir.mkdir(parents=True, exist_ok=True)
@@ -2297,14 +2357,16 @@ def _write_evaluation_reports(
         task_ids = sorted(set(p.get("task_id") for p in all_payloads if p.get("task_id")))
         for task_id in task_ids:
             task_report = _build_experiment_report(
-                experiment_id, roles, task_filter=task_filter, per_task_id=task_id
+                experiment_id, roles, task_filter=task_filter, per_task_id=task_id,
+                max_repetitions=max_repetitions,
             )
-            filename = f"result_{task_id}_{experiment_id}.md"
+            suffix = f"_n{max_repetitions}" if max_repetitions is not None else ""
+            filename = f"result_{task_id}_{experiment_id}{suffix}.md"
             (eval_dir / filename).write_text(task_report, encoding="utf-8")
             logger.info("Written %s", filename)
 
     # Comparison report — only meaningful when both 1A and 1B are in scope
-    if "1A" in ids_to_report and "1B" in ids_to_report:
+    if "1A" in ids_to_report and "1B" in ids_to_report and max_repetitions is None:
         all_payloads_both = [
             {"_role": role, **p}
             for exp_id in ("1A", "1B")
@@ -2388,6 +2450,15 @@ if __name__ == "__main__":
         "--run-id", default=None,
         help="Regenerate result_*.md/comparison.md using only repetitions tagged with this run_id.",
     )
+    parser.add_argument(
+        "--experiment-id", nargs="+", default=None,
+        help="Regenerate only these experiment ids.",
+    )
+    parser.add_argument(
+        "--max-repetitions", type=int, default=None,
+        help="Write result_<task>_<id>_n<N>.md on repetitions 1..N of each task and role, "
+        "to compare with N-repetition reports; the full reports are not rewritten.",
+    )
     args = parser.parse_args()
 
     if args.list_runs:
@@ -2401,6 +2472,10 @@ if __name__ == "__main__":
     elif args.run_id:
         _write_evaluation_reports(RESULTS_PATH, run_id=args.run_id)
         logger.info("Reports regenerated for run_id=%s", args.run_id)
+    elif args.experiment_id or args.max_repetitions is not None:
+        ids = args.experiment_id or sorted(e for e in _collect_results(RESULTS_PATH) if not e.startswith("dyn_"))
+        _write_evaluation_reports(RESULTS_PATH, experiment_ids=ids, max_repetitions=args.max_repetitions)
+        logger.info("Reports regenerated for %s", ", ".join(ids))
     else:
         # No filter: regenerate every result_*.md/comparison.md from all saved
         # results. dyn_* ids are skipped: generic-mode runs have no GT and get
