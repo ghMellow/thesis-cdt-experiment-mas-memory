@@ -11,7 +11,7 @@ utils/compare_run_timing.py. The raw JSON is read at launch time, so runs that
 are still growing are measured as they are on disk.
 
 Usage:
-    poetry run python -m utils.generate_mega_comparison [--out PATH]
+    poetry run python -m utils.generate_mega_comparison [--out PATH.md] [--html PATH.html]
 """
 
 import argparse
@@ -24,6 +24,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 from utils import compare_run_timing as timing
 from utils import cvss_eval
 from utils import generate_detection_table as det
+from utils import md_to_artefatto
 
 TASKS = {
     "UDR": "task6_vuln_udr_full",
@@ -485,9 +486,8 @@ def build_document() -> Tuple[str, List[str]]:
         "## 8. Come si rigenera",
         "",
         "```bash",
-        "cd /Users/nicolotermine/zMellow/GitHub-Poli/thesis-cdt-experiment-mas-memory",
         "poetry run python -m utils.repetition_inventory          # controllare che le 4 corse UDM di ottobre siano a 10",
-        "poetry run python -m utils.generate_mega_comparison --out .notes/report/2026-10-22-mega-confronto.md",
+        "poetry run python -m utils.generate_mega_comparison --out <file.md> --html docs/artefatti/11_confronto.html",
         "# tabelle d'origine",
         "PYTHONPATH=. poetry run python utils/generate_detection_table.py              # doc 13",
         "PYTHONPATH=. poetry run python utils/generate_detection_table.py --paper-icai # combinazione del paper ICAI",
@@ -502,16 +502,22 @@ def build_document() -> Tuple[str, List[str]]:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", help="write the markdown here instead of stdout")
+    ap.add_argument("--html", help="also write the docs/artefatti/ page here")
     args = ap.parse_args()
     doc, short = build_document()
+    if args.html:
+        page = md_to_artefatto.render_page(doc, "Confronto delle corse", "Documentazione del sistema · Risultati")
+        with open(args.html, "w", encoding="utf-8") as fh:
+            fh.write(page)
+        print(f"written {args.html}")
     if args.out:
         with open(args.out, "w", encoding="utf-8") as fh:
             fh.write(doc)
         print(f"written {args.out}")
-        if short:
-            print("runs below 10 repetitions: " + "; ".join(short))
-    else:
+    elif not args.html:
         print(doc)
+    if short and (args.out or args.html):
+        print("runs below 10 repetitions: " + "; ".join(short))
 
 
 if __name__ == "__main__":
