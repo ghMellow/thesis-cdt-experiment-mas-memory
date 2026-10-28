@@ -542,5 +542,21 @@
   "unmatched/task8_vuln_udm_full/agent/handlemodifyforshareddata/ca6403c19373328c": {
     "equivalent": false,
     "explanation": "The reasoning passages provide different CVSS vectors, specifically varying the impact metrics for availability (VA), integrity (VI), and scope (SC/SI/SA)."
+  },
+  "agent/task6_vuln_udr_full/f2e9abf1a0230844": {
+    "equivalent": false,
+    "explanation": "The reasonings differ on the specific functions affected by the 'Missing Return' logic error: the first and third reasonings identify 'HandleApplicationDataInfluenceDataSubsToNotify...' handlers, while the second reasoning identifies 'HandlePolicyDataSubsToNotifyPost' and 'HandlePolicyDataSubsToNotifySubsIdPut'."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlecreatesmfcontextnon3gpp/541bd461ab673f5f": {
+    "equivalent": false,
+    "explanation": "The two reasonings provide different CVSS vectors, specifically differing in Privileges Required (PR:H vs PR:L) and Confidentiality/Integrity/Availability impacts (VC:H/VI:H/VA:N vs VC:N/VI:L/VA:L)."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handlecreateeesubscriptions/d58647c5ff801ffb": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in the Privileges Required (PR) metric, with one specifying High (PR:H) and the other specifying Low (PR:L)."
+  },
+  "unmatched/task6_vuln_udr_full/agent/handleapplicationdatapfdsappiddelete/5a39900f2f95fd16": {
+    "equivalent": false,
+    "explanation": "The CVSS vectors differ in their Privileges Required (PR:H vs PR:L) and Integrity Impact (SI:N vs SI:L) metrics."
   }
 }
