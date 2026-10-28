@@ -2,6 +2,15 @@
 
 ---
 
+## 2026-10-28 — Sezione IV resa generica rispetto al resto della bozza  [sessione: 736f85c6-b1ad-47d6-a15f-1c26a2ca5a50]
+
+**Intent:** «salvare il lavoro fatto ora su git e poi di generalizzare la nostra parte»; sul 9/9 CVE: «non importa per ora va bene così».
+**Decisioni:** le incongruenze aggiustate a mano nelle sezioni degli altri si portano dietro; si tocca solo la sez. IV; il 9/9 non si segnala per ora.
+**Esito/Problemi:**
+- Testo (`.notes/report/2026-10-27-sezione-architettura.tex`): «gosec, Semgrep and CodeQL» → «the Multi-SAST suite of Section 5.2» (`\ref{subsec:sast_tools}` da allineare all'etichetta vera); tolti estratti e commit range (file sempre interi nelle prove); tolta la variante con codice collegato; tolto il confronto primo attempt / risposta finale, che nessuna tabella riporta.
+- Trovata e corretta: «Processing is organised in three phases.» era finita dentro un commento `% NOTE` e mancava dal PDF; il rimando a `subsec:repetitions` (numero sbagliato) → «see *Independent runs* below».
+- Figura: «SonarQube alone, or the Multi-SAST suite», ricompilata, PNG rigenerati.
+
 ## 2026-10-28 — Valutazione della bozza ITASEC rispetto alla sezione 4  [sessione: 736f85c6-b1ad-47d6-a15f-1c26a2ca5a50]
 
 **Intent:** «rispetto il resto del paper siamo totalmente scollegati o lavoriamo al nostro obiettivo ci sono parti che andrebbero scritte in altre zone, ecc fai una valutazione» (bozza `TBD__Static_Analysis_Guided_Agentic_LLMs_.pdf`).
