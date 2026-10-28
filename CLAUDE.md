@@ -12,6 +12,7 @@ La documentazione è suddivisa in file tematici sotto `docs/`. **Indice di navig
 - `docs/supporto/calls/call_3.md` — call 2026-05-13: presentazione risultati, dubbi metodologici, roadmap
 - `docs/cve_experiment/` — esperimento "singolarità" CVE: presentazione (`README.md`) + guida pratica (`hands_on.md`); log tecnico in `docs/cve_experiment/attempts/log.md`
 - `docs/generalizzazione/` — modalità generica (`--source-dir`, un file = un task, senza GT): stato attuale in `01_stato_attuale.md`, traccia del processo e decisioni in `00_costruzione_dinamica_task.md`
+- `docs/artefatti/` — documentazione del sistema in HTML (una pagina per argomento, `index.html`) e confronto delle corse generato; **prima di** scrivere o modificare una pagina lì → `docs/artefatti/DESIGN.md`
 - `docs/codemap/` — **"code-as-truth"**: documentazione tecnica generata leggendo solo il codice sorgente + git log (mai le altre cartelle di `docs/`), un file per modulo, con riferimenti `file:riga`. Indice: `docs/codemap/00_indice.md`. Skill di manutenzione: `/codemap-refresh`.
 
 **Repo e documentazione devono essere sempre allineati.**
