@@ -7,7 +7,7 @@
 **Intent:** «salvare il lavoro fatto ora su git e poi di generalizzare la nostra parte»; sul 9/9 CVE: «non importa per ora va bene così».
 **Decisioni:** le incongruenze aggiustate a mano nelle sezioni degli altri si portano dietro; si tocca solo la sez. IV; il 9/9 non si segnala per ora.
 **Esito/Problemi:**
-- Testo (`.notes/report/2026-10-27-sezione-architettura.tex`): «gosec, Semgrep and CodeQL» → «the Multi-SAST suite of Section 5.2» (`\ref{subsec:sast_tools}` da allineare all'etichetta vera); tolti estratti e commit range (file sempre interi nelle prove); tolta la variante con codice collegato; tolto il confronto primo attempt / risposta finale, che nessuna tabella riporta.
+- Testo (`.notes/report/2026-10-27-sezione-architettura.tex`): «gosec, Semgrep and CodeQL» → «the Multi-SAST suite of Section 5.2» (poi senza rimando: «introduced in this work»); tolti estratti e commit range (file sempre interi nelle prove); tolta la variante con codice collegato; tolto il confronto primo attempt / risposta finale, che nessuna tabella riporta.
 - Trovata e corretta: «Processing is organised in three phases.» era finita dentro un commento `% NOTE` e mancava dal PDF; il rimando a `subsec:repetitions` (numero sbagliato) → «see *Independent runs* below».
 - Figura: «SonarQube alone, or the Multi-SAST suite», ricompilata, PNG rigenerati.
 
