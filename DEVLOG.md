@@ -2,6 +2,123 @@
 
 ---
 
+## 2026-10-28 — Valutazione della bozza ITASEC rispetto alla sezione 4  [sessione: 736f85c6-b1ad-47d6-a15f-1c26a2ca5a50]
+
+**Intent:** «rispetto il resto del paper siamo totalmente scollegati o lavoriamo al nostro obiettivo ci sono parti che andrebbero scritte in altre zone, ecc fai una valutazione» (bozza `TBD__Static_Analysis_Guided_Agentic_LLMs_.pdf`).
+**Esito/Problemi:**
+- La sezione 4 è allineata con il codice e con le RQ; le sezioni 1, 5 e 6 descrivono un sistema e dei numeri diversi: «9/9 CVE con Multi-SAST» non ha riscontro nelle corse (UDR 3 SAST: 3/6 distinte sul dataset corretto, 5/6 su quello non corretto; 40245 mai trovata); terzo tool chiamato SonarQube invece di gosec; righe Multi-SAST di AMF/PCF senza corse; variante con codice collegato assente dalla valutazione.
+- Promesse della sez. 4 mai usate nella 6: primo attempt contro risposta finale, detection per run (hit rate), valore di R.
+- Fonte dei numeri: `.notes/report/2026-10-22-mega-confronto.md`, `docs/sgv_protocol/14_braccio_sast_multitool.md`. Valutazione completa data in chat, non salvata in un file.
+
+## 2026-10-28 — Figura: suggerimenti di un collaboratore  [sessione: 723f5456-66ef-4869-983e-5720df5869e3]
+
+**Intent:** suggerimenti incollati dall'utente (testi delle caselle più uniformi, via le scritte «code»/«LLM», contorni più spessi, colori LLM/codice ben diversi, «tipo blu e arancione»); «magari abbiamo già sistemato qualcosa o comunque c'è un sottotesto da applicare alla nostra nuova versione?».
+**Divergenze:**
+- Non applicati, perché contraddicono il codice: SAST «SonarQube, Semgrep, CodeQL» (i 3 tool sono gosec + Semgrep + CodeQL, `utils/sast_unified_to_hint.py`); CVSS reporting instructions nella casella Task (sono un blocco aggiunto dal prompt builder, non stanno nel task); «prompt creation and verification» (il prompt builder non verifica niente).
+- CVSS scorer: «score assignment» → «score recomputation from the agent's vector» (il punteggio si ricalcola dal vettore dell'agente, non si assegna).
+- Freccia del confine GT da ruggine a nera (si confondeva con l'arancione); retry dell'SSV in arancione come la casella; didascalia con i colori; copia per Overleaf rigenerata dallo standalone con i `\definecolor` elencati in testa.
+**Esito/Problemi:** applicati gli altri suggerimenti; figura ricompilata e controllata anche in scala di grigi (blu scuro contro arancio chiaro, più angoli tondi/vivi).
+**Decisioni:** l'utente: «noarqube ok era del vecchio ma lo inserirei comunque no? per dire tutti i sast provati» → SonarQube inserito come **alternativa** («SonarQube, or gosec + Semgrep + CodeQL»), nella casella e nel testo, perché il sistema riceve o l'uno o i tre insieme, mai tutti e quattro. Poi l'utente: «nella nuova versione si fa il confronto con i risultati della vecchia» → la riga SonarQube è nel paper, il dubbio sollevato non si pone.
+
+## 2026-10-28 — Sezione IV: revisione dell'inglese e dei termini interni  [sessione: 723f5456-66ef-4869-983e-5720df5869e3]
+
+**Intent:** «analizzare il testo da un punto di vista di esperto di lingua inglese […] se usiamo termini interni del progetto al posto di usare parole con significato anche per chi vede per la prima volta».
+**Divergenze:** proposte in tre gruppi (1 termini, 2 inglese, 3 spostare il paragrafo delle unità dopo le fasi). Trovata un'imprecisione mia di prima: «each task covers one file» è falso per i task non `_full` (estratti) e per task9 (quattro file).
+**Decisioni:**
+- «procedi con le correzioni 1 e 2» → applicate: *execution* → *run* (paragrafo *Independent runs*), Judge presentato come *LLM-as-a-judge*, SSV definito come *grounding check*, verdetto *accepted*/*rejected*, FIRST spiegato, `handler_functions` tradotto, tolta la frase sul file dei risultati, *linked-code variant* riscritto, più le correzioni d'inglese.
+- Il gruppo 3 non è stato chiesto: il paragrafo delle unità resta prima delle fasi.
+- Fatto anche senza richiesta esplicita, per coerenza: nella figura «(correct, or budget spent)» → «(accepted, …)», ricompilata.
+**Esito/Problemi:** compila senza errori; `Section~\ref{subsec:repetitions}` stampa il numero di «Execution Pipeline» (la label sta in un `\paragraph`). Aggiunta al `CLAUDE.md` globale la sezione «Lessico — plain language», anche per la chat.
+
+## 2026-10-28 — Sezione IV: repetition, attempt e perché i retry  [sessione: 723f5456-66ef-4869-983e-5720df5869e3]
+
+**Intent:** passaggio «The same matching is applied to the report of the first attempt […] it cannot alter this matching» non chiaro; l'utente: «non è chiaro il motivo per cui abbiamo i retry e come li usiamo anche final answer», e ricorda un problema dei report «riguardo proprio a come contiamo le rep» da sistemare dopo la consegna.
+**Divergenze:** «it cannot alter this matching» era falso (il Judge decide quale report arriva al matcher); proposte, oltre alla riscrittura del passaggio, le due unità execution/attempt in apertura, il perché del loop, una riga in *Repetitions*.
+**Decisioni:** «si» → applicati tutti e 4 i punti a `.notes/report/2026-10-27-sezione-architettura.tex` (compila, nessun riferimento indefinito) e aggiunta la voce «dopo la consegna» nel piano `.notes/piani/2026-10-22-piano-call-itasec.md`.
+**Esito/Problemi:** il problema dei report era scritto solo nella trascrizione della call del 27 (righe 252-258): i report mostrano `rep` e `attempts` in sezioni sparse, senza spiegare la differenza.
+
+## 2026-10-28 — Sezione IV e figura: Task e Go source sono un input solo  [sessione: 723f5456-66ef-4869-983e-5720df5869e3]
+
+**Intent:** dubbio dell'utente su «takes the task and the Go source» («è una variabile o un file preso due volte?»), poi «si e a sto punto anche img è corretta o va sistemata?».
+**Esito/Problemi:**
+- Nel codice il sorgente sta dentro il task: nei task fissi è il blocco ```go del `.md`; in `--source-dir` il task si costruisce da un file. Anche «file, project or commit diff» era impreciso: un task = un file, un progetto diventa N task e `--changed-since` sceglie solo quali file analizzare, sempre dati per intero.
+- Testo: due input invece di tre, frase su un task = un file, «the source code» tolto dal prompt builder.
+- Figura (`figura-architettura/system-architecture.tex` e copia `2026-10-27-figura-architettura.tex`): box Go source unito a Task, prompt builder «task + SAST alerts»; ricompilata, PNG rigenerati.
+
+## 2026-10-27 — Sezione IV (System Architecture) riscritta per ITASEC  [sessione: 718d2b3b-d8ef-4d93-9632-277b1f6d9649]
+
+**Intent:** «devo fare il punto 4 […] prendere il paper vecchio e limare correggere le imprecisioni», sul testo della sezione IV del paper ICAI TEMS.
+**Divergenze:**
+- Corrette sul codice nove affermazioni del testo vecchio: feedback semantico dopo il judge (il retry è neutro); «k=3 retries» (sono 3 attempt); «admitted only if it clears both checks» (l'ultimo report si salva comunque); il judge «never sees the raw source» (lo riceve); SSV su «every referenced symbol» (solo il campo `function`); «external coordinator» (sono gli archi del grafo); il judge che «gonfia» i finding per gli esperti; lista SAST solo SonarQube; «line parameter» (è la riga `snippet`).
+- Aggiunti un paragrafo sulle repetition e il CVSS scorer; fasi rinominate come nella figura (Generation / In-loop checks / Post-loop scoring); banda della figura rinominata «POST-LOOP SCORING».
+**Esito/Problemi:** `.notes/report/2026-10-27-sezione-architettura.tex`, compilata con la figura su un banco locale. Aperte, come `% NOTE` nel file: quale rubrica descrive il paper (quella del task nomina la debolezza attesa, quindi «no GT» va attenuato) e il valore di R nelle tabelle.
+
+---
+
+## 2026-10-27 — Documentazione HTML in docs/artefatti/  [sessione: 7fcc1247-9695-444a-91bb-5aa71aa99400]
+
+**Intent:** «avevamo iniziato a scrivere la documentazione del progetto, continua e finiscila». Ripreso il lavoro interrotto il 22/10 (sessione 74810fbc): «no gli artefatti dicevo pagine html locali nel progetto pushate come fatto per il progetto phytwin». I due artifact claude.ai erano stati cancellati quel giorno: l'entry del 22/10 che li dà pubblicati non vale più.
+**Divergenze:**
+- `docs/documentazione_sistema.html` divisa in 10 pagine (`01_sistema` … `10_glossario`) con l'impianto di PhyTwin (menu, tema, mermaid in `vendor/`); stile e runtime dei diagrammi in file unici (`stile.css`, `diagrammi.js`) invece che ricopiati in ogni pagina come in PhyTwin; accento blu per distinguerla. Vecchia pagina rimossa.
+- Aggiunta nella pagina dei report la vista `--max-repetitions` (codice del 27/10, ancora non committato) e riallineati i `file:riga` di `utils/evaluation_utils.py`, spostati di 22–57 righe; tolti i rimandi in avanti.
+- Confronto: invece dello script usa e getta del 22/10, `utils/md_to_artefatto.py` + `--html` in `utils/generate_mega_comparison.py` → `docs/artefatti/11_confronto.html` generata (test in `tests/test_md_to_artefatto.py`). Rigenerato: numeri identici al 22/10, cambiata solo «Come si rigenera» (tolto il percorso assoluto).
+**Esito/Problemi:**
+- Schermate Chrome headless di 01, 04, 05, 11: diagrammi disegnati; all'inizio i due larghi uscivano a destra (mancava `max-width` sull'SVG), corretto. Link interni e ancore controllati da script: 0 rotti. `unittest`: 17 test OK.
+- `11_confronto.html` contiene la serie SonarQube `rerun2610` che il 16/10 si era deciso di non pubblicare (repo pubblico).
+
+**Decisioni:** «pusha questi artefatti la doc va bene» → pushate le pagine del sistema; il confronto escluso (ambiguo rispetto alla decisione del 16/10): fuori dal menu e in `.gitignore`, resta in locale. Pushate anche la vista `--max-repetitions` e i test del 27/10, che la pagina dei report descrive. Poi: «sono i file che fanno da source del progetto come claude md e devlog e altri indici di cartella da non pushare» → `CLAUDE.md`, `DEVLOG.md`, `docs/README.md`, `docs/status.md` aggiornati solo in locale.
+
+**Problema:** `git push origin dev` ha pubblicato anche sei commit del 22/10 rimasti solo in locale (`295cbc1`…`ed0379a`), non controllati prima del push. Fra questi `bd11758` porta su GitHub la corsa SonarQube `1A_sast_hint_full_rerun2610` (raw JSON di UDR e UDM, report, file di dettaglio), che il 16/10 si era deciso di non pubblicare, e `48c1d73`/`ed0379a` toccano `DEVLOG.md`. Prima del push su `origin/dev` non c'era nessun file `sast_hint_full_rerun2610`. Rimedio (riscrivere la storia e fare force-push) in attesa di decisione dell'utente.
+
+**Decisione (poi):** «massi pubblica tutto poi l'importante è saper condividere correttamente il materiale quando è necessario» → niente force-push; la decisione del 16/10 su SonarQube `rerun2610` è superata, pubblicato anche `11_confronto.html` (tolto da `.gitignore`, rimesso nel menu).
+- Convenzioni in `docs/artefatti/DESIGN.md`; indice in `docs/README.md` e riga in `CLAUDE.md`.
+
+---
+
+## 2026-10-27 — Figura System Architecture rifatta per ITASEC  [sessione: 718d2b3b-d8ef-4d93-9632-277b1f6d9649]
+
+**Intent:** «nella trascrizione c'è da migliorare il grafico per la prossima paper […] dammi il nuovo (vedi se creare un latex locale di test e poi io lo incollo)», a partire dalla figura TikZ di Andrea.
+**Divergenze:**
+- Il punteggio CVSS sta nella fascia dopo il loop, non fra verifier e judge come nello schema della nota del 27 (§3): nel codice il punteggio si ricalcola dal vettore con la libreria `cvss` solo in `save_result`, mentre l'SSV controlla soltanto che il vettore sia valido.
+- In più rispetto alle critiche: un solo budget di 3 attempt per i due retry, retry dell'SSV con i difetti formali, retry del judge senza feedback, uscita «last attempt's report», cioè come si comporta il codice e non come lo descrive il paper di ICAI TEMS.
+- Didascalia riscritta; serve `shapes.geometric` in `\usetikzlibrary`.
+**Esito/Problemi:** `.notes/report/2026-10-27-figura-architettura.tex` (+ `.png`), compilata con pdflatex su un banco locale. La TikZ incollata nel template Overleaf non si vedeva: consegnata anche come PDF vettoriale autonomo (`.notes/report/figura-architettura/system-architecture.pdf`) da inserire con `\includegraphics`.
+**Decisioni:** l'utente chiede se il punteggio ricalcolato con la libreria vada nel grafico → aggiunto il blocco «CVSS scorer» dopo il loop e **prima** del confine GT, perché il ricalcolo non usa la GT: serve al confronto con il CVSS pubblicato, alla coerenza fra punteggio dichiarato e vettore, e a ordinare i finding non abbinati per gli esperti (`utils/cvss_eval.py`). Resta aperto: sui task statici la rubrica del judge nomina la debolezza attesa, quindi la scritta «no GT» sulla fascia dei controlli vale solo se il paper descrive la rubrica generica.
+
+---
+
+## 2026-10-27 — Allineamento della documentazione rimandato  [sessione: 3ed4d8a2-f42e-4cd6-a4d6-bb10c6973133]
+
+**Intent:** «quel progetto l'ho un po lasciato da parte andrebbero rivisti e allineati o fatta una linea e partire congruenti sulle cose fatte», poi «altrimenti lasciamolo come lavoro futuro da fare in quel progetto».
+**Decisioni:** non serve al sommario della tesi, quindi è lavoro futuro dopo la consegna del 29/10.
+**Esito/Problemi:** piano in `.notes/piani/2026-10-27-allineamento-docs.md`. Emerso scrivendo il sommario: il doc 15 della rubrica dice che la GT-free non è usata in nessun run, ma la v2 è cablata nella modalità generica (`config.DYNAMIC_RUBRIC_PATH`, `main.py:172`).
+
+---
+
+## 2026-10-27 — Trascrizione della call del 27 divisa per tema  [sessione: f3a382e1-3eea-44a2-9bf7-eb4180145291]
+
+**Intent:** «la seguente trascrizione tocca più temi insieme crea n trascrizioni che separano questi momenti […] poi posiziona le trascrizioni nelle cartelle dei progetti corretti e crea anche un documento in cui estrai le informazioni rilevanti».
+**Divergenze:** due documenti di estrazione invece di uno, uno per progetto accanto alla sua trascrizione; le righe sulla trasferta a Pisa spostate nella parte 2; futuro/incarico lasciati nella parte 1 (tesi).
+**Decisioni:** prima la sezione System Architecture del paper (testo vecchio ripreso e sistemato, figura rifatta), poi la presentazione; il riassunto della tesi lo controlla Nicolò a parte.
+**Esito/Problemi:** `docs/supporto/calls/transcripts/call-2026-10-27-itasec-presentazione.md` + `.notes/call/2026-10-27-punti-dalla-call.md` (nuova cartella `call/`); parte 1 (tesi) nel repo PhyTwin. Data del 27 dedotta dalla registrazione («Tesi_call_24 (papers)», salvata il 27 alle 10:55).
+
+---
+
+## 2026-10-27 — Report «3 tool + file» a 3 repetition  [sessione: f9a8ba38-796f-4ffa-85ac-8d58eb7d44b7]
+
+**Intent:** «di cui ci interessa solo quelli 3 tool + file / riesci a sistemare il problema e rendere i confronti a 3 rep?», riferito ai report consegnati `results-2026-07-14` (UDR `1A`) e `results-2026-10-18` (UDM `1A_sast3tool_linked_full`).
+**Divergenze:**
+- L'AI ha scelto una vista accanto al report completo (`result_<task>_<id>_n3.md`, opzione `--max-repetitions` in `utils/evaluation_utils.py`) invece di riscrivere i report a 10: quelli restano validi per D1.
+- I file di dettaglio della vista hanno nome proprio (`…_n3_…`), perché le lettere `group` cambiano quando le repetition sono 3.
+- Il confronto fra corse vecchie e nuove si fa con `generate_detection_table`, leggendo dal tag, perché `1A` su disco è la corsa rifatta il 14/07 (con SGV) e non quella del 13/07 che è stata consegnata.
+**Esito/Problemi:**
+- Generati `result_task6_vuln_udr_full_1A_sast3tool_linked_full_n3.md` e `result_task8_…_n3.md`. Sul dataset non corretto TP/FP/FN di UDR (7/11/11) coincidono con quelli calcolati da `generate_detection_table`.
+- UDR a n=3, dataset corretto: il vecchio trova 1/6 CVE distinte (P 0.133), «3 tool + file» 3/6 (P 0.278). UDM: tutti e due 1/1, ma P scende da 0.250 a 0.107 (FP 9 → 25).
+- Il controllo semantico ha chiamato il judge su UDR: le 3 repetition sono una combinazione nuova, quindi `semantic_cache.json` è cambiato.
+- I report per corsa contano ancora i match spuri 40249/40343 (problema C1 aperto): per l'articolo valgono i numeri sul dataset corretto.
+
+---
+
 ## 2026-10-22 — Pubblicazione delle pagine come artifact  [sessione: 74810fbc-7fbe-445d-9bef-258557bddc81]
 
 **Intent:** «pubblica gli artefatti così sono visionabili» (prima: «no sempre nella repo», detto della pagina HTML).
