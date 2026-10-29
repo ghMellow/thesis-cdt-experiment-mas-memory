@@ -19,3 +19,9 @@ __pycache__/
 
 # Log delle corse (output di terminale, non fanno parte degli snapshot results-*)
 results/logs/
+
+# File di contesto per l'agente e storia dello sviluppo: restano locali
+CLAUDE.md
+**/CLAUDE.md
+DEVLOG.md
+devlog/
