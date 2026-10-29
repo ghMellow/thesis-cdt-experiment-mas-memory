@@ -16,3 +16,6 @@ __pycache__/
 
 # Note di lavoro locali
 .notes/
+
+# Log delle corse (output di terminale, non fanno parte degli snapshot results-*)
+results/logs/
