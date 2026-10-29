@@ -14,6 +14,7 @@ La documentazione è suddivisa in file tematici sotto `docs/`. **Indice di navig
 - `docs/generalizzazione/` — modalità generica (`--source-dir`, un file = un task, senza GT): stato attuale in `01_stato_attuale.md`, traccia del processo e decisioni in `00_costruzione_dinamica_task.md`
 - `docs/artefatti/` — documentazione del sistema in HTML (una pagina per argomento, `index.html`) e confronto delle corse generato; **prima di** scrivere o modificare una pagina lì → `docs/artefatti/DESIGN.md`
 - `docs/codemap/` — **"code-as-truth"**: documentazione tecnica generata leggendo solo il codice sorgente + git log (mai le altre cartelle di `docs/`), un file per modulo, con riferimenti `file:riga`. Indice: `docs/codemap/00_indice.md`. Skill di manutenzione: `/codemap-refresh`.
+- `DEVLOG.md` — mese corrente; i mesi chiusi in `devlog/AAAA-MM.md`
 
 **Repo e documentazione devono essere sempre allineati.**
 
