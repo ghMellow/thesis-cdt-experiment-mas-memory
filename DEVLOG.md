@@ -4,6 +4,19 @@ I mesi chiusi stanno in `devlog/AAAA-MM.md` (indice: `grep '^## ' DEVLOG.md devl
 
 ---
 
+## 2026-10-29 — CLAUDE.md a livelli (skill ottimizza-contesto)  [sessione: 1ff07bd9-327a-4499-863f-a01a08a9a439]
+
+**Intent:** «ottimizza contesto».
+**Divergenze:** la radice era già piccola (64 righe, 4,8 KB): il costo vero era il «Bootstrap di sessione», che imponeva di leggere `docs/status.md` (22 KB, ~7k token) a ogni avvio. Nei transcript: letto in 1 sessione su 15, `call_2`/`call_3` in 0.
+**Decisioni:** «si» all'intera proposta, compreso `docs/artefatti/CLAUDE.md` **versionato** (non era una scelta esplicita fra le due opzioni: si è preso il default proposto).
+**Esito/Problemi:**
+- Il Bootstrap è stato sostituito da §0 «Contesto a necessità», scritto per condizione. Mappa accorciata (l'elenco completo resta in `docs/README.md`), Workflow accorpato alla Regola fondamentale.
+- Radice da 64 righe / 4,8 KB a 55 righe / 4,2 KB, meno della stima di 3,5 KB perché la tabella §0 pesa. Nuovo `docs/artefatti/CLAUDE.md` (7 righe); regola dei tag `results-*` aggiunta anche alla skill `results-publish`.
+- Fatti superati corretti: «2 math, 2 textual» → 12 task. Per la roadmap ora si rimanda anche alle trascrizioni di ottobre. Non toccato: lo snapshot di `status.md` è fermo al 2026-07-10.
+- Ancora da verificare in una sessione nuova: carico della radice leggera, caricamento automatico di `docs/artefatti/CLAUDE.md`, letture innescate dal §0.
+
+---
+
 ## 2026-10-29 — Riordino del progetto e archivio mensile del DEVLOG  [sessione: b24cebac-2a02-4431-a589-e88400857da4]
 
 **Intent:** «il progetto è ben organizzato o ci sono file e altro rimasti non catalogati come abbiamo detto nelle skill?», poi «1 e 2» (le correzioni senza rischio e l'archivio del DEVLOG).

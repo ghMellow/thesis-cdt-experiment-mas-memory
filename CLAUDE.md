@@ -1,64 +1,55 @@
 # Progetto: Multi-Agent Experiment 5G
 
-## Documenti di riferimento
+## 0. Contesto a necessità
 
-La documentazione è suddivisa in file tematici sotto `docs/`. **Indice di navigazione: `docs/README.md`.**
+Nessuna lettura obbligatoria all'avvio: si legge quando scatta la condizione.
 
-- `docs/README.md` — **mappa della documentazione**: sistema, esperimento CVE, supporto
-- `docs/status.md` — **stato attuale**: modelli, task, CLI, checklist funzionalità
-- `docs/architecture.md` — mappa codice, flusso LangGraph, valutazione, report (stabile)
-- `docs/supporto/calls/call_1.md` — call iniziali §8.1–8.10 (verbale storico)
-- `docs/supporto/calls/call_2.md` — call 2026-05-09: security review 5G, task5–9 (verbale + snapshot)
-- `docs/supporto/calls/call_3.md` — call 2026-05-13: presentazione risultati, dubbi metodologici, roadmap
-- `docs/cve_experiment/` — esperimento "singolarità" CVE: presentazione (`README.md`) + guida pratica (`hands_on.md`); log tecnico in `docs/cve_experiment/attempts/log.md`
-- `docs/generalizzazione/` — modalità generica (`--source-dir`, un file = un task, senza GT): stato attuale in `01_stato_attuale.md`, traccia del processo e decisioni in `00_costruzione_dinamica_task.md`
-- `docs/artefatti/` — documentazione del sistema in HTML (una pagina per argomento, `index.html`) e confronto delle corse generato; **prima di** scrivere o modificare una pagina lì → `docs/artefatti/DESIGN.md`
-- `docs/codemap/` — **"code-as-truth"**: documentazione tecnica generata leggendo solo il codice sorgente + git log (mai le altre cartelle di `docs/`), un file per modulo, con riferimenti `file:riga`. Indice: `docs/codemap/00_indice.md`. Skill di manutenzione: `/codemap-refresh`.
-- `DEVLOG.md` — mese corrente; i mesi chiusi in `devlog/AAAA-MM.md`
+| Quando | Leggi |
+| :--- | :--- |
+| **prima di** cambiare modelli, task o CLI, o per sapere cosa è implementato | `docs/status.md` (tabelle modelli/task, comandi rapidi, checklist) |
+| **quando** si tocca flusso LangGraph, valutazione o report | `docs/codemap/00_indice.md` (codice com'è oggi); `docs/architecture.md` per il riferimento storico |
+| **quando** si discute la security review (task5–9) | `docs/supporto/calls/call_2.md` |
+| **quando** si discute framing, metodologia o roadmap | `docs/supporto/calls/call_3.md` e le trascrizioni recenti in `docs/supporto/calls/transcripts/` |
+| **quando** si lavora sull'esperimento CVE `\|.+` | `docs/cve_experiment/README.md` (log in `attempts/log.md`; skill `/cve-attempt`) |
+| **quando** si usa la modalità generica (`--source-dir`) | `docs/generalizzazione/01_stato_attuale.md` |
+| **quando** serve un documento non elencato qui | `docs/README.md` (mappa completa di `docs/`) |
+
+Si carica da solo: `docs/artefatti/CLAUDE.md` (pagine HTML del sistema). Skill di progetto: `codemap-refresh`, `cve-attempt`, `cve-branch-scan`, `results-publish`, `sast-tools-lifecycle`, `task-branch-map`.
+
+Se la documentazione non rispecchia il codice, segnalalo prima di procedere.
+
+## Mappa
+
+- `docs/README.md`: mappa della documentazione (sistema, esperimento CVE, supporto)
+- `docs/codemap/`: documentazione **"code-as-truth"**, generata solo da codice sorgente + git log, un file per modulo con `file:riga` (manutenzione: `/codemap-refresh`)
+- `docs/supporto/calls/`: verbali delle call (`call_1..3.md`) e trascrizioni (`transcripts/`)
+- `docs/artefatti/`: documentazione del sistema in HTML (`index.html`) e confronto delle corse generato
+- `docs/tasks/`: i task letti verbatim come prompt dall'agente
+- `DEVLOG.md`: mese corrente; i mesi chiusi in `devlog/AAAA-MM.md`
 
 **Repo e documentazione devono essere sempre allineati.**
 
 ## Codice vs discussione — quale fonte usare per rispondere
 
-Quando la domanda riguarda **cosa fa il codice oggi** (comportamento, logica, perché è scritto così se deducibile da commit/commenti) → fonte primaria `docs/codemap/` (o il codice sorgente direttamente se `codemap/` è stale o non copre quell'area). Quando la domanda riguarda **il processo** (perché si è deciso di fare una cosa, cosa è stato scartato, cosa il team ha discusso) → fonte primaria le altre cartelle di `docs/` (`supporto/calls/`, `sgv_protocol/`, `judge_rubric/`, `cve_experiment/`, `findings.md`, `changelog.md`).
-
-Se la risposta mescola le due fonti, dichiaralo esplicitamente (es. "questo è nel codice a `file:riga`" vs "questo è dalla discussione in `docs/sgv_protocol/06_...md`, non ancora/non più riflesso 1:1 nel codice"). Non presentare come "quello che il codice fa" un'affermazione che viene solo da una nota di call o da una proposta non implementata.
+- **Cosa fa il codice oggi** → `docs/codemap/` (o il sorgente, se `codemap/` è stale o non copre l'area).
+- **Il processo** (perché si è deciso, cosa è stato scartato, cosa ha discusso il team) → le altre cartelle di `docs/` (`supporto/calls/`, `sgv_protocol/`, `judge_rubric/`, `cve_experiment/`, `findings.md`, `changelog.md`).
+- Se la risposta mescola le due fonti, dichiaralo ("nel codice a `file:riga`" vs "dalla discussione in `docs/sgv_protocol/06_...md`, non ancora/non più riflesso 1:1 nel codice"). Mai presentare come comportamento del codice ciò che viene solo da una call o da una proposta non implementata.
 
 ## Regola fondamentale
 
-Dopo ogni modifica al codice, aggiorna il documento di dettaglio corrispondente:
+Flusso: call/chat → note in `docs/supporto/calls/call_<N>.md` (dubbio + situazione + proposta) → codice → marcatura nel documento di dettaglio. Dopo ogni modifica al codice:
 
-- Se hai implementato una proposta futura → aggiungi `> ✅ **Implementato:** ...` subito dopo il punto della proposta nel file di call corretto.
-- Se hai corretto un comportamento descritto in modo errato → aggiungi `> ⚠️ **Correzione:** ...` subito dopo la riga errata in `architecture.md`.
-- Se hai aggiunto funzionalità non documentate → aggiungile nella sezione corretta di `architecture.md`.
-- Se cambia la configurazione (modelli, task) → aggiorna le tabelle in `status.md`.
+- proposta implementata → `> ✅ **Implementato:** ...` subito dopo il punto della proposta nel file di call;
+- comportamento descritto in modo errato → `> ⚠️ **Correzione:** ...` subito dopo la riga errata in `architecture.md`;
+- funzionalità non documentata → nella sezione corretta di `architecture.md`;
+- cambia la configurazione (modelli, task) → tabelle in `status.md`.
 
-Non riscrivere le note di call — sono il verbale storico delle decisioni prese.
-
-## Workflow
-
-```text
-call / chat
-   └─→ note in docs/supporto/calls/call_<N>.md (dubbio + situazione + proposta)
-           └─→ implementazione nel codice
-                   └─→ ✅ / ⚠️ nel documento di dettaglio + aggiornamento status.md
-```
-
-## Bootstrap di sessione
-
-All'inizio di ogni sessione leggi nell'ordine:
-
-1. `docs/status.md` — stato attuale del sistema e checklist
-2. `docs/supporto/calls/call_2.md` — se la sessione riguarda security review
-3. `docs/supporto/calls/call_3.md` — se la sessione riguarda framing / roadmap recente
-4. `docs/architecture.md` — se hai dubbi su flusso o valutazione
-
-Se la documentazione non rispecchia il codice, segnalalo prima di procedere.
+Non riscrivere le note di call: sono il verbale storico delle decisioni.
 
 ## Note operative
 
 - I modelli sono in `config.py` → non fare riferimento a nomi di modello fissi nel codice o nei commenti.
-- I task sono in `docs/tasks/` → 2 math (`task1_math_int`, `task2_math_real`), 2 textual (`task3_anomaly`, `task4_rootcause`).
+- I task sono in `docs/tasks/` (12: math task1–2, textual 5G task3–4, security review task5–9 con varianti `_full`; elenco in `status.md`). Non mettere lì materiale che non sia prompt: la provenienza sta in `docs/tasks_provenance.md`.
 - I risultati sono in `results/` → non commitarli salvo richiesta esplicita.
 - Il judge non riceve la `ground_truth` testuale — la rubrica è la definizione operativa di "corretto".
 - **Ogni volta che crei un tag `results-*`**, aggiungi subito una riga in `docs/results_tags.md` con motivo/destinatario dello snapshot (checkpoint interno, condivisione con un esperto, ultimo snapshot pre-call, ecc.) — non rimandare, il motivo si perde in fretta.
