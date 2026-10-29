@@ -24,6 +24,9 @@ Come è fatto e come gira il progetto di sperimentazione.
 | [experiments_framing.md](experiments_framing.md) | Coda di esperimenti framing (expert vs beginner) |
 | [changelog.md](changelog.md) | Storico modifiche |
 | [tasks/](tasks/) | I task di code review usati dagli agenti |
+| [sast_tools/](sast_tools/) | Strumenti SAST esterni: registro di installazione/rimozione (`install_log.md`, gestito da `/sast-tools-lifecycle`), output unificato dei tool e alert per l'input SAST (`analisi_statica_v4.2.1/`), elenco dei file vulnerabili della ground truth (`ground_truth_vuln_files.json`) |
+| [graph.png](graph.png) | Grafo LangGraph esportato con `main.py --export-graph docs/graph.png`, mostrato in `architecture.md` |
+| [index.md](index.md) | Indice minimale per cartella: un livello sopra questo file, per orientarsi in 30 secondi |
 | **[generalizzazione/01_stato_attuale.md](generalizzazione/01_stato_attuale.md)** | **Modalità generica — inizia da qui.** `python main.py --source-dir <path>`: un file sorgente = un task, nessuna GT, giudizio con la rubrica GT-free v2. Cosa cambia rispetto alla modalità statica, cosa misura e cosa **non** misura (completezza), configurazione, numeri della prima run, limiti aperti |
 | [generalizzazione/00_costruzione_dinamica_task.md](generalizzazione/00_costruzione_dinamica_task.md) | Traccia del processo (dal 2026-08-24): perché serve costruire dinamicamente task **e** GT/rubrica, le due modalità valutate (scan file-per-file vs diff tra push), la decisione di partire da A, i blocchi ✅ dell'implementazione e l'A/B sull'istruzione di review. Fonte primaria per il *perché* di ogni scelta |
 
@@ -34,7 +37,7 @@ Riproduzione della scoperta spontanea della regex `|.+` (GHSA-6gxq-gpr8-xgjp) in
 | Documento | A chi serve |
 |-----------|-------------|
 | **[cve_experiment/README.md](cve_experiment/README.md)** | **Inizia da qui.** Presentazione per chi parte da zero: contesto, problema, test, risultati |
-| [cve_experiment/team_update.md](team_update_CVE-2026-47780%20%20GHSA-6gxq-gpr8-xgjp.md) | Aggiornamento di chiusura per il team: findings, problemi, prompt testuali |
+| [cve_experiment/team_update.md](cve_experiment/team_update_CVE-2026-47780_GHSA-6gxq-gpr8-xgjp.md) | Aggiornamento di chiusura per il team: findings, problemi, prompt testuali |
 | [cve_experiment/hands_on.md](cve_experiment/hands_on.md) | Guida pratica: i prompt che funzionano + come rifare il test |
 | [cve_experiment/attempts/log.md](cve_experiment/attempts/log.md) | Log tecnico di tutti i tentativi (#0–#21) — **fonte autoritativa** |
 | [cve_experiment/attempts/](cve_experiment/attempts/) | Dettaglio per tentativo: `attempt_<N>/` (params, prompt, chain, findings, verdict) |
@@ -125,6 +128,7 @@ Materiale ausiliario: non necessario per capire lo stato attuale del sistema, ma
 | [supporto/reference/](supporto/reference/) | Materiale esterno (modelli Ollama, paper RUBRICEVAL) |
 | [results_reference/](results_reference/) | Schema JSON dei risultati (`schema_math.json`, `schema_textual.json`) e pacchetto di validazione esterna (`validation/`) — spostati fuori da `results/` per non confonderli con gli output delle run |
 | [supporto/archive/](supporto/archive/) | Materiale storico grezzo (vecchio stack trace di debug) |
+| [chat_exports/](chat_exports/) | Chat di lavoro esportate in markdown (es. la discussione su giudice a rubrica e valutazione GT-free del 2026-07-16) |
 
 ---
 
